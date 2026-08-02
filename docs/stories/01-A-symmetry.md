@@ -5,6 +5,7 @@ purity discipline, then implements Story Group A (symmetry). Everything downstre
 depends on the types this story pins down, so get them clean.
 
 Repo paths:
+
 - `src/engine/grid.ts` — types + grid factory/accessor (you create this)
 - `src/engine/symmetry.ts` — the three symmetry functions (you create this)
 - `src/engine/symmetry.test.ts` — the acceptance tests (**already provided — do not edit**)
@@ -15,20 +16,26 @@ The tests import exactly this surface. Match it.
 
 ```ts
 // src/engine/grid.ts
-export type Orientation = 'across' | 'down';
+export type Orientation = "across" | "down";
 export type Coord = { col: number; row: number };
 export type Cell =
-  | { kind: 'black' }
-  | { kind: 'active'; letter: string | null };   // null = empty active cell
+  | { kind: "black" }
+  | { kind: "active"; letter: string | null }; // null = empty active cell
+
+export type Lookup = Cell | { kind: "outside" };
 
 export interface Grid {
   readonly cols: number;
   readonly rows: number;
-  at(col: number, row: number): Cell;             // accessor; storage is opaque
+  at(col: number, row: number): Lookup; // accessor; storage is opaque
 }
 
 // Construct a grid. Cells not listed in `black` are active with letter = null.
-export function createGrid(spec: { cols: number; rows: number; black?: Coord[] }): Grid;
+export function createGrid(spec: {
+  cols: number;
+  rows: number;
+  black?: Coord[];
+}): Grid;
 ```
 
 ```ts
@@ -52,6 +59,7 @@ export function toggleBlackSymmetric(grid: Grid, coord: Coord): Grid;
 - **Purity is the whole point.** No function mutates its input. `toggleBlackSymmetric`
   returns a new grid; the original is untouched. This is what the epic's verify hook
   protects, and the tests assert it directly.
+- **Out-of-bounds lookups.** at() never throws. Any coordinate outside [0,cols) × [0,rows) — including negatives — returns { kind: 'outside' }. Off-grid is deliberately not modeled as black: later stories treat "black or off-grid" identically for movement and slot boundaries, but they must be able to tell them apart. Cell itself stays two-variant; only the lookup result widens.
 
 ## Scope discipline
 
@@ -68,6 +76,7 @@ export function toggleBlackSymmetric(grid: Grid, coord: Coord): Grid;
 2. `tsc --noEmit` is clean.
 3. Lint is clean.
 4. `npm run verify` exits 0.
+5. The engine lint boundary is proven to fire, not merely to pass: temporarily add import { useState } from 'react'; to a file in src/engine/, confirm npm run lint reports the restricted-import error, then remove it. Report the error message you saw.
 
 Write the implementation to make the provided tests green. Do not edit the tests to
 match your implementation — the tests are the specification.
