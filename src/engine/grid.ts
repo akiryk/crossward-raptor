@@ -2,7 +2,7 @@ export type Orientation = 'across' | 'down';
 
 export type Coord = { col: number; row: number };
 
-export type Cell = { kind: 'black' } | { kind: 'active'; letter: string | null };
+export type Cell = { kind: 'black' } | { kind: 'active'; readonly letter: string | null };
 
 export type Lookup = Cell | { kind: 'outside' };
 
