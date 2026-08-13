@@ -58,6 +58,9 @@ Turn tasks into verifiable goals and loop until verified. For a grid-engine stor
 This file is the weakest enforcement layer — everything here is a suggestion the model may not honor. Stronger mechanisms own the important constraints; this file just points at them.
 
 - **Success criteria** → the `verify` hook + each story's acceptance tests. Not prose here.
+- **The tests are the specification** → acceptance test files are never edited
+  to match an implementation. Enforced by `/story` step 4 and by review, not by
+  this file. If a test looks wrong, stop and say so.
 - **Engine purity** (no DOM/DB in the grid engine) → enforced by directory boundaries + lint, not by asking nicely. The engine module imports no React and no database client.
 - **Domain / business rules** (e.g. current publish/unpublish behavior, phase-lock specifics) → `/docs`. Read `/docs` before touching the publish flow or the grid↔hints phase transition. These change; keep them out of baseline guidance.
 - **Irreversible / dangerous actions** → `.claude/settings.json` permission gates, not prose. See below.
