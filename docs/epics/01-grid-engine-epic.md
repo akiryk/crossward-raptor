@@ -110,9 +110,19 @@ Returns all across and down slots in reading order.
 
 A cell is numbered if it **starts** an across slot, a down slot, or both. The same number serves both entries. Numbers are assigned by scanning top-to-bottom, left-to-right, incrementing each time a cell starts ≥1 slot.
 
-A cell **starts an across slot** iff it is active, its left neighbor is black or off-grid, and its right neighbor is active (run length ≥2). Symmetric definition for **starts a down slot**.
+Numbered cells are exactly the start cells of the slots returned by
+`extractSlots`. Numbering derives from Story B's output rather than
+re-deriving run boundaries: collect every slot's `start`, sort in reading
+order, dedupe, and assign 1..n. This makes "an across and a down slot starting
+at the same cell share a number" structurally true rather than merely tested.
 
-### C1 — `numberGrid(grid) -> Map<Coord, number>`
+### C1 — `numberGrid(grid) -> readonly { coord: Coord; number: number }[]`
+
+Returned in reading order. `Map<Coord, number>` will not work: `Coord` is an
+object type and `Map` keys by reference identity, so a structurally equal but
+distinct coord never matches. An ordered list also lets the "strictly increasing,
+no gaps" and "count of distinct numbers" criteria below be asserted directly.
+A `numberAt(col, row)` accessor over the list is optional convenience.
 - Top-left `(0,0)` active with active right and down neighbors → numbered `1`, shared by 1-Across and 1-Down.
 - A cell whose left neighbor is active but whose top neighbor is black, with an active cell below → starts a **down-only** slot, still gets its own number.
 - Numbers strictly increase in reading order with no gaps.
