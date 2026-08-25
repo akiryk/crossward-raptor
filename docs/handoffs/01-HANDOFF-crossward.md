@@ -107,6 +107,25 @@ specification they were written against.
 Story B's file is committed post-amendment, so its first tracked version already
 has the 0-row bullet removed and the down-slot ordering rule added.
 
+### 7. `Puzzle` lives in the engine, and `phase` lives on it for now
+
+Build and play are two consumers of one engine, so the engine owns what a
+puzzle is — otherwise each UI grows its own version and they drift.
+
+Strictly, `phase` is builder-session state: a published puzzle has no phase and
+the player never sees one. The clean split is `Puzzle` (the artifact) wrapped in
+`Draft = { puzzle, phase }`. That split is deliberately deferred — it is
+speculative structure for a mode not yet being built, and the refactor is
+mechanical. When play arrives, the move is to split, **not** to bolt solver
+entries onto an editing type.
+
+### 8. Grid size is never assumed
+
+Sunday grids are 21×21 and novelty grids may go larger. No engine
+implementation may hardcode a dimension; dimensions come from the grid. Story
+fixtures may use 15×15 freely, but from Story D onward each story's tests
+include at least one acceptance example run at a second size.
+
 ---
 
 ## Known issues to address before the story that hits them
@@ -131,9 +150,7 @@ no grid in the system can have a letter to lose. The real finding is that the
 engine cannot yet express "a grid with letters," and Stories E and F both need
 that.
 
-When letters become constructible, `toggleBlackSymmetric`'s rebuild strategy must
-change in the same commit. Do not fix it before then — there is nothing to
-preserve, and a speculative fix would be untestable.
+This is now Story G2, and lands in the same commit as `withLetter` (G1).
 
 ---
 
@@ -187,14 +204,11 @@ the human review step.
 
 ## Suggested next steps
 
-1. **Draft `src/engine/slots.test.ts`** from `01-B-slot-extraction.md`, in a
-   session that writes only the test file. Human reviews before implementation.
-2. **Implement Story B** in a fresh session against the reviewed tests.
-3. **Fix the `Map<Coord, number>` signature in the epic** before writing Story C's
-   tests.
-4. Stories C (numbering) → D (hints) → E (phase lock). F (cursor) depends only on
-   the grid accessor and can run in parallel with B–E if a second track is
-   useful.
+1. **Story D (hint derivation)** — depends on B + C, both done. Needs no
+   letters. Include a second-size acceptance example per decision 8.
+2. **Story G (letter writes)** — `withLetter` plus the
+   `toggleBlackSymmetric` fix. Blocks E and F.
+3. **Stories E and F** — parallel-safe once G lands, not before.
 
 ---
 
