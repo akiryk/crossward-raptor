@@ -11,32 +11,42 @@ Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
 
 ## Where things stand
 
-**Story A (grid data model + rotational symmetry) is complete and committed.**
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 10/10 tests passing.
+**Stories A through D are complete and committed.** `npm run verify` exits 0:
+`tsc --noEmit` clean, lint clean, 55 tests passing across 5 files.
 
-**Story B (slot extraction) is written but not started.** Its test file does not
-exist yet. Stories C through F exist only as the epic's story groups.
+Stories E, F, and G exist only as the epic's story groups — no story files, no
+test files, no implementation.
 
 ### What exists
 
 ```
 src/engine/
   grid.ts             types + createGrid + at()
-  symmetry.ts         symmetricCounterpart, isSymmetric, toggleBlackSymmetric
+  symmetry.ts         Story A — symmetricCounterpart, isSymmetric, toggleBlackSymmetric
   symmetry.test.ts    the Story A specification — do not edit
+  slots.ts            Story B — extractSlots
+  slots.test.ts       the Story B specification — do not edit
+  numbering.ts        Story C — numberGrid, slotsWithNumbers
+  numbering.test.ts   the Story C specification — do not edit
+  hints.ts            Story D — hintKey, requiredHints, hintsComplete
+  hints.test.ts       the Story D specification — do not edit
+  puzzle.ts           the Puzzle type (type-only module)
 .claude/settings.json permission gates, committed
+.claude/skills/       story and audit skills, committed
 eslint.config.mjs     includes the engine boundary rule
 vitest.config.mts     note the .mts extension
-docs/stories/         story files + handoffs, tracked as of Story B
+docs/epics/           the grid engine epic, tracked
+docs/stories/         story files A–D, tracked
+docs/handoffs/        this file, tracked
 ```
 
 ### The gate
 
 `npm run verify` → `tsc --noEmit && npm run lint && vitest run`.
 
-It has been proven in both directions: green on a trivial passing test, and red
-for the right reason (missing modules) before Story A was implemented. It is a
-demonstrated fact, not an assumption. Keep it that way.
+It has been proven in both directions: green on passing tests, and red for the
+right reason (missing modules) before each of Stories A–D was implemented. It is
+a demonstrated fact, not an assumption. Keep it that way.
 
 ---
 
@@ -64,12 +74,11 @@ module.
 
 ### 2. `Cell.letter` is `readonly`
 
-Added after Story A shipped. `at()` returns a reference to the stored cell, so
-without it a consumer could write through the accessor and mutate the grid —
-defeating the purity discipline the whole engine rests on.
-
-Consequence for Story F: `applyLetterEdit` must construct a new `Cell` rather than
-assign to one. That is what purity requires anyway.
+The rule itself is now enforced by `tsc`. What survives here is the consequence
+for unbuilt work: `withLetter` (Story G) and `applyLetterEdit` (Story E) must
+**construct a new `Cell`** rather than assign to one. That is what purity
+requires anyway, but the compiler will reject the alternative before anyone
+notices it was tempting.
 
 ### 3. `createGrid` does not validate its inputs
 
@@ -77,21 +86,6 @@ Out-of-range coordinates in `black` throw a `TypeError` from array indexing.
 `cols`/`rows` below 1 are not checked. This is deliberate under AGENTS.md rule 2
 (no error handling for impossible states) — these are caller bugs, not user
 states. Do not add validation without being asked.
-
-### 4. Slot ordering (Story B)
-
-`extractSlots` returns **all across slots first, then all down slots**, each group
-in reading order by start cell. The epic did not specify this. It is now an engine
-rule because the tests assert it.
-
-Chosen over interleaving because it makes Story C's "an across and a down slot
-starting at the same cell share a number" much easier to assert.
-
-### 5. `Slot` has no `number` field
-
-The epic's illustrative type carries one. Story B's does not — numbering is Story
-C, and a field holding a placeholder is worse than no field. Story C introduces
-`NumberedSlot = Slot & { readonly number: number }` and leaves `Slot` alone.
 
 ### 6. `docs/stories` and `.claude/skills` are tracked
 
@@ -129,16 +123,6 @@ include at least one acceptance example run at a second size.
 ---
 
 ## Known issues to address before the story that hits them
-
-### `numberGrid(grid) -> Map<Coord, number>` will not work as written
-
-`Coord` is an object type and `Map` keys by reference identity, so
-`map.get({ col: 0, row: 0 })` will never find an entry inserted with a
-structurally equal but distinct object.
-
-Fix before writing Story C's tests. Options: a string key (`"col,row"`), a nested
-array, or a `numberAt(col, row)` accessor. The accessor is most consistent with
-`Grid.at()`.
 
 ### `toggleBlackSymmetric` discards letters
 
@@ -204,11 +188,12 @@ the human review step.
 
 ## Suggested next steps
 
-1. **Story D (hint derivation)** — depends on B + C, both done. Needs no
-   letters. Include a second-size acceptance example per decision 8.
-2. **Story G (letter writes)** — `withLetter` plus the
-   `toggleBlackSymmetric` fix. Blocks E and F.
-3. **Stories E and F** — parallel-safe once G lands, not before.
+1. **Story G (letter writes)** — `withLetter` plus the `toggleBlackSymmetric`
+   fix. Blocks E and F.
+2. **Story F (cursor/navigation)** — parallel-safe once G lands.
+3. **Story E (phase lock)** — deliberately last: it is the story most likely to
+   have a detail wrong in the abstract, and is better written after the builder
+   UI has been used.
 
 ---
 

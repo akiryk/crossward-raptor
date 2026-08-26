@@ -21,8 +21,14 @@ Story file: $ARGUMENTS
 4. Confirm `git diff` shows no changes to any `*.test.ts` file, and that
    `git status` shows no untracked `*.test.ts` files. If either check fails,
    revert and fix the implementation instead.
-5. Commit the implementation files, plus any amended story file, with a message
-   naming the story. Do not push.
-6. Report: files created or changed, the verify result, and the outcome of any
+5. Update `docs/handoffs/01-HANDOFF-crossward.md`: amend the "Where things
+   stand" paragraph to reflect this story's completion and the current test
+   count, and add this story's new files to the "What exists" tree. Change
+   nothing else in that file — the decision log, known issues, and next steps
+   need judgment this session does not have. If the handoff already describes
+   this story as complete, say so and change nothing.
+6. Commit the implementation files, the amended handoff, and any amended story
+   file, with a message naming the story. Do not push.
+7. Report: files created or changed, the verify result, and the outcome of any
    Definition-of-Done item that requires demonstrating a failure rather than a
    pass.

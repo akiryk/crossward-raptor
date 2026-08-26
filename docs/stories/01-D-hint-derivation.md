@@ -60,8 +60,7 @@ mid-epic for no benefit. It is a type-only module: no functions.
 `hintsComplete(grid, hints)`. Taking the whole `Puzzle` is the correction: "are
 this puzzle's hints complete" is a question about one puzzle, and passing the
 grid and the hint map separately invites callers to mismatch them — the grid
-from one puzzle against the hints of another. The epic text still shows the old
-two-argument form and needs a one-line fix.
+from one puzzle against the hints of another.
 
 ## Semantics (the rules the tests encode)
 

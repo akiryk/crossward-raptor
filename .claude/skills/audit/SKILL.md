@@ -77,6 +77,10 @@ The handoff's decision log exists to hold reasoning that lives nowhere else.
 An entry whose rule is now enforced by a test, a type, or a lint rule is
 commentary — the mechanism remembers, so the prose does not have to.
 
+An entry may be only partly spent: the rule is enforced, but the same entry also
+carries a consequence for work not yet built. Report those as **trim**, naming
+which half survives, rather than as candidates for deletion.
+
 For each decision entry, report whether it is still load-bearing or is now
 enforced mechanically, and name the enforcing test, type, or rule. List
 candidates for deletion. Do not delete them.
