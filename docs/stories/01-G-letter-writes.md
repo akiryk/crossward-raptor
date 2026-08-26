@@ -8,6 +8,7 @@ existing function that silently discards letters because it predates this
 primitive.
 
 Repo paths:
+
 - `src/engine/grid.ts` — add `withLetter` (existing file, alongside `createGrid`)
 - `src/engine/symmetry.ts` — fix `toggleBlackSymmetric` to preserve letters, by rebuilding via `createGrid` as before and then replaying prior letters onto the result with `withLetter` (existing file; signature unchanged)
 - `src/engine/grid.test.ts` — G1 acceptance tests for `withLetter` (**new file, already provided — do not edit**)
@@ -19,7 +20,7 @@ The tests import exactly this surface. Match it.
 
 ```ts
 // src/engine/grid.ts (addition to the existing file)
-import type { Coord, Grid } from './grid';
+import type { Coord, Grid } from "./grid";
 
 /**
  * Returns a new grid with one active cell's letter changed. `letter: null`
@@ -32,12 +33,16 @@ import type { Coord, Grid } from './grid';
  * calling. Calling with a black or off-grid coord (a `Lookup` of kind
  * `'black'` or `'outside'`) is a caller bug and throws.
  */
-export function withLetter(grid: Grid, coord: Coord, letter: string | null): Grid;
+export function withLetter(
+  grid: Grid,
+  coord: Coord,
+  letter: string | null,
+): Grid;
 ```
 
 ```ts
 // src/engine/symmetry.ts (existing file, behavior fixed, signature unchanged)
-import type { Coord, Grid } from './grid';
+import type { Coord, Grid } from "./grid";
 
 // Previously rebuilt via createGrid and discarded every letter in the grid.
 // Now preserves all letters except at the (at most two) toggled cells, by
@@ -52,15 +57,15 @@ The epic left this open. Settled here: **`withLetter` throws.**
 
 Two other options were considered and rejected:
 
-- *Return the grid unchanged.* This matches the cursor-policy no-op pattern
+- _Return the grid unchanged._ This matches the cursor-policy no-op pattern
   from Group F (clicking a black cell does nothing), but that pattern is
-  about *user* input, where "do nothing" is a reasonable response to a normal
+  about _user_ input, where "do nothing" is a reasonable response to a normal
   action. `withLetter` is an internal primitive — code calling it with a
   black coord is a bug, not a user doing something unusual. Returning the
   grid unchanged would let that bug produce a puzzle silently missing a
   letter, with no error anywhere: the exact failure mode `at()` returning
   `{ kind: 'outside' }` was designed to prevent.
-- *Make it unrepresentable with a branded type*, so `withLetter` only accepts
+- _Make it unrepresentable with a branded type_, so `withLetter` only accepts
   a coord already known to be active. TypeScript can't express that without
   more machinery than this deserves (a branded/nominal type threaded through
   every caller). Rejected on AGENTS.md rule 2 grounds — speculative
@@ -128,6 +133,7 @@ state, it's failing loudly on one.
 ## Acceptance examples
 
 **G1 — `withLetter`**
+
 - Active cell `(2,3)` with `letter: null`, `withLetter(grid, {col:2,row:3}, 'A')` → new grid has `'A'` at `(2,3)`; original grid's cell at `(2,3)` still `null` (purity).
 - Active cell holding `'A'`, `withLetter(grid, coord, null)` → cell becomes `letter: null`.
 - Rows/cells other than the target are reference-equal (`===`) between input and output grid, not just deep-equal — structural sharing.
@@ -136,6 +142,7 @@ state, it's failing loudly on one.
 - `withLetter(grid, { col: cols, row: 0 }, 'A')` → throws (off the right edge).
 
 **G2 — `toggleBlackSymmetric` preserves letters**
+
 - 15x15 grid, several active cells carry letters, `(0,0)` and `(14,14)` both carry letters, toggle `(0,0)` to black → result has `(0,0)` and `(14,14)` black (mirrored per Story A); every other letter present beforehand is still present and unchanged.
 - Same grid, toggle a currently-black symmetric pair to active → both cells become active with `letter: null`; all pre-existing letters elsewhere unchanged.
 - Toggle the center `(7,7)` on an odd-dimension grid with a letter there → only `(7,7)` changes (self-counterpart, per Story A3); its letter is discarded since it becomes black.
@@ -143,10 +150,11 @@ state, it's failing loudly on one.
 
 ## Definition of done
 
-1. `src/engine/grid.test.ts` passes unmodified (including its existing Group A tests).
-2. `tsc --noEmit` is clean.
-3. Lint is clean.
-4. `npm run verify` exits 0.
+1. `src/engine/grid.test.ts` (new, G1 only) passes.
+2. `src/engine/symmetry.test.ts` passes — its existing Group A tests (A1–A3) unmodified, plus the new G2 tests appended to it.
+3. `tsc --noEmit` is clean.
+4. Lint is clean.
+5. `npm run verify` exits 0.
 
 Write the implementation to make the provided tests green. Do not edit the tests
 to match your implementation — the tests are the specification.
