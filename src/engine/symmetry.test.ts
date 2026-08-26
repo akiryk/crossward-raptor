@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { Grid } from './grid';
-import { createGrid } from './grid';
+import { createGrid, withLetter } from './grid';
 import { symmetricCounterpart, isSymmetric, toggleBlackSymmetric } from './symmetry';
 
 const isBlack = (grid: Grid, col: number, row: number): boolean =>
@@ -81,5 +81,56 @@ describe('A3 toggleBlackSymmetric', () => {
     expect(isBlack(next, 7, 7)).toBe(true);
     expect(countBlack(next)).toBe(1);
     expect(countBlack(original)).toBe(0);
+  });
+});
+
+// --- G2: toggleBlackSymmetric preserves letters ---
+describe('G2 toggleBlackSymmetric preserves letters', () => {
+  it('toggling an active-to-black pair discards their letters, preserves every other letter', () => {
+    let grid = createGrid({ cols: 15, rows: 15 });
+    grid = withLetter(grid, { col: 0, row: 0 }, 'A');
+    grid = withLetter(grid, { col: 14, row: 14 }, 'Z');
+    grid = withLetter(grid, { col: 7, row: 7 }, 'M');
+
+    const next = toggleBlackSymmetric(grid, { col: 0, row: 0 });
+
+    expect(isBlack(next, 0, 0)).toBe(true);
+    expect(isBlack(next, 14, 14)).toBe(true);
+    // untouched by this toggle, so its letter must survive
+    expect(next.at(7, 7)).toEqual({ kind: 'active', letter: 'M' });
+  });
+
+  it('toggling a black-to-active pair gives both cells letter: null; other letters unchanged', () => {
+    const base = createGrid({
+      cols: 15,
+      rows: 15,
+      black: [{ col: 0, row: 0 }, { col: 14, row: 14 }],
+    });
+    const grid = withLetter(base, { col: 7, row: 7 }, 'M');
+
+    const next = toggleBlackSymmetric(grid, { col: 0, row: 0 });
+
+    expect(next.at(0, 0)).toEqual({ kind: 'active', letter: null });
+    expect(next.at(14, 14)).toEqual({ kind: 'active', letter: null });
+    expect(next.at(7, 7)).toEqual({ kind: 'active', letter: 'M' });
+  });
+
+  it('toggling the center with a letter there discards only that letter', () => {
+    let grid = createGrid({ cols: 15, rows: 15 });
+    grid = withLetter(grid, { col: 7, row: 7 }, 'M');
+    grid = withLetter(grid, { col: 3, row: 3 }, 'Q');
+
+    const next = toggleBlackSymmetric(grid, { col: 7, row: 7 });
+
+    expect(isBlack(next, 7, 7)).toBe(true);
+    expect(next.at(3, 3)).toEqual({ kind: 'active', letter: 'Q' });
+  });
+
+  it('original grid unchanged after toggle (purity)', () => {
+    const grid = withLetter(createGrid({ cols: 15, rows: 15 }), { col: 0, row: 0 }, 'A');
+    toggleBlackSymmetric(grid, { col: 5, row: 5 });
+
+    expect(grid.at(0, 0)).toEqual({ kind: 'active', letter: 'A' });
+    expect(isBlack(grid, 5, 5)).toBe(false);
   });
 });
