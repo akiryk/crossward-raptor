@@ -32,3 +32,29 @@ export function createGrid(spec: { cols: number; rows: number; black?: Coord[] }
     },
   };
 }
+
+export function withLetter(grid: Grid, coord: Coord, letter: string | null): Grid {
+  const target = grid.at(coord.col, coord.row);
+  if (target.kind !== 'active') {
+    throw new TypeError(`withLetter: (${coord.col}, ${coord.row}) is not an active cell`);
+  }
+
+  const cells: Cell[][] = Array.from({ length: grid.rows }, (_, row) =>
+    Array.from({ length: grid.cols }, (_, col) =>
+      row === coord.row && col === coord.col
+        ? { kind: 'active', letter }
+        : (grid.at(col, row) as Cell)
+    )
+  );
+
+  return {
+    cols: grid.cols,
+    rows: grid.rows,
+    at(col: number, row: number): Lookup {
+      if (col < 0 || col >= grid.cols || row < 0 || row >= grid.rows) {
+        return { kind: 'outside' };
+      }
+      return cells[row][col];
+    },
+  };
+}

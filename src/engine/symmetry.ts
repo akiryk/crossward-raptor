@@ -1,5 +1,5 @@
 import type { Coord, Grid } from './grid';
-import { createGrid } from './grid';
+import { createGrid, withLetter } from './grid';
 
 export function symmetricCounterpart(grid: Grid, coord: Coord): Coord {
   return { col: grid.cols - 1 - coord.col, row: grid.rows - 1 - coord.row };
@@ -29,7 +29,23 @@ export function toggleBlackSymmetric(grid: Grid, coord: Coord): Grid {
       if (newState) nextBlack.push({ col, row });
     }
   }
-  return createGrid({ cols: grid.cols, rows: grid.rows, black: nextBlack });
+
+  let next = createGrid({ cols: grid.cols, rows: grid.rows, black: nextBlack });
+
+  for (let row = 0; row < grid.rows; row++) {
+    for (let col = 0; col < grid.cols; col++) {
+      const isTarget = col === coord.col && row === coord.row;
+      const isCounterpart = col === counterpart.col && row === counterpart.row;
+      if (isTarget || isCounterpart) continue;
+
+      const cell = grid.at(col, row);
+      if (cell.kind === 'active' && cell.letter !== null) {
+        next = withLetter(next, { col, row }, cell.letter);
+      }
+    }
+  }
+
+  return next;
 }
 
 function isBlackAt(grid: Grid, coord: Coord): boolean {

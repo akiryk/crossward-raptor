@@ -11,19 +11,21 @@ Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
 
 ## Where things stand
 
-**Stories A through D are complete and committed.** `npm run verify` exits 0:
-`tsc --noEmit` clean, lint clean, 55 tests passing across 5 files.
+**Stories A, B, C, D, and G are complete and committed.** `npm run verify`
+exits 0: `tsc --noEmit` clean, lint clean, 67 tests passing across 6 files.
 
-Stories E, F, and G exist only as the epic's story groups — no story files, no
+Stories E and F exist only as the epic's story groups — no story files, no
 test files, no implementation.
 
 ### What exists
 
 ```
 src/engine/
-  grid.ts             types + createGrid + at()
-  symmetry.ts         Story A — symmetricCounterpart, isSymmetric, toggleBlackSymmetric
-  symmetry.test.ts    the Story A specification — do not edit
+  grid.ts             types + createGrid + at(); Story G — withLetter
+  grid.test.ts         the Story G (G1) specification — do not edit
+  symmetry.ts         Story A — symmetricCounterpart, isSymmetric, toggleBlackSymmetric;
+                       Story G — toggleBlackSymmetric now preserves letters
+  symmetry.test.ts    the Story A specification, plus Story G's G2 tests — do not edit
   slots.ts            Story B — extractSlots
   slots.test.ts       the Story B specification — do not edit
   numbering.ts        Story C — numberGrid, slotsWithNumbers
@@ -36,7 +38,7 @@ src/engine/
 eslint.config.mjs     includes the engine boundary rule
 vitest.config.mts     note the .mts extension
 docs/epics/           the grid engine epic, tracked
-docs/stories/         story files A–D, tracked
+docs/stories/         story files A–D, G, tracked
 docs/handoffs/        this file, tracked
 ```
 
