@@ -12,6 +12,26 @@ export interface Grid {
   at(col: number, row: number): Lookup;
 }
 
+interface InternalGrid extends Grid {
+  readonly cells: Cell[][];
+}
+
+// A single shared `at` implementation, referenced (not re-closed) by every
+// grid built via buildGrid. Two grids with equal cols/rows/cells are then
+// genuinely toEqual-comparable — a fresh closure per grid would make `at`
+// reference-unequal even between structurally identical grids.
+function gridAt(this: InternalGrid, col: number, row: number): Lookup {
+  if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) {
+    return { kind: 'outside' };
+  }
+  return this.cells[row][col];
+}
+
+function buildGrid(cols: number, rows: number, cells: Cell[][]): Grid {
+  const grid: InternalGrid = { cols, rows, cells, at: gridAt };
+  return grid;
+}
+
 export function createGrid(spec: { cols: number; rows: number; black?: Coord[] }): Grid {
   const { cols, rows, black = [] } = spec;
   const cells: Cell[][] = Array.from({ length: rows }, () =>
@@ -21,16 +41,7 @@ export function createGrid(spec: { cols: number; rows: number; black?: Coord[] }
     cells[row][col] = { kind: 'black' };
   }
 
-  return {
-    cols,
-    rows,
-    at(col: number, row: number): Lookup {
-      if (col < 0 || col >= cols || row < 0 || row >= rows) {
-        return { kind: 'outside' };
-      }
-      return cells[row][col];
-    },
-  };
+  return buildGrid(cols, rows, cells);
 }
 
 export function withLetter(grid: Grid, coord: Coord, letter: string | null): Grid {
@@ -47,14 +58,5 @@ export function withLetter(grid: Grid, coord: Coord, letter: string | null): Gri
     )
   );
 
-  return {
-    cols: grid.cols,
-    rows: grid.rows,
-    at(col: number, row: number): Lookup {
-      if (col < 0 || col >= grid.cols || row < 0 || row >= grid.rows) {
-        return { kind: 'outside' };
-      }
-      return cells[row][col];
-    },
-  };
+  return buildGrid(grid.cols, grid.rows, cells);
 }

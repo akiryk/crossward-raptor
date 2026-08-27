@@ -11,17 +11,16 @@ Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
 
 ## Where things stand
 
-**Stories A, B, C, D, E, and G are complete and committed.** `npm run verify`
-exits 0: `tsc --noEmit` clean, lint clean, 85 tests passing across 7 files.
-
-Story F exists only as the epic's story group — no story file, no test file,
-no implementation.
+**Stories A through G — the whole epic's Group A–G — are complete and
+committed.** `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 103
+tests passing across 8 files.
 
 ### What exists
 
 ```
 src/engine/
-  grid.ts             types + createGrid + at(); Story G — withLetter
+  grid.ts             types + createGrid + withLetter (Story G); at() is now a
+                       single shared method (see Story F note below)
   grid.test.ts         the Story G (G1) specification — do not edit
   symmetry.ts         Story A — symmetricCounterpart, isSymmetric, toggleBlackSymmetric;
                        Story G — toggleBlackSymmetric now preserves letters
@@ -35,14 +34,25 @@ src/engine/
   puzzle.ts           the Puzzle type (type-only module)
   phase.ts            Story E — applyGeometryEdit, enterHintsPhase, applyLetterEdit
   phase.test.ts       the Story E specification — do not edit
+  cursor.ts           Story F — CursorState, place, arrowKey, deleteAt, moveTo
+  cursor.test.ts      the Story F specification — do not edit
 .claude/settings.json permission gates, committed
 .claude/skills/       story and audit skills, committed
 eslint.config.mjs     includes the engine boundary rule
 vitest.config.mts     note the .mts extension
 docs/epics/           the grid engine epic, tracked
-docs/stories/         story files A–E, G, tracked
+docs/stories/         story files A–G, tracked
 docs/handoffs/        this file, tracked
 ```
+
+**Story F note, not a decision-log entry (session lacks authority to prune
+the log):** implementing F surfaced that `Grid.at` was a fresh closure on
+every `createGrid`/`withLetter` call, so two structurally identical grids
+were never `toEqual` to each other — vitest requires function-reference
+equality for function-typed properties. Story F's F5 test was the first to
+`toEqual` a result containing a whole `Grid`. Fixed in `grid.ts` by giving all
+grids a single shared `at` (a plain function referenced via `this`, not a
+closure) — no change to the public `Grid` interface or any signature.
 
 ### The gate
 
