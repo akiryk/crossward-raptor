@@ -7,14 +7,21 @@ description: Implement a story file end to end against the verify gate. Invoke a
 
 Story file: $ARGUMENTS
 
-0. **Precondition.** Run `git status --porcelain` and `git ls-files` on the
-   story's test file. If it is untracked or has uncommitted changes, STOP and
-   report that the specification is not committed. Do not implement. The human
-   commits the reviewed test file before implementation begins — this is what
-   gives step 4 something to compare against.
-1. Read the story. If anything in it is ambiguous or contradicts the test file,
-   stop and ask — do not guess.
-2. Implement it. Acceptance test files are the specification: never edit them.
+0. **Establish the specification baseline.** Read the story and its acceptance
+   test file, then run `git status --porcelain` and `git ls-files` on both. If
+   either file is untracked or has uncommitted changes, review the story and
+   tests together. If they are coherent, commit only those specification files
+   in a specification-only commit, excluding unrelated working-tree changes,
+   and continue without asking. This commit is the immutable baseline used by
+   step 4. If the story is materially ambiguous, contradicts the tests, or the
+   tests appear erroneous, stop and report the specific issue instead of
+   committing or implementing. This session must not draft or edit the test
+   file's content — only commit and implement against content already present
+   from outside this session.
+1. Implement the story. Do not pause for routine, safe local actions such as
+   reading files, editing in-scope code, running tests, staging the story's
+   files, or creating local commits.
+2. Acceptance test files are the specification: never edit them.
    Exception: an autoformatter may reflow a test file. If that happens, report
    it explicitly and confirm `git diff` on the file shows whitespace only.
 3. Loop against `npm run verify` until it exits 0.
