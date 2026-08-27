@@ -30,6 +30,7 @@ _(Confirm/adjust — these are the chosen defaults.)_
 - Test: `npm test` (or `npx vitest run`)
 - Lint: `npm run lint`
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
+- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
 
 ---
 
