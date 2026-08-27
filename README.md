@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Crossward
 
-## Getting Started
+Crossward is a web app for building and playing NYT-style crossword puzzles.
+The grid engine — the pure logic core that owns words, numbering, hints, and
+phase rules — is complete; the builder UI has not been started yet.
 
-First, run the development server:
+## Commands
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Install: `npm install`
+- Dev: `npm run dev`
+- Build: `npm run build`
+- **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
+- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## More context
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`AGENTS.md` is the source of truth for how this repo is worked in — project
+overview, tech stack, commands, and behavioral rules for anyone (human or
+agent) making changes here. `docs/` holds the grid engine epic, story-by-story
+specs, and handoff notes on decisions made along the way that aren't written
+down anywhere else. Read both before touching the engine or the phase-lock
+flow.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This is a [Next.js](https://nextjs.org) app. See the
+[Next.js documentation](https://nextjs.org/docs) for framework features and
+API reference.
