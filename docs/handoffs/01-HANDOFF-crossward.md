@@ -11,11 +11,11 @@ Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
 
 ## Where things stand
 
-**Stories A, B, C, D, and G are complete and committed.** `npm run verify`
-exits 0: `tsc --noEmit` clean, lint clean, 67 tests passing across 6 files.
+**Stories A, B, C, D, E, and G are complete and committed.** `npm run verify`
+exits 0: `tsc --noEmit` clean, lint clean, 85 tests passing across 7 files.
 
-Stories E and F exist only as the epic's story groups — no story files, no
-test files, no implementation.
+Story F exists only as the epic's story group — no story file, no test file,
+no implementation.
 
 ### What exists
 
@@ -33,12 +33,14 @@ src/engine/
   hints.ts            Story D — hintKey, requiredHints, hintsComplete
   hints.test.ts       the Story D specification — do not edit
   puzzle.ts           the Puzzle type (type-only module)
+  phase.ts            Story E — applyGeometryEdit, enterHintsPhase, applyLetterEdit
+  phase.test.ts       the Story E specification — do not edit
 .claude/settings.json permission gates, committed
 .claude/skills/       story and audit skills, committed
 eslint.config.mjs     includes the engine boundary rule
 vitest.config.mts     note the .mts extension
 docs/epics/           the grid engine epic, tracked
-docs/stories/         story files A–D, G, tracked
+docs/stories/         story files A–E, G, tracked
 docs/handoffs/        this file, tracked
 ```
 
