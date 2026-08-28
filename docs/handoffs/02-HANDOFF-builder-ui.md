@@ -136,9 +136,11 @@ src/app/puzzles/
 playwright.config.ts           Story P1 — edited; webServer now loads
                                 .env.development.local and overrides
                                 DATABASE_URL with TEST_DATABASE_URL;
-                                fullyParallel disabled so persistence.spec.ts's
-                                shared-list-count assertions don't race each
-                                other within the file
+                                persistence.spec.ts uses
+                                test.describe.configure({ mode: 'serial' })
+                                so its shared-list-count assertions don't
+                                race each other, rather than disabling
+                                fullyParallel repo-wide
 src/components/layout/
   Header.tsx                  Story P0 — new
 ```
