@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 
 // --- P1-2: persistence flow ---
 test.describe('P1-2 persistence', () => {
+  // These tests assert on shared, count-based state (e.g. the puzzle list
+  // growing by exactly one), so they must not race each other.
+  test.describe.configure({ mode: 'serial' });
+
   test('creating a new puzzle navigates to its detail page with correct defaults', async ({
     page,
   }) => {

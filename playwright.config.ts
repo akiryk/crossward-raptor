@@ -5,10 +5,7 @@ config({ path: '.env.development.local' });
 
 export default defineConfig({
   testDir: './e2e',
-  // Persistence specs share e2e-test database state across tests in the
-  // same file (e.g. asserting a list grows by exactly one); fullyParallel
-  // would race those tests against each other within a file.
-  fullyParallel: false,
+  fullyParallel: true,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
