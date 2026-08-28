@@ -67,6 +67,23 @@ in-scope to fix rather than a spec deviation. `npm run verify` exits 0
 `smoke.spec.ts`, `persistence.spec.ts`, and the new
 `grid-rendering.spec.ts`).
 
+**Story P3 (cursor & letter editing) is complete and committed.**
+`/puzzles/[id]` now renders the interactive `PuzzleGridEditor` (`'use
+client'`) in place of P2's read-only `PuzzleGrid`. It deserializes its own
+`Grid` client-side from a plain `SerializedGrid` prop (the server never
+sends a live `Grid`, per P2's flagged open problem), tracks cursor state,
+wires clicks and a window-level keydown listener (mapped via the new pure
+`src/lib/keyboard-intent.ts`) to Group F's `place`/`arrowKey`/`deleteAt`/
+`moveTo`, and silently autosaves the grid to the new `saveGrid` Server
+Action 500ms after the last edit — no visible save UI, per the story's
+explicit call. `GridCell`/`EmptyCell`/`LetterCell`/`BlackCell` gained
+optional `isSelected`/`onClick` props; `PuzzleGrid.tsx` itself is
+unchanged, per the story's scope discipline. `npm run verify` exits 0
+(`tsc --noEmit`, lint, and 123 Vitest tests across 11 files), and
+`npm run test:e2e` exits 0 (21 Playwright tests across `shell.spec.ts`,
+`smoke.spec.ts`, `persistence.spec.ts`, `grid-rendering.spec.ts`, and the
+new `editing.spec.ts`).
+
 ### What exists
 
 ```
@@ -76,10 +93,12 @@ docs/stories/
   02-P0-tokens-and-shell.md   Story P0's specification, tracked
   02-P1-persistence.md       Story P1's specification, tracked
   02-P2-grid-rendering.md    Story P2's specification, tracked
+  02-P3-cursor-editing.md    Story P3's specification, tracked
 e2e/
   shell.spec.ts               Story P0's acceptance test — do not edit
   persistence.spec.ts         Story P1's acceptance test — do not edit
   grid-rendering.spec.ts      Story P2's acceptance test — do not edit
+  editing.spec.ts              Story P3's acceptance test — do not edit
   helpers/seed-puzzle.ts      Story P2 — new; seeds TEST_DATABASE_URL
                                directly (own PrismaClient + adapter),
                                bypassing Server Actions; not app code
@@ -104,15 +123,31 @@ src/lib/
   cell-number-lookup.ts        Story P2 — new; pure coord->number lookup
                                 built from numberGrid
   cell-number-lookup.test.ts   Story P2's acceptance test — do not edit
+  keyboard-intent.ts           Story P3 — new; pure keydown-to-engine-
+                                intent mapping
+  keyboard-intent.test.ts      Story P3's acceptance test — do not edit
 src/components/grid/
   PuzzleGrid.tsx                Story P2 — new; grid container, renders
                                  each grid-cell wrapper (data-testid/
-                                 data-coord/data-kind) via GridCell
+                                 data-coord/data-kind) via GridCell;
+                                 unchanged by Story P3
+  PuzzleGridEditor.tsx           Story P3 — new; 'use client', the
+                                 interactive grid — deserializes its own
+                                 Grid from a SerializedGrid prop, tracks
+                                 cursor, wires clicks/keydown to
+                                 place/arrowKey/deleteAt/moveTo, debounced
+                                 autosave via saveGrid
   GridCell.tsx                  Story P2 — new; dispatcher over
-                                 Black/Empty/LetterCell
-  BlackCell.tsx                 Story P2 — new
-  EmptyCell.tsx                 Story P2 — new
-  LetterCell.tsx                Story P2 — new
+                                 Black/Empty/LetterCell; Story P3 — adds
+                                 isSelected/onClick, forwarded down
+  BlackCell.tsx                 Story P2 — new; Story P3 — accepts
+                                 isSelected/onClick
+  EmptyCell.tsx                 Story P2 — new; Story P3 — accepts
+                                 isSelected/onClick, bg-selected when
+                                 selected
+  LetterCell.tsx                Story P2 — new; Story P3 — accepts
+                                 isSelected/onClick, bg-selected when
+                                 selected
   CellNumber.tsx                Story P2 — new
 src/app/
   globals.css                 Story P0 — @theme token block (colors, fonts,
@@ -125,12 +160,15 @@ src/app/
                                to /puzzles
 src/app/puzzles/
   actions.ts                   Story P1 — new; createPuzzle/listPuzzles/
-                                loadPuzzle Server Actions
+                                loadPuzzle Server Actions; Story P3 — adds
+                                saveGrid (writes only the grid column)
   page.tsx                     Story P1 — new; /puzzles list + New Puzzle
   NewPuzzleButton.tsx           Story P1 — new; client component wrapping
                                 createPuzzle + navigation
   [id]/page.tsx                 Story P1 — new; minimal detail route;
-                                Story P2 — now renders <PuzzleGrid />
+                                Story P2 — rendered <PuzzleGrid />; Story
+                                P3 — now renders <PuzzleGridEditor />
+                                instead, passing a serialized grid
   [id]/not-found.tsx            Story P1 — new; shown when loadPuzzle
                                 returns null
 playwright.config.ts           Story P1 — edited; webServer now loads

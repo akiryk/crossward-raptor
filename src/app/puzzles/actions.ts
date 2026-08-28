@@ -34,6 +34,13 @@ export async function listPuzzles(): Promise<
   return records;
 }
 
+export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
+  await prisma.puzzle.update({
+    where: { id },
+    data: { grid: grid as unknown as Prisma.InputJsonValue },
+  });
+}
+
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
   const record = await prisma.puzzle.findUnique({ where: { id } });
   if (!record) return null;
