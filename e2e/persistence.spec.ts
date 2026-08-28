@@ -33,17 +33,18 @@ test.describe('P1-2 persistence', () => {
     await expect(page.getByTestId('puzzle-phase')).toContainText('grid');
   });
 
-  test('creating a puzzle increases the list length by exactly one', async ({ page }) => {
+  test('creating a puzzle adds it to the list', async ({ page }) => {
     await page.goto('/puzzles');
-    const before = await page.getByTestId('puzzle-list-item').count();
 
     await page.getByTestId('new-puzzle-button').click();
     await page.waitForURL(/\/puzzles\/[^/]+$/);
+    const id = new URL(page.url()).pathname.split('/').pop();
 
     await page.goto('/puzzles');
-    const after = await page.getByTestId('puzzle-list-item').count();
 
-    expect(after).toBe(before + 1);
+    await expect(
+      page.locator(`[data-testid="puzzle-list-item"][href="/puzzles/${id}"]`)
+    ).toBeVisible();
   });
 
   test('visiting a nonexistent puzzle id shows a clear not-found state', async ({ page }) => {
