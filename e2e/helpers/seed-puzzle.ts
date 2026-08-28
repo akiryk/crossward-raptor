@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type Prisma } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
 import type { Puzzle } from '../../src/engine/puzzle';
 import { serializePuzzle } from '../../src/lib/puzzle-storage';
 
@@ -20,14 +21,15 @@ export async function seedPuzzle(
     );
   }
 
-  const client = new PrismaClient({ datasources: { db: { url } } });
+  const adapter = new PrismaNeon({ connectionString: url });
+  const client = new PrismaClient({ adapter });
   try {
     const stored = serializePuzzle(puzzle);
     const row = await client.puzzle.create({
       data: {
         title,
-        grid: stored.grid,
-        hints: stored.hints,
+        grid: stored.grid as unknown as Prisma.InputJsonValue,
+        hints: stored.hints as unknown as Prisma.InputJsonValue,
         phase: stored.phase,
       },
     });

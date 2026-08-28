@@ -51,6 +51,22 @@ which the story's own contract didn't anticipate. `npm run verify` exits 0
 `npm run test:e2e` exits 0 (10 Playwright tests across `shell.spec.ts`,
 `smoke.spec.ts`, and the new `persistence.spec.ts`).
 
+**Story P2 (grid rendering, read-only) is complete and committed.**
+`/puzzles/[id]` now renders the puzzle's grid via `PuzzleGrid`, dispatching
+each cell through `GridCell` to `BlackCell`/`EmptyCell`/`LetterCell`, with
+corner numbers from `src/lib/cell-number-lookup.ts` (built on
+`numberGrid`). All Server Components — no client-side state yet, since a
+`Grid`'s `at()` closure can't cross the server/client boundary as a prop
+(see the story's Decisions). `e2e/helpers/seed-puzzle.ts` needed the same
+Prisma-7-driver-adapter fix as `src/lib/prisma.ts` (its `datasources`
+option and un-cast JSON fields no longer typecheck) — not itself flagged
+"already provided — do not edit" in the story's Repo paths, so this was
+in-scope to fix rather than a spec deviation. `npm run verify` exits 0
+(`tsc --noEmit`, lint, and 117 Vitest tests across 10 files), and
+`npm run test:e2e` exits 0 (14 Playwright tests across `shell.spec.ts`,
+`smoke.spec.ts`, `persistence.spec.ts`, and the new
+`grid-rendering.spec.ts`).
+
 ### What exists
 
 ```
@@ -59,9 +75,14 @@ docs/epics/
 docs/stories/
   02-P0-tokens-and-shell.md   Story P0's specification, tracked
   02-P1-persistence.md       Story P1's specification, tracked
+  02-P2-grid-rendering.md    Story P2's specification, tracked
 e2e/
   shell.spec.ts               Story P0's acceptance test — do not edit
   persistence.spec.ts         Story P1's acceptance test — do not edit
+  grid-rendering.spec.ts      Story P2's acceptance test — do not edit
+  helpers/seed-puzzle.ts      Story P2 — new; seeds TEST_DATABASE_URL
+                               directly (own PrismaClient + adapter),
+                               bypassing Server Actions; not app code
 docs/handoffs/
   02-HANDOFF-builder-ui.md    this file, tracked
 .claude/skills/story/
@@ -80,6 +101,19 @@ src/lib/
   puzzle-storage.ts            Story P1 — new; Grid/Puzzle <-> JSON
                                 conversion, createBlankPuzzle
   puzzle-storage.test.ts       Story P1's acceptance test — do not edit
+  cell-number-lookup.ts        Story P2 — new; pure coord->number lookup
+                                built from numberGrid
+  cell-number-lookup.test.ts   Story P2's acceptance test — do not edit
+src/components/grid/
+  PuzzleGrid.tsx                Story P2 — new; grid container, renders
+                                 each grid-cell wrapper (data-testid/
+                                 data-coord/data-kind) via GridCell
+  GridCell.tsx                  Story P2 — new; dispatcher over
+                                 Black/Empty/LetterCell
+  BlackCell.tsx                 Story P2 — new
+  EmptyCell.tsx                 Story P2 — new
+  LetterCell.tsx                Story P2 — new
+  CellNumber.tsx                Story P2 — new
 src/app/
   globals.css                 Story P0 — @theme token block (colors, fonts,
                                grid-line-width), replaces create-next-app
@@ -95,7 +129,8 @@ src/app/puzzles/
   page.tsx                     Story P1 — new; /puzzles list + New Puzzle
   NewPuzzleButton.tsx           Story P1 — new; client component wrapping
                                 createPuzzle + navigation
-  [id]/page.tsx                 Story P1 — new; minimal detail route
+  [id]/page.tsx                 Story P1 — new; minimal detail route;
+                                Story P2 — now renders <PuzzleGrid />
   [id]/not-found.tsx            Story P1 — new; shown when loadPuzzle
                                 returns null
 playwright.config.ts           Story P1 — edited; webServer now loads
