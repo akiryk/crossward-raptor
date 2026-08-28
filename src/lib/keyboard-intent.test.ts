@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { keyToIntent } from './keyboard-intent';
 
-// --- P3-1: keyToIntent ---
+// --- P3-1: keyToIntent (unchanged from Story P3) ---
 describe('P3-1 keyToIntent', () => {
   it('lowercase letters map to uppercase letter intents', () => {
     expect(keyToIntent('a')).toEqual({ type: 'letter', letter: 'A' });
@@ -36,5 +36,21 @@ describe('P3-1 keyToIntent', () => {
   it('purity: two calls with the same key are deep-equal', () => {
     expect(keyToIntent('a')).toEqual(keyToIntent('a'));
     expect(keyToIntent('ArrowUp')).toEqual(keyToIntent('ArrowUp'));
+  });
+});
+
+// --- P4-1: keyToIntent, toggleBlack ---
+describe('P4-1 keyToIntent toggleBlack', () => {
+  it("'.' maps to a toggleBlack intent", () => {
+    expect(keyToIntent('.')).toEqual({ type: 'toggleBlack' });
+  });
+
+  it('purity: two calls with "." are deep-equal', () => {
+    expect(keyToIntent('.')).toEqual(keyToIntent('.'));
+  });
+
+  it('other punctuation is still unhandled', () => {
+    expect(keyToIntent(',')).toBeNull();
+    expect(keyToIntent('/')).toBeNull();
   });
 });
