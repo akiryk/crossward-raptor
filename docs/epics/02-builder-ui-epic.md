@@ -65,13 +65,20 @@ builder and (later) the player, and must size fluidly — relative units,
 `aspect-ratio` — rather than fixed pixel cell sizes, so it works from a
 phone-width viewport up through a full laptop window.
 
-**Verification.** This epic has no pure-function spec the way Groups A–G
-did — there's a rendered, interactive result to check, not a return value.
-Each story's Definition of Done is: `npm run verify` (now covering the
-whole repo, not just `src/engine/`) plus at least one Playwright test
-(`npm run test:e2e`) exercising the story's flow in a real browser, run at
-more than one viewport width for any story that affects layout. Playwright
-is this epic's acceptance mechanism, the way Vitest was Groups A–G's.
+**Verification.** Each story's Definition of Done always includes at least
+one Playwright test (`npm run test:e2e`) exercising the story's flow in a
+real browser — run at more than one viewport width for any story that
+affects layout — because a rendered, interactive result is what's ultimately
+being shipped, and only a real browser proves it works. That's on top of,
+not instead of, Vitest: any story that introduces extractable pure logic —
+a reducer, a custom hook, a coordinate/event-mapping helper — gets Vitest
+coverage for that logic too, same as Groups A–G, since it's cheaper and
+faster than a browser for logic that doesn't need one. A story with no such
+logic (P0, most likely P2) is legitimately Playwright-only; a story that
+does have some (P3 is the likely first case) is not. `npm run verify` now
+covers the whole repo, not just `src/engine/`, and still doesn't invoke
+Playwright — the two commands stay separate gates, per the earlier decision
+when Playwright was set up.
 
 ---
 
