@@ -84,6 +84,36 @@ unchanged, per the story's scope discipline. `npm run verify` exits 0
 `smoke.spec.ts`, `persistence.spec.ts`, `grid-rendering.spec.ts`, and the
 new `editing.spec.ts`).
 
+**Story P4 (geometry & phase controls) is complete and committed.**
+`PuzzleGridEditor` now also tracks `phase` and a `geometryLocked` flag.
+`.` toggles the selected cell black/active via the engine's
+`applyGeometryEdit` (client-side, with a placeholder `hints: {}` — safe
+per the story's Decisions, since that function never reads or mutates
+`hints`); a rejected toggle (wrong phase) shows
+`data-testid="geometry-locked-message"` for ~2s. The new
+`PhaseControls` renders the phase badge and, only in `'grid'` phase, an
+`enter-hints-button` wired to the new `enterHints` Server Action — which
+runs `enterHintsPhase` server-side (it needs the puzzle's real `hints`,
+which the client doesn't hold) and persists both `phase` and `hints`.
+`handleEnterHints` updates local `phase` state immediately rather than
+awaiting the round trip first — `enterHintsPhase`'s `'grid' -> 'hints'`
+transition is unconditional, so this is safe, and it's what makes
+`e2e/phase-controls.spec.ts`'s tight click-then-immediately-type-`.`
+timing on the auto-dismiss test reliable. `npm run verify` exits 0
+(`tsc --noEmit`, lint, and 126 Vitest tests across 11 files).
+`npm run test:e2e` passes all 29 tests reliably under `npx playwright test
+--workers=1`, but is **flaky under the default parallel run** (4 workers
+against the one shared `TEST_DATABASE_URL` Neon branch) — failures were
+seen in cross-file seeded-puzzle-count races (`persistence.spec.ts`,
+worse now that `phase-controls.spec.ts` adds 7 more `seedPuzzle` calls
+running concurrently) and in what looks like Neon connection
+latency/contention under load, including one failure in a test with no
+network calls at all. Not something this session fixed — reducing
+`workers` or otherwise isolating seeded state per-file/per-worker is a
+deliberate call for a human, the same category of decision as the
+`reuseExistingServer` and `fullyParallel` choices already made earlier
+in this epic.
+
 ### What exists
 
 ```
@@ -94,11 +124,13 @@ docs/stories/
   02-P1-persistence.md       Story P1's specification, tracked
   02-P2-grid-rendering.md    Story P2's specification, tracked
   02-P3-cursor-editing.md    Story P3's specification, tracked
+  02-P4-geometry-phase.md    Story P4's specification, tracked
 e2e/
   shell.spec.ts               Story P0's acceptance test — do not edit
   persistence.spec.ts         Story P1's acceptance test — do not edit
   grid-rendering.spec.ts      Story P2's acceptance test — do not edit
   editing.spec.ts              Story P3's acceptance test — do not edit
+  phase-controls.spec.ts       Story P4's acceptance test — do not edit
   helpers/seed-puzzle.ts      Story P2 — new; seeds TEST_DATABASE_URL
                                directly (own PrismaClient + adapter),
                                bypassing Server Actions; not app code
@@ -124,8 +156,11 @@ src/lib/
                                 built from numberGrid
   cell-number-lookup.test.ts   Story P2's acceptance test — do not edit
   keyboard-intent.ts           Story P3 — new; pure keydown-to-engine-
-                                intent mapping
-  keyboard-intent.test.ts      Story P3's acceptance test — do not edit
+                                intent mapping; Story P4 — adds
+                                toggleBlack for '.'
+  keyboard-intent.test.ts      Story P3's acceptance test, extended by
+                                Story P4 with toggleBlack cases — do not
+                                edit
 src/components/grid/
   PuzzleGrid.tsx                Story P2 — new; grid container, renders
                                  each grid-cell wrapper (data-testid/
@@ -136,7 +171,13 @@ src/components/grid/
                                  Grid from a SerializedGrid prop, tracks
                                  cursor, wires clicks/keydown to
                                  place/arrowKey/deleteAt/moveTo, debounced
-                                 autosave via saveGrid
+                                 autosave via saveGrid; Story P4 — adds
+                                 phase + geometryLocked state, handles
+                                 toggleBlack via applyGeometryEdit,
+                                 renders PhaseControls and the
+                                 auto-dismissing locked-message
+  PhaseControls.tsx              Story P4 — new; phase badge + (grid-phase
+                                 only) enter-hints-button
   GridCell.tsx                  Story P2 — new; dispatcher over
                                  Black/Empty/LetterCell; Story P3 — adds
                                  isSelected/onClick, forwarded down
@@ -161,14 +202,18 @@ src/app/
 src/app/puzzles/
   actions.ts                   Story P1 — new; createPuzzle/listPuzzles/
                                 loadPuzzle Server Actions; Story P3 — adds
-                                saveGrid (writes only the grid column)
+                                saveGrid (writes only the grid column);
+                                Story P4 — adds enterHints (runs
+                                enterHintsPhase server-side, persists
+                                phase + hints)
   page.tsx                     Story P1 — new; /puzzles list + New Puzzle
   NewPuzzleButton.tsx           Story P1 — new; client component wrapping
                                 createPuzzle + navigation
   [id]/page.tsx                 Story P1 — new; minimal detail route;
                                 Story P2 — rendered <PuzzleGrid />; Story
-                                P3 — now renders <PuzzleGridEditor />
-                                instead, passing a serialized grid
+                                P3 — renders <PuzzleGridEditor /> instead,
+                                passing a serialized grid; Story P4 —
+                                also passes initialPhase
   [id]/not-found.tsx            Story P1 — new; shown when loadPuzzle
                                 returns null
 playwright.config.ts           Story P1 — edited; webServer now loads

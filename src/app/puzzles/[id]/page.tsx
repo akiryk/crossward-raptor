@@ -19,7 +19,11 @@ export default async function PuzzleDetailPage({
     <div className="p-6">
       <h1 data-testid="puzzle-title">{puzzle.title}</h1>
       <p data-testid="puzzle-phase">{puzzle.phase}</p>
-      <PuzzleGridEditor puzzleId={puzzle.id} initialGrid={serializeGrid(puzzle.grid)} />
+      <PuzzleGridEditor
+        puzzleId={puzzle.id}
+        initialGrid={serializeGrid(puzzle.grid)}
+        initialPhase={puzzle.phase}
+      />
     </div>
   );
 }

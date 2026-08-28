@@ -8,7 +8,8 @@ import {
   serializePuzzle,
   type SerializedGrid,
 } from '@/lib/puzzle-storage';
-import type { Puzzle } from '@/engine/puzzle';
+import type { Puzzle, Phase } from '@/engine/puzzle';
+import { enterHintsPhase } from '@/engine/phase';
 
 export type PuzzleWithMeta = Puzzle & { id: string; title: string };
 
@@ -39,6 +40,28 @@ export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> 
     where: { id },
     data: { grid: grid as unknown as Prisma.InputJsonValue },
   });
+}
+
+/** Loads the puzzle, transitions it to 'hints' phase via the engine's
+ *  enterHintsPhase, persists the result, and returns the new phase. */
+export async function enterHints(id: string): Promise<{ phase: Phase }> {
+  const puzzle = await loadPuzzle(id);
+  if (!puzzle) {
+    throw new Error(`enterHints: puzzle ${id} not found`);
+  }
+
+  const updated = enterHintsPhase(puzzle);
+  const stored = serializePuzzle(updated);
+
+  await prisma.puzzle.update({
+    where: { id },
+    data: {
+      hints: stored.hints as unknown as Prisma.InputJsonValue,
+      phase: stored.phase,
+    },
+  });
+
+  return { phase: updated.phase };
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {

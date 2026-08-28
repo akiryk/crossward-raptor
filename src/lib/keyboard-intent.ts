@@ -3,7 +3,8 @@ import type { ArrowDirection } from '../engine/cursor';
 export type Intent =
   | { type: 'letter'; letter: string }
   | { type: 'delete' }
-  | { type: 'arrow'; direction: ArrowDirection };
+  | { type: 'arrow'; direction: ArrowDirection }
+  | { type: 'toggleBlack' };
 
 const ARROW_DIRECTIONS: Record<string, ArrowDirection> = {
   ArrowUp: 'up',
@@ -20,6 +21,9 @@ export function keyToIntent(key: string): Intent | null {
   }
   if (key === 'Backspace') {
     return { type: 'delete' };
+  }
+  if (key === '.') {
+    return { type: 'toggleBlack' };
   }
   if (key in ARROW_DIRECTIONS) {
     return { type: 'arrow', direction: ARROW_DIRECTIONS[key] };
