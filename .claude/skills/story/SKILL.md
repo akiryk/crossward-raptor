@@ -33,12 +33,16 @@ Story file: $ARGUMENTS
 4. Confirm `git diff` shows no changes to any acceptance test file identified
    in step 0, and that `git status` shows no untracked acceptance test files.
    If either check fails, revert and fix the implementation instead.
-5. Update `docs/handoffs/01-HANDOFF-crossward.md`: amend the "Where things
-   stand" paragraph to reflect this story's completion and the current test
-   count, and add this story's new files to the "What exists" tree. Change
-   nothing else in that file — the decision log, known issues, and next steps
-   need judgment this session does not have. If the handoff already describes
-   this story as complete, say so and change nothing.
+5. Identify the epic this story belongs to from its numeric prefix (e.g. a
+   story file named `02-P1-persistence.md` belongs to epic `02`), then update
+   the handoff file in `docs/handoffs/` sharing that same numeric prefix (e.g.
+   `02-HANDOFF-builder-ui.md`). If no handoff file with that prefix exists,
+   stop and ask rather than guessing which file to update. Amend the "Where
+   things stand" paragraph to reflect this story's completion and the current
+   test count, and add this story's new files to the "What exists" tree.
+   Change nothing else in that file — the decision log, known issues, and
+   next steps need judgment this session does not have. If the handoff
+   already describes this story as complete, say so and change nothing.
 6. Commit the implementation files, the amended handoff, and any amended story
    file, with a message naming the story. Do not push.
 7. Report: files created or changed, the verify result, and the outcome of any
