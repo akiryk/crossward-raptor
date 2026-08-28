@@ -22,10 +22,9 @@ persistence needed to support more than one puzzle. It is scoped to the
 builder (creating a puzzle) — the play/solve experience is a separate, later
 epic.
 
-**Story P0 (design tokens + app shell) is specified and ready for
-implementation, but not yet started.** `docs/stories/02-P0-tokens-and-shell.md`
-and its acceptance test, `e2e/shell.spec.ts`, are both in the repo. No
-implementation code for this story exists yet.
+**Story P0 (design tokens + app shell) is complete and committed.**
+`e2e/shell.spec.ts` passes under `npm run test:e2e`, and `npm run verify`
+exits 0.
 
 **The `/story` skill was just generalized to support Playwright acceptance
 tests.** `.claude/skills/story/SKILL.md` previously identified a story's
@@ -52,12 +51,22 @@ docs/handoffs/
   SKILL.md                    generalized to read acceptance test files from
                                a story's Repo paths section, not a hardcoded
                                *.test.ts pattern
+src/app/
+  globals.css                 Story P0 — @theme token block (colors, fonts,
+                               grid-line-width), replaces create-next-app
+                               defaults
+  layout.tsx                  Story P0 — root layout composing Header + main
+                               landmark, Geist font boilerplate removed
+  page.tsx                    Story P0 — minimal placeholder, create-next-app
+                               starter content removed
+src/components/layout/
+  Header.tsx                  Story P0 — new
 ```
 
 ---
 
 ## Suggested next steps
 
-1. **Story P0 (design tokens & app shell)** — implement against
-   `docs/stories/02-P0-tokens-and-shell.md` and `e2e/shell.spec.ts` via the
-   `/story` skill. Nothing else in this epic can start without it.
+1. **Story P1 (persistence)** — Prisma schema for `Puzzle`, Neon connection,
+   and create/list/load/save Server Actions, per
+   `docs/epics/02-builder-ui-epic.md`.
