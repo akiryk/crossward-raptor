@@ -10,7 +10,7 @@ phase rules — is complete; the builder UI has not been started yet.
 - Dev: `npm run dev`
 - Build: `npm run build`
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
-- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
+- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins. Runs against a dedicated Neon branch (`TEST_DATABASE_URL`), not the real database — that branch is not automatically cleaned up between runs.
 
 ## More context
 
