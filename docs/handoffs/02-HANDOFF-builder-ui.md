@@ -114,6 +114,46 @@ deliberate call for a human, the same category of decision as the
 `reuseExistingServer` and `fullyParallel` choices already made earlier
 in this epic.
 
+**Story P5 (hints panel) is complete and committed — the epic's sixth and
+final planned slice.** New pure `src/lib/hint-lookup.ts`
+(`buildSlotLookup`/`activeHintKey`/`isHintFilled`, built on
+`slotsWithNumbers` rather than `requiredHints` — see the story's
+Decisions for why) backs a new `HintsPanel`, rendered only in `'hints'`
+phase, with bidirectional cell<->hint highlighting. `GridCell`/
+`EmptyCell`/`LetterCell`'s `isSelected?: boolean` prop was renamed (not
+just extended) to `highlight?: 'selected' | 'slot'`; `BlackCell` dropped
+the prop entirely since a black cell can never belong to a slot.
+**Confirmed the "Repo-state assumption" the story flagged**: `PuzzleGrid`
+was indeed orphaned since Story P3 — `PuzzleGridEditor` had been
+composing its own duplicate grid-layout container rather than reusing it
+(no import of `PuzzleGrid` existed anywhere in the app). Fixed as the
+story directed: `PuzzleGrid` now accepts `highlights`/`onCellClick`, owns
+all `grid-cell` wrapper markup (including `data-selected`, kept
+alongside the new `data-highlight` so Story P3's `editing.spec.ts`
+assertions stay valid — that prop was never part of the P5 rename), and
+`PuzzleGridEditor` renders `<PuzzleGrid />` instead of duplicating it.
+`enterHints`'s return type gained `hints`; a new `saveHints` action
+mirrors `saveGrid`'s debounced-whole-object-save pattern.
+`npm run verify` exits 0 (`tsc --noEmit`, lint, and 135 Vitest tests
+across 12 files). `npm run test:e2e`: all 7 new `hints-panel.spec.ts`
+tests, plus the full 36-test suite, pass cleanly in most runs (confirmed
+via the whole file alone, an isolated single test, and multiple full
+`npm run test:e2e` parallel runs where the only failure was the
+already-known P4 reload-race). One run under `--workers=1` did show a
+`hints-panel.spec.ts` test failing deterministically at the same
+position twice, then passing every time in isolation or in smaller
+slices — **likely cause identified this session, not yet fixed**: the
+window-level keydown listener in `PuzzleGridEditor` attaches via
+`useEffect` on mount, and `page.goto()` can resolve before that effect
+has run, so a `page.keyboard.press(...)` sent immediately after
+navigation can be silently dropped. This pattern (goto immediately
+followed by a keypress) is shared by every keyboard-driven test since
+Story P3, so it's plausibly the real explanation for some of the
+previously-reported "flaky under load" failures attributed more vaguely
+to Neon/worker contention in P4's entry above — not something this
+session changed, since it touches P3-authored code outside P5's scope,
+but worth a deliberate look before P6 or a hardening pass.
+
 ### What exists
 
 ```
@@ -125,12 +165,14 @@ docs/stories/
   02-P2-grid-rendering.md    Story P2's specification, tracked
   02-P3-cursor-editing.md    Story P3's specification, tracked
   02-P4-geometry-phase.md    Story P4's specification, tracked
+  02-P5-hints-panel.md       Story P5's specification, tracked
 e2e/
   shell.spec.ts               Story P0's acceptance test — do not edit
   persistence.spec.ts         Story P1's acceptance test — do not edit
   grid-rendering.spec.ts      Story P2's acceptance test — do not edit
   editing.spec.ts              Story P3's acceptance test — do not edit
   phase-controls.spec.ts       Story P4's acceptance test — do not edit
+  hints-panel.spec.ts          Story P5's acceptance test — do not edit
   helpers/seed-puzzle.ts      Story P2 — new; seeds TEST_DATABASE_URL
                                directly (own PrismaClient + adapter),
                                bypassing Server Actions; not app code
@@ -161,11 +203,20 @@ src/lib/
   keyboard-intent.test.ts      Story P3's acceptance test, extended by
                                 Story P4 with toggleBlack cases — do not
                                 edit
+  hint-lookup.ts                Story P5 — new; pure
+                                 buildSlotLookup/activeHintKey/
+                                 isHintFilled, built on slotsWithNumbers
+  hint-lookup.test.ts            Story P5's acceptance test — do not edit
 src/components/grid/
   PuzzleGrid.tsx                Story P2 — new; grid container, renders
                                  each grid-cell wrapper (data-testid/
-                                 data-coord/data-kind) via GridCell;
-                                 unchanged by Story P3
+                                 data-coord/data-kind) via GridCell.
+                                 Story P5 — was orphaned since P3 (nothing
+                                 imported it); now accepts
+                                 highlights/onCellClick, adds
+                                 data-selected/data-highlight to the
+                                 wrapper, and PuzzleGridEditor renders it
+                                 instead of duplicating its layout
   PuzzleGridEditor.tsx           Story P3 — new; 'use client', the
                                  interactive grid — deserializes its own
                                  Grid from a SerializedGrid prop, tracks
@@ -175,20 +226,34 @@ src/components/grid/
                                  phase + geometryLocked state, handles
                                  toggleBlack via applyGeometryEdit,
                                  renders PhaseControls and the
-                                 auto-dismissing locked-message
+                                 auto-dismissing locked-message; Story P5
+                                 — adds hints state + debounced saveHints,
+                                 renders <PuzzleGrid /> instead of its own
+                                 layout, computes highlights/activeKey via
+                                 hint-lookup.ts, renders HintsPanel in
+                                 'hints' phase
   PhaseControls.tsx              Story P4 — new; phase badge + (grid-phase
                                  only) enter-hints-button
+  HintsPanel.tsx                  Story P5 — new; one hint-row per slot,
+                                 editable text, active/complete state
   GridCell.tsx                  Story P2 — new; dispatcher over
                                  Black/Empty/LetterCell; Story P3 — adds
-                                 isSelected/onClick, forwarded down
+                                 isSelected/onClick, forwarded down.
+                                 Story P5 — isSelected renamed (not just
+                                 extended) to highlight?: 'selected'|'slot'
   BlackCell.tsx                 Story P2 — new; Story P3 — accepts
-                                 isSelected/onClick
+                                 isSelected/onClick. Story P5 — drops the
+                                 highlight prop entirely (a black cell can
+                                 never belong to a slot)
   EmptyCell.tsx                 Story P2 — new; Story P3 — accepts
                                  isSelected/onClick, bg-selected when
-                                 selected
+                                 selected. Story P5 — isSelected renamed
+                                 to highlight; 'slot' renders bg-selected/40
+                                 (same token, lighter, not a new one)
   LetterCell.tsx                Story P2 — new; Story P3 — accepts
                                  isSelected/onClick, bg-selected when
-                                 selected
+                                 selected. Story P5 — isSelected renamed
+                                 to highlight; 'slot' renders bg-selected/40
   CellNumber.tsx                Story P2 — new
 src/app/
   globals.css                 Story P0 — @theme token block (colors, fonts,
@@ -205,7 +270,8 @@ src/app/puzzles/
                                 saveGrid (writes only the grid column);
                                 Story P4 — adds enterHints (runs
                                 enterHintsPhase server-side, persists
-                                phase + hints)
+                                phase + hints); Story P5 — enterHints
+                                return type gains hints; adds saveHints
   page.tsx                     Story P1 — new; /puzzles list + New Puzzle
   NewPuzzleButton.tsx           Story P1 — new; client component wrapping
                                 createPuzzle + navigation
@@ -213,7 +279,8 @@ src/app/puzzles/
                                 Story P2 — rendered <PuzzleGrid />; Story
                                 P3 — renders <PuzzleGridEditor /> instead,
                                 passing a serialized grid; Story P4 —
-                                also passes initialPhase
+                                also passes initialPhase; Story P5 — also
+                                passes initialHints
   [id]/not-found.tsx            Story P1 — new; shown when loadPuzzle
                                 returns null
 playwright.config.ts           Story P1 — edited; webServer now loads

@@ -23,6 +23,7 @@ export default async function PuzzleDetailPage({
         puzzleId={puzzle.id}
         initialGrid={serializeGrid(puzzle.grid)}
         initialPhase={puzzle.phase}
+        initialHints={puzzle.hints}
       />
     </div>
   );

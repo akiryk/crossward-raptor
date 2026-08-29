@@ -1,8 +1,3 @@
-export function BlackCell({
-  onClick,
-}: {
-  isSelected?: boolean;
-  onClick?: () => void;
-}) {
+export function BlackCell({ onClick }: { onClick?: () => void }) {
   return <div className="h-full w-full bg-foreground" onClick={onClick} />;
 }

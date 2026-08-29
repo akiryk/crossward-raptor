@@ -42,9 +42,18 @@ export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> 
   });
 }
 
+export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
+  await prisma.puzzle.update({
+    where: { id },
+    data: { hints: hints as unknown as Prisma.InputJsonValue },
+  });
+}
+
 /** Loads the puzzle, transitions it to 'hints' phase via the engine's
  *  enterHintsPhase, persists the result, and returns the new phase. */
-export async function enterHints(id: string): Promise<{ phase: Phase }> {
+export async function enterHints(
+  id: string
+): Promise<{ phase: Phase; hints: Record<string, string> }> {
   const puzzle = await loadPuzzle(id);
   if (!puzzle) {
     throw new Error(`enterHints: puzzle ${id} not found`);
@@ -61,7 +70,7 @@ export async function enterHints(id: string): Promise<{ phase: Phase }> {
     },
   });
 
-  return { phase: updated.phase };
+  return { phase: updated.phase, hints: { ...updated.hints } };
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {

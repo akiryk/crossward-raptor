@@ -1,17 +1,19 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { Cell, Coord, Grid } from '../../engine/grid';
+import type { Coord, Grid } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
 import { arrowKey, deleteAt, moveTo, place } from '../../engine/cursor';
 import type { Phase } from '../../engine/puzzle';
 import { applyGeometryEdit } from '../../engine/phase';
 import { deserializeGrid, serializeGrid, type SerializedGrid } from '../../lib/puzzle-storage';
-import { buildCellNumberLookup, cellNumberKey } from '../../lib/cell-number-lookup';
+import { cellNumberKey } from '../../lib/cell-number-lookup';
+import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { keyToIntent } from '../../lib/keyboard-intent';
-import { saveGrid, enterHints } from '../../app/puzzles/actions';
-import { GridCell } from './GridCell';
+import { saveGrid, saveHints, enterHints } from '../../app/puzzles/actions';
+import { PuzzleGrid } from './PuzzleGrid';
 import { PhaseControls } from './PhaseControls';
+import { HintsPanel } from './HintsPanel';
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -20,6 +22,7 @@ interface EditorState {
   grid: Grid;
   cursor: CursorState;
   phase: Phase;
+  hints: Record<string, string>;
   geometryLocked: boolean;
 }
 
@@ -38,10 +41,12 @@ export function PuzzleGridEditor({
   puzzleId,
   initialGrid,
   initialPhase,
+  initialHints,
 }: {
   puzzleId: string;
   initialGrid: SerializedGrid;
   initialPhase: Phase;
+  initialHints: Record<string, string>;
 }) {
   const [state, setState] = useState<EditorState>(() => {
     const grid = deserializeGrid(initialGrid);
@@ -49,14 +54,16 @@ export function PuzzleGridEditor({
       grid,
       cursor: { current: firstActiveCell(grid), orientation: 'across' },
       phase: initialPhase,
+      hints: initialHints,
       geometryLocked: false,
     };
   });
-  const isFirstRender = useRef(true);
+  const isFirstGridRender = useRef(true);
+  const isFirstHintsRender = useRef(true);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstGridRender.current) {
+      isFirstGridRender.current = false;
       return;
     }
     const timer = setTimeout(() => {
@@ -66,6 +73,19 @@ export function PuzzleGridEditor({
     }, SAVE_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [state.grid, puzzleId]);
+
+  useEffect(() => {
+    if (isFirstHintsRender.current) {
+      isFirstHintsRender.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      saveHints(puzzleId, state.hints).catch((error) => {
+        console.error('Failed to save puzzle hints', error);
+      });
+    }, SAVE_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [state.hints, puzzleId]);
 
   useEffect(() => {
     if (!state.geometryLocked) return;
@@ -119,39 +139,44 @@ export function PuzzleGridEditor({
     // enterHintsPhase always transitions grid -> hints deterministically, so
     // the UI updates immediately rather than waiting on the round trip —
     // same "local state first, persist silently in the background" pattern
-    // as autosave above.
+    // as autosave above. The real hints (with required-but-blank keys
+    // filled in) only exist server-side, so those arrive once the call
+    // resolves.
     setState((prev) => ({ ...prev, phase: 'hints' }));
-    enterHints(puzzleId).catch((error) => {
-      console.error('Failed to enter hints phase', error);
+    enterHints(puzzleId)
+      .then(({ hints }) => {
+        setState((prev) => ({ ...prev, hints }));
+      })
+      .catch((error) => {
+        console.error('Failed to enter hints phase', error);
+      });
+  }
+
+  function handleHintChange(key: string, text: string) {
+    setState((prev) => ({ ...prev, hints: { ...prev.hints, [key]: text } }));
+  }
+
+  function handleHintFocus(key: string) {
+    setState((prev) => {
+      const slot = buildSlotLookup(prev.grid).get(key);
+      return slot
+        ? { ...prev, cursor: { current: slot.start, orientation: slot.orientation } }
+        : prev;
     });
   }
 
-  const { grid, cursor, phase, geometryLocked } = state;
-  const numbers = buildCellNumberLookup(grid);
-  const cells = [];
-  for (let row = 0; row < grid.rows; row++) {
-    for (let col = 0; col < grid.cols; col++) {
-      const cell = grid.at(col, row) as Cell;
-      const number = numbers.get(cellNumberKey({ col, row }));
-      const isSelected = cursor.current.col === col && cursor.current.row === row;
-      cells.push(
-        <div
-          key={`${col},${row}`}
-          data-testid="grid-cell"
-          data-coord={`${col},${row}`}
-          data-kind={cell.kind}
-          data-selected={isSelected ? 'true' : undefined}
-        >
-          <GridCell
-            cell={cell}
-            number={number}
-            isSelected={isSelected}
-            onClick={() => handleCellClick({ col, row })}
-          />
-        </div>
-      );
+  const { grid, cursor, phase, hints, geometryLocked } = state;
+  const slotLookup = buildSlotLookup(grid);
+  const activeKey = activeHintKey(slotLookup, cursor);
+
+  const highlights = new Map<string, 'selected' | 'slot'>();
+  if (activeKey) {
+    const activeSlot = slotLookup.get(activeKey)!;
+    for (const cell of activeSlot.cells) {
+      highlights.set(cellNumberKey(cell), 'slot');
     }
   }
+  highlights.set(cellNumberKey(cursor.current), 'selected');
 
   return (
     <div>
@@ -159,15 +184,16 @@ export function PuzzleGridEditor({
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
       )}
-      <div
-        className="grid w-full border border-grid-line"
-        style={{
-          gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
-          aspectRatio: `${grid.cols} / ${grid.rows}`,
-        }}
-      >
-        {cells}
-      </div>
+      <PuzzleGrid grid={grid} highlights={highlights} onCellClick={handleCellClick} />
+      {phase === 'hints' && (
+        <HintsPanel
+          slots={slotLookup}
+          hints={hints}
+          activeKey={activeKey}
+          onHintChange={handleHintChange}
+          onHintFocus={handleHintFocus}
+        />
+      )}
     </div>
   );
 }
