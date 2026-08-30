@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createGrid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
+import { waitForEditorReady } from './helpers/wait-for-ready';
 
 // 3x3 grid, black at (0,0). First active cell in reading order is (1,0).
 async function seedGridWithBlackCorner() {
@@ -13,6 +14,7 @@ test.describe('P3-2 editing flow', () => {
   test('the first active cell in reading order is selected on load', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-selected', 'true');
     await expect(page.locator('[data-selected="true"]')).toHaveCount(1);
@@ -21,6 +23,7 @@ test.describe('P3-2 editing flow', () => {
   test('clicking a different active cell moves selection', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.locator('[data-coord="2,0"]').click();
 
@@ -31,6 +34,7 @@ test.describe('P3-2 editing flow', () => {
   test('clicking a black cell is a no-op', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.locator('[data-coord="2,0"]').click();
     await page.locator('[data-coord="0,0"]').click(); // black
@@ -41,6 +45,7 @@ test.describe('P3-2 editing flow', () => {
   test('typing writes a letter, advances, and stops at the grid edge', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     // starts selected at (1,0); across run here is (1,0)-(2,0), length 2
     await page.keyboard.press('c');
@@ -58,6 +63,7 @@ test.describe('P3-2 editing flow', () => {
   }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.keyboard.press('c'); // (1,0) -> C, advances to (2,0)
     await page.keyboard.press('a'); // (2,0) -> A, stays (edge)
@@ -74,6 +80,7 @@ test.describe('P3-2 editing flow', () => {
   test('arrow keys move selection and update orientation', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     // starts at (1,0); (1,1) is active, so ArrowDown should succeed
     await page.keyboard.press('ArrowDown');
@@ -84,6 +91,7 @@ test.describe('P3-2 editing flow', () => {
   test('an edit survives a reload once the debounce window has passed', async ({ page }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.keyboard.press('x');
     await page.waitForTimeout(800); // 500ms debounce + buffer

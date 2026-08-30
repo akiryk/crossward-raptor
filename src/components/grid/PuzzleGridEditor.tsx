@@ -60,6 +60,7 @@ export function PuzzleGridEditor({
   });
   const isFirstGridRender = useRef(true);
   const isFirstHintsRender = useRef(true);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (isFirstGridRender.current) {
@@ -128,6 +129,11 @@ export function PuzzleGridEditor({
     }
 
     window.addEventListener('keydown', handleKeyDown);
+    // isReady must flip exactly when the listener above is live, so tests
+    // (and any other consumer) can wait for a real "can respond to input"
+    // signal rather than racing hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsReady(true);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
@@ -179,7 +185,7 @@ export function PuzzleGridEditor({
   highlights.set(cellNumberKey(cursor.current), 'selected');
 
   return (
-    <div>
+    <div data-testid="puzzle-editor" data-ready={isReady}>
       <PhaseControls phase={phase} onEnterHints={handleEnterHints} />
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>

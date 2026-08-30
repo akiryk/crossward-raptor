@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createGrid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
+import { waitForEditorReady } from './helpers/wait-for-ready';
 
 async function seedFullyActive3x3() {
   return seedPuzzle({ grid: createGrid({ cols: 3, rows: 3 }), hints: {}, phase: 'grid' });
@@ -19,6 +20,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('toggling a cell black also blackens its symmetric counterpart', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.locator('[data-coord="0,0"]').click();
     await page.keyboard.press('.');
@@ -30,6 +32,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('toggling the same cell again turns it back active', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.locator('[data-coord="1,1"]').click();
     await page.keyboard.press('.');
@@ -42,6 +45,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('entering hints phase updates the badge and removes the button', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.getByTestId('enter-hints-button').click();
 
@@ -52,6 +56,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('geometry edits are rejected in hints phase, with a visible message', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.getByTestId('enter-hints-button').click();
     await expect(page.getByTestId('phase-badge')).toContainText('hints');
@@ -66,6 +71,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('the rejection message auto-dismisses', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.getByTestId('enter-hints-button').click();
     await page.locator('[data-coord="0,0"]').click();
@@ -78,6 +84,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('letter editing still works normally in hints phase', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.getByTestId('enter-hints-button').click();
     await page.locator('[data-coord="0,0"]').click();
@@ -89,6 +96,7 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
   test('the hints-phase transition persists across a reload', async ({ page }) => {
     const { id } = await seedFullyActive3x3();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.getByTestId('enter-hints-button').click();
     await expect(page.getByTestId('phase-badge')).toContainText('hints');

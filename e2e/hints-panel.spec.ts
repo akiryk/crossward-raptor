@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createGrid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
+import { waitForEditorReady } from './helpers/wait-for-ready';
 
 // Same 3x3-black-at-(2,2) shape used in hint-lookup.test.ts:
 // keys 1-across, 1-down, 2-down, 3-down, 4-across, 5-across.
@@ -52,6 +53,7 @@ test.describe('P5-2 hints panel', () => {
   test('arrow key navigation updates the active hint row', async ({ page }) => {
     const { id } = await seedHintsPhasePuzzle();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.keyboard.press('ArrowDown'); // (0,0) -> (0,1), orientation 'down'
 
@@ -65,6 +67,7 @@ test.describe('P5-2 hints panel', () => {
   test('typing highlights the exact cursor cell and the rest of its slot', async ({ page }) => {
     const { id } = await seedHintsPhasePuzzle();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.keyboard.press('ArrowDown'); // now at (0,1), orientation 'down'
     await page.keyboard.press('x'); // writes at (0,1), advances to (0,2)
@@ -82,6 +85,7 @@ test.describe('P5-2 hints panel', () => {
   }) => {
     const { id } = await seedHintsPhasePuzzle();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     await page.locator('[data-hint-key="1-across"] [data-testid="hint-input"]').click();
 
@@ -100,6 +104,7 @@ test.describe('P5-2 hints panel', () => {
   }) => {
     const { id } = await seedHintsPhasePuzzle();
     await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
     const input = page.locator('[data-hint-key="1-across"] [data-testid="hint-input"]');
     await input.click();
