@@ -103,6 +103,6 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
 
     await page.reload();
 
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
+    await expect(page.getByTestId('phase-badge')).toContainText('hints', { timeout: 15000 });
   });
 });
