@@ -44,7 +44,9 @@ Story file: $ARGUMENTS
    next steps need judgment this session does not have. If the handoff
    already describes this story as complete, say so and change nothing.
 6. Commit the implementation files, the amended handoff, and any amended story
-   file, with a message naming the story. Do not push.
+   file, with a message naming the story. Once `npm run verify` (and
+   `npm run test:e2e`, for any story whose Repo paths include an e2e spec
+   file) has exited 0 per step 3, push.
 7. Report: files created or changed, the verify result, and the outcome of any
    Definition-of-Done item that requires demonstrating a failure rather than a
    pass.

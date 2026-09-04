@@ -71,7 +71,12 @@ This file is the weakest enforcement layer — everything here is a suggestion t
 
 Enforced in `.claude/settings.json` (this list is just the human-readable summary):
 
-- No `git push`, deploy, or PR merge without confirmation.
+- No `git push`, deploy, or PR merge without confirmation — except a
+  `/story` completion whose commit is scoped to that story's own files
+  (implementation, its handoff entry, the story file itself) and whose
+  `verify`/`test:e2e` gates are green; that pushes automatically. Force-push,
+  WIP commits, and anything touching unrelated files still require
+  confirmation.
 - No database migrations or schema pushes without confirmation.
 - No adding dependencies without asking.
 - Never read or edit `.env*`.
