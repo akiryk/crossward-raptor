@@ -98,11 +98,22 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
+    // handleEnterHints updates local state immediately and persists via the
+    // enterHints Server Action in the background — wait for that request to
+    // actually complete before reloading, or the reload can abort it
+    // in-flight and the write never lands.
+    const enterHintsRequest = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.request().headers()['next-action'] !== undefined
+    );
+
     await page.getByTestId('enter-hints-button').click();
     await expect(page.getByTestId('phase-badge')).toContainText('hints');
+    await enterHintsRequest;
 
     await page.reload();
 
-    await expect(page.getByTestId('phase-badge')).toContainText('hints', { timeout: 15000 });
+    await expect(page.getByTestId('phase-badge')).toContainText('hints');
   });
 });

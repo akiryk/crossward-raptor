@@ -108,8 +108,19 @@ test.describe('P5-2 hints panel', () => {
 
     const input = page.locator('[data-hint-key="1-across"] [data-testid="hint-input"]');
     await input.click();
+
+    // saveHints fires 500ms after the hints state change (debounced), via a
+    // Server Action POST — set up the listener before triggering that change
+    // so we can't miss it, and wait for the real completion signal rather
+    // than a guessed duration. A reload before this lands would abort the
+    // in-flight request and the write would never persist.
+    const saveHintsRequest = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.request().headers()['next-action'] !== undefined
+    );
     await input.fill('A brand new clue');
-    await page.waitForTimeout(800); // 500ms debounce + buffer
+    await saveHintsRequest;
 
     await page.reload();
 
