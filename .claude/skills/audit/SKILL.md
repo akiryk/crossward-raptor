@@ -28,10 +28,10 @@ number, show the command output. "Checked, looks fine" is not a finding and not
 a clearance — omit it. A reader who does not trust you should be able to verify
 each finding without repeating your work.
 
-**Never restate spec content as fact.** The epic and story files are the source
-of truth; this report points at them. The moment this report asserts a spec
-detail on its own authority, there is a third place truth lives and it will
-drift.
+**Never restate spec content as fact.** The epic(s) and story files are the
+source of truth; this report points at them. The moment this report asserts a
+spec detail on its own authority, there is a third place truth lives and it
+will drift.
 
 **Do not stop at a list.** The classes named below are illustrations of what has
 gone wrong here before, not the scope of the job. Report anything that does not
@@ -42,10 +42,12 @@ hold up, including things no list anticipated.
 1. The epic(s) under `docs/epics/`.
 2. Every story file under `docs/stories/`.
 3. The handoff(s) under `docs/handoffs/`.
-4. `AGENTS.md` (and `CLAUDE.md` if it is not the same file).
-5. `.claude/settings.json` and everything under `.claude/skills/`.
-6. The engine source and tests under `src/engine/`.
-7. `git log --oneline` and `git status`.
+4. `docs/LEARNINGS.md`.
+5. `AGENTS.md` (and `CLAUDE.md` if it is not the same file).
+6. `.claude/settings.json` and everything under `.claude/skills/`.
+7. The engine source and tests under `src/engine/`, and the builder UI under
+   `src/app/`, `src/components/`, `src/lib/`, and `e2e/`.
+8. `git log --oneline` and `git status`.
 
 ## Classes of drift seen in this project
 
@@ -58,12 +60,13 @@ Illustrative. Report anything else you find.
   `git log` contradicts.
 - **Duplicated or skipped story identifiers.** Two stories claiming the same
   letter or number; a gap in the sequence with no explanation.
-- **A spec detail stated in two places that now differ.** The epic and a story
+- **A spec detail stated in two places that now differ.** An epic and a story
   file disagreeing about a signature, a return type, or an ordering rule.
 - **Stale next-steps and status sections.** Documents describing work as
   upcoming that is already committed.
 - **Scope that appeared without a story.** An exported function, type, or file
-  in `src/engine/` that no story asked for.
+  in `src/engine/`, or a component, route, or lib module under `src/app/`,
+  `src/components/`, or `src/lib/`, that no story asked for.
 - **Special-case branches.** Implementation code handling one named test case
   where the general rule would have covered it. This passes the gate and no
   automation catches it.
@@ -71,19 +74,29 @@ Illustrative. Report anything else you find.
   precondition check that cannot fire against the current tree. A rule proving
   nothing is worse than no rule, because it reads as protection.
 
-## Handoff pruning
+## Handoff and LEARNINGS pruning
 
-The handoff's decision log exists to hold reasoning that lives nowhere else.
-An entry whose rule is now enforced by a test, a type, or a lint rule is
-commentary — the mechanism remembers, so the prose does not have to.
+A handoff's decision content and `docs/LEARNINGS.md`'s entries both exist to
+hold reasoning that lives nowhere else. An entry whose rule is now enforced by
+a test, a type, or a lint rule is commentary — the mechanism remembers, so the
+prose does not have to.
 
 An entry may be only partly spent: the rule is enforced, but the same entry also
 carries a consequence for work not yet built. Report those as **trim**, naming
 which half survives, rather than as candidates for deletion.
 
-For each decision entry, report whether it is still load-bearing or is now
-enforced mechanically, and name the enforcing test, type, or rule. List
-candidates for deletion. Do not delete them.
+The two handoffs take different shapes, and both are legitimate.
+`01-HANDOFF-crossward.md` holds its decisions in a discrete, itemized
+"Decisions made in conversation" section. `02-HANDOFF-builder-ui.md` holds
+its decisions inline, embedded in each story's narrative paragraph under
+"Where things stand." Neither shape is a defect to normalize toward the
+other — check both kinds for the same things: stale claims, rules since
+mechanized, entries no longer load-bearing.
+
+For each decision — itemized or inline — and each `LEARNINGS.md` entry,
+report whether it is still load-bearing or is now enforced mechanically, and
+name the enforcing test, type, or rule. List candidates for deletion. Do not
+delete them.
 
 ## Report format
 
