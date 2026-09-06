@@ -12,6 +12,7 @@ import {
 import type { Puzzle, Phase } from '@/engine/puzzle';
 import { enterHintsPhase } from '@/engine/phase';
 import { normalizeTitle } from '@/lib/puzzle-title';
+import { summarizePuzzle } from '@/lib/puzzle-summary';
 
 export type PuzzleWithMeta = Puzzle & { id: string; title: string };
 
@@ -24,17 +25,38 @@ export async function createPuzzle(): Promise<{ id: string }> {
       phase: stored.phase,
     },
   });
+  revalidatePath('/puzzles');
   return { id: record.id };
 }
 
 export async function listPuzzles(): Promise<
-  { id: string; title: string; updatedAt: Date }[]
+  {
+    id: string;
+    title: string;
+    updatedAt: Date;
+    phase: Phase;
+    hintsComplete: boolean;
+  }[]
 > {
   const records = await prisma.puzzle.findMany({
     orderBy: { updatedAt: 'desc' },
-    select: { id: true, title: true, updatedAt: true },
+    select: { id: true, title: true, updatedAt: true, grid: true, hints: true, phase: true },
   });
-  return records;
+
+  return records.map((record) => {
+    const summary = summarizePuzzle({
+      grid: record.grid as unknown as SerializedGrid,
+      hints: record.hints as Record<string, string>,
+      phase: record.phase as Phase,
+    });
+    return {
+      id: record.id,
+      title: record.title,
+      updatedAt: record.updatedAt,
+      phase: summary.phase,
+      hintsComplete: summary.hintsComplete,
+    };
+  });
 }
 
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
