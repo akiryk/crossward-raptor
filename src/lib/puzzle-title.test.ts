@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeTitle } from './puzzle-title';
+import { normalizeTitle, duplicateTitle } from './puzzle-title';
 
-// --- M1-1: normalizeTitle ---
+// --- M1-1: normalizeTitle (unchanged from Story M1) ---
 describe('M1-1 normalizeTitle', () => {
   it('leaves an ordinary title unchanged', () => {
     expect(normalizeTitle('Monday Puzzle')).toBe('Monday Puzzle');
@@ -27,5 +27,33 @@ describe('M1-1 normalizeTitle', () => {
   it('purity: two calls with the same input are equal', () => {
     expect(normalizeTitle('Anything')).toBe(normalizeTitle('Anything'));
     expect(normalizeTitle('')).toBe(normalizeTitle(''));
+  });
+});
+
+// --- M4-1: duplicateTitle ---
+describe('M4-1 duplicateTitle', () => {
+  it('prefixes an ordinary title', () => {
+    expect(duplicateTitle('Monday Puzzle')).toBe('Copy of Monday Puzzle');
+  });
+
+  it('prefixes the default title', () => {
+    expect(duplicateTitle('Untitled Puzzle')).toBe('Copy of Untitled Puzzle');
+  });
+
+  it('does not deduplicate: a copy of a copy stacks the prefix', () => {
+    expect(duplicateTitle('Copy of Monday Puzzle')).toBe('Copy of Copy of Monday Puzzle');
+  });
+
+  it('normalizes a blank source title before prefixing', () => {
+    expect(duplicateTitle('')).toBe('Copy of Untitled Puzzle');
+    expect(duplicateTitle('   ')).toBe('Copy of Untitled Puzzle');
+  });
+
+  it('trims a padded source title before prefixing', () => {
+    expect(duplicateTitle('  Padded  ')).toBe('Copy of Padded');
+  });
+
+  it('purity: two calls with the same input are equal', () => {
+    expect(duplicateTitle('Anything')).toBe(duplicateTitle('Anything'));
   });
 });
