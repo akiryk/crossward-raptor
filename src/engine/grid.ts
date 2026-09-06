@@ -60,3 +60,19 @@ export function withLetter(grid: Grid, coord: Coord, letter: string | null): Gri
 
   return buildGrid(grid.cols, grid.rows, cells);
 }
+
+/**
+ * Returns a new grid with every active cell's letter cleared to null.
+ * Black cells and grid dimensions are untouched — geometry is unchanged,
+ * only the fill is removed.
+ */
+export function clearLetters(grid: Grid): Grid {
+  const cells: Cell[][] = Array.from({ length: grid.rows }, (_, row) =>
+    Array.from({ length: grid.cols }, (_, col) => {
+      const cell = grid.at(col, row) as Cell;
+      return cell.kind === 'active' ? { kind: 'active', letter: null } : cell;
+    })
+  );
+
+  return buildGrid(grid.cols, grid.rows, cells);
+}

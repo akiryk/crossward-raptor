@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Coord, Grid } from '../../engine/grid';
+import { clearLetters } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
 import { arrowKey, deleteAt, moveTo, place } from '../../engine/cursor';
 import type { Phase } from '../../engine/puzzle';
@@ -14,6 +15,7 @@ import { saveGrid, saveHints, enterHints } from '../../app/puzzles/actions';
 import { PuzzleGrid } from './PuzzleGrid';
 import { PhaseControls } from './PhaseControls';
 import { HintsPanel } from './HintsPanel';
+import { ClearLettersButton } from './ClearLettersButton';
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -144,6 +146,10 @@ export function PuzzleGridEditor({
     setState((prev) => ({ ...prev, cursor: moveTo(prev.grid, prev.cursor, coord) }));
   }
 
+  function handleClearLetters() {
+    setState((prev) => ({ ...prev, grid: clearLetters(prev.grid) }));
+  }
+
   function handleEnterHints() {
     // enterHintsPhase always transitions grid -> hints deterministically, so
     // the UI updates immediately rather than waiting on the round trip —
@@ -190,6 +196,7 @@ export function PuzzleGridEditor({
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
       <PhaseControls phase={phase} onEnterHints={handleEnterHints} />
+      <ClearLettersButton onConfirm={handleClearLetters} />
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
       )}
