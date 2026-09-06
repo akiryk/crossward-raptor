@@ -78,13 +78,25 @@ test.describe('M1-2 rename', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    await page.getByTestId('puzzle-title').fill('CAT');
+    const title = page.getByTestId('puzzle-title');
+    await title.click();
+    await title.fill(''); // clear without keystrokes
 
-    // every cell must still be empty -- the window keydown listener must not
-    // treat typing in a text input as grid input
+    // pressSequentially dispatches real keydown events, unlike fill() -- this is
+    // what the window-level keydown guard actually has to ignore. A fill()-based
+    // version of this test would pass whether or not the guard exists.
+    await title.pressSequentially('CAT');
+
+    await expect(title).toHaveValue('CAT');
+
+    // Active cells render their corner number (Story P2), so an exact-empty
+    // check would never pass here. Assert the typed characters specifically.
     for (let row = 0; row < 3; row++) {
       for (let col = 0; col < 3; col++) {
-        await expect(page.locator(`[data-coord="${col},${row}"]`)).toHaveText('');
+        const cell = page.locator(`[data-coord="${col},${row}"]`);
+        await expect(cell).not.toContainText('C');
+        await expect(cell).not.toContainText('A');
+        await expect(cell).not.toContainText('T');
       }
     }
   });
