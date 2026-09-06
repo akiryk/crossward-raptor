@@ -13,6 +13,7 @@
       "Bash(git diff:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(git push:*)",
       "Read(./**)",
       "Bash(gh repo view:*)",
       "Bash(gh repo list:*)",
@@ -23,12 +24,10 @@
       "Bash(gh auth status)"
     ],
     "ask": [
-      "Bash(git push:*)",
       "Bash(gh pr merge:*)",
       "Bash(npm run deploy:*)",
       "Bash(npx prisma migrate:*)",
       "Bash(npx prisma db push:*)",
-      "Bash(npm run db:seed:*)",
       "Bash(npm install:*)",
       "Bash(gh repo create:*)",
       "Bash(gh repo edit:*)",
@@ -40,6 +39,7 @@
       "Bash(rm -rf:*)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease*)",
       "Bash(curl:*)",
       "Read(./.env)",
       "Read(./.env.*)",

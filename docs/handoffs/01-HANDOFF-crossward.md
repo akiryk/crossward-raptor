@@ -68,52 +68,12 @@ a demonstrated fact, not an assumption. Keep it that way.
 
 These are binding and are not recorded anywhere else.
 
-### 1. `at()` returns `Cell | { kind: 'outside' }`
-
-The epic left out-of-bounds behavior undefined. It is now defined: `at()` never
-throws, and any coordinate outside `[0, cols) × [0, rows)` — including negatives —
-returns `{ kind: 'outside' }`.
-
-`Cell` itself stays two-variant (`black` | `active`); only the *lookup result*
-widens. Storage and rendering never see a state that cannot reach them.
-
-**Why not a black sentinel:** later stories treat "black or off-grid" identically
-for movement and slot boundaries, so a sentinel would have worked. But it makes
-"black" mean two different things and relies on every future author remembering
-that. The discriminated union makes the compiler remember instead.
-
-**This is already paying off.** In Story B, a slot boundary is the single test
-`at(col, row).kind !== 'active'` — no separate bounds check anywhere in the
-module.
-
-### 2. `Cell.letter` is `readonly`
-
-The rule itself is now enforced by `tsc`. What survives here is the consequence
-for unbuilt work: `withLetter` (Story G) and `applyLetterEdit` (Story E) must
-**construct a new `Cell`** rather than assign to one. That is what purity
-requires anyway, but the compiler will reject the alternative before anyone
-notices it was tempting.
-
 ### 3. `createGrid` does not validate its inputs
 
 Out-of-range coordinates in `black` throw a `TypeError` from array indexing.
 `cols`/`rows` below 1 are not checked. This is deliberate under AGENTS.md rule 2
 (no error handling for impossible states) — these are caller bugs, not user
 states. Do not add validation without being asked.
-
-### 6. `docs/stories` and `.claude/skills` are tracked
-
-Both were untracked until the Story B spec commit — `/docs/stories` was in
-`.gitignore` and `.claude/skills/` had simply never been added. Story A's file
-was force-added, which hid the problem.
-
-Consequences that had gone unnoticed: story amendments left no history, the
-`/story` skill could change without appearing in `git status`, and a completed
-story would commit tests and implementation while silently omitting the
-specification they were written against.
-
-Story B's file is committed post-amendment, so its first tracked version already
-has the 0-row bullet removed and the down-slot ordering rule added.
 
 ### 7. `Puzzle` lives in the engine, and `phase` lives on it for now
 
@@ -133,22 +93,6 @@ Sunday grids are 21×21 and novelty grids may go larger. No engine
 implementation may hardcode a dimension; dimensions come from the grid. Story
 fixtures may use 15×15 freely, but from Story D onward each story's tests
 include at least one acceptance example run at a second size.
-
----
-
-## Known issues to address before the story that hits them
-
-### `toggleBlackSymmetric` discards letters
-
-It rebuilds the grid by collecting black coordinates and calling `createGrid`,
-which sets every active cell to `letter: null`.
-
-This is harmless **today** because `createGrid` has no way to accept letters, so
-no grid in the system can have a letter to lose. The real finding is that the
-engine cannot yet express "a grid with letters," and Stories E and F both need
-that.
-
-This is now Story G2, and lands in the same commit as `withLetter` (G1).
 
 ---
 
@@ -200,14 +144,13 @@ the human review step.
 
 ---
 
-## Suggested next steps
+## Current status
 
-1. **Story G (letter writes)** — `withLetter` plus the `toggleBlackSymmetric`
-   fix. Blocks E and F.
-2. **Story F (cursor/navigation)** — parallel-safe once G lands.
-3. **Story E (phase lock)** — deliberately last: it is the story most likely to
-   have a detail wrong in the abstract, and is better written after the builder
-   UI has been used.
+Groups A–G are complete; this epic has no further stories. Work continues
+in the builder-UI epic (`docs/epics/02-builder-ui-epic.md`,
+`docs/handoffs/02-HANDOFF-builder-ui.md`). A play/solve epic — reusing this
+engine's `(grid, cursor, ...)` cursor functions per decision 7 — hasn't
+started.
 
 ---
 

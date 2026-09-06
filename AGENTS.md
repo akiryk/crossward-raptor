@@ -71,12 +71,18 @@ This file is the weakest enforcement layer — everything here is a suggestion t
 
 Enforced in `.claude/settings.json` (this list is just the human-readable summary):
 
-- No `git push`, deploy, or PR merge without confirmation — except a
-  `/story` completion whose commit is scoped to that story's own files
-  (implementation, its handoff entry, the story file itself) and whose
-  `verify`/`test:e2e` gates are green; that pushes automatically. Force-push,
-  WIP commits, and anything touching unrelated files still require
-  confirmation.
+- `git push` is unconfirmed at the tool level (`.claude/settings.json`
+  allows it; force-push variants are denied there regardless). That's
+  wider than intended: the permission gate matches on command text and
+  can't tell a `/story` completion's push apart from any other, so
+  restricting *when* to actually push — only a `/story` completion whose
+  commit is scoped to that story's own files (implementation, its handoff
+  entry, the story file itself) and whose `verify`/`test:e2e` gates are
+  green — is a discipline this file asks the agent to follow, not a
+  boundary the tooling enforces. No pushing for any other reason (a WIP
+  commit, a commit touching unrelated files, or any push outside the
+  `/story` loop) without asking first.
+- No deploy or PR merge without confirmation.
 - No database migrations or schema pushes without confirmation.
 - No adding dependencies without asking.
 - Never read or edit `.env*`.

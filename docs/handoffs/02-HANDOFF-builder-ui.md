@@ -297,8 +297,16 @@ src/components/layout/
 
 ---
 
-## Suggested next steps
+## Current status
 
-1. **Story P1 (persistence)** — Prisma schema for `Puzzle`, Neon connection,
-   and create/list/load/save Server Actions, per
-   `docs/epics/02-builder-ui-epic.md`.
+The builder-UI epic (Story Groups P0–P5) is complete — nothing in
+`docs/epics/02-builder-ui-epic.md` is pending. Deferred by that epic's own
+Non-goals and not yet started: the play/solve experience, auth/multi-user
+accounts, publishing, autofill, and undo/redo.
+
+Two items were flagged during this epic but not fixed, worth a look before
+starting new work: the e2e suite's flakiness under the default parallel
+Playwright run against one shared Neon branch (Story P4's entry above), and
+the `page.goto()`-immediately-followed-by-keypress race shared by every
+keyboard-driven e2e test since Story P3, whose likely cause was identified
+but not fixed during Story P5 (Story P5's entry above).
