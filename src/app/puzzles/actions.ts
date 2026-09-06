@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
@@ -79,6 +80,12 @@ export async function enterHints(
   });
 
   return { phase: updated.phase, hints: { ...updated.hints } };
+}
+
+/** Permanently deletes the puzzle. No soft-delete, no tombstone. */
+export async function deletePuzzle(id: string): Promise<void> {
+  await prisma.puzzle.delete({ where: { id } });
+  revalidatePath('/puzzles');
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
