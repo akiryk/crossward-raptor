@@ -10,6 +10,7 @@ import {
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
 import { enterHintsPhase } from '@/engine/phase';
+import { normalizeTitle } from '@/lib/puzzle-title';
 
 export type PuzzleWithMeta = Puzzle & { id: string; title: string };
 
@@ -46,6 +47,13 @@ export async function saveHints(id: string, hints: Record<string, string>): Prom
   await prisma.puzzle.update({
     where: { id },
     data: { hints: hints as unknown as Prisma.InputJsonValue },
+  });
+}
+
+export async function saveTitle(id: string, title: string): Promise<void> {
+  await prisma.puzzle.update({
+    where: { id },
+    data: { title: normalizeTitle(title) },
   });
 }
 

@@ -14,7 +14,7 @@ test.describe('P1-2 persistence', () => {
     await page.getByTestId('new-puzzle-button').click();
     await page.waitForURL(/\/puzzles\/[^/]+$/);
 
-    await expect(page.getByTestId('puzzle-title')).toContainText('Untitled Puzzle');
+    await expect(page.getByTestId('puzzle-title')).toHaveValue('Untitled Puzzle');
     await expect(page.getByTestId('puzzle-phase')).toContainText('grid');
   });
 
@@ -29,7 +29,7 @@ test.describe('P1-2 persistence', () => {
     await page.reload();
 
     await expect(page).toHaveURL(url);
-    await expect(page.getByTestId('puzzle-title')).toContainText('Untitled Puzzle');
+    await expect(page.getByTestId('puzzle-title')).toHaveValue('Untitled Puzzle');
     await expect(page.getByTestId('puzzle-phase')).toContainText('grid');
   });
 

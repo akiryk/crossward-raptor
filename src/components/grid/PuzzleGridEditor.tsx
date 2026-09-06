@@ -98,6 +98,9 @@ export function PuzzleGridEditor({
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+
       const intent = keyToIntent(event.key);
       if (!intent) return;
       event.preventDefault();
