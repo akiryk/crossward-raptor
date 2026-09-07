@@ -168,8 +168,12 @@ M1, M2, M3, M5, M4 — largely independent, so the order mostly reflects how
 much each relieves current pain rather than a dependency chain. Two soft
 dependencies worth respecting:
 
-- M3's list rows are a natural place to put M2's delete action, so doing M2
-  first avoids revisiting the list markup twice.
+- Delete was expected to live on M3's list rows, which would have made
+  doing M2 first a way to avoid revisiting the list markup twice. That
+  didn't hold: Story M2 put delete on the detail page instead, for the
+  same reason rename went there — every row on `/puzzles` is already a
+  `<Link>`, and a delete control inside one means nested interactive
+  elements. M2 and M3 turned out independent of each other.
 - M5 before M4, so that when duplicate ships copying everything, turning a
   copy into a template is already a single action rather than 225
   backspaces.

@@ -304,9 +304,16 @@ The builder-UI epic (Story Groups P0–P5) is complete — nothing in
 Non-goals and not yet started: the play/solve experience, auth/multi-user
 accounts, publishing, autofill, and undo/redo.
 
-Two items were flagged during this epic but not fixed, worth a look before
-starting new work: the e2e suite's flakiness under the default parallel
-Playwright run against one shared Neon branch (Story P4's entry above), and
-the `page.goto()`-immediately-followed-by-keypress race shared by every
-keyboard-driven e2e test since Story P3, whose likely cause was identified
-but not fixed during Story P5 (Story P5's entry above).
+Both items flagged above were fixed, not carried into new work. The
+`page.goto()`-immediately-followed-by-keypress race (Story P5's entry) was
+root-caused to `PuzzleGridEditor`'s keydown listener attaching after
+hydration could still be in progress when `page.goto()` resolved; fixed by
+an `isReady`/`data-ready` signal on `PuzzleGridEditor` plus
+`e2e/helpers/wait-for-ready.ts`'s `waitForEditorReady`. What looked like
+Neon latency/contention under the default parallel run (Story P4's entry)
+turned out to be the same class of bug rather than slow infrastructure:
+`phase-controls.spec.ts` and `hints-panel.spec.ts` reloaded immediately
+after a background write had only landed in local state, so the fix was
+waiting on the real Server Action response instead of a guessed duration.
+`docs/LEARNINGS.md` entries 1, 2, 4, and 5 use both incidents as their
+worked examples — not repeated here.
