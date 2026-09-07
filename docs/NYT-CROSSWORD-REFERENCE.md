@@ -177,11 +177,19 @@ undecided.
 
 **Open questions this document surfaces:**
 
-- **Rebus support.** `Cell.letter` is `string | null`, not a single
-  character, so the data model may already permit multi-character
-  entries — but cursor movement, rendering, and comparison logic have
-  never been considered against it. Worth verifying rather than assuming
-  either way before the play epic locks in a solve model.
+- **Rebus support — verified, and the answer is narrow.** The data model,
+  persistence, and rendering all already handle multi-character entries:
+  `Cell.letter` is `string | null`, `withLetter` applies no length check,
+  serialization copies the string through unchanged, `LetterCell` renders
+  it without truncation, and `place`/`deleteAt`/`moveTo` treat the letter
+  as opaque and advance by exactly one cell — which is correct rebus
+  behavior. The single blocker is *input*: `keyToIntent` can only ever
+  emit a one-character letter, since a `KeyboardEvent.key` for a letter
+  key is length 1, and nothing in the editor accumulates keystrokes into a
+  staged string. So rebus needs a new intent (NYT uses Escape) plus
+  accumulator state in the editor, calling `place` once with the assembled
+  string. Real but scoped work, not a redesign. Rendering would also want
+  length-aware font sizing, which is cosmetic.
 - **Should minimum answer length become 3** to match the convention, or
   stay 2 deliberately?
 - **Direction toggling on re-click** is a standard solver affordance that

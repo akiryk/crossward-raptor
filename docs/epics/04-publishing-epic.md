@@ -101,19 +101,60 @@ final geometry must be decided.
 changing any data, so a builder can see what the conversion will do before
 committing. Pure rendering — no engine involvement, no persistence.
 
-**This modifies Story E's shipped behavior**, which specified that
-`enterHintsPhase` sets phase and fills blank hint entries and does not
-touch the grid. That's a deliberate change, not an oversight, and Story E's
-doc should be annotated to point here rather than silently contradicted.
+**The transition gets a confirmation showing what will be blackened.**
+This is irreversible and there is no reverse transition, which puts it in
+the same category as delete and clear-letters: an irreversible action gets
+honest confirmation copy. This is not a gate — the builder can always
+proceed — it's the same courtesy the rest of the app already extends.
 
-**Consequences to handle explicitly:**
+### What PB1 actually requires (four changes, not one)
+
+The engine change alone accomplishes nothing. Verified against the current
+code:
+
+1. **`enterHintsPhase` (`src/engine/phase.ts`)** performs the conversion.
+2. **The `enterHints` Server Action** currently persists only `hints` and
+   `phase`, and its return type carries no grid. Both must change to
+   include `grid`, or the blackening is computed and thrown away.
+3. **`handleEnterHints` in `PuzzleGridEditor`** currently flips phase
+   locally and applies only the returned hints, never touching grid state.
+   It must apply the returned grid.
+4. **Story E's committed acceptance tests must be rewritten**, not merely
+   adjusted — see below.
+
+Points 2 and 3 exist because Story P4 deliberately designed the transition
+around the assumption that geometry was untouched
+(`docs/stories/02-P4-geometry-phase.md`). That assumption is what PB1
+reverses, so the design that depended on it has to change with it.
+
+### Scope of the test rewrite
+
+`src/engine/phase.test.ts`'s E2 block uses fully-empty 3×3 grids as
+fixtures. Under PB1 every cell in those grids is an empty active cell, so
+the whole grid blackens — which makes three assertions wrong and their
+fixtures degenerate rather than merely outdated:
+
+- The "geometry is untouched" test asserts `expect(next.grid).toBe(grid)`.
+  Its entire point is that no rebuild happened. It can't be patched; it
+  must be deleted or inverted.
+- "Fully active 3×3 grid gets exactly the 6 derived hint keys" — post-PB1
+  there are no slots, so no hint keys.
+- "Existing authored text is preserved; only missing keys are filled" —
+  same fixture, same problem.
+
+The honest fix is new fixtures: grids with letters in them, exercising the
+realistic case where *some* cells convert and others don't. This is a
+larger authorized edit to a frozen acceptance test file than any prior
+story has made, and it should be reviewed as such rather than waved
+through as a mechanical consequence.
+
+**Story E's own doc should be annotated** to point here, rather than left
+silently contradicting shipped behavior.
+
+**Other consequences:**
 
 - The conversion may break symmetry, since a builder's filled cells needn't
-  be symmetric. That's acceptable per the governing principle above.
-- There's no reverse transition, so this is effectively one-way. A builder
-  who enters hints phase with cells they meant to fill has lost them as
-  white squares. The preview toggle is the mitigation; whether that's
-  enough is worth watching once it's in use.
+  be symmetric. Acceptable per the governing principle above.
 - Symmetric counterparts are *not* auto-blackened to match. The conversion
   blackens exactly the empty cells, nothing more.
 
@@ -132,11 +173,26 @@ publishing, returning specific findings rather than a verdict:
 Every finding is informational. None blocks anything. The UI shows them
 near the publish control so a builder sees what they're publishing.
 
-**Open decision:** whether to include convention checks the reference doc
-describes but nothing currently computes — all-over interlock, minimum
-answer length, unchecked squares. Proposal: not in this story. They're
-each real work, none is needed for the play epic, and adding them now
-would expand an advisory panel into a construction-analysis feature.
+**Two convention checks are cheap enough to include; one isn't.** These
+were originally grouped as a single "defer them all" decision; that was
+wrong, since their costs differ by an order of magnitude:
+
+- **Answers shorter than three letters** — `extractSlots` already returns
+  `Slot.length`, so this is a filter over data PB2 computes anyway.
+  Include it.
+- **Unchecked squares** (cells not covered by both an across and a down
+  slot) — buildable from `Slot.cells` or `buildSlotLookup`'s existing
+  output by diffing two coordinate sets. Cheap, no new engine primitive.
+  Include it.
+- **All-over interlock** — genuinely different. Nothing in the engine does
+  graph connectivity; `extractSlots` and `isSymmetric` both scan cells
+  independently and never ask whether one cell is reachable from another.
+  This needs a real flood-fill over active-cell adjacency plus edge-case
+  decisions (fully black grid, single active cell). **Defer it** — real
+  work, no play-epic dependency.
+
+All three remain advisory if built. Reporting that a puzzle has a two-letter
+answer is information; refusing to publish it is not this app's business.
 
 ## Story Group PB3 — Publish and unpublish
 
@@ -169,6 +225,15 @@ Note this is a *lock on a state the builder chose*, not a gate on
 publishing — consistent with the governing principle. It's also a natural
 extension of the phase-lock mechanism Story E established, with P4's
 rejection message as UI precedent.
+
+**This compounds PB1's one-wayness, and the combination is worth
+watching.** PB1 makes the hints transition irreversible; PB4 adds a second
+lock on top. A builder who enters hints phase, dislikes the blackening, and
+has published now has no path back — unpublishing restores editability but
+not the white cells PB1 consumed. The mitigations are PB1's preview toggle
+and its confirmation. If that turns out to be insufficient in practice, the
+answer is probably a reverse hints→grid transition, which doesn't exist and
+isn't in this epic's scope.
 
 ## Story Group PB5 — Published status in the builder's list
 
