@@ -70,21 +70,18 @@ This file is the weakest enforcement layer — everything here is a suggestion t
 
 ## Never do autonomously
 
-Enforced in `.claude/settings.json` (this list is just the human-readable summary):
+Enforced in `.claude/settings.json` (this list is the human-readable
+summary). Limited to actions that can't be undone — everything else
+(routine pushes, dependency installs, `prisma migrate dev`, PR creation
+and merges, deploys) runs without asking:
 
-- `git push` is unconfirmed at the tool level (`.claude/settings.json`
-  allows it; force-push variants are denied there regardless). That's
-  wider than intended: the permission gate matches on command text and
-  can't tell a `/story` completion's push apart from any other, so
-  restricting *when* to actually push — only a `/story` completion whose
-  commit is scoped to that story's own files (implementation, its handoff
-  entry, the story file itself) and whose `verify`/`test:e2e` gates are
-  green — is a discipline this file asks the agent to follow, not a
-  boundary the tooling enforces. No pushing for any other reason (a WIP
-  commit, a commit touching unrelated files, or any push outside the
-  `/story` loop) without asking first.
-- No deploy or PR merge without confirmation.
-- No database migrations or schema pushes without confirmation.
-- No adding dependencies without asking.
-- Never read or edit `.env*`.
-- Never force-push or `rm -rf`.
+- Force-push, or anything else that rewrites shared/remote history.
+- `prisma migrate reset`, `prisma db push --force-reset`, or any other
+  command that drops data.
+- `rm -rf`.
+- Reading, writing, or editing `.env*` files — enforced both at the
+  Read/Edit/Write tool level and by a PreToolUse hook that blocks any Bash
+  command referencing them.
+
+If a change to this list is warranted, it belongs here because the action
+is irreversible, not because it's unfamiliar or high-effort.

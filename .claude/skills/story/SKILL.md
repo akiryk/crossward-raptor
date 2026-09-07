@@ -1,29 +1,48 @@
 ---
 name: story
-description: Implement a story file end to end against the verify gate. Invoke as /story <path-to-story.md>.
+description: Implement a story file end to end against the verify gate. Relocates and commits its spec files first if they're still staged outside the repo (e.g. ~/Downloads), then implements, verifies, and pushes in one pass. Invoke as /story <path-to-story-doc>.
 ---
 
 # Implement a story
 
 Story file: $ARGUMENTS
 
-0. **Establish the specification baseline.** Read the story, then read its
-   "Repo paths" section to identify every acceptance test file listed there —
-   there may be more than one (a Vitest `*.test.ts` file, a Playwright
-   `e2e/*.spec.ts` file, or both). Run `git status --porcelain` and
-   `git ls-files` on the story file and on each acceptance test file. If any
-   of them is untracked or has uncommitted changes, review the story and
-   tests together. If they are coherent, commit only those specification files
-   in a specification-only commit, excluding unrelated working-tree changes,
-   and continue without asking. This commit is the immutable baseline used by
-   step 4. If the story is materially ambiguous, contradicts the tests, or the
-   tests appear erroneous, stop and report the specific issue instead of
-   committing or implementing. This session must not draft or edit any
-   acceptance test file's content — only commit and implement against content
-   already present from outside this session.
+0. **Establish the specification baseline.**
+
+   a. **Relocate staged spec files, if needed.** If the path in $ARGUMENTS
+      is not already under `docs/stories/`, treat it as still staged
+      outside the repo (e.g. `~/Downloads`) rather than as an error. Read
+      it from wherever it is, then read its "Repo paths" section to find
+      every file marked "already provided" — its acceptance tests, one or
+      more of a Vitest `*.test.ts` file and a Playwright `e2e/*.spec.ts`
+      file — along with the destination each entry names. Each of those
+      files is expected to sit next to the story doc in the same source
+      directory. Move (not copy) the story doc to `docs/stories/<name>.md`
+      and each acceptance test file to the path its own "Repo paths" entry
+      names. If any named file is missing from the source directory, stop
+      and report which one rather than guessing or proceeding without it.
+      This session must not draft or edit any acceptance test file's
+      content — only relocate content already present from outside this
+      session. If the story doc is already under `docs/stories/`, skip
+      this step; the files are assumed already placed.
+
+   b. **Verify and commit the baseline.** Read the story at its now-canonical
+      path, then read its "Repo paths" section to identify every acceptance
+      test file. Run `git status --porcelain` and `git ls-files` on the
+      story file and on each acceptance test file. If any of them is
+      untracked or has uncommitted changes, review the story and tests
+      together. If they are coherent, commit only those specification files
+      in a specification-only commit, excluding unrelated working-tree
+      changes, and continue without asking. This commit is the immutable
+      baseline used by step 4. If the story is materially ambiguous,
+      contradicts the tests, or the tests appear erroneous, stop and report
+      the specific issue instead of committing or implementing.
+
 1. Implement the story. Do not pause for routine, safe local actions such as
    reading files, editing in-scope code, running tests, staging the story's
-   files, or creating local commits.
+   files, or creating local commits. This includes step 0: relocating spec
+   files, committing the baseline, implementing, and pushing at the end are
+   one continuous pass — don't stop for a check-in between them.
 2. Acceptance test files are the specification: never edit them.
    Exception: an autoformatter may reflow a test file. If that happens, report
    it explicitly and confirm `git diff` on the file shows whitespace only.
@@ -47,6 +66,6 @@ Story file: $ARGUMENTS
    file, with a message naming the story. Once `npm run verify` (and
    `npm run test:e2e`, for any story whose Repo paths include an e2e spec
    file) has exited 0 per step 3, push.
-7. Report: files created or changed, the verify result, and the outcome of any
-   Definition-of-Done item that requires demonstrating a failure rather than a
-   pass.
+7. Report: files moved into place (if step 0a applied), files created or
+   changed, the verify result, and the outcome of any Definition-of-Done item
+   that requires demonstrating a failure rather than a pass.
