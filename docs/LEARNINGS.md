@@ -99,3 +99,30 @@ declined to push a no-op under a commit message claiming a fix.
 **Rule:** a change that doesn't verifiably do what it was meant to do
 doesn't get committed, even when it was explicitly requested. Report the
 negative result — that's the useful output.
+
+## 6. A wait or assertion that can't distinguish before from after isn't one
+
+Two acceptance tests in the puzzle-management epic were written so that
+they would have passed whether or not the behavior under test existed:
+
+- **`rename.spec.ts`** used `.fill('CAT')` to test that typing in the title
+  input doesn't leak into the grid. But `.fill()` sets an input's value
+  directly and dispatches no `keydown` events — so the window-level keydown
+  guard it was meant to verify was never exercised. `pressSequentially`
+  dispatches real key events; `fill` does not.
+- **`duplicate.spec.ts`** used `waitForURL(/\/puzzles\/[^/]+$/)` to wait for
+  navigation to a *newly created copy*. The page was already on a URL
+  matching that pattern, so the wait resolved instantly, and the following
+  assertion ran against the pre-navigation state. The predicate had to
+  exclude the source id to be a wait at all.
+
+Both were caught by the implementing agent noticing the test failed for a
+reason the implementation couldn't explain — not by the tests themselves,
+which is the point. A vacuous test is worse than a missing one: it reports
+confidence it hasn't earned.
+
+**Rule:** when writing a test, ask what would make it fail. If the answer
+isn't obvious, or if the setup would satisfy the assertion before the
+behavior runs, the test isn't testing anything. This applies especially to
+waits (does the condition already hold?) and to negative assertions (would
+this also pass on a blank page?).

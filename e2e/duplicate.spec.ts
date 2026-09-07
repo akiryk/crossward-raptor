@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { createGrid, withLetter } from '../src/engine/grid';
 import type { Grid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
@@ -6,6 +7,20 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 function uniqueTitle(label: string) {
   return `M4 ${label} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Waits for navigation to a puzzle that ISN'T the one we started on.
+ *
+ * A plain /\/puzzles\/[^/]+$/ pattern would match the URL we're already on and
+ * resolve immediately, without waiting for any navigation at all -- the wait
+ * has to discriminate between the before- and after-state to be a wait.
+ */
+function waitForCopy(page: Page, sourceId: string) {
+  return page.waitForURL(
+    (url) =>
+      /\/puzzles\/[^/]+$/.test(url.pathname) && !url.pathname.endsWith(`/${sourceId}`)
+  );
 }
 
 // 3x3 with a black corner at (2,2) and letters in the top row / left column.
@@ -38,7 +53,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
 
     expect(page.url()).not.toContain(id);
   });
@@ -53,7 +68,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
     await waitForEditorReady(page);
 
     await expect(page.getByTestId('puzzle-title')).toHaveValue(`Copy of ${title}`);
@@ -68,7 +83,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
     await waitForEditorReady(page);
 
     for (const { coord, letter } of LETTERED) {
@@ -88,7 +103,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
     await waitForEditorReady(page);
 
     await expect(page.getByTestId('phase-badge')).toContainText('hints');
@@ -110,7 +125,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
 
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
@@ -131,7 +146,7 @@ test.describe('M4-2 duplicate', () => {
     await waitForEditorReady(page);
 
     await page.getByTestId('duplicate-puzzle-button').click();
-    await page.waitForURL(/\/puzzles\/[^/]+$/);
+    await waitForCopy(page, id);
 
     await page.goto('/puzzles');
 
