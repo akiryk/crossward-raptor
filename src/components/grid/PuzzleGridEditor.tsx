@@ -39,6 +39,17 @@ function firstActiveCell(grid: Grid): Coord {
   throw new Error('firstActiveCell: grid has no active cells');
 }
 
+function countEmptyActiveCells(grid: Grid): number {
+  let count = 0;
+  for (let row = 0; row < grid.rows; row++) {
+    for (let col = 0; col < grid.cols; col++) {
+      const cell = grid.at(col, row);
+      if (cell.kind === 'active' && cell.letter === null) count++;
+    }
+  }
+  return count;
+}
+
 export function PuzzleGridEditor({
   puzzleId,
   initialGrid,
@@ -151,16 +162,16 @@ export function PuzzleGridEditor({
   }
 
   function handleEnterHints() {
-    // enterHintsPhase always transitions grid -> hints deterministically, so
-    // the UI updates immediately rather than waiting on the round trip —
-    // same "local state first, persist silently in the background" pattern
-    // as autosave above. The real hints (with required-but-blank keys
-    // filled in) only exist server-side, so those arrive once the call
-    // resolves.
-    setState((prev) => ({ ...prev, phase: 'hints' }));
+    // Unlike the old grid-only-changes-client-side assumption, the
+    // transition now blackens empty cells server-side (enterHintsPhase
+    // needs the puzzle's real hints, which the client doesn't hold — same
+    // reason this already ran server-side). phase, hints, and grid all
+    // apply together once the response lands, rather than flipping phase
+    // optimistically: doing that would let the phase badge read "hints"
+    // for a moment before the blackened grid actually renders.
     enterHints(puzzleId)
-      .then(({ hints }) => {
-        setState((prev) => ({ ...prev, hints }));
+      .then(({ phase, hints, grid }) => {
+        setState((prev) => ({ ...prev, phase, hints, grid: deserializeGrid(grid) }));
       })
       .catch((error) => {
         console.error('Failed to enter hints phase', error);
@@ -195,7 +206,11 @@ export function PuzzleGridEditor({
 
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
-      <PhaseControls phase={phase} onEnterHints={handleEnterHints} />
+      <PhaseControls
+        phase={phase}
+        emptyCellCount={countEmptyActiveCells(grid)}
+        onEnterHints={handleEnterHints}
+      />
       <ClearLettersButton onConfirm={handleClearLetters} />
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>

@@ -81,10 +81,12 @@ export async function saveTitle(id: string, title: string): Promise<void> {
 }
 
 /** Loads the puzzle, transitions it to 'hints' phase via the engine's
- *  enterHintsPhase, persists the result, and returns the new phase. */
+ *  enterHintsPhase, persists the result (grid included -- the transition
+ *  now converts empty cells to black, so the grid changes too), and
+ *  returns the new phase, hints, and grid. */
 export async function enterHints(
   id: string
-): Promise<{ phase: Phase; hints: Record<string, string> }> {
+): Promise<{ phase: Phase; hints: Record<string, string>; grid: SerializedGrid }> {
   const puzzle = await loadPuzzle(id);
   if (!puzzle) {
     throw new Error(`enterHints: puzzle ${id} not found`);
@@ -96,12 +98,13 @@ export async function enterHints(
   await prisma.puzzle.update({
     where: { id },
     data: {
+      grid: stored.grid as unknown as Prisma.InputJsonValue,
       hints: stored.hints as unknown as Prisma.InputJsonValue,
       phase: stored.phase,
     },
   });
 
-  return { phase: updated.phase, hints: { ...updated.hints } };
+  return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
 }
 
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */

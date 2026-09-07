@@ -1,8 +1,33 @@
-import type { Coord } from './grid';
-import { withLetter } from './grid';
+import type { Coord, Grid } from './grid';
+import { createGrid, withLetter } from './grid';
 import type { Puzzle } from './puzzle';
 import { toggleBlackSymmetric } from './symmetry';
 import { hintKey, requiredHints } from './hints';
+
+/** An unfilled cell is a black cell: every active cell holding no letter
+ *  becomes black, exactly as-is otherwise. Existing black cells and
+ *  lettered cells are unchanged. */
+function convertEmptyCellsToBlack(grid: Grid): Grid {
+  const black: Coord[] = [];
+  const letters: { coord: Coord; letter: string }[] = [];
+
+  for (let row = 0; row < grid.rows; row++) {
+    for (let col = 0; col < grid.cols; col++) {
+      const cell = grid.at(col, row);
+      if (cell.kind === 'active' && cell.letter !== null) {
+        letters.push({ coord: { col, row }, letter: cell.letter });
+      } else {
+        black.push({ col, row });
+      }
+    }
+  }
+
+  let next = createGrid({ cols: grid.cols, rows: grid.rows, black });
+  for (const { coord, letter } of letters) {
+    next = withLetter(next, coord, letter);
+  }
+  return next;
+}
 
 export type GeometryEditResult =
   | { readonly ok: true; readonly puzzle: Puzzle }
@@ -31,7 +56,12 @@ export function applyGeometryEdit(
 }
 
 export function enterHintsPhase(puzzle: Puzzle): Puzzle {
-  const { across, down } = requiredHints(puzzle.grid);
+  if (puzzle.phase === 'hints') {
+    return puzzle;
+  }
+
+  const grid = convertEmptyCellsToBlack(puzzle.grid);
+  const { across, down } = requiredHints(grid);
   const hints: Record<string, string> = { ...puzzle.hints };
   let changed = false;
 
@@ -43,7 +73,7 @@ export function enterHintsPhase(puzzle: Puzzle): Puzzle {
     }
   }
 
-  return { ...puzzle, phase: 'hints', hints: changed ? hints : puzzle.hints };
+  return { ...puzzle, phase: 'hints', grid, hints: changed ? hints : puzzle.hints };
 }
 
 export function applyLetterEdit(
