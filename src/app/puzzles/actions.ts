@@ -11,7 +11,7 @@ import {
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
 import { enterHintsPhase } from '@/engine/phase';
-import { normalizeTitle } from '@/lib/puzzle-title';
+import { normalizeTitle, duplicateTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 
 export type PuzzleWithMeta = Puzzle & { id: string; title: string };
@@ -108,6 +108,26 @@ export async function enterHints(
 export async function deletePuzzle(id: string): Promise<void> {
   await prisma.puzzle.delete({ where: { id } });
   revalidatePath('/puzzles');
+}
+
+/** Creates a new puzzle copying the source's grid, hints, and phase.
+ *  Returns the new puzzle's id. */
+export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
+  const source = await prisma.puzzle.findUnique({ where: { id } });
+  if (!source) {
+    throw new Error(`duplicatePuzzle: puzzle ${id} not found`);
+  }
+
+  const record = await prisma.puzzle.create({
+    data: {
+      title: duplicateTitle(source.title),
+      grid: source.grid as unknown as Prisma.InputJsonValue,
+      hints: source.hints as unknown as Prisma.InputJsonValue,
+      phase: source.phase,
+    },
+  });
+  revalidatePath('/puzzles');
+  return { id: record.id };
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {

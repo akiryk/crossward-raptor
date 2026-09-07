@@ -6,3 +6,10 @@ export function normalizeTitle(input: string): string {
   const trimmed = input.trim();
   return trimmed === '' ? DEFAULT_TITLE : trimmed;
 }
+
+/** The title for a copy of a puzzle: "Copy of Monday Puzzle". Normalizes
+ *  its input first, so a blank source title yields "Copy of Untitled
+ *  Puzzle" rather than "Copy of ". */
+export function duplicateTitle(sourceTitle: string): string {
+  return `Copy of ${normalizeTitle(sourceTitle)}`;
+}
