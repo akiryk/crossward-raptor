@@ -274,11 +274,15 @@ test.describe('D1b-3 grid hairline', () => {
 
       const computed = await container.evaluate((el) => {
         const s = getComputedStyle(el);
-        return { gap: s.gap, bg: s.backgroundColor };
+        return { rowGap: s.rowGap, columnGap: s.columnGap, bg: s.backgroundColor };
       });
 
-      // the gap IS the hairline; its width comes from the token
-      expect(computed.gap.startsWith(lineWidth)).toBe(true);
+      // the gap IS the hairline on both axes; its width comes from the
+      // token exactly -- checked separately, since the shorthand `gap`
+      // computes as "<row> <column>" and startsWith("1px") would pass
+      // even if the two differed (e.g. "1px 10px").
+      expect(computed.rowGap).toBe(lineWidth);
+      expect(computed.columnGap).toBe(lineWidth);
 
       // painted in the grid-line colour, so every division looks identical
       const lineColor = await page.evaluate((raw) => {

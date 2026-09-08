@@ -30,7 +30,13 @@ function GridSample({ cells }: { cells: GridCellSpec[] }) {
   return (
     <div
       data-testid="sg-grid"
-      className="grid w-40 grid-cols-3 bg-grid-line"
+      // grid-cols-3 divides the container's own declared width into three
+      // equal fractions, which left cells (fixed at w-10/h-10) short of
+      // their track and leaking ~13px of unused track space next to each
+      // one -- same colour as the real 1px gap, so it read as one big
+      // gap. Explicit fixed-width tracks matching the cells exactly (and
+      // no declared container width) remove the slack entirely.
+      className="grid w-fit grid-cols-[repeat(3,2.5rem)] bg-grid-line"
       style={{ gap: 'var(--grid-line-width)' }}
     >
       {cells.map((cell, index) => (
