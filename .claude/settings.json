@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "defaultMode": "default",
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run dev:*)",
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "CMD=$(jq -r '.tool_input.command'); if printf '%s' \"$CMD\" | grep -q '<<'; then printf '%s' '{}'; elif printf '%s' \"$CMD\" | grep -qE '(^|[[:space:]/])\\.env(\\.[^[:space:]/]*)?([[:space:]/]|$)'; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: command references a .env file. Bash may not read, write, or overwrite dotenv files in this repo (AGENTS.md).\"}}'; else printf '%s' '{}'; fi"
+            "command": "bash .claude/hooks/bash-guard.sh"
           }
         ]
       }
