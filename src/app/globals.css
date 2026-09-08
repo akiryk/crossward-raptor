@@ -1,16 +1,48 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #fdfaf6;
-  --color-foreground: #1f2933;
-  --color-selected: #2563eb;
-  --color-complete: #16a34a;
-  --color-incomplete: #d97706;
-  --color-grid-line: #94a3b8;
+  /* --- typefaces --- */
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-data: var(--font-inter), system-ui, sans-serif; /* grid letters */
 
-  --font-display: Georgia, "Times New Roman", serif;
-  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-data: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  /* --- surfaces and text (P0 names kept) --- */
+  --color-background: #ffffff;
+  --color-foreground: #14151b;
 
+  /* --- text weights --- */
+  --color-ink-2: #565b67; /* secondary text, captions */
+  --color-ink-3: #9ba1ad; /* tertiary: cell numbers, eyebrows */
+
+  /* --- structure --- */
+  --color-rule: #ecedf1; /* hairline dividers */
+  --color-rule-strong: #dee0e6;
+  --color-hover-tint: #f3f4f7;
+  --color-panel-tint: #f6faf8;
+
+  /* --- accent --- */
+  --color-accent: #1f9d6b;
+  --color-accent-hover: #178257;
+  --color-ok-tint: #e4f6ee;
+
+  /* --- grid (P0 names kept where they existed) --- */
+  --color-grid-empty: #dde0e6; /* unfilled cell, build phase */
+  --color-grid-line: #c7cbd3;
+  --color-cell-fill: #dff3ea; /* cell holding a letter */
+  --color-selected: #35d0a0; /* the cursor cell */
+  --color-required: #b23b34; /* preview: unfilled symmetric counterpart */
+
+  /* --- hint status (P0 names kept) --- */
+  --color-complete: #1f9d6b;
+  --color-incomplete: #9ba1ad;
+
+  /* --- shape --- */
+  --radius-btn: 999px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-grid: 8px;
+
+  /* --- misc --- */
   --grid-line-width: 1px;
+  --text-eyebrow: 12px;
 }
