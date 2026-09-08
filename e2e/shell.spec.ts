@@ -60,7 +60,6 @@ test.describe('P0-3 design tokens', () => {
         '--color-background',
         '--color-foreground',
         '--color-selected',
-        '--color-complete',
         '--color-incomplete',
         '--color-grid-line',
         '--font-display',

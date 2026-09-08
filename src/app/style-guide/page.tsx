@@ -1,5 +1,73 @@
 import { TokenPanel } from '@/components/style-guide/TokenPanel';
 
+type CellState = 'empty' | 'letter' | 'black' | 'required' | 'cursor' | 'symmetric-hint';
+
+interface GridCellSpec {
+  state: CellState;
+  letter?: string;
+  number?: number;
+}
+
+const CELL_BG: Record<CellState, string> = {
+  empty: 'bg-grid-empty',
+  letter: 'bg-background',
+  black: 'bg-foreground',
+  required: 'bg-required',
+  cursor: 'bg-selected',
+  'symmetric-hint': 'bg-background',
+};
+
+// The hairline is the container's own background showing through a 1px
+// gap -- cells carry no border of their own, so the division between two
+// cells is always exactly one pixel of --color-grid-line, regardless of
+// what either cell contains.
+function GridSample({ cells }: { cells: GridCellSpec[] }) {
+  return (
+    <div
+      data-testid="sg-grid"
+      className="grid w-40 grid-cols-3 bg-grid-line"
+      style={{ gap: 'var(--grid-line-width)' }}
+    >
+      {cells.map((cell, index) => (
+        <div
+          key={index}
+          data-testid="sg-cell"
+          data-cell-state={cell.state}
+          className={`relative flex h-10 w-10 items-center justify-center font-data ${CELL_BG[cell.state]}`}
+        >
+          {cell.number !== undefined && (
+            <span
+              data-testid="sg-cell-number"
+              className="absolute left-0 top-0 p-[0.1em] text-[0.6em] leading-none text-ink-3"
+            >
+              {cell.number}
+            </span>
+          )}
+          {cell.letter}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const BUILD_CELLS: GridCellSpec[] = [
+  { state: 'letter', letter: 'C', number: 1 },
+  { state: 'letter', letter: 'A' },
+  { state: 'empty' },
+  { state: 'cursor' },
+  { state: 'symmetric-hint' },
+  { state: 'empty' },
+];
+
+const PREVIEW_CELLS: GridCellSpec[] = [
+  { state: 'letter', letter: 'C', number: 1 },
+  { state: 'letter', letter: 'A' },
+  { state: 'required' },
+  { state: 'black' },
+  { state: 'black' },
+  { state: 'black' },
+];
+
 export default function StyleGuidePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-12 p-6">
@@ -20,30 +88,43 @@ export default function StyleGuidePage() {
         </p>
       </section>
 
-      <section data-testid="sg-buttons" className="flex flex-wrap items-center gap-3">
-        <h2 className="w-full font-display text-xl font-semibold">Buttons</h2>
-        <button
-          type="button"
-          data-testid="sg-button-primary"
-          className="cursor-pointer rounded-btn bg-accent px-4 py-2 text-white"
-        >
-          Primary
-        </button>
-        <button
-          type="button"
-          data-testid="sg-button-quiet"
-          className="cursor-pointer rounded-btn border border-rule-strong bg-background px-4 py-2 text-accent"
-        >
-          Quiet
-        </button>
-        <button
-          type="button"
-          data-testid="sg-button-disabled"
-          disabled
-          className="cursor-not-allowed rounded-btn bg-accent px-4 py-2 text-white opacity-50"
-        >
-          Disabled
-        </button>
+      <section data-testid="sg-buttons">
+        <h2 className="mb-3 font-display text-xl font-semibold">Buttons</h2>
+        {/* sg-hover wraps the interactive elements hover states are
+            demonstrated on -- kept as the single primary/disabled button
+            on the page, not a duplicate, so the existing unscoped D1-3
+            queries and this scoped hover demo resolve to the same
+            elements rather than colliding under Playwright's strict mode. */}
+        <div data-testid="sg-hover" className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            data-testid="sg-button-primary"
+            className="cursor-pointer rounded-btn bg-accent px-4 py-2 text-white hover:bg-accent-hover"
+          >
+            Primary
+          </button>
+          <button
+            type="button"
+            data-testid="sg-button-quiet"
+            className="cursor-pointer rounded-btn border border-rule-strong bg-background px-4 py-2 text-accent hover:bg-hover-tint"
+          >
+            Quiet
+          </button>
+          <button
+            type="button"
+            data-testid="sg-button-disabled"
+            disabled
+            className="cursor-not-allowed rounded-btn bg-accent px-4 py-2 text-white opacity-50"
+          >
+            Disabled
+          </button>
+          <a
+            href="#"
+            className="cursor-pointer text-accent underline hover:text-accent-hover hover:no-underline"
+          >
+            Hover link
+          </a>
+        </div>
       </section>
 
       <section data-testid="sg-inputs" className="space-y-3">
@@ -75,7 +156,7 @@ export default function StyleGuidePage() {
         <div
           data-testid="hint-row"
           data-complete="true"
-          className="border-l-4 border-complete bg-ok-tint px-3 py-2 text-foreground"
+          className="border-l-4 border-accent bg-ok-tint px-3 py-2 text-foreground"
         >
           1 Across — Complete example clue
         </div>
@@ -153,32 +234,12 @@ export default function StyleGuidePage() {
 
       <section data-testid="sg-grid-build">
         <h2 className="mb-2 font-display text-xl font-semibold">Grid (build phase)</h2>
-        <div className="grid w-40 grid-cols-3" style={{ gap: 'var(--grid-line-width)' }}>
-          <div className="aspect-square border border-grid-line bg-cell-fill" />
-          <div className="aspect-square border border-grid-line bg-grid-empty" />
-          <div className="aspect-square border border-grid-line bg-foreground" />
-          <div className="aspect-square border border-grid-line bg-grid-empty" />
-          <div className="aspect-square border border-grid-line bg-selected" />
-          <div className="aspect-square border border-grid-line bg-grid-empty" />
-          <div className="aspect-square border border-grid-line bg-grid-empty" />
-          <div className="aspect-square border border-grid-line bg-grid-empty" />
-          <div className="aspect-square border border-grid-line bg-cell-fill" />
-        </div>
+        <GridSample cells={BUILD_CELLS} />
       </section>
 
       <section data-testid="sg-grid-preview">
         <h2 className="mb-2 font-display text-xl font-semibold">Grid (hints-transition preview)</h2>
-        <div className="grid w-40 grid-cols-3" style={{ gap: 'var(--grid-line-width)' }}>
-          <div className="aspect-square border border-grid-line bg-cell-fill" />
-          <div className="aspect-square border border-grid-line bg-required" />
-          <div className="aspect-square border border-grid-line bg-foreground" />
-          <div className="aspect-square border border-grid-line bg-required" />
-          <div className="aspect-square border border-grid-line bg-selected" />
-          <div className="aspect-square border border-grid-line bg-foreground" />
-          <div className="aspect-square border border-grid-line bg-foreground" />
-          <div className="aspect-square border border-grid-line bg-foreground" />
-          <div className="aspect-square border border-grid-line bg-cell-fill" />
-        </div>
+        <GridSample cells={PREVIEW_CELLS} />
       </section>
     </div>
   );

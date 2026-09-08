@@ -33,7 +33,8 @@
   --color-required: #b23b34; /* preview: unfilled symmetric counterpart */
 
   /* --- hint status (P0 names kept) --- */
-  --color-complete: #1f9d6b;
+  /* --color-complete removed: identical value to --color-accent, which
+     hint completeness now uses directly (Story D1b) */
   --color-incomplete: #9ba1ad;
 
   /* --- shape --- */

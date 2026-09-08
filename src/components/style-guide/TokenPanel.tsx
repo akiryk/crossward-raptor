@@ -28,7 +28,6 @@ const TOKENS: TokenEntry[] = [
   { name: '--color-cell-fill', kind: 'color' },
   { name: '--color-selected', kind: 'color' },
   { name: '--color-required', kind: 'color' },
-  { name: '--color-complete', kind: 'color' },
   { name: '--color-incomplete', kind: 'color' },
   { name: '--radius-btn', kind: 'radius' },
   { name: '--radius-md', kind: 'radius' },
