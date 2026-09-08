@@ -1,6 +1,20 @@
 import type { Cell, Coord, Grid } from '../../engine/grid';
+import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { buildCellNumberLookup, cellNumberKey } from '../../lib/cell-number-lookup';
+import { cellAppearance, symmetricHintKeys, type CellAppearance } from '../../lib/cell-appearance';
 import { GridCell } from './GridCell';
+
+// The cell wrapper -- not GridCell's inner leaf -- carries the background,
+// since it's what the hairline technique's gap/padding surrounds, and the
+// only element background/geometry assertions have any reason to inspect.
+const APPEARANCE_BG: Record<CellAppearance, string> = {
+  black: 'bg-foreground',
+  empty: 'bg-grid-empty',
+  letter: 'bg-background',
+  'symmetric-hint': 'bg-background',
+  slot: 'bg-selected/40',
+  selected: 'bg-selected',
+};
 
 export function PuzzleGrid({
   grid,
@@ -12,13 +26,23 @@ export function PuzzleGrid({
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   onCellClick?: (coord: Coord) => void;
 }) {
-  const numbers = buildCellNumberLookup(grid);
+  // Numbers reflect the puzzle as it will actually be, not the raw grid --
+  // otherwise every empty cell looks like a word start (Story D3).
+  const numbers = buildCellNumberLookup(convertEmptyCellsToBlack(grid));
+  const hints = symmetricHintKeys(grid);
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
       const cell = grid.at(col, row) as Cell;
-      const number = numbers.get(cellNumberKey({ col, row }));
-      const highlight = highlights?.get(cellNumberKey({ col, row }));
+      const key = cellNumberKey({ col, row });
+      const number = numbers.get(key);
+      const highlight = highlights?.get(key);
+      const appearance = cellAppearance({
+        cell,
+        isSelected: highlight === 'selected',
+        isInSlot: highlight === 'slot',
+        isSymmetricHint: hints.has(key),
+      });
       cells.push(
         <div
           key={`${col},${row}`}
@@ -27,11 +51,12 @@ export function PuzzleGrid({
           data-kind={cell.kind}
           data-selected={highlight === 'selected' ? 'true' : undefined}
           data-highlight={highlight}
+          data-cell-state={appearance}
+          className={APPEARANCE_BG[appearance]}
         >
           <GridCell
             cell={cell}
             number={number}
-            highlight={highlight}
             onClick={onCellClick ? () => onCellClick({ col, row }) : undefined}
           />
         </div>
@@ -41,10 +66,18 @@ export function PuzzleGrid({
 
   return (
     <div
-      className="grid w-full border border-grid-line"
+      data-testid="puzzle-grid"
+      // Hairlines use the container-background technique (D1c): painted
+      // --color-grid-line, with gap and padding both --grid-line-width so
+      // the same one-pixel division surrounds the outside too, not just
+      // between cells.
+      className="grid w-full bg-grid-line"
       style={{
         gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
+        gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
         aspectRatio: `${grid.cols} / ${grid.rows}`,
+        gap: 'var(--grid-line-width)',
+        padding: 'var(--grid-line-width)',
       }}
     >
       {cells}

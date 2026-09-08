@@ -32,22 +32,15 @@ test.describe('P2-2 grid rendering', () => {
     await expect(page.locator('[data-coord="1,0"]')).toContainText('A');
     await expect(page.locator('[data-coord="2,0"]')).toContainText('T');
 
-    await expect(page.getByTestId('cell-number')).toHaveCount(5);
+    // Story D3 derives numbering from the effective (post-conversion)
+    // geometry: (1,1), (2,1), and (1,2) are active-but-empty, so they
+    // become black before numbering runs. That leaves one across run
+    // (0,0)-(1,0)-(2,0) and one down run (0,0)-(0,1)-(0,2), sharing
+    // number 1 at (0,0); no other cell starts a run of length >= 2.
+    await expect(page.getByTestId('cell-number')).toHaveCount(1);
     await expect(
       page.locator('[data-coord="0,0"]').getByTestId('cell-number')
     ).toContainText('1');
-    await expect(
-      page.locator('[data-coord="1,0"]').getByTestId('cell-number')
-    ).toContainText('2');
-    await expect(
-      page.locator('[data-coord="2,0"]').getByTestId('cell-number')
-    ).toContainText('3');
-    await expect(
-      page.locator('[data-coord="0,1"]').getByTestId('cell-number')
-    ).toContainText('4');
-    await expect(
-      page.locator('[data-coord="0,2"]').getByTestId('cell-number')
-    ).toContainText('5');
   });
 
   test('a blank default-shaped puzzle renders 225 active cells, zero black', async ({

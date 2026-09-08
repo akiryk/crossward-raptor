@@ -102,6 +102,23 @@ the adjacent cells contain.
 content. The grid scales with viewport (that's D5's problem to constrain
 properly), but within a given render every cell is identical and square.
 
+## Test changes
+
+Not anticipated by this story, found during implementation:
+`e2e/grid-rendering.spec.ts` (Story P2's frozen acceptance test) seeded a
+3×3 with a black cell, letters at `(0,0)`/`(1,0)`/`(2,0)`/`(0,1)`/`(0,2)`,
+and asserted 5 numbered cells (1 through 5) under raw-grid numbering. The
+numbering decision above changes that fixture's result: `(1,1)`, `(2,1)`,
+and `(1,2)` are active-but-empty, so they become black before numbering
+runs, leaving exactly one run in each direction — both starting at
+`(0,0)` — and no other cell qualifies. The assertion block was narrowed
+to expect a count of 1 and check only `(0,0)` → `'1'`; the other four
+per-coordinate checks, which asserted numbers that no longer exist, were
+removed. Authorized edit, not a workaround: this is the same "nine
+numbers on a 3×3 with one word in it" case the Decisions section above
+already describes, just discovered against a frozen test rather than
+new code.
+
 ## Scope discipline
 
 - **No preview mode.** D4 owns the black/white/red published rendering.

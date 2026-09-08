@@ -153,6 +153,51 @@ not result, and D1b proved intent and result can silently diverge.
 `docs/LEARNINGS.md` gained entry 7 documenting the incident this story is
 a direct response to.
 
+**Story D3 (build-phase grid) is complete and committed.** Makes the real
+grid look like the style guide's build sample. A new pure
+`src/lib/cell-appearance.ts` exports `cellAppearance` (one derived
+`CellAppearance` value per cell — `black` beats `selected` beats `slot`
+beats the cell's own content — rather than a pile of booleans checked in
+JSX) and `symmetricHintKeys` (Story A's `symmetricCounterpart`, unused by
+any UI until now, applied per render: a lettered cell's empty counterpart
+renders white as a suggestion, never stored). Numbering now derives from
+the *effective* grid — `buildCellNumberLookup(convertEmptyCellsToBlack(
+grid))` — computed at `PuzzleGrid`'s call site rather than inside
+`buildCellNumberLookup` itself, so that function's own committed tests
+(which assert over raw grids) stay meaningful. `PuzzleGrid` adopted D1c's
+container-background hairline technique verbatim (`bg-grid-line`, `gap`
+and `padding` both `--grid-line-width`, `grid-template-rows` added
+alongside the existing `grid-template-columns` so row and column tracks
+divide evenly the same way) — cells carry no border of their own.
+Backgrounds live on the `grid-cell` wrapper `div`, not `GridCell`'s inner
+leaf, since that wrapper is what the hairline's gap/padding surrounds and
+the only element any geometry or background assertion has reason to
+inspect; `GridCell`/`EmptyCell`/`LetterCell`/`BlackCell` dropped the
+`highlight` prop entirely; `BlackCell` needed no functional change beyond
+that (it already had no border).
+
+Two contradictions surfaced during implementation, both resolved with the
+user before proceeding rather than guessed past:
+
+1. The Decisions section requires reusing `convertEmptyCellsToBlack`
+   (PB1a, `src/engine/phase.ts`) at `PuzzleGrid`'s call site, but that
+   function wasn't exported, and Scope discipline separately claimed "no
+   changes to `src/engine/`... consumed as they are." Resolved by
+   exporting it — a visibility-only change, no behavior difference, no
+   existing test affected.
+2. `e2e/grid-rendering.spec.ts` (Story P2's frozen test, not in this
+   story's Repo paths) asserted 5 numbered cells under raw-grid numbering
+   on a fixture where D3's own effective-geometry decision correctly
+   produces exactly 1 (the fixture's two empty cells become black before
+   numbering runs, per `convertEmptyCellsToBlack`, leaving one run in
+   each direction, both starting at `(0,0)`) — contradicting D3's own
+   Definition of Done ("every other spec passes unmodified"). The
+   expected count and resolved coordinate were derived by hand from
+   `convertEmptyCellsToBlack` and `numberGrid`'s rules, then confirmed
+   against the actual render, before narrowing the assertion to match.
+   Recorded in `docs/stories/05-D3-build-grid.md`'s new Test changes
+   section.
+
 ### What exists
 
 ```
@@ -163,6 +208,9 @@ docs/stories/
   05-D1b-style-guide-refinements.md  Story D1b's specification, tracked
   05-D2-core-controls.md             Story D2's specification, tracked
   05-D1c-grid-hairline.md            Story D1c's specification, tracked
+  05-D3-build-grid.md                Story D3's specification, tracked;
+                                       gained a Test changes section for
+                                       the grid-rendering.spec.ts edit
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -179,6 +227,12 @@ e2e/
                          --color-complete from its pinned token list
                          (authorized one-line edit)
   controls.spec.ts      Story D2's acceptance test — do not edit
+  build-grid.spec.ts    Story D3's acceptance test — do not edit
+  grid-rendering.spec.ts  Story P2's acceptance test; Story D3 narrowed
+                         its numbered-cell assertion from 5 (raw-grid
+                         numbering) to 1 at (0,0) (effective-geometry
+                         numbering) -- authorized edit, derived and
+                         confirmed against the render, not guessed
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -236,14 +290,34 @@ src/components/grid/
                           required for editor-actions to physically
                           contain both testids (see "Where things
                           stand" above)
+  PuzzleGrid.tsx         Story D3 — container-background hairline
+                          (bg-grid-line, gap + padding, grid-template-
+                          rows added); numbers from
+                          buildCellNumberLookup(convertEmptyCellsToBlack(
+                          grid)); computes cellAppearance/
+                          symmetricHintKeys per cell and puts the
+                          resulting background on the grid-cell wrapper
+  GridCell.tsx           Story D3 — dropped the highlight prop; no
+                          longer needs appearance either, since
+                          background moved to PuzzleGrid's wrapper
+  EmptyCell.tsx          Story D3 — dropped highlight and its own
+                          background/border; pure layout now
+  LetterCell.tsx         Story D3 — same as EmptyCell
+  BlackCell.tsx          Story D3 — dropped its own bg-foreground
+                          (now on the wrapper); otherwise unchanged
+src/engine/
+  phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
+              visibility only, no behavior change, no existing test
+              affected (see "Where things stand" above)
+src/lib/
+  cell-appearance.ts   Story D3 — new; cellAppearance, symmetricHintKeys
 ```
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **166 Vitest
-tests passing across 14 files** (unchanged since Epic 04's PB1a — this
-epic is Playwright-only so far). `npm run test:e2e` exits 0: **104
-Playwright tests passing across 15 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **180 Vitest
+tests passing across 15 files**. `npm run test:e2e` exits 0: **111
+Playwright tests passing across 16 spec files**.
 
 ---
 

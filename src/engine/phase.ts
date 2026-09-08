@@ -6,8 +6,9 @@ import { hintKey, requiredHints } from './hints';
 
 /** An unfilled cell is a black cell: every active cell holding no letter
  *  becomes black, exactly as-is otherwise. Existing black cells and
- *  lettered cells are unchanged. */
-function convertEmptyCellsToBlack(grid: Grid): Grid {
+ *  lettered cells are unchanged. Exported for Story D3, which derives
+ *  build-phase numbering from this same effective geometry. */
+export function convertEmptyCellsToBlack(grid: Grid): Grid {
   const black: Coord[] = [];
   const letters: { coord: Coord; letter: string }[] = [];
 
