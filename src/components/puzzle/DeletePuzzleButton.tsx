@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { deletePuzzle } from '../../app/puzzles/actions';
+import { Button } from '../ui/Button';
 
 export function DeletePuzzleButton({ puzzleId }: { puzzleId: string }) {
   const router = useRouter();
@@ -19,29 +20,29 @@ export function DeletePuzzleButton({ puzzleId }: { puzzleId: string }) {
     return (
       <div data-testid="delete-confirmation">
         <p>This cannot be undone.</p>
-        <button
-          type="button"
+        <Button
+          variant="danger"
           data-testid="delete-confirm-button"
           onClick={handleConfirm}
           disabled={pending}
         >
           Delete puzzle
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="quiet"
           data-testid="delete-cancel-button"
           onClick={() => setConfirming(false)}
           disabled={pending}
         >
           Cancel
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button type="button" data-testid="delete-puzzle-button" onClick={() => setConfirming(true)}>
+    <Button variant="danger" data-testid="delete-puzzle-button" onClick={() => setConfirming(true)}>
       Delete puzzle
-    </button>
+    </Button>
   );
 }

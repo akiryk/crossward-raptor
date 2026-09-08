@@ -16,7 +16,9 @@ export default async function PuzzlesPage() {
 
   return (
     <div className="p-6">
-      <h1>Puzzles</h1>
+      <h1 data-testid="page-heading" className="font-display text-3xl font-bold">
+        Puzzles
+      </h1>
       <NewPuzzleButton />
       <ul data-testid="puzzle-list">
         {puzzles.map((puzzle) => (
@@ -27,6 +29,7 @@ export default async function PuzzlesPage() {
               data-phase={puzzle.phase}
               data-hints-complete={puzzle.hintsComplete ? 'true' : 'false'}
               data-updated-at={puzzle.updatedAt.toISOString()}
+              className="block cursor-pointer px-3 py-2 hover:bg-hover-tint"
             >
               {puzzle.title} — {formatDate(puzzle.updatedAt)} —{' '}
               {statusText(puzzle.phase, puzzle.hintsComplete)}

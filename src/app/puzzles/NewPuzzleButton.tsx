@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createPuzzle } from './actions';
+import { Button } from '@/components/ui/Button';
 
 export function NewPuzzleButton() {
   const router = useRouter();
@@ -15,13 +16,8 @@ export function NewPuzzleButton() {
   }
 
   return (
-    <button
-      type="button"
-      data-testid="new-puzzle-button"
-      onClick={handleClick}
-      disabled={pending}
-    >
+    <Button data-testid="new-puzzle-button" onClick={handleClick} disabled={pending}>
       New Puzzle
-    </button>
+    </Button>
   );
 }

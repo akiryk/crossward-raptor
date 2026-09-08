@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '../ui/Button';
 
 export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
   const [confirming, setConfirming] = useState(false);
@@ -9,8 +10,8 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
     return (
       <div data-testid="clear-letters-confirmation">
         <p>This cannot be undone.</p>
-        <button
-          type="button"
+        <Button
+          variant="danger"
           data-testid="clear-letters-confirm-button"
           onClick={() => {
             onConfirm();
@@ -18,21 +19,21 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
           }}
         >
           Clear all letters
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="quiet"
           data-testid="clear-letters-cancel-button"
           onClick={() => setConfirming(false)}
         >
           Cancel
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button type="button" data-testid="clear-letters-button" onClick={() => setConfirming(true)}>
+    <Button variant="quiet" data-testid="clear-letters-button" onClick={() => setConfirming(true)}>
       Clear all letters
-    </button>
+    </Button>
   );
 }

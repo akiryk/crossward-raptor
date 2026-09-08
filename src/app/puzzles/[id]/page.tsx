@@ -22,7 +22,6 @@ export default async function PuzzleDetailPage({
     <div className="p-6">
       <PuzzleTitle puzzleId={puzzle.id} initialTitle={puzzle.title} />
       <p data-testid="puzzle-phase">{puzzle.phase}</p>
-      <DeletePuzzleButton puzzleId={puzzle.id} />
       <DuplicatePuzzleButton puzzleId={puzzle.id} />
       <PuzzleGridEditor
         puzzleId={puzzle.id}
@@ -30,6 +29,9 @@ export default async function PuzzleDetailPage({
         initialPhase={puzzle.phase}
         initialHints={puzzle.hints}
       />
+      <div data-testid="danger-zone" className="mt-8 border-t border-rule pt-4">
+        <DeletePuzzleButton puzzleId={puzzle.id} />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,9 @@
+'use client';
+
+import { useState } from 'react';
 import { TokenPanel } from '@/components/style-guide/TokenPanel';
+import { Button } from '@/components/ui/Button';
+import { TextInput } from '@/components/ui/TextInput';
 
 type CellState = 'empty' | 'letter' | 'black' | 'required' | 'cursor' | 'symmetric-hint';
 
@@ -69,6 +74,8 @@ const PREVIEW_CELLS: GridCellSpec[] = [
 ];
 
 export default function StyleGuidePage() {
+  const [demoValue, setDemoValue] = useState('');
+
   return (
     <div className="mx-auto max-w-4xl space-y-12 p-6">
       <h1 className="font-display text-3xl font-bold">Style guide</h1>
@@ -96,28 +103,13 @@ export default function StyleGuidePage() {
             queries and this scoped hover demo resolve to the same
             elements rather than colliding under Playwright's strict mode. */}
         <div data-testid="sg-hover" className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            data-testid="sg-button-primary"
-            className="cursor-pointer rounded-btn bg-accent px-4 py-2 text-white hover:bg-accent-hover"
-          >
-            Primary
-          </button>
-          <button
-            type="button"
-            data-testid="sg-button-quiet"
-            className="cursor-pointer rounded-btn border border-rule-strong bg-background px-4 py-2 text-accent hover:bg-hover-tint"
-          >
+          <Button data-testid="sg-button-primary">Primary</Button>
+          <Button variant="quiet" data-testid="sg-button-quiet">
             Quiet
-          </button>
-          <button
-            type="button"
-            data-testid="sg-button-disabled"
-            disabled
-            className="cursor-not-allowed rounded-btn bg-accent px-4 py-2 text-white opacity-50"
-          >
+          </Button>
+          <Button disabled data-testid="sg-button-disabled">
             Disabled
-          </button>
+          </Button>
           <a
             href="#"
             className="cursor-pointer text-accent underline hover:text-accent-hover hover:no-underline"
@@ -129,11 +121,12 @@ export default function StyleGuidePage() {
 
       <section data-testid="sg-inputs" className="space-y-3">
         <h2 className="font-display text-xl font-semibold">Inputs</h2>
-        <input
+        <TextInput
           data-testid="sg-input"
-          type="text"
+          aria-label="Style guide demo input"
           placeholder="Type here"
-          className="rounded-md border border-rule-strong bg-background px-3 py-2 text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+          value={demoValue}
+          onChange={setDemoValue}
         />
         <input
           data-testid="sg-input-focused-example"
@@ -174,18 +167,8 @@ export default function StyleGuidePage() {
         <div className="rounded-md border border-rule-strong bg-panel-tint px-4 py-3">
           <p className="text-foreground">This cannot be undone.</p>
           <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              className="cursor-pointer rounded-btn bg-accent px-3 py-1 text-white"
-            >
-              Confirm
-            </button>
-            <button
-              type="button"
-              className="cursor-pointer rounded-btn border border-rule-strong px-3 py-1"
-            >
-              Cancel
-            </button>
+            <Button variant="danger">Confirm</Button>
+            <Button variant="quiet">Cancel</Button>
           </div>
         </div>
       </section>

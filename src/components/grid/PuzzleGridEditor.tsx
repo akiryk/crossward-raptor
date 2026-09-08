@@ -206,12 +206,14 @@ export function PuzzleGridEditor({
 
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
-      <PhaseControls
-        phase={phase}
-        emptyCellCount={countEmptyActiveCells(grid)}
-        onEnterHints={handleEnterHints}
-      />
-      <ClearLettersButton onConfirm={handleClearLetters} />
+      <div data-testid="editor-actions" className="flex flex-wrap items-center gap-3">
+        <PhaseControls
+          phase={phase}
+          emptyCellCount={countEmptyActiveCells(grid)}
+          onEnterHints={handleEnterHints}
+        />
+        <ClearLettersButton onConfirm={handleClearLetters} />
+      </div>
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
       )}

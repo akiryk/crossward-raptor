@@ -86,6 +86,49 @@ samples now show identifiable states via `data-cell-state` (`empty`,
 blank placeholder cells. Still static markup — D3 and D4 render the real
 thing.
 
+**Story D2 (core controls) is complete and committed.** Applies D1's
+tokens to the real app via two new shared components,
+`src/components/ui/Button.tsx` (`primary`/`quiet`/`danger` variants) and
+`src/components/ui/TextInput.tsx` — every existing button and text input
+in the app now goes through one of these rather than growing its own
+classes. Danger uses `--color-required` (already established as the
+error/attention colour by D1b's `sg-error` sample) with a
+`hover:brightness-90` filter rather than a dedicated hover token, since
+`--color-required` has no `-hover` companion and this story adds no new
+tokens. `TextInput`'s border is subtle (`--color-rule`) by default and
+strengthens to `--color-accent` on both hover and focus, uniformly for
+every instance — this is what makes the puzzle title's edit affordance
+"always visible, not hover-only" per the story's decision, without
+needing per-site typography overrides the component's contract has no
+room for; the title lost its previous oversized heading-style type
+(`font-display text-2xl font-bold`) as a direct consequence, since
+`TextInput` has one canonical look and the story is explicit that this is
+one styling decision made once, not per-site styling.
+
+Delete moved out of the editor entirely into a `data-testid="danger-zone"`
+region at the end of the puzzle detail page, now the only thing in it.
+`data-testid="editor-actions"` groups the editor's ordinary controls
+(`clear-letters-button`, `enter-hints-button`) with a real gap between
+them. **`src/components/grid/PuzzleGridEditor.tsx` needed a small edit to
+add that wrapper, despite not being listed in this story's Repo
+paths** — `editor-actions` has to physically contain both testids, and
+they're rendered as siblings only there (`PhaseControls` owns
+`enter-hints-button`, `ClearLettersButton` owns `clear-letters-button`).
+Confirmed via the story's own markup contract and acceptance tests before
+making the change, not guessed.
+
+`src/app/style-guide/page.tsx` became a client component (`useState` for
+a real, controlled `sg-input` demo, since `TextInput.onChange` is a
+required prop) and now renders the real `Button`/`TextInput` in every
+place D1/D1b had hand-styled markup standing in for them (`sg-hover`'s
+three buttons, `sg-input`, `sg-confirmation`'s confirm/cancel) — every
+existing testid preserved exactly, `e2e/style-guide.spec.ts` passes
+unmodified as the story required. `sg-input-focused-example` and
+`sg-tooltip`'s trigger button were left as hand-styled markup: neither is
+referenced by any test, and neither is one of the app's real migrated
+controls (the focused-example is a decorative side-by-side demo,
+sourced by neither `Button` nor `TextInput`'s contract).
+
 ### What exists
 
 ```
@@ -94,6 +137,7 @@ docs/epics/
 docs/stories/
   05-D1-tokens-style-guide.md        Story D1's specification, tracked
   05-D1b-style-guide-refinements.md  Story D1b's specification, tracked
+  05-D2-core-controls.md             Story D2's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 e2e/
@@ -103,6 +147,7 @@ e2e/
   shell.spec.ts         Story P0's acceptance test; Story D1b removed
                          --color-complete from its pinned token list
                          (authorized one-line edit)
+  controls.spec.ts      Story D2's acceptance test — do not edit
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -119,20 +164,52 @@ src/app/style-guide/
                  a shared GridSample helper using the container-gap
                  hairline technique with real per-state cells; the
                  --color-complete hint-row reference fixed to
-                 --color-accent
+                 --color-accent. Story D2 — client component now
+                 (useState for a controlled sg-input demo); sg-hover's
+                 buttons, sg-input, and sg-confirmation's buttons render
+                 the real Button/TextInput
+src/app/puzzles/
+  page.tsx            Story D2 — page-heading testid + heading styling;
+                       list rows get cursor-pointer and a hover state
+  NewPuzzleButton.tsx  Story D2 — renders <Button>
+  [id]/page.tsx        Story D2 — DeletePuzzleButton moved into a new
+                       danger-zone region at the end of the page
 src/components/style-guide/
   TokenPanel.tsx   Story D1 — new; one token-row per declared token,
                     a color swatch/font sample/radius or size preview
                     per token kind. Story D1b — --color-complete entry
                     removed
+src/components/ui/
+  Button.tsx      Story D2 — new; primary/quiet/danger variants, no
+                   hover classes at all when disabled
+  TextInput.tsx   Story D2 — new; subtle border strengthening to
+                   --color-accent on hover and focus, uniformly
+src/components/puzzle/
+  PuzzleTitle.tsx        Story D2 — renders <TextInput>, dropped its
+                          previous oversized heading-style typography
+  DeletePuzzleButton.tsx Story D2 — renders <Button variant="danger">
+                          (trigger, confirm) / quiet (cancel)
+src/components/grid/
+  ClearLettersButton.tsx Story D2 — renders <Button variant="quiet">
+                          (trigger) / danger (confirm) / quiet (cancel)
+  PhaseControls.tsx      Story D2 — renders <Button> (enter-hints) /
+                          danger (confirm) / quiet (cancel)
+  HintsPanel.tsx         Story D2 — hint inputs render <TextInput>
+                          with a derived "N Across/Down clue" aria-label
+  PuzzleGridEditor.tsx   Story D2 — adds the editor-actions wrapper div
+                          around PhaseControls/ClearLettersButton;
+                          not listed in the story's Repo paths but
+                          required for editor-actions to physically
+                          contain both testids (see "Where things
+                          stand" above)
 ```
 
 ### The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **166 Vitest
 tests passing across 14 files** (unchanged since Epic 04's PB1a — this
-epic is Playwright-only so far). `npm run test:e2e` exits 0: **94
-Playwright tests passing across 14 spec files**.
+epic is Playwright-only so far). `npm run test:e2e` exits 0: **104
+Playwright tests passing across 15 spec files**.
 
 ---
 

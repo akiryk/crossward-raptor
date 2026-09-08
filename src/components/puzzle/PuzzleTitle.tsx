@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { saveTitle } from '../../app/puzzles/actions';
+import { TextInput } from '../ui/TextInput';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -29,12 +30,6 @@ export function PuzzleTitle({
   }, [title, puzzleId]);
 
   return (
-    <input
-      data-testid="puzzle-title"
-      aria-label="Puzzle title"
-      className="font-display text-2xl font-bold bg-transparent border-none outline-none w-full"
-      value={title}
-      onChange={(event) => setTitle(event.target.value)}
-    />
+    <TextInput data-testid="puzzle-title" aria-label="Puzzle title" value={title} onChange={setTitle} />
   );
 }
