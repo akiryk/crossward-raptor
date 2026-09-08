@@ -32,6 +32,11 @@ _(Confirm/adjust — these are the chosen defaults.)_
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
 - E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
 
+**This is a personal dev machine, not shared infrastructure.** If port 3000
+is already occupied when `npm run dev` or Playwright's webServer needs it,
+kill whatever's listening on it and proceed — don't stop to ask. The worst
+case is a `npm run dev` restart, not lost work.
+
 ---
 
 ## Behavioral rules

@@ -33,7 +33,9 @@
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
       "Bash(gh release create:*)",
-      "Bash(gh auth status)"
+      "Bash(gh auth status)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
