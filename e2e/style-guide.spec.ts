@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 const TOKENS = [
   '--font-display',
@@ -20,7 +21,6 @@ const TOKENS = [
   '--color-cell-fill',
   '--color-selected',
   '--color-required',
-  '--color-complete',
   '--color-incomplete',
   '--radius-btn',
   '--radius-md',
@@ -34,6 +34,7 @@ const SECTIONS = [
   'token-panel',
   'sg-text',
   'sg-buttons',
+  'sg-hover',
   'sg-inputs',
   'sg-links',
   'sg-hint-rows',
@@ -45,13 +46,20 @@ const SECTIONS = [
   'sg-grid-preview',
 ];
 
-function hasOverflow(page: import('@playwright/test').Page) {
+function tokenValue(page: Page, name: string) {
+  return page.evaluate(
+    (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
+    name
+  );
+}
+
+function hasOverflow(page: Page) {
   return page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth
   );
 }
 
-// --- D1-1: tokens ---
+// --- D1-1 / D1b-1: tokens ---
 test.describe('D1-1 tokens', () => {
   test('every declared token resolves to a non-empty value', async ({ page }) => {
     await page.goto('/style-guide');
@@ -76,6 +84,18 @@ test.describe('D1-1 tokens', () => {
       await expect(row, `expected a token row for ${name}`).toBeVisible();
       await expect(row).toContainText(name);
     }
+  });
+
+  test('the duplicate --color-complete token is gone', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    expect(await tokenValue(page, '--color-complete')).toBe('');
+    expect(await tokenValue(page, '--color-accent')).not.toBe('');
+    expect(await tokenValue(page, '--color-incomplete')).not.toBe('');
+
+    await expect(
+      page.locator('[data-testid="token-row"][data-token-name="--color-complete"]')
+    ).toHaveCount(0);
   });
 });
 
@@ -124,17 +144,17 @@ test.describe('D1-3 distinguishable states', () => {
   test('interactive elements report a pointer cursor', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const buttonCursor = await page
-      .getByTestId('sg-button-primary')
-      .evaluate((el) => getComputedStyle(el).cursor);
-    expect(buttonCursor).toBe('pointer');
+    expect(
+      await page.getByTestId('sg-button-primary').evaluate((el) => getComputedStyle(el).cursor)
+    ).toBe('pointer');
 
-    const linkCursor = await page
-      .getByTestId('sg-links')
-      .locator('a')
-      .first()
-      .evaluate((el) => getComputedStyle(el).cursor);
-    expect(linkCursor).toBe('pointer');
+    expect(
+      await page
+        .getByTestId('sg-links')
+        .locator('a')
+        .first()
+        .evaluate((el) => getComputedStyle(el).cursor)
+    ).toBe('pointer');
   });
 
   test('inputs have a visible border', async ({ page }) => {
@@ -189,6 +209,140 @@ test.describe('D1-3 distinguishable states', () => {
       });
 
     expect(complete).not.toBe(incomplete);
+  });
+});
+
+// --- D1b-2: hover ---
+test.describe('D1b-2 hover states', () => {
+  test('hovering the primary button changes its background', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const button = page.getByTestId('sg-hover').getByTestId('sg-button-primary');
+    const before = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
+
+    await button.hover();
+
+    const after = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(after).not.toBe(before);
+  });
+
+  test('hovering a link changes its appearance', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const link = page.getByTestId('sg-hover').locator('a').first();
+    const before = await link.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return `${s.color}|${s.textDecorationLine}|${s.backgroundColor}`;
+    });
+
+    await link.hover();
+
+    const after = await link.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return `${s.color}|${s.textDecorationLine}|${s.backgroundColor}`;
+    });
+    expect(after).not.toBe(before);
+  });
+
+  test('hovering the disabled button changes nothing', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const button = page.getByTestId('sg-hover').getByTestId('sg-button-disabled');
+    const before = await button.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return `${s.backgroundColor}|${s.opacity}|${s.color}`;
+    });
+
+    await button.hover({ force: true });
+
+    const after = await button.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return `${s.backgroundColor}|${s.opacity}|${s.color}`;
+    });
+    expect(after).toBe(before);
+  });
+});
+
+// --- D1b-3: grid hairline ---
+test.describe('D1b-3 grid hairline', () => {
+  for (const sample of ['sg-grid-build', 'sg-grid-preview']) {
+    test(`${sample}: divisions are a single hairline of one colour`, async ({ page }) => {
+      await page.goto('/style-guide');
+
+      const lineWidth = await tokenValue(page, '--grid-line-width');
+      const container = page.getByTestId(sample).locator('[data-testid="sg-grid"]');
+
+      const computed = await container.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return { gap: s.gap, bg: s.backgroundColor };
+      });
+
+      // the gap IS the hairline; its width comes from the token
+      expect(computed.gap.startsWith(lineWidth)).toBe(true);
+
+      // painted in the grid-line colour, so every division looks identical
+      const lineColor = await page.evaluate((raw) => {
+        const probe = document.createElement('div');
+        probe.style.color = raw;
+        document.body.appendChild(probe);
+        const resolved = getComputedStyle(probe).color;
+        probe.remove();
+        return resolved;
+      }, await tokenValue(page, '--color-grid-line'));
+
+      expect(computed.bg).toBe(lineColor);
+    });
+
+    test(`${sample}: cells carry no borders of their own`, async ({ page }) => {
+      await page.goto('/style-guide');
+
+      const cells = page.getByTestId(sample).locator('[data-testid="sg-cell"]');
+      const count = await cells.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const width = await cells.nth(i).evaluate((el) => getComputedStyle(el).borderTopWidth);
+        expect(width).toBe('0px');
+      }
+    });
+
+    test(`${sample}: cells are square and uniformly sized`, async ({ page }) => {
+      await page.goto('/style-guide');
+
+      const cells = page.getByTestId(sample).locator('[data-testid="sg-cell"]');
+      const boxes = await cells.evaluateAll((els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { w: Math.round(r.width), h: Math.round(r.height) };
+        })
+      );
+
+      expect(boxes.length).toBeGreaterThan(0);
+      for (const box of boxes) {
+        expect(box.w).toBe(box.h);
+        expect(box.w).toBe(boxes[0].w);
+      }
+    });
+  }
+});
+
+// --- D1b-4: grid samples show real states ---
+test.describe('D1b-4 grid samples', () => {
+  test('the build sample shows a letter and a number', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const sample = page.getByTestId('sg-grid-build');
+    await expect(sample.locator('[data-cell-state="letter"]').first()).toBeVisible();
+    await expect(sample.locator('[data-testid="sg-cell-number"]').first()).toBeVisible();
+  });
+
+  test('the preview sample shows a letter, a number, and a required cell', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const sample = page.getByTestId('sg-grid-preview');
+    await expect(sample.locator('[data-cell-state="letter"]').first()).toBeVisible();
+    await expect(sample.locator('[data-testid="sg-cell-number"]').first()).toBeVisible();
+    await expect(sample.locator('[data-cell-state="required"]').first()).toBeVisible();
   });
 });
 
