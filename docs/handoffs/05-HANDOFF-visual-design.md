@@ -129,6 +129,30 @@ referenced by any test, and neither is one of the app's real migrated
 controls (the focused-example is a decorative side-by-side demo,
 sourced by neither `Button` nor `TextInput`'s contract).
 
+**Story D1c (grid hairline: outer edge and real measurement) is complete
+and committed.** A second D1 follow-up, from looking at the corrected D1b
+samples: white cells against the white page had no visible edge at all,
+since the inner hairline only ever showed up *between* cells, never around
+the outside. Fixed with `padding: var(--grid-line-width)` on the `sg-grid`
+container — its background now shows around the perimeter exactly as it
+already did between cells, so every cell edge is bounded regardless of
+what's adjacent to it or what the cell itself contains.
+
+The more consequential change is in the tests, not the markup.
+`e2e/style-guide.spec.ts`'s old hairline assertions checked
+`getComputedStyle(container).gap` — CSS that was never actually wrong
+(D1b's real bug left `rowGap`/`columnGap` both reporting a correct `1px`
+the entire time the render was broken by ~13px). Those assertions are
+**removed, not kept alongside**: a new `measureSample` helper reads
+`getBoundingClientRect()` on the actual cells and container, checking the
+real pixel distance between adjacent cells and between the outermost
+cells and the container's edge, within half a pixel. That holds regardless
+of *how* the spacing is achieved (gap, padding, track sizing), which is
+what's actually worth testing — a declared-CSS assertion describes intent,
+not result, and D1b proved intent and result can silently diverge.
+`docs/LEARNINGS.md` gained entry 7 documenting the incident this story is
+a direct response to.
+
 ### What exists
 
 ```
@@ -138,12 +162,19 @@ docs/stories/
   05-D1-tokens-style-guide.md        Story D1's specification, tracked
   05-D1b-style-guide-refinements.md  Story D1b's specification, tracked
   05-D2-core-controls.md             Story D2's specification, tracked
+  05-D1c-grid-hairline.md            Story D1c's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
+docs/
+  LEARNINGS.md   Story D1c — entry 7, measuring rendered geometry
+                  instead of declared CSS for visual bugs
 e2e/
   style-guide.spec.ts   Story D1's acceptance test, extended by D1b
                          (hover, grid hairline, grid samples, the
-                         --color-complete removal) — do not edit
+                         --color-complete removal). Story D1c — the
+                         gap/background-based hairline assertions
+                         replaced with a measureSample helper reading
+                         getBoundingClientRect — do not edit
   shell.spec.ts         Story P0's acceptance test; Story D1b removed
                          --color-complete from its pinned token list
                          (authorized one-line edit)
@@ -167,7 +198,10 @@ src/app/style-guide/
                  --color-accent. Story D2 — client component now
                  (useState for a controlled sg-input demo); sg-hover's
                  buttons, sg-input, and sg-confirmation's buttons render
-                 the real Button/TextInput
+                 the real Button/TextInput. Story D1c — sg-grid gains
+                 padding: var(--grid-line-width) so the hairline
+                 surrounds the outside too, not just divisions between
+                 cells
 src/app/puzzles/
   page.tsx            Story D2 — page-heading testid + heading styling;
                        list rows get cursor-pointer and a hover state

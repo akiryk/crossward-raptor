@@ -25,7 +25,10 @@ const CELL_BG: Record<CellState, string> = {
 // The hairline is the container's own background showing through a 1px
 // gap -- cells carry no border of their own, so the division between two
 // cells is always exactly one pixel of --color-grid-line, regardless of
-// what either cell contains.
+// what either cell contains. Padding equal to the same width extends that
+// hairline around the outer perimeter too, so a white cell against the
+// page background is still bounded on every side, not just where it
+// happens to sit next to a differently-coloured cell.
 function GridSample({ cells }: { cells: GridCellSpec[] }) {
   return (
     <div
@@ -37,7 +40,7 @@ function GridSample({ cells }: { cells: GridCellSpec[] }) {
       // gap. Explicit fixed-width tracks matching the cells exactly (and
       // no declared container width) remove the slack entirely.
       className="grid w-fit grid-cols-[repeat(3,2.5rem)] bg-grid-line"
-      style={{ gap: 'var(--grid-line-width)' }}
+      style={{ gap: 'var(--grid-line-width)', padding: 'var(--grid-line-width)' }}
     >
       {cells.map((cell, index) => (
         <div
