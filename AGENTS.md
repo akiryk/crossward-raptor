@@ -32,10 +32,20 @@ _(Confirm/adjust — these are the chosen defaults.)_
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
 - E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
 
-**This is a personal dev machine, not shared infrastructure.** If port 3000
-is already occupied when `npm run dev` or Playwright's webServer needs it,
-kill whatever's listening on it and proceed — don't stop to ask. The worst
-case is a `npm run dev` restart, not lost work.
+**`npm run test:e2e` clears its own path automatically** (`pretest:e2e` →
+`scripts/free-e2e-port.mjs`) before Playwright starts. Two things needed
+clearing, not one: Playwright's webServer runs on its own dedicated port,
+3100, distinct from `npm run dev`'s default 3000 (see
+`playwright.config.ts`) — but a manually-running `next dev` for *this*
+project blocks a second one even on a different port, since Next.js's
+dev-server lock (`.next/dev/lock`) is scoped to the project directory, not
+the port. The script clears both: it kills whatever holds that lock, and
+whatever's bound to 3100 itself. No manual intervention needed.
+
+**This is a personal dev machine, not shared infrastructure**, generally —
+if a port or process is in the way of anything else, kill it and proceed
+rather than stopping to ask. The worst case is restarting `npm run dev`,
+not lost work.
 
 ---
 

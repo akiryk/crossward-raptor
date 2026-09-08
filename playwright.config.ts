@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3100',
   },
   projects: [
     {
@@ -17,13 +17,17 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    // Always false, unlike the usual !process.env.CI pattern: this
+    // A dedicated port, distinct from npm run dev's default 3000, so this
+    // suite's own server never collides with a manually-run dev server.
+    command: 'next dev -p 3100',
+    url: 'http://localhost:3100',
+    // Still false, unlike the usual !process.env.CI pattern: this
     // webServer always needs the DATABASE_URL override below, so reusing
     // an already-running dev server (started with the real DATABASE_URL)
-    // is never correct here. A stale server would otherwise silently query
-    // the wrong database instead of failing loudly with "port in use".
+    // is never correct here. The dedicated port above stops accidental
+    // collisions with a manual dev server; this stops a stale leftover
+    // Playwright-spawned server (e.g. from a killed previous run) from
+    // being silently reused with the wrong database.
     reuseExistingServer: false,
     env: {
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? '',

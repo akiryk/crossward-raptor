@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "pretest:e2e": "node scripts/free-e2e-port.mjs",
     "test:e2e": "playwright test",
     "verify": "tsc --noEmit && npm run lint && vitest run"
   },
