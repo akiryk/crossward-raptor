@@ -46,6 +46,9 @@ const SECTIONS = [
   'sg-grid-preview',
 ];
 
+const GRID_SAMPLES = ['sg-grid-build', 'sg-grid-preview'];
+const TOLERANCE = 0.5; // browsers lay out on subpixels
+
 function tokenValue(page: Page, name: string) {
   return page.evaluate(
     (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
@@ -59,7 +62,42 @@ function hasOverflow(page: Page) {
   );
 }
 
-// --- D1-1 / D1b-1: tokens ---
+function styleOf(locator: ReturnType<Page['locator']>, props: string[]) {
+  return locator.evaluate((el, keys) => {
+    const s = getComputedStyle(el);
+    return keys.map((k) => s.getPropertyValue(k)).join('|');
+  }, props);
+}
+
+/**
+ * Measures the sample's rendered geometry rather than its declared CSS.
+ *
+ * A previous version of these tests asserted on computed `gap`, and passed
+ * while columns were ~13px apart: the cells were narrower than their grid
+ * tracks, so unused track space sat beside each one in the same colour as
+ * the hairline. The declared gap was genuinely 1px; the render was not.
+ * Only measurement catches that.
+ */
+async function measureSample(page: Page, sample: string) {
+  return page.evaluate((testid) => {
+    const section = document.querySelector(`[data-testid="${testid}"]`);
+    const container = section?.querySelector('[data-testid="sg-grid"]');
+    if (!container) throw new Error(`no sg-grid inside ${testid}`);
+
+    const cells = Array.from(
+      container.querySelectorAll('[data-testid="sg-cell"]')
+    ) as HTMLElement[];
+
+    const box = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, w: r.width, h: r.height };
+    };
+
+    return { container: box(container), cells: cells.map(box) };
+  }, sample);
+}
+
+// --- D1-1: tokens ---
 test.describe('D1-1 tokens', () => {
   test('every declared token resolves to a non-empty value', async ({ page }) => {
     await page.goto('/style-guide');
@@ -174,17 +212,9 @@ test.describe('D1-3 distinguishable states', () => {
     await page.goto('/style-guide');
 
     const input = page.getByTestId('sg-input');
-    const before = await input.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.borderTopColor}|${s.boxShadow}|${s.outlineWidth}`;
-    });
-
+    const before = await styleOf(input, ['border-top-color', 'box-shadow', 'outline-width']);
     await input.focus();
-
-    const after = await input.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.borderTopColor}|${s.boxShadow}|${s.outlineWidth}`;
-    });
+    const after = await styleOf(input, ['border-top-color', 'box-shadow', 'outline-width']);
 
     expect(after).not.toBe(before);
   });
@@ -193,20 +223,16 @@ test.describe('D1-3 distinguishable states', () => {
     await page.goto('/style-guide');
 
     const section = page.getByTestId('sg-hint-rows');
-    const complete = await section
-      .locator('[data-complete="true"]')
-      .first()
-      .evaluate((el) => {
-        const s = getComputedStyle(el);
-        return `${s.color}|${s.backgroundColor}|${s.borderLeftColor}`;
-      });
-    const incomplete = await section
-      .locator('[data-complete="false"]')
-      .first()
-      .evaluate((el) => {
-        const s = getComputedStyle(el);
-        return `${s.color}|${s.backgroundColor}|${s.borderLeftColor}`;
-      });
+    const complete = await styleOf(section.locator('[data-complete="true"]').first(), [
+      'color',
+      'background-color',
+      'border-left-color',
+    ]);
+    const incomplete = await styleOf(section.locator('[data-complete="false"]').first(), [
+      'color',
+      'background-color',
+      'border-left-color',
+    ]);
 
     expect(complete).not.toBe(incomplete);
   });
@@ -219,10 +245,9 @@ test.describe('D1b-2 hover states', () => {
 
     const button = page.getByTestId('sg-hover').getByTestId('sg-button-primary');
     const before = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
-
     await button.hover();
-
     const after = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
+
     expect(after).not.toBe(before);
   });
 
@@ -230,17 +255,10 @@ test.describe('D1b-2 hover states', () => {
     await page.goto('/style-guide');
 
     const link = page.getByTestId('sg-hover').locator('a').first();
-    const before = await link.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.color}|${s.textDecorationLine}|${s.backgroundColor}`;
-    });
-
+    const before = await styleOf(link, ['color', 'text-decoration-line', 'background-color']);
     await link.hover();
+    const after = await styleOf(link, ['color', 'text-decoration-line', 'background-color']);
 
-    const after = await link.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.color}|${s.textDecorationLine}|${s.backgroundColor}`;
-    });
     expect(after).not.toBe(before);
   });
 
@@ -248,83 +266,82 @@ test.describe('D1b-2 hover states', () => {
     await page.goto('/style-guide');
 
     const button = page.getByTestId('sg-hover').getByTestId('sg-button-disabled');
-    const before = await button.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.backgroundColor}|${s.opacity}|${s.color}`;
-    });
-
+    const before = await styleOf(button, ['background-color', 'opacity', 'color']);
     await button.hover({ force: true });
+    const after = await styleOf(button, ['background-color', 'opacity', 'color']);
 
-    const after = await button.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return `${s.backgroundColor}|${s.opacity}|${s.color}`;
-    });
     expect(after).toBe(before);
   });
 });
 
-// --- D1b-3: grid hairline ---
-test.describe('D1b-3 grid hairline', () => {
-  for (const sample of ['sg-grid-build', 'sg-grid-preview']) {
-    test(`${sample}: divisions are a single hairline of one colour`, async ({ page }) => {
+// --- D1c-1 / D1c-2 / D1c-3: measured grid geometry ---
+test.describe('D1c grid geometry (measured, not declared)', () => {
+  for (const sample of GRID_SAMPLES) {
+    test(`${sample}: adjacent cells are exactly one hairline apart`, async ({ page }) => {
       await page.goto('/style-guide');
 
-      const lineWidth = await tokenValue(page, '--grid-line-width');
-      const container = page.getByTestId(sample).locator('[data-testid="sg-grid"]');
+      const line = parseFloat(await tokenValue(page, '--grid-line-width'));
+      const { cells } = await measureSample(page, sample);
+      expect(cells.length).toBeGreaterThan(1);
 
-      const computed = await container.evaluate((el) => {
-        const s = getComputedStyle(el);
-        return { rowGap: s.rowGap, columnGap: s.columnGap, bg: s.backgroundColor };
-      });
+      let horizontal = 0;
+      let vertical = 0;
 
-      // the gap IS the hairline on both axes; its width comes from the
-      // token exactly -- checked separately, since the shorthand `gap`
-      // computes as "<row> <column>" and startsWith("1px") would pass
-      // even if the two differed (e.g. "1px 10px").
-      expect(computed.rowGap).toBe(lineWidth);
-      expect(computed.columnGap).toBe(lineWidth);
+      for (const a of cells) {
+        for (const b of cells) {
+          const sameRow = Math.abs(a.top - b.top) < TOLERANCE;
+          const sameCol = Math.abs(a.left - b.left) < TOLERANCE;
 
-      // painted in the grid-line colour, so every division looks identical
-      const lineColor = await page.evaluate((raw) => {
-        const probe = document.createElement('div');
-        probe.style.color = raw;
-        document.body.appendChild(probe);
-        const resolved = getComputedStyle(probe).color;
-        probe.remove();
-        return resolved;
-      }, await tokenValue(page, '--color-grid-line'));
+          if (sameRow && b.left > a.right - TOLERANCE) {
+            const distance = b.left - a.right;
+            if (distance < line * 4) {
+              expect(distance, `${sample}: column gap`).toBeCloseTo(line, 0);
+              horizontal++;
+            }
+          }
+          if (sameCol && b.top > a.bottom - TOLERANCE) {
+            const distance = b.top - a.bottom;
+            if (distance < line * 4) {
+              expect(distance, `${sample}: row gap`).toBeCloseTo(line, 0);
+              vertical++;
+            }
+          }
+        }
+      }
 
-      expect(computed.bg).toBe(lineColor);
+      // the sample must actually contain adjacent pairs in both directions,
+      // or the assertions above are vacuous
+      expect(horizontal, `${sample}: horizontally adjacent pairs`).toBeGreaterThan(0);
+      expect(vertical, `${sample}: vertically adjacent pairs`).toBeGreaterThan(0);
     });
 
-    test(`${sample}: cells carry no borders of their own`, async ({ page }) => {
+    test(`${sample}: a hairline surrounds the outside too`, async ({ page }) => {
       await page.goto('/style-guide');
 
-      const cells = page.getByTestId(sample).locator('[data-testid="sg-cell"]');
-      const count = await cells.count();
-      expect(count).toBeGreaterThan(0);
+      const line = parseFloat(await tokenValue(page, '--grid-line-width'));
+      const { container, cells } = await measureSample(page, sample);
 
-      for (let i = 0; i < count; i++) {
-        const width = await cells.nth(i).evaluate((el) => getComputedStyle(el).borderTopWidth);
-        expect(width).toBe('0px');
-      }
+      const left = Math.min(...cells.map((c) => c.left)) - container.left;
+      const top = Math.min(...cells.map((c) => c.top)) - container.top;
+      const right = container.right - Math.max(...cells.map((c) => c.right));
+      const bottom = container.bottom - Math.max(...cells.map((c) => c.bottom));
+
+      expect(left, `${sample}: left edge`).toBeCloseTo(line, 0);
+      expect(top, `${sample}: top edge`).toBeCloseTo(line, 0);
+      expect(right, `${sample}: right edge`).toBeCloseTo(line, 0);
+      expect(bottom, `${sample}: bottom edge`).toBeCloseTo(line, 0);
     });
 
     test(`${sample}: cells are square and uniformly sized`, async ({ page }) => {
       await page.goto('/style-guide');
 
-      const cells = page.getByTestId(sample).locator('[data-testid="sg-cell"]');
-      const boxes = await cells.evaluateAll((els) =>
-        els.map((el) => {
-          const r = el.getBoundingClientRect();
-          return { w: Math.round(r.width), h: Math.round(r.height) };
-        })
-      );
+      const { cells } = await measureSample(page, sample);
+      expect(cells.length).toBeGreaterThan(0);
 
-      expect(boxes.length).toBeGreaterThan(0);
-      for (const box of boxes) {
-        expect(box.w).toBe(box.h);
-        expect(box.w).toBe(boxes[0].w);
+      for (const cell of cells) {
+        expect(cell.w).toBeCloseTo(cell.h, 0);
+        expect(cell.w).toBeCloseTo(cells[0].w, 0);
+        expect(cell.h).toBeCloseTo(cells[0].h, 0);
       }
     });
   }

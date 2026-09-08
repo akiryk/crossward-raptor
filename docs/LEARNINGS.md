@@ -126,3 +126,28 @@ isn't obvious, or if the setup would satisfy the assertion before the
 behavior runs, the test isn't testing anything. This applies especially to
 waits (does the condition already hold?) and to negative assertions (would
 this also pass on a blank page?).
+
+## 7. For visual bugs, measure the render — declared CSS describes intent
+
+The style guide's grid samples showed roughly 13px gaps between columns
+and 1px between rows. The obvious hypothesis was that the CSS `gap` was
+wrong, and the tests asserted on computed `gap` — which reported exactly
+`1px` for both axes, correctly, the entire time the render was broken.
+
+The real cause was elsewhere: cells were a fixed 40px wide inside
+equal-fraction grid tracks about 52.67px wide, so each cell left-aligned
+and left ~12.67px of unused track beside it. That leftover space was the
+same colour as the hairline, so it read as one thick gap. The declared
+spacing and the rendered spacing simply weren't the same number, and no
+assertion about the declared value could have caught it.
+
+A second problem in the same fix — the container stretching to fill its
+section once a width was removed — was found only by screenshotting the
+element, not by reading any numeric property.
+
+**Rule:** when a visual symptom and the declared styles disagree, believe
+the render. Measure `getBoundingClientRect` on the actual elements, or
+screenshot them. Tests that assert on CSS properties describe how a layout
+was *meant* to be achieved; tests that measure geometry describe what a
+person will actually see, and only the second kind survives a change in
+technique.
