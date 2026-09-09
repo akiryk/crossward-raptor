@@ -20,7 +20,20 @@ function appearance(
   });
 }
 
-// --- D3-1: cellAppearance ---
+function preview(
+  cell: Cell,
+  flags: Partial<{ isSelected: boolean; isInSlot: boolean; isSymmetricHint: boolean }> = {}
+) {
+  return cellAppearance({
+    cell,
+    isSelected: flags.isSelected ?? false,
+    isInSlot: flags.isInSlot ?? false,
+    isSymmetricHint: flags.isSymmetricHint ?? false,
+    mode: 'preview',
+  });
+}
+
+// --- D3-1: cellAppearance (unchanged from Story D3) ---
 describe('D3-1 cellAppearance', () => {
   it('a black cell is black regardless of any other flag', () => {
     expect(appearance(BLACK)).toBe('black');
@@ -52,7 +65,7 @@ describe('D3-1 cellAppearance', () => {
   });
 });
 
-// --- D3-1: symmetricHintKeys ---
+// --- D3-1: symmetricHintKeys (unchanged from Story D3) ---
 describe('D3-1 symmetricHintKeys', () => {
   it('a letter at (0,0) makes (2,2) a hint on a 3x3', () => {
     const grid = withLetter(createGrid({ cols: 3, rows: 3 }), { col: 0, row: 0 }, 'A');
@@ -111,5 +124,41 @@ describe('D3-1 symmetricHintKeys', () => {
     const keys = symmetricHintKeys(grid);
 
     expect(keys.has(cellNumberKey({ col: 2, row: 4 }))).toBe(true);
+  });
+});
+
+// --- D4-1: cellAppearance in preview mode ---
+describe('D4-1 cellAppearance preview mode', () => {
+  it('an empty cell reads as black', () => {
+    expect(preview(EMPTY)).toBe('black');
+  });
+
+  it('an empty symmetric counterpart reads as required', () => {
+    expect(preview(EMPTY, { isSymmetricHint: true })).toBe('required');
+  });
+
+  it('a lettered cell still reads as a letter', () => {
+    expect(preview(LETTER)).toBe('letter');
+  });
+
+  it('a black cell still reads as black', () => {
+    expect(preview(BLACK)).toBe('black');
+  });
+
+  it('selection is ignored', () => {
+    expect(preview(LETTER, { isSelected: true })).toBe('letter');
+    expect(preview(EMPTY, { isSelected: true })).toBe('black');
+    expect(preview(EMPTY, { isSelected: true, isSymmetricHint: true })).toBe('required');
+  });
+
+  it('slot membership is ignored', () => {
+    expect(preview(LETTER, { isInSlot: true })).toBe('letter');
+    expect(preview(EMPTY, { isInSlot: true })).toBe('black');
+  });
+
+  it('omitting mode behaves exactly as build mode', () => {
+    const args = { cell: EMPTY, isSelected: false, isInSlot: false, isSymmetricHint: true };
+    expect(cellAppearance(args)).toBe(cellAppearance({ ...args, mode: 'build' }));
+    expect(cellAppearance(args)).toBe('symmetric-hint');
   });
 });
