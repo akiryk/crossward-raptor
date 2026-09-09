@@ -3,14 +3,19 @@
 import { useState } from 'react';
 import type { Phase } from '../../engine/puzzle';
 import { Button } from '../ui/Button';
+import { Stepper } from './Stepper';
+import { stepStates } from '../../lib/stepper';
+import type { StepId } from '../../lib/stepper';
 
 export function PhaseControls({
   phase,
   emptyCellCount,
+  hintsComplete,
   onEnterHints,
 }: {
   phase: Phase;
   emptyCellCount: number;
+  hintsComplete: boolean;
   onEnterHints: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
@@ -20,11 +25,18 @@ export function PhaseControls({
     setConfirming(false);
   }
 
+  function handleStepClick(id: StepId) {
+    if (id === 'clues' && phase === 'grid') {
+      setConfirming(true);
+    }
+  }
+
   return (
     <div>
       <span data-testid="phase-badge">{phase}</span>
+      <Stepper steps={stepStates({ phase, hintsComplete })} onStepClick={handleStepClick} />
       {phase === 'grid' && !confirming && (
-        <Button data-testid="enter-hints-button" onClick={() => setConfirming(true)}>
+        <Button variant="quiet" data-testid="enter-hints-button" onClick={() => setConfirming(true)}>
           Enter hints phase
         </Button>
       )}

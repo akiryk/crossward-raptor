@@ -257,6 +257,36 @@ the standard fix for this class of bug (same family as the column-
 shrink issue D1c fixed for the style guide, now hitting rows in the
 real grid).
 
+**Story D5b (stepper navigation) is complete and committed.** It adds
+the build → clues → publish header and makes its labels the primary
+navigation, alongside (not replacing) the existing continue button. New
+`src/lib/stepper.ts` exports `stepStates`, a pure function of `{ phase,
+hintsComplete }` returning the three steps in order, each carrying a
+derived `status` and — only when `unavailable` — a `reason` explaining
+why. New `Stepper.tsx` renders them, revealing a step's reason on click
+rather than hover (touch devices have no hover), and calling back up to
+`PhaseControls` only for clicks on a non-unavailable step. `PhaseControls`
+now computes `hintsComplete` via the engine's existing `hintsComplete
+(puzzle)` (already used by `puzzle-summary.ts` for the list page) rather
+than a new rule, and the continue button drops to the `quiet` variant —
+it's no longer the most prominent thing on the page during the phase
+where leaving is least wanted.
+
+Adding the stepper grew the header above `editor-layout`, which broke
+D5a's own frozen fit test at 1280×800 by a few pixels — `grid.bottom`
+exceeded the viewport because D5a's `VERTICAL_ALLOWANCE_PX` constant
+didn't anticipate the new row. Bumped from 260 to 300; this is the
+exact class of thing D5b's own DoD item 3 says to check for, not a
+layout redesign (D5a's arrangement itself is untouched). Separately,
+`persistence.spec.ts`'s new-puzzle test failed under direct `npx
+playwright test` invocation, mid-session, with no network request ever
+firing on the button click — bisected via `git stash` to rule out a
+D5b regression, then traced to a stale `next dev -p 3100` process left
+over from bypassing `npm run test:e2e`'s `pretest:e2e` port/lock-clearing
+hook (see the port/lock note earlier in this file and in `AGENTS.md`).
+Running through `npm run test:e2e` as intended made it disappear —
+no code was at fault.
+
 ### What exists
 
 ```
@@ -271,6 +301,7 @@ docs/stories/
                                        gained a Test changes section for
                                        the grid-rendering.spec.ts edit
   05-D5a-editor-layout.md             Story D5a's specification, tracked
+  05-D5b-stepper.md                    Story D5b's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -294,6 +325,7 @@ e2e/
                          numbering) -- authorized edit, derived and
                          confirmed against the render, not guessed
   editor-layout.spec.ts  Story D5a's acceptance test — do not edit
+  stepper.spec.ts        Story D5b's acceptance test — do not edit
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -384,6 +416,15 @@ src/components/grid/
                           640px hard max) composed with a responsive
                           max-width class; hints-region caps height to
                           the same formula and scrolls internally
+  Stepper.tsx            Story D5b — new; renders the three steps,
+                          reveals a step's reason on click (not hover)
+  PhaseControls.tsx      Story D5b — renders <Stepper>; continue button
+                          drops to the quiet variant; now takes a
+                          hintsComplete prop
+  PuzzleGridEditor.tsx   Story D5b — passes hintsComplete (via the
+                          engine's hintsComplete(puzzle)) to
+                          PhaseControls; VERTICAL_ALLOWANCE_PX bumped
+                          260 -> 300 for the taller header
 src/engine/
   phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
               visibility only, no behavior change, no existing test
@@ -393,13 +434,15 @@ src/lib/
                         Story D4 — cellAppearance gains optional mode?
                         param ('build' default); preview mode ignores
                         selection/slot, adds the 'required' appearance
+  stepper.ts           Story D5b — new; pure stepStates(phase,
+                        hintsComplete) -> readonly Step[]
 ```
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **187 Vitest
-tests passing across 15 files**. `npm run test:e2e` exits 0: **129
-Playwright tests passing across 18 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **196 Vitest
+tests passing across 16 files**. `npm run test:e2e` exits 0: **136
+Playwright tests passing across 19 spec files**.
 
 ---
 

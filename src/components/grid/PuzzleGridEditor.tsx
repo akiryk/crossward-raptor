@@ -7,6 +7,7 @@ import type { CursorState } from '../../engine/cursor';
 import { arrowKey, deleteAt, moveTo, place } from '../../engine/cursor';
 import type { Phase } from '../../engine/puzzle';
 import { applyGeometryEdit } from '../../engine/phase';
+import { hintsComplete } from '../../engine/hints';
 import { deserializeGrid, serializeGrid, type SerializedGrid } from '../../lib/puzzle-storage';
 import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
@@ -21,9 +22,10 @@ import { PreviewToggle } from './PreviewToggle';
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
 // Space reserved above editor-layout for the title, phase line, and
-// editor-actions row, so the height-based term of the grid's min() sizing
-// (Story D5a) doesn't push its bottom edge past the viewport.
-const VERTICAL_ALLOWANCE_PX = 260;
+// editor-actions row (now including the stepper, Story D5b), so the
+// height-based term of the grid's min() sizing (Story D5a) doesn't push
+// its bottom edge past the viewport.
+const VERTICAL_ALLOWANCE_PX = 300;
 
 interface EditorState {
   grid: Grid;
@@ -219,6 +221,7 @@ export function PuzzleGridEditor({
         <PhaseControls
           phase={phase}
           emptyCellCount={countEmptyActiveCells(grid)}
+          hintsComplete={hintsComplete({ grid, hints, phase })}
           onEnterHints={handleEnterHints}
         />
         <ClearLettersButton onConfirm={handleClearLetters} />
