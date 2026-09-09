@@ -1,7 +1,12 @@
 import type { Cell, Coord, Grid } from '../../engine/grid';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { buildCellNumberLookup, cellNumberKey } from '../../lib/cell-number-lookup';
-import { cellAppearance, symmetricHintKeys, type CellAppearance } from '../../lib/cell-appearance';
+import {
+  cellAppearance,
+  symmetricHintKeys,
+  type CellAppearance,
+  type GridMode,
+} from '../../lib/cell-appearance';
 import { GridCell } from './GridCell';
 
 // The cell wrapper -- not GridCell's inner leaf -- carries the background,
@@ -12,6 +17,7 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   empty: 'bg-grid-empty',
   letter: 'bg-background',
   'symmetric-hint': 'bg-background',
+  required: 'bg-required',
   slot: 'bg-selected/40',
   selected: 'bg-selected',
 };
@@ -19,15 +25,18 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
 export function PuzzleGrid({
   grid,
   highlights,
+  mode = 'build',
   onCellClick,
 }: {
   grid: Grid;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
+  mode?: GridMode;
   onCellClick?: (coord: Coord) => void;
 }) {
   // Numbers reflect the puzzle as it will actually be, not the raw grid --
-  // otherwise every empty cell looks like a word start (Story D3).
+  // otherwise every empty cell looks like a word start (Story D3). Same
+  // numbers in both modes -- preview doesn't change the effective geometry.
   const numbers = buildCellNumberLookup(convertEmptyCellsToBlack(grid));
   const hints = symmetricHintKeys(grid);
   const cells = [];
@@ -42,6 +51,7 @@ export function PuzzleGrid({
         isSelected: highlight === 'selected',
         isInSlot: highlight === 'slot',
         isSymmetricHint: hints.has(key),
+        mode,
       });
       cells.push(
         <div
@@ -67,6 +77,7 @@ export function PuzzleGrid({
   return (
     <div
       data-testid="puzzle-grid"
+      data-grid-mode={mode}
       // Hairlines use the container-background technique (D1c): painted
       // --color-grid-line, with gap and padding both --grid-line-width so
       // the same one-pixel division surrounds the outside too, not just

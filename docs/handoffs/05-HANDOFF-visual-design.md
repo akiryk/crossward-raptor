@@ -198,6 +198,36 @@ user before proceeding rather than guessed past:
    Recorded in `docs/stories/05-D3-build-grid.md`'s new Test changes
    section.
 
+**Story D4 (preview and published grid) is complete and committed.** It
+absorbs PB1b from the publishing epic — the grid-phase preview toggle
+showing the grid as it will look once published. `cellAppearance` gained
+an optional `mode?: GridMode` parameter (`'build'` default) rather than a
+second function, so D3's committed cases call it exactly as before;
+preview mode ignores selection and slot entirely (the builder's cursor
+state isn't the puzzle's), and answers only: black stays black, lettered
+cells are letters, empty cells go black, and empty symmetric
+counterparts become the new `required` appearance (`--color-required`,
+already established, no new token). New `PreviewToggle.tsx` renders a
+`<Button variant="quiet">`, shown only in grid phase (`PuzzleGridEditor`
+gates it on `phase === 'grid'`, alongside the other `editor-actions`
+controls); preview state is a plain `useState` in `PuzzleGridEditor`,
+never persisted, so a reload always returns to build view. `PuzzleGrid`
+gained a `mode?: GridMode` prop (default `'build'`), threading straight
+into `cellAppearance` and onto a new `data-grid-mode` attribute on the
+container.
+
+D3's architecture — background centralized on the `grid-cell` wrapper
+via a single `APPEARANCE_BG` lookup in `PuzzleGrid.tsx`, with
+`GridCell`/`EmptyCell`/`LetterCell`/`BlackCell` reduced to pure
+dispatch/layout — meant the `required` state needed only one new entry
+in that lookup table. None of those four leaf components changed at
+all, despite being named in this story's own Repo paths (an assumption
+carried over from before D3's refactor); a `required` cell is still
+content-wise just an empty active cell, so it still renders through the
+same `EmptyCell` branch, only with a different background. No repeat of
+D3's frozen-test surprise this time — `npm run test:e2e` passed clean on
+the first run across every spec, `grid-rendering.spec.ts` included.
+
 ### What exists
 
 ```
@@ -305,19 +335,30 @@ src/components/grid/
   LetterCell.tsx         Story D3 — same as EmptyCell
   BlackCell.tsx          Story D3 — dropped its own bg-foreground
                           (now on the wrapper); otherwise unchanged
+  PreviewToggle.tsx      Story D4 — new; <Button variant="quiet">,
+                          toggles build/preview
+  PuzzleGrid.tsx         Story D4 — adds mode? prop (default 'build'),
+                          threaded into cellAppearance and onto a new
+                          data-grid-mode attribute
+  PuzzleGridEditor.tsx   Story D4 — adds isPreviewing useState (not
+                          persisted); renders PreviewToggle in
+                          editor-actions, gated on phase === 'grid'
 src/engine/
   phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
               visibility only, no behavior change, no existing test
               affected (see "Where things stand" above)
 src/lib/
   cell-appearance.ts   Story D3 — new; cellAppearance, symmetricHintKeys
+                        Story D4 — cellAppearance gains optional mode?
+                        param ('build' default); preview mode ignores
+                        selection/slot, adds the 'required' appearance
 ```
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **180 Vitest
-tests passing across 15 files**. `npm run test:e2e` exits 0: **111
-Playwright tests passing across 16 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **187 Vitest
+tests passing across 15 files**. `npm run test:e2e` exits 0: **119
+Playwright tests passing across 17 spec files**.
 
 ---
 

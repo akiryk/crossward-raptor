@@ -7,22 +7,36 @@ export type CellAppearance =
   | 'empty'
   | 'letter'
   | 'symmetric-hint'
+  | 'required' // preview only
   | 'slot'
   | 'selected';
 
+export type GridMode = 'build' | 'preview';
+
 /**
- * The single visual state a cell should render in. Precedence, highest
- * first: selected, slot, then the cell's own content.
+ * The single visual state a cell should render in.
+ *
+ * Build mode precedence, highest first: selected, slot, then the cell's
+ * own content. Preview mode ignores selection and slot entirely -- it
+ * answers "what will this look like published", and the builder's own
+ * cursor state would obscure that.
  */
 export function cellAppearance(args: {
   cell: Cell;
   isSelected: boolean;
   isInSlot: boolean;
   isSymmetricHint: boolean;
+  mode?: GridMode;
 }): CellAppearance {
-  const { cell, isSelected, isInSlot, isSymmetricHint } = args;
+  const { cell, isSelected, isInSlot, isSymmetricHint, mode = 'build' } = args;
 
   if (cell.kind === 'black') return 'black';
+
+  if (mode === 'preview') {
+    if (cell.letter !== null) return 'letter';
+    return isSymmetricHint ? 'required' : 'black';
+  }
+
   if (isSelected) return 'selected';
   if (isInSlot) return 'slot';
   if (cell.letter !== null) return 'letter';

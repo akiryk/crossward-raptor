@@ -16,6 +16,7 @@ import { PuzzleGrid } from './PuzzleGrid';
 import { PhaseControls } from './PhaseControls';
 import { HintsPanel } from './HintsPanel';
 import { ClearLettersButton } from './ClearLettersButton';
+import { PreviewToggle } from './PreviewToggle';
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -74,6 +75,9 @@ export function PuzzleGridEditor({
   const isFirstGridRender = useRef(true);
   const isFirstHintsRender = useRef(true);
   const [isReady, setIsReady] = useState(false);
+  // Preview is component state, not persisted (Story D4) -- a reload
+  // always returns to build view.
+  const [isPreviewing, setIsPreviewing] = useState(false);
 
   useEffect(() => {
     if (isFirstGridRender.current) {
@@ -213,11 +217,22 @@ export function PuzzleGridEditor({
           onEnterHints={handleEnterHints}
         />
         <ClearLettersButton onConfirm={handleClearLetters} />
+        {phase === 'grid' && (
+          <PreviewToggle
+            isPreviewing={isPreviewing}
+            onToggle={() => setIsPreviewing((prev) => !prev)}
+          />
+        )}
       </div>
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
       )}
-      <PuzzleGrid grid={grid} highlights={highlights} onCellClick={handleCellClick} />
+      <PuzzleGrid
+        grid={grid}
+        highlights={highlights}
+        mode={isPreviewing ? 'preview' : 'build'}
+        onCellClick={handleCellClick}
+      />
       {phase === 'hints' && (
         <HintsPanel
           slots={slotLookup}
