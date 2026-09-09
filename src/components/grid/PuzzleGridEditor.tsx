@@ -20,6 +20,10 @@ import { PreviewToggle } from './PreviewToggle';
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
+// Space reserved above editor-layout for the title, phase line, and
+// editor-actions row, so the height-based term of the grid's min() sizing
+// (Story D5a) doesn't push its bottom edge past the viewport.
+const VERTICAL_ALLOWANCE_PX = 260;
 
 interface EditorState {
   grid: Grid;
@@ -198,6 +202,7 @@ export function PuzzleGridEditor({
   const { grid, cursor, phase, hints, geometryLocked } = state;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
+  const gridRatio = grid.cols / grid.rows;
 
   const highlights = new Map<string, 'selected' | 'slot'>();
   if (activeKey) {
@@ -227,21 +232,37 @@ export function PuzzleGridEditor({
       {geometryLocked && (
         <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
       )}
-      <PuzzleGrid
-        grid={grid}
-        highlights={highlights}
-        mode={isPreviewing ? 'preview' : 'build'}
-        onCellClick={handleCellClick}
-      />
-      {phase === 'hints' && (
-        <HintsPanel
-          slots={slotLookup}
-          hints={hints}
-          activeKey={activeKey}
-          onHintChange={handleHintChange}
-          onHintFocus={handleHintFocus}
-        />
-      )}
+      <div data-testid="editor-layout" className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div
+          data-testid="grid-region"
+          className="max-w-full lg:max-w-[45%]"
+          style={{
+            width: `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${gridRatio}), 640px)`,
+          }}
+        >
+          <PuzzleGrid
+            grid={grid}
+            highlights={highlights}
+            mode={isPreviewing ? 'preview' : 'build'}
+            onCellClick={handleCellClick}
+          />
+        </div>
+        {phase === 'hints' && (
+          <div
+            data-testid="hints-region"
+            className="flex-1 overflow-y-auto"
+            style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
+          >
+            <HintsPanel
+              slots={slotLookup}
+              hints={hints}
+              activeKey={activeKey}
+              onHintChange={handleHintChange}
+              onHintFocus={handleHintFocus}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

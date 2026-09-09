@@ -228,6 +228,35 @@ same `EmptyCell` branch, only with a different background. No repeat of
 D3's frozen-test surprise this time — `npm run test:e2e` passed clean on
 the first run across every spec, `grid-rendering.spec.ts` included.
 
+**Story D5a (editor layout) is complete and committed.** It fixes the
+complaint that started the epic — a 15×15 ran off the bottom of the
+screen, with hints further down still. `PuzzleGridEditor` now wraps the
+grid and hints panel in a new `editor-layout` div (`flex flex-col
+lg:flex-row`, `lg` = Tailwind's 1024px breakpoint: side by side above
+it, stacked below). `grid-region` sizes the grid via a `min()` of a
+height-based term (`calc((100vh - 260px) * cols/rows)`, the 260px
+allowance reserved for the title/phase-line/editor-actions row above
+it) and a hard maximum (640px) as an inline style, composed with a
+responsive `max-width` class (`max-w-full` stacked, `lg:max-w-[45%]`
+side-by-side) for the width-based term — CSS's own `min(width,
+max-width)` resolution combines all three without needing them in one
+expression. `hints-region` caps its own height to the same formula and
+scrolls internally (`overflow-y-auto`), so a long hint list no longer
+grows the page.
+
+Neither `page.tsx` nor `HintsPanel.tsx` needed changes despite being
+named in the story's Repo paths — sizing and scrolling are fully owned
+by the two new wrapper divs in `PuzzleGridEditor.tsx`, the same
+centralize-in-the-wrapper pattern D3 established for cell appearance.
+One real bug surfaced only at the phone viewport: `PuzzleGrid`'s grid
+tracks were bare `repeat(n, 1fr)`, and `1fr` tracks carry an implicit
+`min-height: auto` sized to their content — at small enough cell sizes,
+a letter's default line-height forced rows taller than the width,
+breaking squareness. Fixed by switching to `repeat(n, minmax(0, 1fr))`,
+the standard fix for this class of bug (same family as the column-
+shrink issue D1c fixed for the style guide, now hitting rows in the
+real grid).
+
 ### What exists
 
 ```
@@ -241,6 +270,7 @@ docs/stories/
   05-D3-build-grid.md                Story D3's specification, tracked;
                                        gained a Test changes section for
                                        the grid-rendering.spec.ts edit
+  05-D5a-editor-layout.md             Story D5a's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -263,6 +293,7 @@ e2e/
                          numbering) to 1 at (0,0) (effective-geometry
                          numbering) -- authorized edit, derived and
                          confirmed against the render, not guessed
+  editor-layout.spec.ts  Story D5a's acceptance test — do not edit
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -343,6 +374,16 @@ src/components/grid/
   PuzzleGridEditor.tsx   Story D4 — adds isPreviewing useState (not
                           persisted); renders PreviewToggle in
                           editor-actions, gated on phase === 'grid'
+  PuzzleGrid.tsx         Story D5a — grid-template-columns/rows switched
+                          from bare 1fr to minmax(0, 1fr), so a small
+                          cell's letter text can't force a track past the
+                          aspect-ratio-derived square size
+  PuzzleGridEditor.tsx   Story D5a — grid and hints wrapped in a new
+                          editor-layout div (grid-region, hints-region);
+                          grid-region sizes via min(height-based term,
+                          640px hard max) composed with a responsive
+                          max-width class; hints-region caps height to
+                          the same formula and scrolls internally
 src/engine/
   phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
               visibility only, no behavior change, no existing test
@@ -357,8 +398,8 @@ src/lib/
 ### The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **187 Vitest
-tests passing across 15 files**. `npm run test:e2e` exits 0: **119
-Playwright tests passing across 17 spec files**.
+tests passing across 15 files**. `npm run test:e2e` exits 0: **129
+Playwright tests passing across 18 spec files**.
 
 ---
 

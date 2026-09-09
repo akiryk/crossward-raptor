@@ -84,8 +84,12 @@ export function PuzzleGrid({
       // between cells.
       className="grid w-full bg-grid-line"
       style={{
-        gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
-        gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
+        // minmax(0, 1fr), not bare 1fr: fr tracks default to an implicit
+        // min-size of their content's min-content, which lets a small
+        // cell's letter text force the track taller/wider than the
+        // aspect-ratio-derived square size at small viewports (Story D5a).
+        gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
         aspectRatio: `${grid.cols} / ${grid.rows}`,
         gap: 'var(--grid-line-width)',
         padding: 'var(--grid-line-width)',
