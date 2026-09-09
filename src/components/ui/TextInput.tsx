@@ -4,6 +4,7 @@ export function TextInput({
   value,
   onChange,
   onFocus,
+  autoFocus,
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
@@ -11,6 +12,7 @@ export function TextInput({
   value: string;
   onChange: (value: string) => void;
   onFocus?: () => void;
+  autoFocus?: boolean;
   'aria-label': string;
   placeholder?: string;
   'data-testid'?: string;
@@ -24,6 +26,7 @@ export function TextInput({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onFocus={onFocus}
+      autoFocus={autoFocus}
       // The border is subtle by default (--color-rule) rather than
       // invisible, since the affordance must always be visible, not
       // hover-only (D2 decision) -- it strengthens to --color-accent on
