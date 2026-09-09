@@ -1,6 +1,6 @@
 ---
 name: story
-description: Implement a story file end to end against the verify gate. Relocates and commits its spec files first if they're still staged outside the repo (e.g. ~/Downloads), then implements, verifies, and pushes in one pass. Invoke as /story <path-to-story-doc>.
+description: Implement a story file end to end against the verify gate. Relocates and commits its spec files first if they're still staged outside the repo (e.g. ~/Downloads), then implements and verifies in one pass. Low-blast-radius stories push straight to main; high-blast-radius ones (per docs/CODE-REVIEW.md) go to a branch and a PR instead. Invoke as /story <path-to-story-doc>.
 ---
 
 # Implement a story
@@ -36,7 +36,21 @@ Story file: $ARGUMENTS
       changes, and continue without asking. This commit is the immutable
       baseline used by step 4. If the story is materially ambiguous,
       contradicts the tests, or the tests appear erroneous, stop and report
-      the specific issue instead of committing or implementing.
+      the specific issue instead of committing or implementing. This
+      baseline commit always lands on `main`, regardless of blast radius
+      (below) — it's the story doc and acceptance tests, which are the
+      specification, not the implementation under review.
+
+   c. **Determine blast radius.** Per `docs/CODE-REVIEW.md`: if any path in
+      the story's "Repo paths" (already read in 0a/0b) touches
+      `src/engine/**`, `src/lib/puzzle-storage.ts`,
+      `src/app/puzzles/actions.ts`, or `prisma/**`, this is a
+      high-blast-radius story. Create and check out a branch named
+      `story/<story-file-basename-without-extension>` (e.g. a story at
+      `docs/stories/05-D3-build-grid.md` gets `story/05-D3-build-grid`),
+      branched from `main` right after the baseline commit above, before
+      any implementation happens. Otherwise, stay on `main` — everything
+      below is unchanged from a low-blast-radius story.
 
 1. Implement the story. Do not pause for routine, safe local actions such as
    reading files, editing in-scope code, running tests, staging the story's
@@ -65,7 +79,15 @@ Story file: $ARGUMENTS
 6. Commit the implementation files, the amended handoff, and any amended story
    file, with a message naming the story. Once `npm run verify` (and
    `npm run test:e2e`, for any story whose Repo paths include an e2e spec
-   file) has exited 0 per step 3, push.
+   file) has exited 0 per step 3:
+
+   - **Low blast radius** (the common case): push to `main`, as always.
+   - **High blast radius** (per step 0c): push the branch, then
+     `gh pr create` with a body naming the story file and listing the
+     files changed. Do not merge — a different agent reviews this PR
+     against `docs/CODE-REVIEW.md` before it lands. Stop here and report
+     the PR URL instead of a push confirmation.
 7. Report: files moved into place (if step 0a applied), files created or
-   changed, the verify result, and the outcome of any Definition-of-Done item
-   that requires demonstrating a failure rather than a pass.
+   changed, the verify result, the outcome of any Definition-of-Done item
+   that requires demonstrating a failure rather than a pass, and — for a
+   high-blast-radius story — the PR URL in place of a push confirmation.

@@ -81,6 +81,7 @@ This file is the weakest enforcement layer — everything here is a suggestion t
 - **Domain / business rules** (e.g. current publish/unpublish behavior, phase-lock specifics) → `/docs`. Read `/docs` before touching the publish flow or the grid↔hints phase transition. These change; keep them out of baseline guidance.
 - **Process knowledge from past incidents** (how bugs were actually found and fixed, not just what the fix was) → `docs/LEARNINGS.md`. Worth a look before debugging anything intermittent.
 - **How the real NYT crossword is constructed and solved** (descriptive, not prescriptive — it records conventions, not requirements) → `docs/NYT-CROSSWORD-REFERENCE.md`. Worth a look before assuming or reinventing a convention.
+- **Which stories get a PR and a review instead of pushing straight to `main`** (by blast radius, not by default — plus what a reviewer should and shouldn't raise) → `docs/CODE-REVIEW.md`, enforced by `/story`'s step 0c.
 - **Irreversible / dangerous actions** → `.claude/settings.json` permission gates, not prose. See below.
 
 ## Never do autonomously
