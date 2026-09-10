@@ -287,6 +287,34 @@ hook (see the port/lock note earlier in this file and in `AGENTS.md`).
 Running through `npm run test:e2e` as intended made it disappear —
 no code was at fault.
 
+**Story D6 (new-puzzle dialog) is implemented, verified, and opened as a
+PR (`story/05-D6-new-puzzle-dialog`) rather than merged to `main`** —
+high blast radius per `docs/CODE-REVIEW.md`, since it touches
+`src/lib/puzzle-storage.ts` and `src/app/puzzles/actions.ts`. Clicking
+"New Puzzle" now opens `NewPuzzleDialog` instead of creating an
+untitled 15×15 immediately: a required name and one of three sizes
+(new `src/lib/puzzle-size.ts` — mini 5×5, daily 15×15, sunday 21×21,
+matching `docs/NYT-CROSSWORD-REFERENCE.md`'s conventions) are collected
+first. `createBlankPuzzle` and `createPuzzle` both widened to take an
+optional/required size respectively; `createBlankPuzzle()` with no
+argument still returns the original 15×15 (Story P1's committed
+`puzzle-storage.test.ts` passes unmodified, by design — the decision
+explicitly calls out keeping the no-arg default rather than breaking
+that contract). `TextInput` gained a small `autoFocus` prop (not in the
+story's own Repo paths, but the minimal way to satisfy "the name input
+is focused on open" without ref-forwarding).
+
+`persistence.spec.ts` was overwritten as an authorized edit: three of
+its four tests now go through the dialog and assert the typed title
+instead of the old "Untitled Puzzle" default — a consequence of the
+flow this story deliberately changes, not a weakening. The fourth
+(nonexistent id → 404) is untouched. Full-suite `npm run test:e2e` runs
+were noisy under parallel load this story (13 unrelated failures on one
+run, 1 on another, 0 on a third, no repeated failure and nothing
+touching the dialog) — DB-contention flakiness under four parallel
+workers now hitting more Server-Action-backed puzzle creation, not a
+D6 regression.
+
 ### What exists
 
 ```
@@ -302,6 +330,7 @@ docs/stories/
                                        the grid-rendering.spec.ts edit
   05-D5a-editor-layout.md             Story D5a's specification, tracked
   05-D5b-stepper.md                    Story D5b's specification, tracked
+  05-D6-new-puzzle-dialog.md           Story D6's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -326,6 +355,12 @@ e2e/
                          confirmed against the render, not guessed
   editor-layout.spec.ts  Story D5a's acceptance test — do not edit
   stepper.spec.ts        Story D5b's acceptance test — do not edit
+  new-puzzle.spec.ts     Story D6's acceptance test — do not edit
+  persistence.spec.ts    Story P1's acceptance test; Story D6 overwrote
+                         three of its four tests to go through the new
+                         dialog and assert the typed title instead of
+                         "Untitled Puzzle" — authorized edit, the fourth
+                         (404) is unchanged
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -352,7 +387,12 @@ src/app/style-guide/
 src/app/puzzles/
   page.tsx            Story D2 — page-heading testid + heading styling;
                        list rows get cursor-pointer and a hover state
-  NewPuzzleButton.tsx  Story D2 — renders <Button>
+  NewPuzzleButton.tsx  Story D2 — renders <Button>. Story D6 — opens
+                       <NewPuzzleDialog> instead of calling createPuzzle
+                       directly; createPuzzle now takes {title, size}
+  actions.ts           Story D6 — createPuzzle widened to
+                       ({title, size}), normalizes the title and builds
+                       via createBlankPuzzle(size)
   [id]/page.tsx        Story D2 — DeletePuzzleButton moved into a new
                        danger-zone region at the end of the page
 src/components/style-guide/
@@ -364,12 +404,19 @@ src/components/ui/
   Button.tsx      Story D2 — new; primary/quiet/danger variants, no
                    hover classes at all when disabled
   TextInput.tsx   Story D2 — new; subtle border strengthening to
-                   --color-accent on hover and focus, uniformly
+                   --color-accent on hover and focus, uniformly. Story
+                   D6 — gains an autoFocus? prop (not in the story's own
+                   Repo paths; the minimal way to focus the dialog's
+                   name input on open)
 src/components/puzzle/
   PuzzleTitle.tsx        Story D2 — renders <TextInput>, dropped its
                           previous oversized heading-style typography
   DeletePuzzleButton.tsx Story D2 — renders <Button variant="danger">
                           (trigger, confirm) / quiet (cancel)
+  NewPuzzleDialog.tsx    Story D6 — new; name + size (mini/daily/sunday)
+                          inputs, Escape and cancel both close without
+                          creating, create disabled while the name is
+                          blank
 src/components/grid/
   ClearLettersButton.tsx Story D2 — renders <Button variant="quiet">
                           (trigger) / danger (confirm) / quiet (cancel)
@@ -436,13 +483,19 @@ src/lib/
                         selection/slot, adds the 'required' appearance
   stepper.ts           Story D5b — new; pure stepStates(phase,
                         hintsComplete) -> readonly Step[]
+  puzzle-size.ts       Story D6 — new; PuzzleSize, DEFAULT_SIZE
+                        ('daily'), dimensionsFor(size)
+  puzzle-storage.ts    Story D6 — createBlankPuzzle(size?: PuzzleSize),
+                        defaulting to DEFAULT_SIZE; no-arg call keeps
+                        Story P1's 15x15, puzzle-storage.test.ts
+                        unmodified
 ```
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **196 Vitest
-tests passing across 16 files**. `npm run test:e2e` exits 0: **136
-Playwright tests passing across 19 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **200 Vitest
+tests passing across 17 files**. `npm run test:e2e` exits 0: **142
+Playwright tests passing across 20 spec files**.
 
 ---
 

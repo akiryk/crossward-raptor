@@ -1,6 +1,7 @@
 import { createGrid, withLetter } from '../engine/grid';
 import type { Cell, Grid } from '../engine/grid';
 import type { Puzzle, Phase } from '../engine/puzzle';
+import { dimensionsFor, DEFAULT_SIZE, type PuzzleSize } from './puzzle-size';
 
 export type SerializedCell =
   | { kind: 'black' }
@@ -65,10 +66,11 @@ export function deserializePuzzle(stored: StoredPuzzle): Puzzle {
   };
 }
 
-/** A fresh 15x15, fully active, unauthored puzzle in the 'grid' phase. */
-export function createBlankPuzzle(): Puzzle {
+/** A fresh, fully active, unauthored puzzle in the 'grid' phase, at the
+ *  given size (default 'daily', 15x15 -- Story P1's original behaviour). */
+export function createBlankPuzzle(size: PuzzleSize = DEFAULT_SIZE): Puzzle {
   return {
-    grid: createGrid({ cols: 15, rows: 15 }),
+    grid: createGrid(dimensionsFor(size)),
     hints: {},
     phase: 'grid',
   };
