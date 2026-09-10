@@ -18,7 +18,7 @@ Repo paths:
 - `src/lib/puzzle-storage.ts` — edited: `createBlankPuzzle` takes a size
 - `src/app/puzzles/actions.ts` — edited: `createPuzzle` takes title and size
 - `src/components/puzzle/NewPuzzleDialog.tsx` — new
-- `src/components/puzzle/NewPuzzleButton.tsx` — edited: opens the dialog
+- `src/app/puzzles/NewPuzzleButton.tsx` — edited: opens the dialog
 - `e2e/new-puzzle.spec.ts` — Playwright acceptance tests (**already
   provided — do not edit**)
 - `e2e/persistence.spec.ts` — edited (**already provided — do not edit**;

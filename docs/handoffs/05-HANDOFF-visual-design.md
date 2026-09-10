@@ -501,11 +501,12 @@ Playwright tests passing across 20 spec files**.
 
 ## Current status
 
-Story D1 is complete. Still open in this epic, per
-`docs/epics/05-visual-design-epic.md`'s suggested build order: D7 (remove
-duplicate — next, since it's a deletion and doing it early saves D2/D5
-from styling a button about to disappear), then D2 (core controls), D3
-(build-phase grid, including the numbering-from-effective-geometry fix
-via `numberGrid(convertEmptyCellsToBlack(grid))`), D4 (preview/published
-grid, absorbing PB1b), D5 (page layout), and D6 (new-puzzle creation
-dialog, last).
+The visual-design epic (Story Groups D1–D7, including the D1b and D1c
+follow-ups) is complete — nothing in `docs/epics/05-visual-design-epic.md`'s
+suggested build order is pending. D4 absorbed PB1b (the grid-phase preview
+toggle) as part of this epic, per the epic's own framing. This epic's
+completion resumes the publishing epic: `docs/epics/04-publishing-epic.md`'s
+PB2 (advisory publish-readiness checks), PB3 (publish/unpublish), PB4
+(locking edits to a published puzzle), and PB5 (published status in the
+builder's list) are next, in that order, per that epic's own dependency
+chain (`04-HANDOFF-publishing.md`).

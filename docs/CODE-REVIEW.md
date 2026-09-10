@@ -11,8 +11,8 @@ throughout. That's the gap this document addresses.
 
 ## When review applies
 
-By blast radius, not by default. A story gets a PR and a review if its
-"Repo paths" touch any of:
+By blast radius, not by default. A story gets a PR and a review if it
+touches any of:
 
 - `src/engine/**` — pure logic every layer depends on
 - `src/lib/puzzle-storage.ts` — the serialization format. Every stored
@@ -21,6 +21,18 @@ By blast radius, not by default. A story gets a PR and a review if its
   schema itself is not, since `grid` and `hints` are opaque `Json`.
 - `src/app/puzzles/actions.ts` — Server Actions: the write path
 - `prisma/**` — schema and migrations
+
+`/story` checks this twice. First, against the story doc's stated "Repo
+paths," before implementation starts — so a story already known to be
+risky begins on a branch rather than partway through on `main`. Second,
+against the actual `git diff`, after implementation and before anything is
+pushed — this is the check that matters. A story doc can omit a path the
+implementation legitimately needs to touch: Story D3's Repo paths named no
+`src/engine/` file, but its implementation exported a function from
+`src/engine/phase.ts`, and because only the doc-based check existed at the
+time, the story shipped straight to `main`, unreviewed. If the real diff
+touches one of the four paths above, the story goes to a PR regardless of
+what the doc said.
 
 Everything else merges straight to `main` as before. UI and styling work is
 recoverable and cheap to redo; adding a review gate there buys little and

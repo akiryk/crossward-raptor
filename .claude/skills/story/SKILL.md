@@ -41,8 +41,8 @@ Story file: $ARGUMENTS
       (below) — it's the story doc and acceptance tests, which are the
       specification, not the implementation under review.
 
-   c. **Determine blast radius.** Per `docs/CODE-REVIEW.md`: if any path in
-      the story's "Repo paths" (already read in 0a/0b) touches
+   c. **Determine tentative blast radius.** Per `docs/CODE-REVIEW.md`: if any
+      path in the story's "Repo paths" (already read in 0a/0b) touches
       `src/engine/**`, `src/lib/puzzle-storage.ts`,
       `src/app/puzzles/actions.ts`, or `prisma/**`, this is a
       high-blast-radius story. Create and check out a branch named
@@ -50,7 +50,9 @@ Story file: $ARGUMENTS
       `docs/stories/05-D3-build-grid.md` gets `story/05-D3-build-grid`),
       branched from `main` right after the baseline commit above, before
       any implementation happens. Otherwise, stay on `main` — everything
-      below is unchanged from a low-blast-radius story.
+      below is unchanged from a low-blast-radius story. **This determination
+      is provisional**, made from the doc alone before any code exists —
+      step 5 below re-checks it against what was actually touched.
 
 1. Implement the story. Do not pause for routine, safe local actions such as
    reading files, editing in-scope code, running tests, staging the story's
@@ -66,7 +68,26 @@ Story file: $ARGUMENTS
 4. Confirm `git diff` shows no changes to any acceptance test file identified
    in step 0, and that `git status` shows no untracked acceptance test files.
    If either check fails, revert and fix the implementation instead.
-5. Identify the epic this story belongs to from its numeric prefix (e.g. a
+5. **Re-check blast radius against what was actually touched, before
+   committing.** Step 0c's determination was made from the story doc's
+   stated Repo paths, before any code existed — a doc can omit a path the
+   implementation legitimately needs. (This happened with Story D3: its
+   Repo paths named no `src/engine/` file, but the implementation exported
+   a function from `src/engine/phase.ts`, and the story shipped straight to
+   `main` unreviewed as a result — the doc-only check never had a chance to
+   catch it.) Nothing has been committed since the step 0b baseline, so run
+   `git status --porcelain` / `git diff --name-only` against the working
+   tree and check every changed or new file against the same four path
+   patterns from step 0c (`src/engine/**`, `src/lib/puzzle-storage.ts`,
+   `src/app/puzzles/actions.ts`, `prisma/**`). If step 0c already put the
+   story on a branch, this is just a confirmation. If step 0c said low blast
+   radius but the real diff touches one of those paths anyway, create and
+   check out the branch now (`git checkout -b
+   story/<story-file-basename-without-extension>`) — this is safe precisely
+   because nothing has been pushed yet, so the story proceeds as
+   high-blast-radius from here with no history to unwind. Note the
+   escalation and the specific path that triggered it for step 8's report.
+6. Identify the epic this story belongs to from its numeric prefix (e.g. a
    story file named `02-P1-persistence.md` belongs to epic `02`), then update
    the handoff file in `docs/handoffs/` sharing that same numeric prefix (e.g.
    `02-HANDOFF-builder-ui.md`). If no handoff file with that prefix exists,
@@ -76,18 +97,21 @@ Story file: $ARGUMENTS
    Change nothing else in that file — the decision log, known issues, and
    next steps need judgment this session does not have. If the handoff
    already describes this story as complete, say so and change nothing.
-6. Commit the implementation files, the amended handoff, and any amended story
+7. Commit the implementation files, the amended handoff, and any amended story
    file, with a message naming the story. Once `npm run verify` (and
    `npm run test:e2e`, for any story whose Repo paths include an e2e spec
    file) has exited 0 per step 3:
 
-   - **Low blast radius** (the common case): push to `main`, as always.
-   - **High blast radius** (per step 0c): push the branch, then
-     `gh pr create` with a body naming the story file and listing the
-     files changed. Do not merge — a different agent reviews this PR
-     against `docs/CODE-REVIEW.md` before it lands. Stop here and report
-     the PR URL instead of a push confirmation.
-7. Report: files moved into place (if step 0a applied), files created or
+   - **Low blast radius** (per step 0c, unchanged by step 5): push to
+     `main`, as always.
+   - **High blast radius** (per step 0c, or escalated at step 5): push the
+     branch, then `gh pr create` with a body naming the story file and
+     listing the files changed. Do not merge — a different agent reviews
+     this PR against `docs/CODE-REVIEW.md` before it lands. Stop here and
+     report the PR URL instead of a push confirmation.
+8. Report: files moved into place (if step 0a applied), files created or
    changed, the verify result, the outcome of any Definition-of-Done item
-   that requires demonstrating a failure rather than a pass, and — for a
-   high-blast-radius story — the PR URL in place of a push confirmation.
+   that requires demonstrating a failure rather than a pass, whether step 5
+   escalated blast radius beyond what the doc said (and which path
+   triggered it), and — for a high-blast-radius story — the PR URL in place
+   of a push confirmation.
