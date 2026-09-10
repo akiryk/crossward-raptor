@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_SIZE, type PuzzleSize } from '../../lib/puzzle-size';
 import { Button } from '../ui/Button';
 import { TextInput } from '../ui/TextInput';
@@ -20,6 +20,13 @@ export function NewPuzzleDialog({
 }) {
   const [title, setTitle] = useState('');
   const [size, setSize] = useState<PuzzleSize>(DEFAULT_SIZE);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // A ref, not just the state above: two clicks dispatched in the same
+  // task (a real double-click, or a race in a test) both run before
+  // React commits the state update that disables the button, so the
+  // guard that actually prevents a second onCreate call has to be a
+  // synchronous mutation, not something that waits for a re-render.
+  const hasSubmittedRef = useRef(false);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -29,7 +36,14 @@ export function NewPuzzleDialog({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onCancel]);
 
-  const canCreate = title.trim() !== '';
+  const canCreate = title.trim() !== '' && !isSubmitting;
+
+  function handleCreate() {
+    if (hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
+    setIsSubmitting(true);
+    onCreate({ title, size });
+  }
 
   return (
     <div data-testid="new-puzzle-dialog" role="dialog">
@@ -53,11 +67,7 @@ export function NewPuzzleDialog({
           </button>
         ))}
       </div>
-      <Button
-        data-testid="new-puzzle-create"
-        disabled={!canCreate}
-        onClick={() => onCreate({ title, size })}
-      >
+      <Button data-testid="new-puzzle-create" disabled={!canCreate} onClick={handleCreate}>
         Create
       </Button>
       <Button variant="quiet" data-testid="new-puzzle-cancel" onClick={onCancel}>

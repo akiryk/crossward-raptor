@@ -11,7 +11,7 @@ import {
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
 import { enterHintsPhase } from '@/engine/phase';
-import { normalizeTitle } from '@/lib/puzzle-title';
+import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 
@@ -21,10 +21,11 @@ export async function createPuzzle(input: {
   title: string;
   size: PuzzleSize;
 }): Promise<{ id: string }> {
+  const title = requireTitle(input.title);
   const stored = serializePuzzle(createBlankPuzzle(input.size));
   const record = await prisma.puzzle.create({
     data: {
-      title: normalizeTitle(input.title),
+      title,
       grid: stored.grid as unknown as Prisma.InputJsonValue,
       hints: stored.hints as unknown as Prisma.InputJsonValue,
       phase: stored.phase,
