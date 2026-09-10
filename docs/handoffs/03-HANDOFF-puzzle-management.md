@@ -90,6 +90,12 @@ mitigation for a builder wanting a template assumed a bulk-clear action
 that didn't exist until M5. One acceptance-test defect surfaced here — see
 "Testing notes" below.
 
+**Removed in Story D7 (epic 5, visual-design):** the feature came from a
+proposal rather than a real need and wasn't wanted, so `duplicatePuzzle`,
+`duplicateTitle`, `DuplicatePuzzleButton`, and `e2e/duplicate.spec.ts` are
+gone. This paragraph and the "What exists" entries below are left as a
+record of what M4 was, not a claim about the current tree.
+
 ### Testing notes
 
 Two acceptance tests in this epic were found, during implementation, to
