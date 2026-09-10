@@ -493,8 +493,8 @@ src/lib/
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **203 Vitest
-tests passing across 17 files**. `npm run test:e2e` exits 0: **147
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **200 Vitest
+tests passing across 17 files**. `npm run test:e2e` exits 0: **142
 Playwright tests passing across 20 spec files**.
 
 ---
