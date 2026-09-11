@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { keyToIntent } from './keyboard-intent';
 
-// --- P3-1: keyToIntent (unchanged from Story P3) ---
+// --- P3-1: keyToIntent ---
 describe('P3-1 keyToIntent', () => {
   it('lowercase letters map to uppercase letter intents', () => {
     expect(keyToIntent('a')).toEqual({ type: 'letter', letter: 'A' });
@@ -25,8 +25,8 @@ describe('P3-1 keyToIntent', () => {
   });
 
   it('unhandled keys map to null', () => {
+    // note: ' ' was in this list until Story F2r gave it a meaning
     expect(keyToIntent('1')).toBeNull();
-    expect(keyToIntent(' ')).toBeNull();
     expect(keyToIntent('Shift')).toBeNull();
     expect(keyToIntent('Enter')).toBeNull();
     expect(keyToIntent('Escape')).toBeNull();
@@ -39,7 +39,7 @@ describe('P3-1 keyToIntent', () => {
   });
 });
 
-// --- P4-1: keyToIntent, toggleBlack ---
+// --- P4-1: keyToIntent toggleBlack ---
 describe('P4-1 keyToIntent toggleBlack', () => {
   it("'.' maps to a toggleBlack intent", () => {
     expect(keyToIntent('.')).toEqual({ type: 'toggleBlack' });
@@ -52,5 +52,21 @@ describe('P4-1 keyToIntent toggleBlack', () => {
   it('other punctuation is still unhandled', () => {
     expect(keyToIntent(',')).toBeNull();
     expect(keyToIntent('/')).toBeNull();
+  });
+});
+
+// --- F2r-3: keyToIntent toggleOrientation ---
+describe('F2r-3 keyToIntent toggleOrientation', () => {
+  it("' ' maps to a toggleOrientation intent", () => {
+    expect(keyToIntent(' ')).toEqual({ type: 'toggleOrientation' });
+  });
+
+  it('purity: two calls with a space are deep-equal', () => {
+    expect(keyToIntent(' ')).toEqual(keyToIntent(' '));
+  });
+
+  it('space is distinct from every other handled key', () => {
+    expect(keyToIntent(' ')).not.toEqual(keyToIntent('.'));
+    expect(keyToIntent(' ')).not.toEqual(keyToIntent('Backspace'));
   });
 });
