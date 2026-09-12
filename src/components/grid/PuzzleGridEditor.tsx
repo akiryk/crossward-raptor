@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Coord, Grid } from '../../engine/grid';
 import { clearLetters } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
-import { arrowKey, deleteAt, moveTo, place } from '../../engine/cursor';
+import { arrowKey, deleteAt, moveTo, place, toggleOrientation } from '../../engine/cursor';
 import type { Phase } from '../../engine/puzzle';
 import { applyGeometryEdit } from '../../engine/phase';
 import { hintsComplete } from '../../engine/hints';
@@ -139,6 +139,9 @@ export function PuzzleGridEditor({
         }
         if (intent.type === 'arrow') {
           return { ...prev, cursor: arrowKey(prev.grid, prev.cursor, intent.direction) };
+        }
+        if (intent.type === 'toggleOrientation') {
+          return { ...prev, cursor: toggleOrientation(prev.cursor) };
         }
 
         const coord = prev.cursor.current;

@@ -77,14 +77,21 @@ test.describe('P3-2 editing flow', () => {
     await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-selected', 'true');
   });
 
-  test('arrow keys move selection and update orientation', async ({ page }) => {
+  test('a perpendicular arrow reorients without moving, then a second press moves', async ({
+    page,
+  }) => {
     const { id } = await seedGridWithBlackCorner();
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    // starts at (1,0); (1,1) is active, so ArrowDown should succeed
+    // starts at (1,0), orientation 'across'; Down is perpendicular, so the
+    // first press only reorients -- it does not move (Story F2r).
     await page.keyboard.press('ArrowDown');
+    await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-selected', 'true');
 
+    // now oriented 'down', so a second ArrowDown is along the orientation
+    // and moves to the active cell below.
+    await page.keyboard.press('ArrowDown');
     await expect(page.locator('[data-coord="1,1"]')).toHaveAttribute('data-selected', 'true');
   });
 
