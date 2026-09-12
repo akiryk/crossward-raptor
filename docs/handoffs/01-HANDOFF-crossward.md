@@ -15,6 +15,33 @@ Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
 committed.** `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 103
 tests passing across 8 files.
 
+**Story F2r (cursor direction handling) is complete and committed** — a
+correction to Story F's cursor rules, landed well after this epic was
+otherwise declared done, once real usage surfaced that arrow keys doing two
+things at once (move *and* reorient in one press) made it impossible to
+change direction without also moving. `arrowKey` (`src/engine/cursor.ts`)
+now does exactly one thing per press: along the current orientation it
+moves; perpendicular to it, it only changes orientation, matching standard
+solver convention (`docs/NYT-CROSSWORD-REFERENCE.md`). `moveTo` gained the
+matching click-again-to-toggle behavior, both now built on a new exported
+`toggleOrientation(cursor)` so the space-bar intent and the same-cell click
+case share one implementation instead of duplicating the flip.
+`src/lib/keyboard-intent.ts` maps `' '` to a new `toggleOrientation` intent;
+`PuzzleGridEditor.tsx` handles it the same way it handles every other
+intent. Two committed Playwright specs asserted the old move-and-reorient
+behavior directly and needed authorized rewrites, exactly as the story
+doc anticipated: `e2e/editing.spec.ts`'s arrow-key test and
+`e2e/hints-panel.spec.ts`'s "typing highlights..." test both pressed
+ArrowDown from an across cursor and expected the cursor to have moved:
+under the new rule that press only reorients, so both were rewritten to
+press twice (reorient, then move) rather than once.
+`e2e/hints-panel.spec.ts`'s other arrow-pressing test needed no change —
+it only asserts which hint row is active, which lands on the same slot
+either way. `npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest
+tests across 17 files); `npm run test:e2e` exits 0 (151 Playwright tests
+across 21 spec files, `e2e/cursor-direction.spec.ts`'s 9 new tests
+included).
+
 ### What exists
 
 ```
@@ -34,15 +61,34 @@ src/engine/
   puzzle.ts           the Puzzle type (type-only module)
   phase.ts            Story E — applyGeometryEdit, enterHintsPhase, applyLetterEdit
   phase.test.ts       the Story E specification — do not edit
-  cursor.ts           Story F — CursorState, place, arrowKey, deleteAt, moveTo
-  cursor.test.ts      the Story F specification — do not edit
+  cursor.ts           Story F — CursorState, place, arrowKey, deleteAt, moveTo;
+                       Story F2r — arrowKey does one thing per press, moveTo's
+                       same-cell click toggles orientation, new
+                       toggleOrientation(cursor)
+  cursor.test.ts      the Story F specification, F2/F4 rewritten and F4r/toggleOrientation
+                       cases added by Story F2r — do not edit
 .claude/settings.json permission gates, committed
 .claude/skills/       story and audit skills, committed
 eslint.config.mjs     includes the engine boundary rule
 vitest.config.mts     note the .mts extension
 docs/epics/           the grid engine epic, tracked
-docs/stories/         story files A–G, tracked
+docs/stories/         story files A–G, tracked; Story F2r — new
 docs/handoffs/        this file, tracked
+src/lib/
+  keyboard-intent.ts      Story F2r — adds toggleOrientation intent (' ')
+  keyboard-intent.test.ts Story F2r — F2r-3 cases added — do not edit
+src/components/grid/
+  PuzzleGridEditor.tsx    Story F2r — handles the toggleOrientation intent
+e2e/
+  cursor-direction.spec.ts Story F2r's new acceptance test — do not edit
+  editing.spec.ts          Story F2r — authorized rewrite of the arrow-key
+                            test (see "Where things stand" above)
+  hints-panel.spec.ts      Story F2r — authorized rewrite of one arrow-key
+                            test; a second one needed no change
+docs/
+  NYT-CROSSWORD-REFERENCE.md  Story F2r — vague arrow-key line made specific,
+                               two open questions (direction-toggle-on-reclick,
+                               spacebar's role) answered
 ```
 
 **Story F note, not a decision-log entry (session lacks authority to prune

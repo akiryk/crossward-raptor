@@ -69,15 +69,18 @@ test.describe('P5-2 hints panel', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    await page.keyboard.press('ArrowDown'); // now at (0,1), orientation 'down'
-    await page.keyboard.press('x'); // writes at (0,1), advances to (0,2)
+    // ArrowDown from (0,0) 'across' is perpendicular: orientation flips to
+    // 'down', cursor stays at (0,0) (Story F2r). Typing 'x' then writes
+    // there and advances to (0,1).
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('x'); // writes at (0,0), advances to (0,1)
 
     await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-highlight', 'slot');
-    await expect(page.locator('[data-coord="0,1"]')).toHaveAttribute('data-highlight', 'slot');
-    await expect(page.locator('[data-coord="0,2"]')).toHaveAttribute(
+    await expect(page.locator('[data-coord="0,1"]')).toHaveAttribute(
       'data-highlight',
       'selected'
     );
+    await expect(page.locator('[data-coord="0,2"]')).toHaveAttribute('data-highlight', 'slot');
   });
 
   test("clicking into a hint input moves the grid cursor to that slot's start", async ({
