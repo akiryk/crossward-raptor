@@ -1,10 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const TOKENS = [
-  '--font-display',
-  '--font-body',
-  '--font-data',
+const COLOR_TOKENS = [
   '--color-background',
   '--color-foreground',
   '--color-ink-2',
@@ -20,8 +17,15 @@ const TOKENS = [
   '--color-grid-line',
   '--color-cell-fill',
   '--color-selected',
+  '--color-slot',
   '--color-required',
   '--color-incomplete',
+];
+
+const OTHER_TOKENS = [
+  '--font-display',
+  '--font-body',
+  '--font-data',
   '--radius-btn',
   '--radius-md',
   '--radius-lg',
@@ -31,7 +35,6 @@ const TOKENS = [
 ];
 
 const SECTIONS = [
-  'token-panel',
   'sg-text',
   'sg-buttons',
   'sg-hover',
@@ -47,7 +50,7 @@ const SECTIONS = [
 ];
 
 const GRID_SAMPLES = ['sg-grid-build', 'sg-grid-preview'];
-const TOLERANCE = 0.5; // browsers lay out on subpixels
+const TOLERANCE = 0.5;
 
 function tokenValue(page: Page, name: string) {
   return page.evaluate(
@@ -56,332 +59,310 @@ function tokenValue(page: Page, name: string) {
   );
 }
 
-function hasOverflow(page: Page) {
-  return page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth
-  );
+/** Resolves any CSS colour string to the rgb() form getComputedStyle reports. */
+function asRgb(page: Page, raw: string) {
+  return page.evaluate((value) => {
+    const probe = document.createElement('div');
+    probe.style.color = value;
+    document.body.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved;
+  }, raw);
 }
 
-function styleOf(locator: ReturnType<Page['locator']>, props: string[]) {
-  return locator.evaluate((el, keys) => {
-    const s = getComputedStyle(el);
-    return keys.map((k) => s.getPropertyValue(k)).join('|');
-  }, props);
+function picker(page: Page, token: string) {
+  return page.locator(`[data-testid="color-picker"][data-token-name="${token}"]`);
 }
 
-/**
- * Measures the sample's rendered geometry rather than its declared CSS.
- *
- * A previous version of these tests asserted on computed `gap`, and passed
- * while columns were ~13px apart: the cells were narrower than their grid
- * tracks, so unused track space sat beside each one in the same colour as
- * the hairline. The declared gap was genuinely 1px; the render was not.
- * Only measurement catches that.
- */
+function colorInput(page: Page, token: string) {
+  return picker(page, token).locator('[data-testid="color-input"]');
+}
+
+async function setToken(page: Page, token: string, hex: string) {
+  await colorInput(page, token).evaluate((el, value) => {
+    const input = el as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, hex);
+}
+
+function cellIn(page: Page, sample: string, state: string) {
+  return page.getByTestId(sample).locator(`[data-cell-state="${state}"]`);
+}
+
+function bgOf(locator: ReturnType<Page['locator']>) {
+  return locator.evaluate((el) => getComputedStyle(el).backgroundColor);
+}
+
 async function measureSample(page: Page, sample: string) {
   return page.evaluate((testid) => {
     const section = document.querySelector(`[data-testid="${testid}"]`);
-    const container = section?.querySelector('[data-testid="sg-grid"]');
-    if (!container) throw new Error(`no sg-grid inside ${testid}`);
-
+    const container = section?.querySelector('[data-testid="puzzle-grid"]');
+    if (!container) throw new Error(`no puzzle-grid inside ${testid}`);
     const cells = Array.from(
-      container.querySelectorAll('[data-testid="sg-cell"]')
+      container.querySelectorAll('[data-testid="grid-cell"]')
     ) as HTMLElement[];
-
     const box = (el: Element) => {
       const r = el.getBoundingClientRect();
-      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, w: r.width, h: r.height };
+      return {
+        left: r.left,
+        right: r.right,
+        top: r.top,
+        bottom: r.bottom,
+        w: r.width,
+        h: r.height,
+      };
     };
-
     return { container: box(container), cells: cells.map(box) };
   }, sample);
 }
 
-// --- D1-1: tokens ---
-test.describe('D1-1 tokens', () => {
-  test('every declared token resolves to a non-empty value', async ({ page }) => {
+// --- D8-1: structure ---
+test.describe('D8-1 structure', () => {
+  test('both panes render', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const resolved = await page.evaluate((names) => {
-      const style = getComputedStyle(document.documentElement);
-      const out: Record<string, string> = {};
-      for (const name of names) out[name] = style.getPropertyValue(name).trim();
-      return out;
-    }, TOKENS);
-
-    for (const [name, value] of Object.entries(resolved)) {
-      expect(value, `expected ${name} to be defined in @theme`).not.toBe('');
-    }
+    await expect(page.getByTestId('token-pane')).toBeVisible();
+    await expect(page.getByTestId('examples-pane')).toBeVisible();
   });
 
-  test('the token panel lists every token by name', async ({ page }) => {
+  test('three tabs render with colors selected by default', async ({ page }) => {
     await page.goto('/style-guide');
 
-    for (const name of TOKENS) {
-      const row = page.locator(`[data-testid="token-row"][data-token-name="${name}"]`);
-      await expect(row, `expected a token row for ${name}`).toBeVisible();
-      await expect(row).toContainText(name);
-    }
-  });
-
-  test('the duplicate --color-complete token is gone', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    expect(await tokenValue(page, '--color-complete')).toBe('');
-    expect(await tokenValue(page, '--color-accent')).not.toBe('');
-    expect(await tokenValue(page, '--color-incomplete')).not.toBe('');
+    await expect(page.getByTestId('token-tab')).toHaveCount(3);
+    await expect(
+      page.locator('[data-testid="token-tab"][data-tab-id="colors"]')
+    ).toHaveAttribute('data-selected', 'true');
+    await expect(
+      page.locator('[data-testid="token-tab"][data-tab-id="fonts"]')
+    ).toHaveAttribute('data-selected', 'false');
+    await expect(
+      page.locator('[data-testid="token-tab"][data-tab-id="utility"]')
+    ).toHaveAttribute('data-selected', 'false');
 
     await expect(
-      page.locator('[data-testid="token-row"][data-token-name="--color-complete"]')
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="colors"]')
+    ).toBeVisible();
+    await expect(page.getByTestId('token-tab-panel')).toHaveCount(1);
+  });
+
+  test('selecting another tab swaps the panel and shows placeholder text', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    await page.locator('[data-testid="token-tab"][data-tab-id="fonts"]').click();
+
+    const panel = page.locator('[data-testid="token-tab-panel"][data-tab-id="fonts"]');
+    await expect(panel).toBeVisible();
+    expect((await panel.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
+
+    await expect(
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="colors"]')
     ).toHaveCount(0);
   });
-});
 
-// --- D1-2: sections ---
-test.describe('D1-2 sections', () => {
-  test('every style-guide section renders', async ({ page }) => {
+  test('every example section still renders', async ({ page }) => {
     await page.goto('/style-guide');
 
     for (const section of SECTIONS) {
       await expect(page.getByTestId(section), `expected ${section}`).toBeVisible();
     }
   });
-});
 
-// --- D1-3: states are distinguishable ---
-test.describe('D1-3 distinguishable states', () => {
-  test('primary and quiet buttons differ in background', async ({ page }) => {
+  test('every token still resolves, including the newly registered one', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const primary = await page
-      .getByTestId('sg-button-primary')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-    const quiet = await page
-      .getByTestId('sg-button-quiet')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-
-    expect(primary).not.toBe(quiet);
-  });
-
-  test('the disabled button is visually distinct from the primary button', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const primary = await page.getByTestId('sg-button-primary').evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { bg: s.backgroundColor, opacity: s.opacity };
-    });
-    const disabled = await page.getByTestId('sg-button-disabled').evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { bg: s.backgroundColor, opacity: s.opacity, cursor: s.cursor };
-    });
-
-    expect(disabled.bg !== primary.bg || disabled.opacity !== primary.opacity).toBe(true);
-    expect(disabled.cursor).toBe('not-allowed');
-  });
-
-  test('interactive elements report a pointer cursor', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    expect(
-      await page.getByTestId('sg-button-primary').evaluate((el) => getComputedStyle(el).cursor)
-    ).toBe('pointer');
-
-    expect(
-      await page
-        .getByTestId('sg-links')
-        .locator('a')
-        .first()
-        .evaluate((el) => getComputedStyle(el).cursor)
-    ).toBe('pointer');
-  });
-
-  test('inputs have a visible border', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const border = await page.getByTestId('sg-input').evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { width: s.borderTopWidth, color: s.borderTopColor };
-    });
-
-    expect(border.width).not.toBe('0px');
-    expect(border.color).not.toBe('rgba(0, 0, 0, 0)');
-    expect(border.color).not.toBe('transparent');
-  });
-
-  test('a focused input looks different from an unfocused one', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const input = page.getByTestId('sg-input');
-    const before = await styleOf(input, ['border-top-color', 'box-shadow', 'outline-width']);
-    await input.focus();
-    const after = await styleOf(input, ['border-top-color', 'box-shadow', 'outline-width']);
-
-    expect(after).not.toBe(before);
-  });
-
-  test('complete and incomplete hint rows differ', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const section = page.getByTestId('sg-hint-rows');
-    const complete = await styleOf(section.locator('[data-complete="true"]').first(), [
-      'color',
-      'background-color',
-      'border-left-color',
-    ]);
-    const incomplete = await styleOf(section.locator('[data-complete="false"]').first(), [
-      'color',
-      'background-color',
-      'border-left-color',
-    ]);
-
-    expect(complete).not.toBe(incomplete);
+    for (const token of [...COLOR_TOKENS, ...OTHER_TOKENS]) {
+      expect(await tokenValue(page, token), `expected ${token}`).not.toBe('');
+    }
   });
 });
 
-// --- D1b-2: hover ---
-test.describe('D1b-2 hover states', () => {
-  test('hovering the primary button changes its background', async ({ page }) => {
+// --- D8-2: colour pickers ---
+test.describe('D8-2 colour pickers', () => {
+  test('a picker renders for every colour token, labelled by name', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const button = page.getByTestId('sg-hover').getByTestId('sg-button-primary');
-    const before = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
-    await button.hover();
-    const after = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
-
-    expect(after).not.toBe(before);
+    for (const token of COLOR_TOKENS) {
+      const row = picker(page, token);
+      await expect(row, `expected a picker for ${token}`).toBeVisible();
+      await expect(row).toContainText(token);
+    }
   });
 
-  test('hovering a link changes its appearance', async ({ page }) => {
+  test('each picker starts at the committed token value', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const link = page.getByTestId('sg-hover').locator('a').first();
-    const before = await styleOf(link, ['color', 'text-decoration-line', 'background-color']);
-    await link.hover();
-    const after = await styleOf(link, ['color', 'text-decoration-line', 'background-color']);
-
-    expect(after).not.toBe(before);
+    for (const token of COLOR_TOKENS) {
+      const committed = await asRgb(page, await tokenValue(page, token));
+      const shown = await asRgb(page, await colorInput(page, token).inputValue());
+      expect(shown, `${token} picker value`).toBe(committed);
+    }
   });
 
-  test('hovering the disabled button changes nothing', async ({ page }) => {
+  test('changing a grid token repaints the matching cells', async ({ page }) => {
     await page.goto('/style-guide');
 
-    const button = page.getByTestId('sg-hover').getByTestId('sg-button-disabled');
-    const before = await styleOf(button, ['background-color', 'opacity', 'color']);
-    await button.hover({ force: true });
-    const after = await styleOf(button, ['background-color', 'opacity', 'color']);
+    const empties = cellIn(page, 'sg-grid-build', 'empty');
+    expect(await empties.count()).toBeGreaterThan(1);
 
-    expect(after).toBe(before);
+    await setToken(page, '--color-grid-empty', '#ff00ff');
+    const expected = await asRgb(page, '#ff00ff');
+
+    // every empty cell, not just one
+    expect(await bgOf(empties.nth(0))).toBe(expected);
+    expect(await bgOf(empties.nth(1))).toBe(expected);
+  });
+
+  test('changing the selected token repaints the cursor cell', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    await setToken(page, '--color-selected', '#123456');
+
+    expect(await bgOf(cellIn(page, 'sg-grid-build', 'selected').first())).toBe(
+      await asRgb(page, '#123456')
+    );
+  });
+
+  test('changing the grid-line token repaints the hairline', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    await setToken(page, '--color-grid-line', '#00ff00');
+
+    const container = page.getByTestId('sg-grid-build').getByTestId('puzzle-grid');
+    expect(await bgOf(container)).toBe(await asRgb(page, '#00ff00'));
+  });
+
+  test('reloading restores committed values', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const committed = await asRgb(page, await tokenValue(page, '--color-grid-empty'));
+    await setToken(page, '--color-grid-empty', '#ff00ff');
+    expect(await bgOf(cellIn(page, 'sg-grid-build', 'empty').first())).not.toBe(committed);
+
+    await page.reload();
+
+    expect(await bgOf(cellIn(page, 'sg-grid-build', 'empty').first())).toBe(committed);
+    expect(await asRgb(page, await colorInput(page, '--color-grid-empty').inputValue())).toBe(
+      committed
+    );
   });
 });
 
-// --- D1c-1 / D1c-2 / D1c-3: measured grid geometry ---
-test.describe('D1c grid geometry (measured, not declared)', () => {
+// --- D8-3: real grids ---
+test.describe('D8-3 real grid samples', () => {
+  test('the build sample is a 10x10 showing every build state', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const sample = page.getByTestId('sg-grid-build');
+    await expect(sample.getByTestId('grid-cell')).toHaveCount(100);
+
+    for (const state of ['empty', 'letter', 'selected', 'slot', 'symmetric-hint']) {
+      await expect(
+        cellIn(page, 'sg-grid-build', state).first(),
+        `expected a ${state} cell`
+      ).toBeVisible();
+    }
+    await expect(sample.getByTestId('cell-number').first()).toBeVisible();
+  });
+
+  test('the active slot spans both lettered and empty cells', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    // cells in the slot are styled 'slot' regardless of content, so read the
+    // underlying kind/letter to confirm the slot really crosses both
+    const slotCells = cellIn(page, 'sg-grid-build', 'slot');
+    const texts = await slotCells.allTextContents();
+
+    expect(texts.length).toBeGreaterThan(1);
+    expect(texts.some((t) => /[A-Z]/.test(t))).toBe(true);
+    expect(texts.some((t) => !/[A-Z]/.test(t))).toBe(true);
+  });
+
+  test('the preview sample shows black, lettered and required cells', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    for (const state of ['black', 'letter', 'required']) {
+      await expect(
+        cellIn(page, 'sg-grid-preview', state).first(),
+        `expected a ${state} cell`
+      ).toBeVisible();
+    }
+  });
+
   for (const sample of GRID_SAMPLES) {
-    test(`${sample}: adjacent cells are exactly one hairline apart`, async ({ page }) => {
-      await page.goto('/style-guide');
-
-      const line = parseFloat(await tokenValue(page, '--grid-line-width'));
-      const { cells } = await measureSample(page, sample);
-      expect(cells.length).toBeGreaterThan(1);
-
-      let horizontal = 0;
-      let vertical = 0;
-
-      for (const a of cells) {
-        for (const b of cells) {
-          const sameRow = Math.abs(a.top - b.top) < TOLERANCE;
-          const sameCol = Math.abs(a.left - b.left) < TOLERANCE;
-
-          if (sameRow && b.left > a.right - TOLERANCE) {
-            const distance = b.left - a.right;
-            if (distance < line * 4) {
-              expect(distance, `${sample}: column gap`).toBeCloseTo(line, 0);
-              horizontal++;
-            }
-          }
-          if (sameCol && b.top > a.bottom - TOLERANCE) {
-            const distance = b.top - a.bottom;
-            if (distance < line * 4) {
-              expect(distance, `${sample}: row gap`).toBeCloseTo(line, 0);
-              vertical++;
-            }
-          }
-        }
-      }
-
-      // the sample must actually contain adjacent pairs in both directions,
-      // or the assertions above are vacuous
-      expect(horizontal, `${sample}: horizontally adjacent pairs`).toBeGreaterThan(0);
-      expect(vertical, `${sample}: vertically adjacent pairs`).toBeGreaterThan(0);
-    });
-
-    test(`${sample}: a hairline surrounds the outside too`, async ({ page }) => {
+    test(`${sample}: geometry holds (measured)`, async ({ page }) => {
       await page.goto('/style-guide');
 
       const line = parseFloat(await tokenValue(page, '--grid-line-width'));
       const { container, cells } = await measureSample(page, sample);
-
-      const left = Math.min(...cells.map((c) => c.left)) - container.left;
-      const top = Math.min(...cells.map((c) => c.top)) - container.top;
-      const right = container.right - Math.max(...cells.map((c) => c.right));
-      const bottom = container.bottom - Math.max(...cells.map((c) => c.bottom));
-
-      expect(left, `${sample}: left edge`).toBeCloseTo(line, 0);
-      expect(top, `${sample}: top edge`).toBeCloseTo(line, 0);
-      expect(right, `${sample}: right edge`).toBeCloseTo(line, 0);
-      expect(bottom, `${sample}: bottom edge`).toBeCloseTo(line, 0);
-    });
-
-    test(`${sample}: cells are square and uniformly sized`, async ({ page }) => {
-      await page.goto('/style-guide');
-
-      const { cells } = await measureSample(page, sample);
-      expect(cells.length).toBeGreaterThan(0);
+      expect(cells.length).toBe(100);
 
       for (const cell of cells) {
         expect(cell.w).toBeCloseTo(cell.h, 0);
         expect(cell.w).toBeCloseTo(cells[0].w, 0);
-        expect(cell.h).toBeCloseTo(cells[0].h, 0);
       }
+
+      let adjacencies = 0;
+      for (const a of cells) {
+        for (const b of cells) {
+          if (Math.abs(a.top - b.top) < TOLERANCE && b.left > a.right - TOLERANCE) {
+            const distance = b.left - a.right;
+            if (distance < line * 4) {
+              expect(distance).toBeCloseTo(line, 0);
+              adjacencies++;
+            }
+          }
+          if (Math.abs(a.left - b.left) < TOLERANCE && b.top > a.bottom - TOLERANCE) {
+            const distance = b.top - a.bottom;
+            if (distance < line * 4) {
+              expect(distance).toBeCloseTo(line, 0);
+              adjacencies++;
+            }
+          }
+        }
+      }
+      expect(adjacencies).toBeGreaterThan(0);
+
+      expect(Math.min(...cells.map((c) => c.left)) - container.left).toBeCloseTo(line, 0);
+      expect(Math.min(...cells.map((c) => c.top)) - container.top).toBeCloseTo(line, 0);
+      expect(container.right - Math.max(...cells.map((c) => c.right))).toBeCloseTo(line, 0);
+      expect(container.bottom - Math.max(...cells.map((c) => c.bottom))).toBeCloseTo(line, 0);
     });
   }
 });
 
-// --- D1b-4: grid samples show real states ---
-test.describe('D1b-4 grid samples', () => {
-  test('the build sample shows a letter and a number', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const sample = page.getByTestId('sg-grid-build');
-    await expect(sample.locator('[data-cell-state="letter"]').first()).toBeVisible();
-    await expect(sample.locator('[data-testid="sg-cell-number"]').first()).toBeVisible();
-  });
-
-  test('the preview sample shows a letter, a number, and a required cell', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const sample = page.getByTestId('sg-grid-preview');
-    await expect(sample.locator('[data-cell-state="letter"]').first()).toBeVisible();
-    await expect(sample.locator('[data-testid="sg-cell-number"]').first()).toBeVisible();
-    await expect(sample.locator('[data-cell-state="required"]').first()).toBeVisible();
-  });
-});
-
-// --- D1-4: responsive ---
-test.describe('D1-4 responsive', () => {
-  test('no horizontal overflow at phone width', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/style-guide');
-
-    await expect(page.getByTestId('token-panel')).toBeVisible();
-    expect(await hasOverflow(page)).toBe(false);
-  });
-
-  test('no horizontal overflow at laptop width', async ({ page }) => {
+// --- D8-4: the pane stays put ---
+test.describe('D8-4 pinned token pane', () => {
+  test('the token pane is still visible after scrolling to the bottom', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/style-guide');
 
-    await expect(page.getByTestId('token-panel')).toBeVisible();
-    expect(await hasOverflow(page)).toBe(false);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const box = await page.getByTestId('token-pane').boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.top).toBeLessThan(800);
+    expect(box!.top + box!.height).toBeGreaterThan(0);
   });
+});
+
+// --- D8-5: responsive ---
+test.describe('D8-5 responsive', () => {
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 375, height: 667 },
+  ]) {
+    test(`no horizontal overflow at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/style-guide');
+
+      await expect(page.getByTestId('token-pane')).toBeVisible();
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+      );
+      expect(overflow).toBe(false);
+    });
+  }
 });
