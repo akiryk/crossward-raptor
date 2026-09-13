@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { waitForEditorReady } from './helpers/wait-for-ready';
+import { waitForEditorReady, waitForNewPuzzleReady } from './helpers/wait-for-ready';
 
 function uniqueTitle(label: string) {
   return `D6 ${label} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -10,6 +10,7 @@ function uniqueTitle(label: string) {
 test('rapid double-click on Create does not create two puzzles', async ({ page }) => {
   const title = uniqueTitle('dblclick');
   await page.goto('/puzzles');
+  await waitForNewPuzzleReady(page);
   await page.getByTestId('new-puzzle-button').click();
   await expect(page.getByTestId('new-puzzle-dialog')).toBeVisible();
   await page.getByTestId('new-puzzle-name').fill(title);

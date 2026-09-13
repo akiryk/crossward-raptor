@@ -10,3 +10,13 @@ import type { Page } from '@playwright/test';
 export async function waitForEditorReady(page: Page): Promise<void> {
   await page.waitForSelector('[data-testid="puzzle-editor"][data-ready="true"]');
 }
+
+/**
+ * Waits for NewPuzzleButton to signal it can actually respond to a click.
+ * Same race as the editor: the button's onClick isn't wired until
+ * hydration commits, which can happen after page.goto() has already
+ * resolved -- a click before this resolves can be silently dropped.
+ */
+export async function waitForNewPuzzleReady(page: Page): Promise<void> {
+  await page.waitForSelector('[data-testid="new-puzzle"][data-ready="true"]');
+}

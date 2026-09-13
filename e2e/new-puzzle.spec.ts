@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { waitForEditorReady } from './helpers/wait-for-ready';
+import { waitForEditorReady, waitForNewPuzzleReady } from './helpers/wait-for-ready';
 
 function uniqueTitle(label: string) {
   return `D6 ${label} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -12,6 +12,7 @@ function sizeOption(page: Page, size: string) {
 
 async function openDialog(page: Page) {
   await page.goto('/puzzles');
+  await waitForNewPuzzleReady(page);
   await page.getByTestId('new-puzzle-button').click();
   await expect(page.getByTestId('new-puzzle-dialog')).toBeVisible();
 }
@@ -29,6 +30,7 @@ async function createPuzzle(page: Page, title: string, size?: string) {
 test.describe('D6-3 new-puzzle dialog', () => {
   test('the button opens a dialog rather than creating a puzzle', async ({ page }) => {
     await page.goto('/puzzles');
+    await waitForNewPuzzleReady(page);
     const url = page.url();
 
     await page.getByTestId('new-puzzle-button').click();

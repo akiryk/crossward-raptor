@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { waitForEditorReady } from './helpers/wait-for-ready';
+import { waitForEditorReady, waitForNewPuzzleReady } from './helpers/wait-for-ready';
 
 // Since Story D6, creating a puzzle goes through a dialog that requires a
 // name and a size. These tests still verify persistence -- they just take
@@ -10,6 +10,7 @@ function uniqueTitle(label: string) {
 }
 
 async function createViaDialog(page: Page, title: string) {
+  await waitForNewPuzzleReady(page);
   await page.getByTestId('new-puzzle-button').click();
   await expect(page.getByTestId('new-puzzle-dialog')).toBeVisible();
   await page.getByTestId('new-puzzle-name').fill(title);
