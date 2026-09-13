@@ -31,8 +31,22 @@ const OTHER_TOKENS = [
   '--radius-lg',
   '--radius-grid',
   '--grid-line-width',
-  '--text-eyebrow',
+  '--text-headline',
+  '--text-body',
+  '--text-help',
+  '--text-label',
+  '--weight-normal',
+  '--weight-bold',
 ];
+
+const SIZE_TOKENS = [
+  '--text-headline',
+  '--text-body',
+  '--text-help',
+  '--text-label',
+];
+
+const WEIGHT_TOKENS = ['--weight-normal', '--weight-bold'];
 
 const SECTIONS = [
   'sg-text',
@@ -148,12 +162,12 @@ test.describe('D8-1 structure', () => {
     await expect(page.getByTestId('token-tab-panel')).toHaveCount(1);
   });
 
-  test('selecting another tab swaps the panel and shows placeholder text', async ({ page }) => {
+  test('selecting another tab swaps the panel', async ({ page }) => {
     await page.goto('/style-guide');
 
-    await page.locator('[data-testid="token-tab"][data-tab-id="fonts"]').click();
+    await page.locator('[data-testid="token-tab"][data-tab-id="utility"]').click();
 
-    const panel = page.locator('[data-testid="token-tab-panel"][data-tab-id="fonts"]');
+    const panel = page.locator('[data-testid="token-tab-panel"][data-tab-id="utility"]');
     await expect(panel).toBeVisible();
     expect((await panel.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
 
@@ -247,6 +261,97 @@ test.describe('D8-2 colour pickers', () => {
     expect(await asRgb(page, await colorInput(page, '--color-grid-empty').inputValue())).toBe(
       committed
     );
+  });
+});
+
+// --- D9-2: the Fonts tab ---
+test.describe('D9-2 fonts tab', () => {
+  async function openFonts(page: Page) {
+    await page.goto('/style-guide');
+    await page.locator('[data-testid="token-tab"][data-tab-id="fonts"]').click();
+    await expect(
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="fonts"]')
+    ).toBeVisible();
+  }
+
+  test('a size control renders for each size token, at its committed value', async ({
+    page,
+  }) => {
+    await openFonts(page);
+
+    for (const token of SIZE_TOKENS) {
+      const control = page.locator(
+        `[data-testid="size-control"][data-token-name="${token}"]`
+      );
+      await expect(control, `expected a control for ${token}`).toBeVisible();
+      await expect(control).toContainText(token);
+
+      const shown = await control.locator('[data-testid="size-input"]').inputValue();
+      const committed = await tokenValue(page, token);
+      expect(parseFloat(shown), `${token} initial value`).toBeCloseTo(
+        parseFloat(committed),
+        2
+      );
+    }
+  });
+
+  test('a weight control renders for each weight token', async ({ page }) => {
+    await openFonts(page);
+
+    for (const token of WEIGHT_TOKENS) {
+      const control = page.locator(
+        `[data-testid="weight-control"][data-token-name="${token}"]`
+      );
+      await expect(control, `expected a control for ${token}`).toBeVisible();
+      await expect(control).toContainText(token);
+    }
+  });
+
+  test('changing the headline size resizes headings in the examples pane', async ({
+    page,
+  }) => {
+    await openFonts(page);
+
+    const heading = page.getByTestId('sg-text').locator('h1, h2').first();
+    const before = await heading.evaluate((el) => getComputedStyle(el).fontSize);
+
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--text-headline', '3rem')
+    );
+
+    const after = await heading.evaluate((el) => getComputedStyle(el).fontSize);
+    expect(after).not.toBe(before);
+  });
+
+  test('changing the bold weight changes rendered weight', async ({ page }) => {
+    await openFonts(page);
+
+    const heading = page.getByTestId('sg-text').locator('h1, h2').first();
+    const before = await heading.evaluate((el) => getComputedStyle(el).fontWeight);
+
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--weight-bold', '300')
+    );
+
+    const after = await heading.evaluate((el) => getComputedStyle(el).fontWeight);
+    expect(after).not.toBe(before);
+  });
+
+  test('reloading restores committed type values', async ({ page }) => {
+    await openFonts(page);
+
+    const heading = page.getByTestId('sg-text').locator('h1, h2').first();
+    const committed = await heading.evaluate((el) => getComputedStyle(el).fontSize);
+
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--text-headline', '3rem')
+    );
+    expect(await heading.evaluate((el) => getComputedStyle(el).fontSize)).not.toBe(committed);
+
+    await page.reload();
+    await page.locator('[data-testid="token-tab"][data-tab-id="fonts"]').click();
+
+    expect(await heading.evaluate((el) => getComputedStyle(el).fontSize)).toBe(committed);
   });
 });
 
