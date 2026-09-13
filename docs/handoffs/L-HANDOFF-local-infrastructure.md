@@ -74,13 +74,32 @@ pattern the specs already use is what makes concurrent workers safe, and
 this story didn't touch it.
 
 **`reset-test-db.mjs`'s refusal is structural, not a config check.** It
-reads `TEST_DATABASE_URL`, parses it as a URL, and refuses (non-zero
-exit, clear message, no query attempted) unless the hostname is exactly
-`localhost` or `127.0.0.1` — demonstrated directly: `TEST_DATABASE_URL`
-overridden inline on the command line (never written to any `.env`
-file) to a non-localhost URL, correctly refused with
-`reset-test-db: TEST_DATABASE_URL does not point at localhost (host is
-"example.com"). Refusing to run.` and exit code 1.
+reads `TEST_DATABASE_URL`, determines the effective host, and refuses
+(non-zero exit, clear message, no query attempted) unless that host is
+exactly `localhost` or `127.0.0.1` — demonstrated directly:
+`TEST_DATABASE_URL` overridden inline on the command line (never
+written to any `.env` file) to a non-localhost URL, correctly refused
+with `reset-test-db: TEST_DATABASE_URL does not resolve to a localhost
+host (effective host is "example.com"). Refusing to run.` and exit
+code 1.
+
+**Review caught a real bypass in the first version of that guard.**
+`new URL(url).hostname` only reads the URL's authority — but
+`pg-connection-string` (what `pg`/`PrismaPg` actually use to interpret
+the connection string) lets a `host` query parameter override the
+authority silently:
+`postgresql://user:pass@localhost/db?host=remote.example` reports
+`hostname: 'localhost'` from `new URL()`, then connects to
+`remote.example` — exactly the hosted-database liability this guard
+exists to prevent, undetected. Fixed by parsing with
+`pg-connection-string` itself (a new direct dependency, already a
+transitive one via `pg`) rather than re-deriving the rule by hand — the
+validation now asks the literal library that will establish the
+connection what host it resolves to, so it can't drift from what
+actually gets connected to. Verified against the reported bypass string
+directly (correctly refused), the original plain-non-localhost case
+(still refused), and a combined `host`+`port` override (also refused);
+full suite re-run twice after the fix, 147/147 both times.
 
 **`prisma.config.ts` and `playwright.config.ts` both now load
 `.env.local`** instead of `.env.development.local` (the latter renamed
