@@ -1,13 +1,13 @@
 import { PrismaClient, type Prisma } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaPg } from '@prisma/adapter-pg';
 import type { Puzzle } from '../../src/engine/puzzle';
 import { serializePuzzle } from '../../src/lib/puzzle-storage';
 
 /**
- * Writes a puzzle directly to the dedicated e2e-test Neon branch, bypassing
- * the app's own Server Actions. Exists only for tests that need a puzzle
- * shape (black cells, letters) the app has no UI to create yet — never
- * imported by application code.
+ * Writes a puzzle directly to the local Postgres test database (Story L1),
+ * bypassing the app's own Server Actions. Exists only for tests that need a
+ * puzzle shape (black cells, letters) the app has no UI to create yet —
+ * never imported by application code.
  */
 export async function seedPuzzle(
   puzzle: Puzzle,
@@ -17,11 +17,11 @@ export async function seedPuzzle(
   if (!url) {
     throw new Error(
       'TEST_DATABASE_URL is not set — seed-puzzle.ts must run against the ' +
-        'dedicated e2e-test branch, never the real database. Refusing to seed.'
+        'dedicated test database, never the real database. Refusing to seed.'
     );
   }
 
-  const adapter = new PrismaNeon({ connectionString: url });
+  const adapter = new PrismaPg({ connectionString: url });
   const client = new PrismaClient({ adapter });
   try {
     const stored = serializePuzzle(puzzle);

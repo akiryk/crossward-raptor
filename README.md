@@ -4,13 +4,28 @@ Crossward is a web app for building and playing NYT-style crossword puzzles.
 The grid engine — the pure logic core that owns words, numbering, hints, and
 phase rules — is complete; the builder UI has not been started yet.
 
+## Getting started
+
+Local development runs against Postgres in Docker, not a hosted database.
+You'll need [Docker](https://www.docker.com/) running locally, and a
+`.env.local` at the repo root defining three variables: `DATABASE_URL`
+and `DATABASE_URL_UNPOOLED` (the dev database) and `TEST_DATABASE_URL`
+(the e2e suite's own database — wiped on every run, never your working
+data). All three should point at the containers `docker-compose.yml`
+defines.
+
+1. `npm install`
+2. `npm run db:setup` — starts the containers and applies migrations
+3. `npm run dev`
+
 ## Commands
 
 - Install: `npm install`
+- Database: `npm run db:setup` (first run / after a schema change)
 - Dev: `npm run dev`
 - Build: `npm run build`
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
-- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins. Runs against a dedicated Neon branch (`TEST_DATABASE_URL`), not the real database — that branch is not automatically cleaned up between runs.
+- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins. Prepares its own local test database automatically (migrated and wiped) before each run — see `AGENTS.md` for the details.
 
 ## More context
 
