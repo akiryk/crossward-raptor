@@ -341,10 +341,12 @@ test.describe('D8-4 pinned token pane', () => {
 
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
+    // Playwright's boundingBox() returns { x, y, width, height } -- not a
+    // DOMRect, so there is no .top/.bottom here.
     const box = await page.getByTestId('token-pane').boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.top).toBeLessThan(800);
-    expect(box!.top + box!.height).toBeGreaterThan(0);
+    expect(box!.y).toBeLessThan(800);
+    expect(box!.y + box!.height).toBeGreaterThan(0);
   });
 });
 
