@@ -44,7 +44,9 @@ export function Stepper({
             {step.label}
           </button>
           {revealedId === step.id && step.reason && (
-            <p data-testid="step-reason">{step.reason}</p>
+            <p data-testid="step-reason" className="text-help text-ink-2">
+              {step.reason}
+            </p>
           )}
         </div>
       ))}

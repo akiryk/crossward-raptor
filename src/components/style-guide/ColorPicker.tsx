@@ -47,7 +47,7 @@ export function ColorPicker({ token }: { token: string }) {
         defaultValue="#000000"
         className="h-8 w-8 cursor-pointer rounded-md border border-rule-strong"
       />
-      <span className="font-data text-sm text-ink-2">{token}</span>
+      <span className="font-data text-label text-ink-2">{token}</span>
     </div>
   );
 }

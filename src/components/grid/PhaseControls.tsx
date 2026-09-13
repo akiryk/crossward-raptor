@@ -42,7 +42,7 @@ export function PhaseControls({
       )}
       {phase === 'grid' && confirming && (
         <div data-testid="enter-hints-confirmation">
-          <p>
+          <p className="text-help text-ink-2">
             This cannot be undone. {emptyCellCount} empty cells will become black.
           </p>
           <Button variant="danger" data-testid="enter-hints-confirm-button" onClick={handleConfirm}>

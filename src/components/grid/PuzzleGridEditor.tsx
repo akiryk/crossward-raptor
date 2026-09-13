@@ -236,7 +236,9 @@ export function PuzzleGridEditor({
         )}
       </div>
       {geometryLocked && (
-        <p data-testid="geometry-locked-message">Geometry is locked in hints phase</p>
+        <p data-testid="geometry-locked-message" className="text-help text-ink-2">
+          Geometry is locked in hints phase
+        </p>
       )}
       <div data-testid="editor-layout" className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div

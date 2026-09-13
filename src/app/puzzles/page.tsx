@@ -16,7 +16,10 @@ export default async function PuzzlesPage() {
 
   return (
     <div className="p-6">
-      <h1 data-testid="page-heading" className="font-display text-3xl font-bold">
+      <h1
+        data-testid="page-heading"
+        className="font-display text-headline [font-weight:var(--weight-bold)]"
+      >
         Puzzles
       </h1>
       <NewPuzzleButton />
@@ -29,7 +32,7 @@ export default async function PuzzlesPage() {
               data-phase={puzzle.phase}
               data-hints-complete={puzzle.hintsComplete ? 'true' : 'false'}
               data-updated-at={puzzle.updatedAt.toISOString()}
-              className="block cursor-pointer px-3 py-2 hover:bg-hover-tint"
+              className="block cursor-pointer px-3 py-2 text-body hover:bg-hover-tint"
             >
               {puzzle.title} — {formatDate(puzzle.updatedAt)} —{' '}
               {statusText(puzzle.phase, puzzle.hintsComplete)}

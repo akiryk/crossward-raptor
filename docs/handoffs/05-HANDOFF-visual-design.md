@@ -399,7 +399,91 @@ first) — the same hydration-race class `docs/LEARNINGS.md` entries 1 and
 4 already document and that `PuzzleGridEditor` was given an `isReady`
 signal for, never applied to `NewPuzzleButton`/`/puzzles`. Neither issue
 touches any file this story's Repo paths name; both are pre-existing and
-out of scope here, reported rather than fixed.
+out of scope here, reported rather than fixed. (Update: the fix was
+sitting ready on `wip/new-puzzle-hydration-race`, unverifiable until
+Story L1 gave local Postgres fast enough round-trips to test it — see
+that story's own entry once it lands.)
+
+**Story D9 (type scale and Fonts tab) is complete and committed** — low
+blast radius, merged straight to `main`. Replaces the single
+`--text-eyebrow` token with a real four-role scale (`--text-headline:
+1.75rem`, `--text-body: 1rem`, `--text-help: 0.875rem`, `--text-label:
+0.75rem`) plus two weight tokens (`--weight-normal: 400`,
+`--weight-bold: 700`), and wires both into the Fonts tab D8 stubbed out
+with new `SizeControl` (a range input, uncontrolled for the same
+React-value-tracking reason as D8's `ColorPicker`) and `WeightControl`
+(a `<select>`, same pattern) components.
+
+**Role mapping, as the story asked to have reported:**
+- **headline** (`text-headline` + `[font-weight:var(--weight-bold)]`):
+  every real `h1`/`h2` in the app — `/puzzles`' `page-heading`,
+  `TokenPane`'s "Style guide" `h1`, and every section heading in
+  `/style-guide` and `GridExamples` (nine `h2`s). The `sg-text`
+  section's "Display heading sample" line was a `<p>` styled to look
+  like a heading; converted to a real `h2` so the sample is honest and
+  `typography.spec.ts`'s `h1, h2` lookup has something to find beyond
+  the section's own "Text" title.
+- **body** (`text-body`): `/puzzles`' list-item links, and the
+  "Body text sample" line in `sg-text`.
+- **help** (`text-help text-ink-2`): `Stepper`'s `step-reason`,
+  `PuzzleGridEditor`'s `geometry-locked-message`, and every "This
+  cannot be undone" confirmation paragraph (`DeletePuzzleButton`,
+  `ClearLettersButton`, `PhaseControls`' `enter-hints-confirmation`,
+  and the static `sg-confirmation` sample) — the story names
+  "confirmation warnings" as a help example explicitly, so these read
+  as help text, not body text, despite visually looking like plain
+  prose. Also converted `sg-text`'s pre-existing "Secondary text
+  (ink-2)" sample, which was already hand-styled to exactly this
+  role's spec (`text-sm text-ink-2`) without the token backing it.
+- **label** (`text-label`): `HintsPanel`'s hint-key text, given a new
+  `data-testid="hint-label"` per the acceptance test (there was no
+  hook to select it from before); token-name spans in `ColorPicker`,
+  `SizeControl`, and `WeightControl`; and `NewPuzzleDialog`'s size
+  option buttons. That last one is a real tension in the story's own
+  text: the Decisions section excludes "button, link, and nav text"
+  from conversion, but the four-roles section explicitly names "size
+  options in the new-puzzle dialog" as a label example. Resolved by
+  reading the Decisions exclusion as being about the shared `Button`
+  *component* specifically (primary/quiet/danger, pure interface
+  chrome) — the size options are hand-rolled native `<button>`s, never
+  routed through that component, closer to selectable labels than
+  interface chrome. Followed the explicit, specific instruction over
+  the general one.
+- **Left alone, on purpose:** `TokenPane`'s tab buttons (`Colors`/
+  `Fonts`/`Utility`) and the `Stepper`'s own step-label buttons — both
+  are nav-equivalent interactive controls, matching the Button/link/nav
+  exclusion. The puzzle title input, per the story's own explicit call
+  (still an open item from Story D2). `sg-error`'s sample text — a
+  distinct semantic (error) state via `--color-required`, not one of
+  the four roles. `phase-badge` and `puzzle-phase` — status readouts
+  that don't obviously fit prose, help, or a label, left on their
+  existing classes.
+
+**A real bug, not a spec quirk, surfaced by the acceptance test rather
+than guessed at:** `SizeControl`'s range input (`min=0.5, step=0.05` per
+the story's own suggested range) cannot land exactly on `0.875rem`
+(`--text-help`'s required committed value) — `(0.875 - 0.5) / 0.05 =
+7.5`, not a whole number of steps, so Chromium silently rounded the
+input's initial value to `0.9` on assignment, caught by
+`style-guide.spec.ts`'s "starts at its committed value" test (0.875
+expected, 0.9 received). Fixed by tightening the step to `0.025` — still
+covers 0.5rem-3rem, still fine-grained, but now divides all four
+committed values exactly. A `0.05` step was never going to work for an
+eighth-based value like `0.875` no matter what `min` was chosen.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest tests —
+unchanged, this story added no Vitest coverage of its own, matching D8's
+precedent). `e2e/typography.spec.ts`: 6/6. `e2e/style-guide.spec.ts`:
+24/24. Full suite: 158/158, confirmed after Story L1's containers (up
+several hours and hit hard by that story's own repeated verification
+runs) were restarted — two prior full-suite attempts this story showed
+4 failures each, in different files each time (`controls.spec.ts`,
+`cursor-direction.spec.ts`, `new-puzzle.spec.ts`), all passing cleanly
+in isolation and none touching any file this story changed; a fresh
+`docker compose restart` made the full suite pass clean in well under a
+minute. Infrastructure fatigue after a long session, not a D9 (or L1)
+regression — but worth knowing the containers aren't entirely immune to
+needing a restart under sustained heavy use.
 
 ### What exists
 
@@ -418,6 +502,7 @@ docs/stories/
   05-D5b-stepper.md                    Story D5b's specification, tracked
   05-D6-new-puzzle-dialog.md           Story D6's specification, tracked
   05-D8-live-token-editing.md          Story D8's specification, tracked
+  05-D9-type-scale.md                  Story D9's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -433,8 +518,15 @@ e2e/
                          for the token-pane/examples-pane restructure and
                          real-PuzzleGrid samples; corrected once before
                          implementation (box!.top -> box!.y, a
-                         boundingBox()/DOMRect mixup tsc caught) — do not
+                         boundingBox()/DOMRect mixup tsc caught). Story
+                         D9 — --text-eyebrow swapped for the six new
+                         type-scale/weight tokens in the resolves-check
+                         list; new D9-2 size/weight control tests; the
+                         D8-1 "selecting another tab" test retargeted
+                         from fonts (now real controls, not placeholder
+                         text) to utility (still a placeholder) — do not
                          edit
+  typography.spec.ts    Story D9's new acceptance test — do not edit
   shell.spec.ts         Story P0's acceptance test; Story D1b removed
                          --color-complete from its pinned token list
                          (authorized one-line edit)
@@ -459,7 +551,9 @@ src/app/
                  --color-complete (identical value to --color-accent).
                  Story D8 — registers --color-slot (existed in code only
                  as an uncommitted ad hoc edit before this story; see
-                 "Where things stand" above)
+                 "Where things stand" above). Story D9 — --text-eyebrow
+                 replaced by --text-headline/-body/-help/-label and
+                 --weight-normal/-bold
   layout.tsx    Story D1 — loads Space Grotesk and Inter via
                  next/font/google, exposed as --font-space-grotesk/
                  --font-inter and referenced from --font-display/
@@ -482,10 +576,17 @@ src/app/style-guide/
                  (sticky <TokenPane /> left, scrolling examples-pane
                  right); grid sections now render <GridExamples />
                  instead of the static GridSample helper, which is
-                 removed along with the rest of that static markup
+                 removed along with the rest of that static markup.
+                 Story D9 — sg-text's heading/body/secondary-text
+                 samples converted to the real headline/body/help
+                 tokens (see "Where things stand" above for the full
+                 role mapping); every other h2 in this file also
+                 converted to headline
 src/app/puzzles/
   page.tsx            Story D2 — page-heading testid + heading styling;
-                       list rows get cursor-pointer and a hover state
+                       list rows get cursor-pointer and a hover state.
+                       Story D9 — page-heading uses text-headline +
+                       weight-bold; list-item links use text-body
   NewPuzzleButton.tsx  Story D2 — renders <Button>. Story D6 — opens
                        <NewPuzzleDialog> instead of calling createPuzzle
                        directly; createPuzzle now takes {title, size}
@@ -502,15 +603,26 @@ src/components/style-guide/
                     TokenPane.tsx
   TokenPane.tsx    Story D8 — new; three tabs (Colors/Fonts/Utility),
                     Colors renders a <ColorPicker /> per color token,
-                    Fonts/Utility are D9/D10 placeholders
+                    Fonts/Utility are D9/D10 placeholders. Story D9 —
+                    Fonts tab renders SizeControl/WeightControl per
+                    token instead of placeholder text; "Style guide" h1
+                    uses text-headline + weight-bold
   ColorPicker.tsx  Story D8 — new; an uncontrolled <input type="color">
                     (ref + native addEventListener, not value/onChange —
                     see "Where things stand" above) writing straight to
-                    document.documentElement.style
+                    document.documentElement.style. Story D9 — token-
+                    name span uses text-label instead of text-sm
+  SizeControl.tsx  Story D9 — new; uncontrolled <input type="range">
+                    (same pattern as ColorPicker) for a --text-* token;
+                    0.5rem-3rem range, 0.025rem step (not the nominal
+                    0.05 — see "Where things stand" above for why)
+  WeightControl.tsx Story D9 — new; uncontrolled <select> (same pattern)
+                    for a --weight-* token, offering 400 and 700
   GridExamples.tsx Story D8 — new; builds a real 10x10 Grid via
                     createGrid/withLetter and renders it through the
                     real PuzzleGrid (build and preview modes), replacing
-                    D1's static sg-grid/sg-cell markup
+                    D1's static sg-grid/sg-cell markup. Story D9 — both
+                    section h2s use text-headline + weight-bold
 src/components/ui/
   Button.tsx      Story D2 — new; primary/quiet/danger variants, no
                    hover classes at all when disabled
@@ -523,24 +635,37 @@ src/components/puzzle/
   PuzzleTitle.tsx        Story D2 — renders <TextInput>, dropped its
                           previous oversized heading-style typography
   DeletePuzzleButton.tsx Story D2 — renders <Button variant="danger">
-                          (trigger, confirm) / quiet (cancel)
+                          (trigger, confirm) / quiet (cancel). Story D9
+                          — confirmation paragraph uses text-help
+                          text-ink-2
   NewPuzzleDialog.tsx    Story D6 — new; name + size (mini/daily/sunday)
                           inputs, Escape and cancel both close without
                           creating, create disabled while the name is
-                          blank
+                          blank. Story D9 — size option buttons use
+                          text-label (see "Where things stand" above for
+                          why, despite the Decisions section's general
+                          button-text exclusion)
 src/components/grid/
   ClearLettersButton.tsx Story D2 — renders <Button variant="quiet">
-                          (trigger) / danger (confirm) / quiet (cancel)
+                          (trigger) / danger (confirm) / quiet (cancel).
+                          Story D9 — confirmation paragraph uses
+                          text-help text-ink-2
   PhaseControls.tsx      Story D2 — renders <Button> (enter-hints) /
-                          danger (confirm) / quiet (cancel)
+                          danger (confirm) / quiet (cancel). Story D9 —
+                          enter-hints-confirmation paragraph uses
+                          text-help text-ink-2
   HintsPanel.tsx         Story D2 — hint inputs render <TextInput>
-                          with a derived "N Across/Down clue" aria-label
+                          with a derived "N Across/Down clue" aria-label.
+                          Story D9 — hint-key span gains
+                          data-testid="hint-label" (new, needed by the
+                          acceptance test) and uses text-label
   PuzzleGridEditor.tsx   Story D2 — adds the editor-actions wrapper div
                           around PhaseControls/ClearLettersButton;
                           not listed in the story's Repo paths but
                           required for editor-actions to physically
                           contain both testids (see "Where things
-                          stand" above)
+                          stand" above). Story D9 — geometry-locked-
+                          message uses text-help text-ink-2
   PuzzleGrid.tsx         Story D3 — container-background hairline
                           (bg-grid-line, gap + padding, grid-template-
                           rows added); numbers from
@@ -579,7 +704,9 @@ src/components/grid/
                           max-width class; hints-region caps height to
                           the same formula and scrolls internally
   Stepper.tsx            Story D5b — new; renders the three steps,
-                          reveals a step's reason on click (not hover)
+                          reveals a step's reason on click (not hover).
+                          Story D9 — step-reason paragraph uses
+                          text-help text-ink-2
   PhaseControls.tsx      Story D5b — renders <Stepper>; continue button
                           drops to the quiet variant; now takes a
                           hintsComplete prop
@@ -609,12 +736,12 @@ src/lib/
 ### The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **208 Vitest
-tests passing across 17 files**. **147 Playwright tests across 21 spec
-files** (`npx playwright test --list`); a full parallel `npm run
-test:e2e` run is currently unreliable due to `TEST_DATABASE_URL` load
-accumulated over this epic's stories, not a code regression — see
-Story D8's entry above. Every story's own spec passes cleanly in
-isolation.
+tests passing across 17 files**. **158 Playwright tests across 22 spec
+files**, all passing on a full `npm run test:e2e` run — Story L1 (local
+Postgres) has since landed, resolving the `TEST_DATABASE_URL`-load
+unreliability Story D8's entry above described; the remaining
+infrastructure-fatigue note in Story D9's own entry is a much smaller,
+still-open observation, not the same problem.
 
 ---
 

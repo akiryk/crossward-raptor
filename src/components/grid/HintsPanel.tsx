@@ -27,7 +27,9 @@ export function HintsPanel({
             data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
             data-active={activeKey === key ? 'true' : undefined}
           >
-            <span>{label}</span>
+            <span data-testid="hint-label" className="text-label">
+              {label}
+            </span>
             <TextInput
               data-testid="hint-input"
               aria-label={`${label} clue`}

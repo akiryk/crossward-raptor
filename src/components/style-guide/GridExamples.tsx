@@ -48,14 +48,16 @@ export function GridExamples() {
   return (
     <>
       <section data-testid="sg-grid-build">
-        <h2 className="mb-2 font-display text-xl font-semibold">Grid (build phase)</h2>
+        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          Grid (build phase)
+        </h2>
         <div className="max-w-sm">
           <PuzzleGrid grid={grid} highlights={highlights} />
         </div>
       </section>
 
       <section data-testid="sg-grid-preview">
-        <h2 className="mb-2 font-display text-xl font-semibold">
+        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
           Grid (hints-transition preview)
         </h2>
         <div className="max-w-sm">

@@ -9,7 +9,7 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
   if (confirming) {
     return (
       <div data-testid="clear-letters-confirmation">
-        <p>This cannot be undone.</p>
+        <p className="text-help text-ink-2">This cannot be undone.</p>
         <Button
           variant="danger"
           data-testid="clear-letters-confirm-button"

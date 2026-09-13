@@ -62,6 +62,7 @@ export function NewPuzzleDialog({
             data-size={id}
             data-selected={size === id ? 'true' : 'false'}
             onClick={() => setSize(id)}
+            className="text-label"
           >
             {label}
           </button>

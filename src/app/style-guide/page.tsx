@@ -17,17 +17,20 @@ export default function StyleGuidePage() {
 
       <div data-testid="examples-pane" className="min-w-0 flex-1 space-y-12">
         <section data-testid="sg-text" className="space-y-2">
-          <h2 className="mb-3 font-display text-xl font-semibold">Text</h2>
-          <p className="font-display text-2xl">Display heading sample</p>
-          <p className="text-base text-foreground">Body text sample, the default reading color.</p>
-          <p className="text-sm text-ink-2">Secondary text (ink-2) — captions and metadata.</p>
-          <p style={{ fontSize: 'var(--text-eyebrow)' }} className="uppercase text-ink-3">
-            Eyebrow text (ink-3)
-          </p>
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            Text
+          </h2>
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
+            Display heading sample
+          </h2>
+          <p className="text-body text-foreground">Body text sample, the default reading color.</p>
+          <p className="text-help text-ink-2">Secondary text (ink-2) — captions and metadata.</p>
         </section>
 
         <section data-testid="sg-buttons">
-          <h2 className="mb-3 font-display text-xl font-semibold">Buttons</h2>
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            Buttons
+          </h2>
           {/* sg-hover wraps the interactive elements hover states are
               demonstrated on -- kept as the single primary/disabled button
               on the page, not a duplicate, so the existing unscoped D1-3
@@ -51,7 +54,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-inputs" className="space-y-3">
-          <h2 className="font-display text-xl font-semibold">Inputs</h2>
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Inputs</h2>
           <TextInput
             data-testid="sg-input"
             aria-label="Style guide demo input"
@@ -69,14 +72,18 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-links">
-          <h2 className="mb-2 font-display text-xl font-semibold">Links</h2>
+          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+            Links
+          </h2>
           <a href="#" className="cursor-pointer text-accent underline">
             Example link
           </a>
         </section>
 
         <section data-testid="sg-hint-rows" className="space-y-2">
-          <h2 className="font-display text-xl font-semibold">Hint rows</h2>
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
+            Hint rows
+          </h2>
           <div
             data-testid="hint-row"
             data-complete="true"
@@ -94,9 +101,11 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-confirmation" className="space-y-2">
-          <h2 className="font-display text-xl font-semibold">Confirmation</h2>
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
+            Confirmation
+          </h2>
           <div className="rounded-md border border-rule-strong bg-panel-tint px-4 py-3">
-            <p className="text-foreground">This cannot be undone.</p>
+            <p className="text-help text-ink-2">This cannot be undone.</p>
             <div className="mt-2 flex gap-2">
               <Button variant="danger">Confirm</Button>
               <Button variant="quiet">Cancel</Button>
@@ -105,14 +114,16 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-error" className="space-y-1">
-          <h2 className="font-display text-xl font-semibold">Error</h2>
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Error</h2>
           <p className="rounded-md border border-required bg-background px-3 py-2 text-required">
             Example error message.
           </p>
         </section>
 
         <section data-testid="sg-tooltip">
-          <h2 className="mb-2 font-display text-xl font-semibold">Tooltip</h2>
+          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+            Tooltip
+          </h2>
           <div className="relative inline-block">
             <button
               type="button"
@@ -127,7 +138,9 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-stepper">
-          <h2 className="mb-2 font-display text-xl font-semibold">Stepper</h2>
+          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+            Stepper
+          </h2>
           <ol className="flex items-center gap-2 text-sm">
             {['Grid', 'Hints', 'Published'].map((label, index) => (
               <li key={label} className="flex items-center gap-2">

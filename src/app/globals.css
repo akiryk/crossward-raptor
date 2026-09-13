@@ -46,5 +46,14 @@
 
   /* --- misc --- */
   --grid-line-width: 1px;
-  --text-eyebrow: 12px;
+
+  /* --- type scale (Story D9) --- */
+  --text-headline: 1.75rem;
+  --text-body: 1rem;
+  --text-help: 0.875rem;
+  --text-label: 0.75rem;
+
+  /* --- weights (Story D9) --- */
+  --weight-normal: 400;
+  --weight-bold: 700;
 }
