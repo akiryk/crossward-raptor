@@ -34,14 +34,18 @@ export function place(
 }
 
 export function arrowKey(grid: Grid, cursor: CursorState, direction: ArrowDirection): CursorState {
-  const orientation: Orientation =
-    direction === 'left' || direction === 'right' ? 'across' : 'down';
+  const axis: Orientation = direction === 'left' || direction === 'right' ? 'across' : 'down';
+
+  if (axis !== cursor.orientation) {
+    return { current: cursor.current, orientation: axis };
+  }
+
   const forward = direction === 'right' || direction === 'down';
-  const moved = step(cursor.current, orientation, forward);
+  const moved = step(cursor.current, cursor.orientation, forward);
 
   return {
     current: isActive(grid, moved) ? moved : cursor.current,
-    orientation,
+    orientation: cursor.orientation,
   };
 }
 
@@ -64,5 +68,17 @@ export function deleteAt(grid: Grid, cursor: CursorState): { grid: Grid; cursor:
 }
 
 export function moveTo(grid: Grid, cursor: CursorState, coord: Coord): CursorState {
-  return isActive(grid, coord) ? { current: coord, orientation: cursor.orientation } : cursor;
+  if (!isActive(grid, coord)) return cursor;
+  if (coord.col === cursor.current.col && coord.row === cursor.current.row) {
+    return toggleOrientation(cursor);
+  }
+  return { current: coord, orientation: cursor.orientation };
+}
+
+/** across <-> down, position unchanged. */
+export function toggleOrientation(cursor: CursorState): CursorState {
+  return {
+    current: cursor.current,
+    orientation: cursor.orientation === 'across' ? 'down' : 'across',
+  };
 }

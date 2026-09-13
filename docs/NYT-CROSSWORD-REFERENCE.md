@@ -157,8 +157,14 @@ undecided.
   convention exactly (Story C).
 - Minimum answer length of two is enforced in `extractSlots` — runs of one
   cell yield no slot (Story B). Note this is *two*, not the NYT's three.
-- Cursor mechanics — typing advances, arrows move and set orientation,
-  blocked moves stop rather than wrap — match the basic model (Story F).
+- Cursor mechanics match the convention exactly: typing advances along the
+  current direction, blocked moves stop rather than wrap, arrow keys do
+  exactly one thing per press (move along the current orientation, or
+  change orientation without moving when pressed perpendicular to it), and
+  clicking the already-selected cell toggles direction (Story F; arrow
+  and click behavior revised by Story F2r — Story F originally moved and
+  reoriented in a single press, which this reference's own open questions
+  flagged as worth revisiting).
 - 15×15 default with no hardcoded assumption of it anywhere in the engine,
   so 21×21 and other sizes already work.
 
@@ -174,6 +180,10 @@ undecided.
 - **No check, reveal, autocheck, pencil mode, or timer.** Explicitly
   deferred to a later epic than the first play/solve one.
 - **No duplicate-answer detection, no dictionary validation.**
+- **Spacebar toggles direction only.** NYT's app also clears the current
+  square and advances; Crossward deliberately doesn't, so a builder who
+  changes direction constantly during construction doesn't lose letters
+  by accident (Story F2r).
 
 **Open questions this document surfaces:**
 
@@ -192,8 +202,3 @@ undecided.
   length-aware font sizing, which is cosmetic.
 - **Should minimum answer length become 3** to match the convention, or
   stay 2 deliberately?
-- **Direction toggling on re-click** is a standard solver affordance that
-  Story P3 deliberately deferred (`moveTo` never changes orientation).
-  Reasonable for a builder; likely wanted for a solver.
-- **Spacebar's role** — toggle direction, clear-and-advance, or neither —
-  is currently unhandled (`keyToIntent` maps it to `null`).
