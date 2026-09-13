@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crossward
+      POSTGRES_PASSWORD: crossward
+      POSTGRES_DB: crossward
+    ports:
+      - '5432:5432'
+    volumes:
+      - crossward-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U crossward -d crossward']
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  test-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crossward
+      POSTGRES_PASSWORD: crossward
+      POSTGRES_DB: crossward_test
+    ports:
+      - '5433:5432'
+    volumes:
+      - crossward-test-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U crossward -d crossward_test']
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  crossward-db-data:
+  crossward-test-db-data:

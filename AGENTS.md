@@ -22,9 +22,23 @@ _(Confirm/adjust — these are the chosen defaults.)_
 - Styling: Tailwind CSS _(placeholder — change if you decide otherwise)_
 - Deployment: TBD _(Vercel is the default path; confirm before relying on it)_
 
+## Setup
+
+Local development and the e2e suite run against Postgres in Docker, not
+Neon (Story L1) — Neon is deploy-only now, unchanged in production.
+Requires Docker running locally and a `.env.local` at the repo root
+defining `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, and `TEST_DATABASE_URL`
+(all pointing at the Docker containers `docker-compose.yml` defines — dev
+database on `5432`, test database on `5433`). Run `npm run db:setup` once
+(or after a schema change) to bring the containers up and apply
+migrations, before `npm run dev` or `npm run test:e2e`.
+
 ## Commands
 
 - Install: `npm install`
+- Database: `npm run db:setup` (first run / after a schema change) →
+  `npm run db:up` (start the containers) + `npm run db:migrate` (apply
+  migrations to the dev database)
 - Dev: `npm run dev`
 - Build: `npm run build`
 - Test: `npm test` (or `npx vitest run`)
@@ -32,15 +46,25 @@ _(Confirm/adjust — these are the chosen defaults.)_
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
 - E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins.
 
-**`npm run test:e2e` clears its own path automatically** (`pretest:e2e` →
-`scripts/free-e2e-port.mjs`) before Playwright starts. Two things needed
-clearing, not one: Playwright's webServer runs on its own dedicated port,
-3100, distinct from `npm run dev`'s default 3000 (see
-`playwright.config.ts`) — but a manually-running `next dev` for *this*
-project blocks a second one even on a different port, since Next.js's
-dev-server lock (`.next/dev/lock`) is scoped to the project directory, not
-the port. The script clears both: it kills whatever holds that lock, and
-whatever's bound to 3100 itself. No manual intervention needed.
+**`npm run test:e2e` prepares its own database and its own path
+automatically** (`pretest:e2e`) before Playwright starts, in order: bring
+the Docker containers up (`db:up`, waiting for their healthchecks),
+migrate the test database, wipe every row from it
+(`scripts/reset-test-db.mjs` — refuses to run against anything but
+localhost), then clear the dev-server port/lock exactly as before.
+Wiping happens once per run, not per test — four parallel workers share
+one database within a run. No manual intervention needed, and the
+containers are left running afterward (negligible idle cost, instant
+startup next time).
+
+Two things needed clearing on the port/lock front, not one:
+Playwright's webServer runs on its own dedicated port, 3100, distinct
+from `npm run dev`'s default 3000 (see `playwright.config.ts`) — but a
+manually-running `next dev` for *this* project blocks a second one even
+on a different port, since Next.js's dev-server lock (`.next/dev/lock`)
+is scoped to the project directory, not the port. The script clears
+both: it kills whatever holds that lock, and whatever's bound to 3100
+itself.
 
 **This is a personal dev machine, not shared infrastructure**, generally —
 if a port or process is in the way of anything else, kill it and proceed
