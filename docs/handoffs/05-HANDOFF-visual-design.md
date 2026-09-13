@@ -287,6 +287,26 @@ hook (see the port/lock note earlier in this file and in `AGENTS.md`).
 Running through `npm run test:e2e` as intended made it disappear —
 no code was at fault.
 
+**Story D7 (remove duplicate) is complete, merged via
+`story/05-D7-remove-duplicate`** — high blast radius per
+`docs/CODE-REVIEW.md`, since it touches `src/app/puzzles/actions.ts`.
+Its own commit branched right after Story D4, but the PR sat unmerged
+through D5a, D5b, and D6's spec baseline before landing — merged ahead
+of D6's own PR, not after, despite D6 being drafted first. Removes the
+duplicate-puzzle feature outright: `duplicatePuzzle`
+(`src/app/puzzles/actions.ts`), `DuplicatePuzzleButton.tsx` and its use
+on the detail page, `duplicateTitle` (`src/lib/puzzle-title.ts`) and its
+M4 tests (`normalizeTitle` and its own tests are untouched), and
+`e2e/duplicate.spec.ts` — it came from a proposal in epic 3 rather than
+a real need and wasn't wanted, per the epic's own Story Group D7.
+`docs/handoffs/03-HANDOFF-puzzle-management.md`'s record of Story M4 is
+left intact as a record of what happened, with one line added there
+noting the later removal; `docs/stories/03-M4-duplicate.md` itself is
+deleted, not archived. This backfills the entry that should have
+existed here from the start — the PR merged outside the normal `/story`
+flow (found and merged during an unrelated audit follow-up), so step 6
+never ran for it.
+
 **Story D6 (new-puzzle dialog) is implemented, verified, and opened as a
 PR (`story/05-D6-new-puzzle-dialog`) rather than merged to `main`** —
 high blast radius per `docs/CODE-REVIEW.md`, since it touches
