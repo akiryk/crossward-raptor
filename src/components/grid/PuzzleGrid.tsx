@@ -18,7 +18,7 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   letter: 'bg-background',
   'symmetric-hint': 'bg-background',
   required: 'bg-required',
-  slot: 'bg-selected/40',
+  slot: 'bg-slot',
   selected: 'bg-selected',
 };
 

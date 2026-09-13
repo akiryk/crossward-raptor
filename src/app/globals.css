@@ -29,7 +29,8 @@
   --color-grid-empty: #dde0e6; /* unfilled cell, build phase */
   --color-grid-line: #c7cbd3;
   --color-cell-fill: #dff3ea; /* cell holding a letter */
-  --color-selected: #35d0a0; /* the cursor cell */
+  --color-selected: #9ee6a8; /* the cursor cell */
+  --color-slot: #dce3e1; /* other cells in the cursor's active row/column */
   --color-required: #b23b34; /* preview: unfilled symmetric counterpart */
 
   /* --- hint status (P0 names kept) --- */

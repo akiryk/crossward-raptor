@@ -315,6 +315,72 @@ touching the dialog) — DB-contention flakiness under four parallel
 workers now hitting more Server-Action-backed puzzle creation, not a
 D6 regression.
 
+**Story D8 (live token editing) is complete and committed** — low blast
+radius, merged straight to `main`. Restructures `/style-guide` into a
+pinned left `TokenPane` (three tabs — Colors has real `ColorPicker`
+controls; Fonts and Utility render placeholder text pending D9/D10) and
+a scrolling right `examples-pane`. Each `ColorPicker` writes straight to
+`document.documentElement.style`, overriding the `@theme` value
+document-wide with nothing persisted — a reload always shows the
+committed `globals.css` value. `TokenPanel.tsx`'s flat list is removed
+outright, superseded by `TokenPane`.
+
+The grid samples (`GridExamples.tsx`) now build and render a real 10×10
+`Grid` through the actual `PuzzleGrid` component — `createGrid` +
+`withLetter`, a hand-placed cursor whose active down-slot spans both
+lettered and empty cells, and letters whose 180°-rotational counterparts
+stay empty (`symmetricHintKeys` picks them up as `symmetric-hint`
+automatically) — replacing D1's static `sg-grid`/`sg-cell` stand-ins.
+Numbering, hairline geometry, and preview-mode all come free from
+reusing the real component, per the story's own reasoning that static
+markup can now only drift from what the app actually renders.
+
+`--color-slot` is now registered in `@theme` and `TokenPane`'s token
+list. The story doc's own premise — that this token "was added during
+D3 without being registered" — didn't hold up under a `git show
+main:...` check: no commit anywhere in this repo's history ever added
+`--color-slot`, in D3 or otherwise. It existed only as an uncommitted,
+ad hoc edit from an earlier, out-of-band conversation (decoupling the
+selected-cell and row/column highlight colors, at the human's request),
+never part of any story. Flagged and confirmed with the human before
+proceeding; this story is what actually commits it for the first time,
+correctly attributed here rather than to D3.
+
+`ColorPicker`'s `<input type="color">` is deliberately uncontrolled (a
+ref plus a plain `addEventListener('input', ...)`, not React's
+`value`/`onChange`) — the acceptance test drives it by setting `.value`
+directly and dispatching a native event, which is exactly the pattern
+React's controlled-input value-tracking can silently swallow (the
+tracker sees the value as already updated and never re-fires
+`onChange`). A native listener has no such tracker.
+
+Two authorized corrections to the frozen `e2e/style-guide.spec.ts`
+before implementation started: `box!.top` doesn't exist on
+Playwright's `Locator.boundingBox()` (which returns `{x, y, width,
+height}`, not a `DOMRect`) — `tsc --noEmit` failed on it outright, not a
+logic disagreement. Corrected to `box!.y` by the human, re-supplied, and
+committed as a spec correction before implementing.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest tests
+unchanged — this story added no Vitest coverage). `e2e/style-guide.spec.ts`
+passes 19/19, confirmed twice in isolation. A full-suite `npm run
+test:e2e` run this story was severely degraded (35 minutes instead of
+the usual ~2, "timeout exceeded while setting up page," 30 failures
+spanning files this story never touches) with no leftover Chromium/Next
+processes to explain it — traced to the shared `TEST_DATABASE_URL`
+branch's accumulated row count from this session's many runs, the same
+un-cleaned-up test data `03-HANDOFF-puzzle-management.md` already flags
+as a scaling risk. Separately, and confirmed independently of that
+slowdown: `e2e/new-puzzle.spec.ts`'s `openDialog()` helper clicks
+`new-puzzle-button` immediately after `page.goto()` with no readiness
+wait, and 5/5 manual reproductions confirmed the dialog reliably fails
+to open without one (5/5 succeed with `waitForLoadState('networkidle')`
+first) — the same hydration-race class `docs/LEARNINGS.md` entries 1 and
+4 already document and that `PuzzleGridEditor` was given an `isReady`
+signal for, never applied to `NewPuzzleButton`/`/puzzles`. Neither issue
+touches any file this story's Repo paths name; both are pre-existing and
+out of scope here, reported rather than fixed.
+
 ### What exists
 
 ```
@@ -331,6 +397,7 @@ docs/stories/
   05-D5a-editor-layout.md             Story D5a's specification, tracked
   05-D5b-stepper.md                    Story D5b's specification, tracked
   05-D6-new-puzzle-dialog.md           Story D6's specification, tracked
+  05-D8-live-token-editing.md          Story D8's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -342,7 +409,12 @@ e2e/
                          --color-complete removal). Story D1c — the
                          gap/background-based hairline assertions
                          replaced with a measureSample helper reading
-                         getBoundingClientRect — do not edit
+                         getBoundingClientRect. Story D8 — full rewrite
+                         for the token-pane/examples-pane restructure and
+                         real-PuzzleGrid samples; corrected once before
+                         implementation (box!.top -> box!.y, a
+                         boundingBox()/DOMRect mixup tsc caught) — do not
+                         edit
   shell.spec.ts         Story P0's acceptance test; Story D1b removed
                          --color-complete from its pinned token list
                          (authorized one-line edit)
@@ -364,7 +436,10 @@ e2e/
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
-                 --color-complete (identical value to --color-accent)
+                 --color-complete (identical value to --color-accent).
+                 Story D8 — registers --color-slot (existed in code only
+                 as an uncommitted ad hoc edit before this story; see
+                 "Where things stand" above)
   layout.tsx    Story D1 — loads Space Grotesk and Inter via
                  next/font/google, exposed as --font-space-grotesk/
                  --font-inter and referenced from --font-display/
@@ -383,7 +458,11 @@ src/app/style-guide/
                  the real Button/TextInput. Story D1c — sg-grid gains
                  padding: var(--grid-line-width) so the hairline
                  surrounds the outside too, not just divisions between
-                 cells
+                 cells. Story D8 — restructured into a two-pane layout
+                 (sticky <TokenPane /> left, scrolling examples-pane
+                 right); grid sections now render <GridExamples />
+                 instead of the static GridSample helper, which is
+                 removed along with the rest of that static markup
 src/app/puzzles/
   page.tsx            Story D2 — page-heading testid + heading styling;
                        list rows get cursor-pointer and a hover state
@@ -399,7 +478,19 @@ src/components/style-guide/
   TokenPanel.tsx   Story D1 — new; one token-row per declared token,
                     a color swatch/font sample/radius or size preview
                     per token kind. Story D1b — --color-complete entry
-                    removed
+                    removed. Story D8 — removed outright, superseded by
+                    TokenPane.tsx
+  TokenPane.tsx    Story D8 — new; three tabs (Colors/Fonts/Utility),
+                    Colors renders a <ColorPicker /> per color token,
+                    Fonts/Utility are D9/D10 placeholders
+  ColorPicker.tsx  Story D8 — new; an uncontrolled <input type="color">
+                    (ref + native addEventListener, not value/onChange —
+                    see "Where things stand" above) writing straight to
+                    document.documentElement.style
+  GridExamples.tsx Story D8 — new; builds a real 10x10 Grid via
+                    createGrid/withLetter and renders it through the
+                    real PuzzleGrid (build and preview modes), replacing
+                    D1's static sg-grid/sg-cell markup
 src/components/ui/
   Button.tsx      Story D2 — new; primary/quiet/danger variants, no
                    hover classes at all when disabled
@@ -456,7 +547,11 @@ src/components/grid/
   PuzzleGrid.tsx         Story D5a — grid-template-columns/rows switched
                           from bare 1fr to minmax(0, 1fr), so a small
                           cell's letter text can't force a track past the
-                          aspect-ratio-derived square size
+                          aspect-ratio-derived square size. Story D8 —
+                          APPEARANCE_BG's 'slot' entry changed from the
+                          derived bg-selected/40 to the new bg-slot
+                          (--color-slot); see "Where things stand" above
+                          for this token's actual, corrected provenance
   PuzzleGridEditor.tsx   Story D5a — grid and hints wrapped in a new
                           editor-layout div (grid-region, hints-region);
                           grid-region sizes via min(height-based term,
@@ -493,9 +588,13 @@ src/lib/
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **200 Vitest
-tests passing across 17 files**. `npm run test:e2e` exits 0: **142
-Playwright tests passing across 20 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **208 Vitest
+tests passing across 17 files**. **147 Playwright tests across 21 spec
+files** (`npx playwright test --list`); a full parallel `npm run
+test:e2e` run is currently unreliable due to `TEST_DATABASE_URL` load
+accumulated over this epic's stories, not a code regression — see
+Story D8's entry above. Every story's own spec passes cleanly in
+isolation.
 
 ---
 
