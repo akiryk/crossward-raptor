@@ -158,6 +158,40 @@ doc's own instruction to check rather than assume; no discrepancies were
 found between the story's description of the test changes and the actual
 diff.
 
+**Story PB5 (published status in the list) is complete, on branch
+`story/04-PB5-publish-status`, pending PR review** — the epic's fifth
+and final slice. New pure `puzzleStatus` (`src/lib/puzzle-status.ts`)
+takes over the phase-aware status text Story M3 put inline in
+`page.tsx`, now with a third input (`publishedAt`/`visibility`) and a
+fourth branch: published outranks phase, so a published puzzle in hints
+phase with incomplete hints still reads as published, not as "Hints —
+incomplete" — publishing describes what happened at the end of
+authoring, not where authoring currently stands. `summarizePuzzle` is
+untouched, per the story's own Decisions: `publishedAt`/`visibility` are
+columns on the row, not part of the stored grid/hints JSON it derives
+phase and completeness from. `listPuzzles` (`actions.ts`) selects and
+returns both alongside the existing fields. `puzzle-list-item` gains
+`data-published`, `data-visibility`, and `data-published-at` (present
+only when published, via a `data-*` prop of `undefined` rather than a
+conditional spread) — `data-phase`, `data-hints-complete`, and
+`data-updated-at` from Story M3 are unchanged. The publish date is
+shown (not the time), formatted server-side with the existing
+`formatDate` helper already used for the updated date, avoiding the
+same hydration-mismatch risk that decision already existed to avoid.
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 246 Vitest tests — 8
+new). `npm run test:e2e`: all 5 new `publish-status.spec.ts` tests and
+`puzzle-list.spec.ts` (explicitly named in the DoD as asserting on the
+row markup this story changes) pass unmodified.
+
+This branch was cut from `main` before Story PB4 merged, since PB5 only
+depends on PB3 (already merged) and not on PB4's read-only lock — the
+full suite on this branch fails `published-lock.spec.ts`'s 4 tests
+(188/192), reproduced identically on bare `main` with none of this
+story's changes applied, confirming it's PB4's still-open PR, not a PB5
+regression. Both branches touch this same handoff file at the same
+insertion point; whichever of PB4 or PB5 merges second will need a
+manual rebase here.
+
 ### What exists
 
 ```
@@ -167,6 +201,7 @@ docs/stories/
   04-PB1a-empty-cells-black.md   Story PB1a's specification, tracked
   04-PB2-publish-readiness.md    Story PB2's specification, tracked
   04-PB3-publish.md              Story PB3's specification, tracked
+  04-PB5-publish-status.md       Story PB5's specification, tracked
 docs/handoffs/
   04-HANDOFF-publishing.md       this file, tracked
 docs/
@@ -188,6 +223,7 @@ e2e/
                               `available` in hints phase, not
                               `unavailable`) — otherwise do not edit
   publish.spec.ts          Story PB3's acceptance test — do not edit
+  publish-status.spec.ts   Story PB5's acceptance test — do not edit
 src/engine/
   phase.ts        Story PB1a — enterHintsPhase converts empty active cells
                     to black before deriving required hints; new
@@ -203,14 +239,21 @@ src/lib/
                      unavailable; clues reads complete once published
   stepper.test.ts  Story PB3 — rewritten wholesale for the wider
                      contract — do not edit
+  puzzle-status.ts      Story PB5 — new; puzzleStatus(args) -> {kind,
+                          label}, published outranks phase
+  puzzle-status.test.ts Story PB5's acceptance test — do not edit
 src/app/puzzles/
   actions.ts       Story PB1a — enterHints persists and returns grid
                     alongside phase and hints; Story PB3 — new
                     publishPuzzle(id, visibility) and unpublishPuzzle(id);
                     loadPuzzle's PuzzleWithMeta gains publishedAt and
-                    visibility
+                    visibility; Story PB5 — listPuzzles' rows gain
+                    publishedAt and visibility
   [id]/page.tsx    Story PB3 — passes initialPublishedAt/initialVisibility
                     to PuzzleGridEditor
+  page.tsx         Story PB5 — renders puzzleStatus's label instead of
+                    the old inline statusText; puzzle-list-item gains
+                    data-published/data-visibility/data-published-at
 src/components/grid/
   PhaseControls.tsx     Story PB1a — gains a two-step confirmation
                          (enter-hints-confirmation/-confirm-button/
@@ -241,9 +284,13 @@ src/components/grid/
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **238 Vitest
-tests passing across 19 files**. `npm run test:e2e` exits 0: **180
-Playwright tests passing across 24 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **246 Vitest
+tests passing across 20 files**. `npm run test:e2e`, on this branch
+(cut from `main` before Story PB4 merged): **188 of 192 Playwright
+tests across 26 spec files** — the 4 failures are `published-lock.spec.ts`
+(Story PB4's own acceptance test, not yet implemented on this branch's
+base), reproduced identically on bare `main`. All other specs, including
+this story's own and `puzzle-list.spec.ts`, pass.
 
 ---
 
