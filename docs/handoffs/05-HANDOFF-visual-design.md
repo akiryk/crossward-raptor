@@ -485,6 +485,53 @@ minute. Infrastructure fatigue after a long session, not a D9 (or L1)
 regression — but worth knowing the containers aren't entirely immune to
 needing a restart under sustained heavy use.
 
+**Story D10 (utility tab and font loading) is complete and committed** —
+low blast radius, merged straight to `main`. Fills in the Utility tab
+D8 stubbed out with a new `UtilityControl` (a range+number pair per
+token, the number authoritative) covering the four radius tokens and
+`--grid-line-width`, and adds font-family switching to the Fonts tab:
+paste a Google Fonts stylesheet URL into the new `FontLoader`, and its
+families become options in a `FontFamilyControl` select per
+`--font-display`/`--font-body`/`--font-data`. New pure
+`parseGoogleFontUrl` (`src/lib/google-font.ts`) validates the URL is
+genuinely `https://fonts.googleapis.com/...` (exact hostname match, not
+`.includes()` — a URL on `fonts.googleapis.com.evil.example.com` is a
+different host that merely contains the real one as a substring) and
+extracts the family names, stripping each `family=` parameter's
+weight/style axis after the colon.
+
+`UtilityControl`'s range is deliberately narrower than its number field
+can express: 0–64px for radii, 0–8px for `--grid-line-width`, both
+clamped silently outside that span. `--radius-btn` is `999px` (a pill)
+— the number field shows it exactly, matching the acceptance test's
+"including `--radius-btn` at its out-of-slider-range value," while the
+slider pegs at its own maximum. A slider range wide enough to include
+999 honestly would make it useless for adjusting every other radius by
+eye, which is the entire point of this epic's token architecture.
+
+Font-family selection doesn't attempt to parse or display the
+*currently committed* family as a friendly name — `--font-display`
+etc.'s declared value is `var(--font-space-grotesk), system-ui,
+sans-serif` (a nested custom-property reference `next/font/google` set
+up in Story P0/D1), not a literal family string, and `getComputedStyle`
+on a custom property returns that text as declared rather than
+resolving it. Extracting something human-readable from it wasn't worth
+building for a control whose whole job is switching to a *newly
+loaded* family — each select simply offers "Current" (a no-op) plus
+whatever `FontLoader` has loaded this session, which is exactly what
+the acceptance tests exercise. Selecting a family writes
+`"{family}", system-ui, sans-serif` straight to
+`document.documentElement.style`, which every element already inherits
+`font-family` from via `<body>`'s existing `font-body` class (`--font-display`/
+`--font-data` reach headings/grid letters the same way, through their
+own existing utility classes) — no new CSS wiring needed for the change
+to actually render.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 217 Vitest tests — 9 new,
+all `parseGoogleFontUrl`). `e2e/style-guide.spec.ts`: 34/34, first
+attempt, no retries needed. Full suite: 168/168, also first attempt —
+no repeat of D9's container-fatigue flakiness this time.
+
 ### What exists
 
 ```
@@ -503,6 +550,7 @@ docs/stories/
   05-D6-new-puzzle-dialog.md           Story D6's specification, tracked
   05-D8-live-token-editing.md          Story D8's specification, tracked
   05-D9-type-scale.md                  Story D9's specification, tracked
+  05-D10-utility-and-fonts.md          Story D10's specification, tracked
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -524,8 +572,13 @@ e2e/
                          list; new D9-2 size/weight control tests; the
                          D8-1 "selecting another tab" test retargeted
                          from fonts (now real controls, not placeholder
-                         text) to utility (still a placeholder) — do not
-                         edit
+                         text) to utility (still a placeholder). Story
+                         D10 — new D10-2 (utility tab) and D10-3 (font
+                         loading) blocks; the D8-1 "selecting another
+                         tab" test's target panel no longer has any
+                         placeholder text to assert on either, but
+                         doesn't need to since it only checks visibility
+                         — do not edit
   typography.spec.ts    Story D9's new acceptance test — do not edit
   shell.spec.ts         Story P0's acceptance test; Story D1b removed
                          --color-complete from its pinned token list
@@ -606,7 +659,13 @@ src/components/style-guide/
                     Fonts/Utility are D9/D10 placeholders. Story D9 —
                     Fonts tab renders SizeControl/WeightControl per
                     token instead of placeholder text; "Style guide" h1
-                    uses text-headline + weight-bold
+                    uses text-headline + weight-bold. Story D10 —
+                    Utility tab renders UtilityControl per token instead
+                    of placeholder text; Fonts tab gains FontLoader plus
+                    a FontFamilyControl (defined in this file, not a
+                    separate one -- the story only named FontLoader.tsx
+                    as a new file) per font token, backed by new
+                    loadedFamilies state
   ColorPicker.tsx  Story D8 — new; an uncontrolled <input type="color">
                     (ref + native addEventListener, not value/onChange —
                     see "Where things stand" above) writing straight to
@@ -618,6 +677,14 @@ src/components/style-guide/
                     0.05 — see "Where things stand" above for why)
   WeightControl.tsx Story D9 — new; uncontrolled <select> (same pattern)
                     for a --weight-* token, offering 400 and 700
+  UtilityControl.tsx Story D10 — new; range+number pair (number
+                    authoritative) for a pixel-valued token; range
+                    clamps silently for a committed value outside its
+                    span (--radius-btn's 999px pill), same pattern as
+                    every other control here
+  FontLoader.tsx    Story D10 — new; pastes a Google Fonts URL, injects
+                    a real <link> on apply via parseGoogleFontUrl,
+                    reports loaded families back up to TokenPane
   GridExamples.tsx Story D8 — new; builds a real 10x10 Grid via
                     createGrid/withLetter and renders it through the
                     real PuzzleGrid (build and preview modes), replacing
@@ -719,6 +786,9 @@ src/engine/
               visibility only, no behavior change, no existing test
               affected (see "Where things stand" above)
 src/lib/
+  google-font.ts        Story D10 — new; parseGoogleFontUrl (exact
+                         fonts.googleapis.com hostname match, extracts
+                         family names, strips each's weight/style axis)
   cell-appearance.ts   Story D3 — new; cellAppearance, symmetricHintKeys
                         Story D4 — cellAppearance gains optional mode?
                         param ('build' default); preview mode ignores
@@ -735,13 +805,13 @@ src/lib/
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **208 Vitest
-tests passing across 17 files**. **158 Playwright tests across 22 spec
-files**, all passing on a full `npm run test:e2e` run — Story L1 (local
-Postgres) has since landed, resolving the `TEST_DATABASE_URL`-load
-unreliability Story D8's entry above described; the remaining
-infrastructure-fatigue note in Story D9's own entry is a much smaller,
-still-open observation, not the same problem.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **217 Vitest
+tests passing across 18 files**. **168 Playwright tests across 22 spec
+files**, all passing on a full `npm run test:e2e` run, first attempt —
+Story L1 (local Postgres) has since landed, resolving the
+`TEST_DATABASE_URL`-load unreliability Story D8's entry above
+described; Story D9's own infrastructure-fatigue note didn't recur for
+D10.
 
 ---
 
