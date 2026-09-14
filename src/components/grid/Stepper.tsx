@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import type { Step, StepId } from '../../lib/stepper';
+import type { Puzzle } from '../../engine/puzzle';
+import { publishReadiness } from '../../lib/publish-readiness';
+import { ReadinessPanel } from './ReadinessPanel';
 
 const STATUS_STYLE: Record<Step['status'], string> = {
   complete: 'text-accent',
@@ -12,9 +15,11 @@ const STATUS_STYLE: Record<Step['status'], string> = {
 
 export function Stepper({
   steps,
+  puzzle,
   onStepClick,
 }: {
   steps: readonly Step[];
+  puzzle: Puzzle;
   onStepClick: (id: StepId) => void;
 }) {
   const [revealedId, setRevealedId] = useState<StepId | null>(null);
@@ -44,9 +49,10 @@ export function Stepper({
             {step.label}
           </button>
           {revealedId === step.id && step.reason && (
-            <p data-testid="step-reason" className="text-help text-ink-2">
-              {step.reason}
-            </p>
+            <div data-testid="step-reason" className="text-help text-ink-2">
+              <p>{step.reason}</p>
+              {step.id === 'publish' && <ReadinessPanel findings={publishReadiness(puzzle)} />}
+            </div>
           )}
         </div>
       ))}

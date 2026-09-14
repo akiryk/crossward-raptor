@@ -225,6 +225,7 @@ export function PuzzleGridEditor({
           phase={phase}
           emptyCellCount={countEmptyActiveCells(grid)}
           hintsComplete={hintsComplete({ grid, hints, phase })}
+          puzzle={{ grid, hints, phase }}
           onEnterHints={handleEnterHints}
         />
         <ClearLettersButton onConfirm={handleClearLetters} />

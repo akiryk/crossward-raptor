@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Phase } from '../../engine/puzzle';
+import type { Phase, Puzzle } from '../../engine/puzzle';
 import { Button } from '../ui/Button';
 import { Stepper } from './Stepper';
 import { stepStates } from '../../lib/stepper';
@@ -11,11 +11,13 @@ export function PhaseControls({
   phase,
   emptyCellCount,
   hintsComplete,
+  puzzle,
   onEnterHints,
 }: {
   phase: Phase;
   emptyCellCount: number;
   hintsComplete: boolean;
+  puzzle: Puzzle;
   onEnterHints: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
@@ -34,7 +36,11 @@ export function PhaseControls({
   return (
     <div>
       <span data-testid="phase-badge">{phase}</span>
-      <Stepper steps={stepStates({ phase, hintsComplete })} onStepClick={handleStepClick} />
+      <Stepper
+        steps={stepStates({ phase, hintsComplete })}
+        puzzle={puzzle}
+        onStepClick={handleStepClick}
+      />
       {phase === 'grid' && !confirming && (
         <Button variant="quiet" data-testid="enter-hints-button" onClick={() => setConfirming(true)}>
           Enter hints phase

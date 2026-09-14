@@ -51,6 +51,39 @@ about to blacken (`emptyCellCount`, computed by a new local
 `countEmptyActiveCells` in `PuzzleGridEditor`), not a generic warning, since
 the count is exactly the information a builder needs to decide.
 
+**Story PB2 (advisory publish-readiness) is complete and committed** — the
+epic's second slice, resuming after epic 05 absorbed PB1b as its own
+Story D4. New pure `publishReadiness` (`src/lib/publish-readiness.ts`)
+reports five finding kinds — `unfilled-cells`, `unwritten-hints`,
+`short-answers`, `unchecked-squares`, `asymmetric` — reusing
+`requiredHints`/`hintKey` (the same rule `hintsComplete` already encodes),
+`extractSlots`, and `isSymmetric` rather than adding new engine logic; the
+story's own Scope discipline barred any `src/engine/` change; all five
+checks consume existing exports. It returns findings, never a boolean —
+there is no `canPublish` — so nothing could mistake the result for
+permission, matching the epic's governing principle that the builder
+decides when a puzzle is done.
+
+The new `ReadinessPanel` renders inside the stepper's publish step, in the
+same `step-reason` element the plain one-line reason already used —
+`Stepper.tsx`'s revealed content became a `div` holding both the existing
+reason text and, for the publish step only, the panel. That required
+threading a `puzzle: Puzzle` prop into `Stepper` and, in turn, into
+`PhaseControls` (from `PuzzleGridEditor`, which already holds `grid`/
+`hints`/`phase` in state) — neither file is named in the story's Repo
+paths, but there was no way for `Stepper` to compute `publishReadiness`
+without the puzzle reaching it. `stepper.ts` and its committed tests were
+untouched, per the story's Decisions: the one-liner and the panel are two
+levels of detail on the same question, and the duplication was judged
+cheaper than editing a frozen test file for a cosmetic gain.
+`e2e/stepper.spec.ts` and `e2e/typography.spec.ts` (which asserts
+`step-reason`'s computed font-size/color) both still pass unmodified, as
+the story required — the Tailwind classes stayed on the `step-reason`
+element itself regardless of the tag change. `npm run verify` exits 0
+(`tsc --noEmit`, lint, 234 Vitest tests — 17 new). `npm run test:e2e`:
+all 5 new `publish-readiness.spec.ts` tests plus the full 173-test suite
+pass, first attempt.
+
 ### Testing notes
 
 This story's committed acceptance tests included the largest authorized
@@ -80,6 +113,7 @@ docs/epics/
   04-publishing-epic.md          the publishing epic, tracked
 docs/stories/
   04-PB1a-empty-cells-black.md   Story PB1a's specification, tracked
+  04-PB2-publish-readiness.md    Story PB2's specification, tracked
 docs/handoffs/
   04-HANDOFF-publishing.md       this file, tracked
 docs/
@@ -91,30 +125,43 @@ e2e/
   phase-controls.spec.ts   Story P4's acceptance test, rewritten by PB1a —
                             do not edit
   hints-transition.spec.ts Story PB1a's new acceptance test — do not edit
+  publish-readiness.spec.ts Story PB2's acceptance test — do not edit
 src/engine/
   phase.ts        Story PB1a — enterHintsPhase converts empty active cells
                     to black before deriving required hints; new
                     non-exported convertEmptyCellsToBlack
   phase.test.ts    Story E's E1/E3/E4 structure kept; E2 rewritten and E4's
                     purity check updated by PB1a — do not edit
+src/lib/
+  publish-readiness.ts       Story PB2 — new; publishReadiness(puzzle) ->
+                               readonly Finding[], five finding kinds
+  publish-readiness.test.ts Story PB2's acceptance test — do not edit
 src/app/puzzles/
   actions.ts       Story PB1a — enterHints persists and returns grid
                     alongside phase and hints
 src/components/grid/
   PhaseControls.tsx     Story PB1a — gains a two-step confirmation
                          (enter-hints-confirmation/-confirm-button/
-                         -cancel-button) and an emptyCellCount prop
+                         -cancel-button) and an emptyCellCount prop;
+                         Story PB2 — forwards a new puzzle prop to Stepper
   PuzzleGridEditor.tsx  Story PB1a — handleEnterHints applies phase/hints/
                          grid together after the round trip instead of
                          flipping phase optimistically; new
-                         countEmptyActiveCells helper feeds PhaseControls
+                         countEmptyActiveCells helper feeds PhaseControls;
+                         Story PB2 — passes {grid, hints, phase} as
+                         PhaseControls' puzzle prop
+  Stepper.tsx           Story PB2 — new puzzle prop; the revealed
+                         step-reason for the publish step now renders
+                         ReadinessPanel alongside the existing reason text
+  ReadinessPanel.tsx    Story PB2 — new; renders one finding per kind, or
+                         readiness-clear when the array is empty
 ```
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **166 Vitest
-tests passing across 14 files**. `npm run test:e2e` exits 0: **71 Playwright
-tests passing across 13 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **234 Vitest
+tests passing across 19 files**. `npm run test:e2e` exits 0: **173
+Playwright tests passing across 23 spec files**.
 
 ---
 
