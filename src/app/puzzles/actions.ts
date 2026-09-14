@@ -49,11 +49,22 @@ export async function listPuzzles(): Promise<
     updatedAt: Date;
     phase: Phase;
     hintsComplete: boolean;
+    publishedAt: Date | null;
+    visibility: Visibility;
   }[]
 > {
   const records = await prisma.puzzle.findMany({
     orderBy: { updatedAt: 'desc' },
-    select: { id: true, title: true, updatedAt: true, grid: true, hints: true, phase: true },
+    select: {
+      id: true,
+      title: true,
+      updatedAt: true,
+      grid: true,
+      hints: true,
+      phase: true,
+      publishedAt: true,
+      visibility: true,
+    },
   });
 
   return records.map((record) => {
@@ -68,6 +79,8 @@ export async function listPuzzles(): Promise<
       updatedAt: record.updatedAt,
       phase: summary.phase,
       hintsComplete: summary.hintsComplete,
+      publishedAt: record.publishedAt,
+      visibility: record.visibility as Visibility,
     };
   });
 }

@@ -170,10 +170,9 @@ doc's own instruction to check rather than assume; no discrepancies were
 found between the story's description of the test changes and the actual
 diff.
 
-**Story PB4 (a published puzzle is read-only) is complete, on branch
-`story/04-PB4-published-lock`, pending PR review** — the epic's fourth
-slice, and its second high-blast-radius story (`actions.ts` only this
-time; no schema change). `saveGrid`, `saveHints`, and `saveTitle` each
+**Story PB4 (a published puzzle is read-only) is complete and merged** —
+the epic's fourth slice, and its second high-blast-radius story
+(`actions.ts` only this time; no schema change). `saveGrid`, `saveHints`, and `saveTitle` each
 now refuse when `publishedAt` is set, using the same
 condition-in-the-`WHERE`-clause `updateMany` pattern the PB3 review
 established for `publishPuzzle` (a new shared `updateUnlessPublished`
@@ -211,6 +210,59 @@ letters, hints, titles, clear-letters, or publishing (`clear-letters`,
 `publish-readiness`, `publish`, `rename`, `stepper`, `typography`), and
 the full 187-test suite pass, first attempt — none needed a change.
 
+Independent review found a second race, this time against
+`publishPuzzle` itself: an edit to a letter, hint, or title made within
+the 500ms debounce window right before clicking Publish would lose the
+race — `publishedAt` got set first, then the delayed autosave hit
+PB3's published guard and was silently dropped, leaving the UI showing
+an edit the database had quietly reverted. Fixed by having
+`PuzzleGridEditor` track each debounce timer in a ref and, before
+calling `publishPuzzle`, cancel whatever's pending and re-issue all
+three saves immediately with the current in-memory values, awaited.
+Title state moved out of `PuzzleTitle` and into `PuzzleGridEditor`
+(which already owned this pattern for grid/hints) so all three flush
+from one place; `PuzzleTitle` is now a plain controlled component
+(`value`/`onChange`/`disabled`, no `puzzleId`/`initialTitle` or debounce
+of its own). Verified with a throwaway Playwright test (type, publish
+immediately, reload) confirmed to fail against the pre-fix code and
+pass after — not part of the committed suite, since the story's own
+acceptance tests don't cover this interaction.
+
+**Story PB5 (published status in the list) is complete, on branch
+`story/04-PB5-publish-status`, pending PR review** — the epic's fifth
+and final slice. New pure `puzzleStatus` (`src/lib/puzzle-status.ts`)
+takes over the phase-aware status text Story M3 put inline in
+`page.tsx`, now with a third input (`publishedAt`/`visibility`) and a
+fourth branch: published outranks phase, so a published puzzle in hints
+phase with incomplete hints still reads as published, not as "Hints —
+incomplete" — publishing describes what happened at the end of
+authoring, not where authoring currently stands. `summarizePuzzle` is
+untouched, per the story's own Decisions: `publishedAt`/`visibility` are
+columns on the row, not part of the stored grid/hints JSON it derives
+phase and completeness from. `listPuzzles` (`actions.ts`) selects and
+returns both alongside the existing fields. `puzzle-list-item` gains
+`data-published`, `data-visibility`, and `data-published-at` (present
+only when published, via a `data-*` prop of `undefined` rather than a
+conditional spread) — `data-phase`, `data-hints-complete`, and
+`data-updated-at` from Story M3 are unchanged. The publish date is
+shown (not the time), formatted server-side with the existing
+`formatDate` helper already used for the updated date, avoiding the
+same hydration-mismatch risk that decision already existed to avoid.
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 246 Vitest tests — 8
+new). `npm run test:e2e`: all 5 new `publish-status.spec.ts` tests and
+`puzzle-list.spec.ts` (explicitly named in the DoD as asserting on the
+row markup this story changes) pass unmodified.
+
+This branch was originally cut from `main` before Story PB4 merged,
+since PB5 only depends on PB3 (already merged) and not on PB4's
+read-only lock; the 4 `published-lock.spec.ts` failures that resulted
+on that base were reproduced identically on bare `main` with none of
+this story's changes applied, confirming they were PB4's gap, not a PB5
+regression. Per review, PB4 was merged first and this branch merged
+with the result before merging PB5, so that gap no longer exists here
+— a merge, not a rebase, since this branch had already been pushed and
+a merge reaches the same end state without rewriting existing history.
+
 ### What exists
 
 ```
@@ -221,6 +273,7 @@ docs/stories/
   04-PB2-publish-readiness.md    Story PB2's specification, tracked
   04-PB3-publish.md              Story PB3's specification, tracked
   04-PB4-published-lock.md       Story PB4's specification, tracked
+  04-PB5-publish-status.md       Story PB5's specification, tracked
 docs/handoffs/
   04-HANDOFF-publishing.md       this file, tracked
 docs/
@@ -243,6 +296,7 @@ e2e/
                               `unavailable`) — otherwise do not edit
   publish.spec.ts          Story PB3's acceptance test — do not edit
   published-lock.spec.ts  Story PB4's acceptance test — do not edit
+  publish-status.spec.ts   Story PB5's acceptance test — do not edit
 src/engine/
   phase.ts        Story PB1a — enterHintsPhase converts empty active cells
                     to black before deriving required hints; new
@@ -258,16 +312,24 @@ src/lib/
                      unavailable; clues reads complete once published
   stepper.test.ts  Story PB3 — rewritten wholesale for the wider
                      contract — do not edit
+  puzzle-status.ts      Story PB5 — new; puzzleStatus(args) -> {kind,
+                          label}, published outranks phase
+  puzzle-status.test.ts Story PB5's acceptance test — do not edit
 src/app/puzzles/
   actions.ts       Story PB1a — enterHints persists and returns grid
                     alongside phase and hints; Story PB3 — new
                     publishPuzzle(id, visibility) and unpublishPuzzle(id);
                     loadPuzzle's PuzzleWithMeta gains publishedAt and
                     visibility; Story PB4 — saveGrid/saveHints/saveTitle
-                    refuse via new shared updateUnlessPublished
+                    refuse via new shared updateUnlessPublished; Story
+                    PB5 — listPuzzles' rows gain publishedAt and
+                    visibility
   [id]/page.tsx    Story PB3 — passes initialPublishedAt/initialVisibility
                     to PuzzleGridEditor; Story PB4 — passes initialTitle
                     instead of rendering PuzzleTitle itself
+  page.tsx         Story PB5 — renders puzzleStatus's label instead of
+                    the old inline statusText; puzzle-list-item gains
+                    data-published/data-visibility/data-published-at
 src/components/grid/
   PhaseControls.tsx     Story PB1a — gains a two-step confirmation
                          (enter-hints-confirmation/-confirm-button/
@@ -288,7 +350,11 @@ src/components/grid/
                          page.tsx) and PublishedLockMessage; keydown
                          handler drops letter/delete when published;
                          ClearLettersButton conditionally rendered;
-                         HintsPanel gets a disabled prop
+                         HintsPanel gets a disabled prop; review fix —
+                         title state also lives here now (own debounce
+                         timer, like grid/hints), and each debounce
+                         timer is tracked in a ref so handlePublish can
+                         cancel and flush all three before publishing
   Stepper.tsx           Story PB2 — new puzzle prop; the revealed
                          step-reason for the publish step now renders
                          ReadinessPanel alongside the existing reason text;
@@ -306,7 +372,10 @@ src/components/grid/
 src/components/puzzle/
   PuzzleTitle.tsx       Story PB4 — new disabled prop, threaded to
                          TextInput; now rendered from PuzzleGridEditor
-                         rather than page.tsx
+                         rather than page.tsx; review fix — now a plain
+                         controlled component (value/onChange/disabled),
+                         title state and its debounced save moved to
+                         PuzzleGridEditor
 src/components/ui/
   TextInput.tsx         Story PB4 — new disabled prop on the underlying
                          input, with matching disabled styling
@@ -314,9 +383,11 @@ src/components/ui/
 
 ### The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **238 Vitest
-tests passing across 19 files**. `npm run test:e2e` exits 0: **187
-Playwright tests passing across 25 spec files**.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **246 Vitest
+tests passing across 20 files**. `npm run test:e2e` exits 0: **192
+Playwright tests passing across 26 spec files** — rerun in full after
+merging `main` (Story PB4) into this branch, per review; the
+`published-lock.spec.ts` gap that existed before that merge is gone.
 
 ---
 
