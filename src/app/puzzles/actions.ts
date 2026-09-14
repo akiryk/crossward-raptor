@@ -120,16 +120,29 @@ export async function enterHints(
   return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
 }
 
-/** Publishes the puzzle with the given visibility, stamping publishedAt now. */
+/** Publishes the puzzle with the given visibility, stamping publishedAt now.
+ *  Requires the puzzle to be in hints phase and not already published --
+ *  enforced in the single update's WHERE clause, not a separate check, so a
+ *  concurrent call can't slip a grid-phase or already-published puzzle
+ *  through between a check and a write. */
 export async function publishPuzzle(
   id: string,
   visibility: Visibility
 ): Promise<{ publishedAt: Date; visibility: Visibility }> {
-  const record = await prisma.puzzle.update({
-    where: { id },
-    data: { publishedAt: new Date(), visibility },
+  if (visibility !== 'private' && visibility !== 'public') {
+    throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
+  }
+
+  const publishedAt = new Date();
+  const { count } = await prisma.puzzle.updateMany({
+    where: { id, phase: 'hints', publishedAt: null },
+    data: { publishedAt, visibility },
   });
-  return { publishedAt: record.publishedAt!, visibility: record.visibility as Visibility };
+  if (count === 0) {
+    throw new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
+  }
+
+  return { publishedAt, visibility };
 }
 
 /** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
