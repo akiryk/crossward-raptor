@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Phase, Puzzle } from '../../engine/puzzle';
+import type { Visibility } from '../../app/puzzles/actions';
 import { Button } from '../ui/Button';
 import { Stepper } from './Stepper';
 import { stepStates } from '../../lib/stepper';
@@ -12,13 +13,21 @@ export function PhaseControls({
   emptyCellCount,
   hintsComplete,
   puzzle,
+  isPublished,
+  visibility,
   onEnterHints,
+  onPublish,
+  onUnpublish,
 }: {
   phase: Phase;
   emptyCellCount: number;
   hintsComplete: boolean;
   puzzle: Puzzle;
+  isPublished: boolean;
+  visibility: Visibility;
   onEnterHints: () => void;
+  onPublish: (visibility: Visibility) => void;
+  onUnpublish: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
 
@@ -37,9 +46,13 @@ export function PhaseControls({
     <div>
       <span data-testid="phase-badge">{phase}</span>
       <Stepper
-        steps={stepStates({ phase, hintsComplete })}
+        steps={stepStates({ phase, hintsComplete, isPublished })}
         puzzle={puzzle}
+        isPublished={isPublished}
+        visibility={visibility}
         onStepClick={handleStepClick}
+        onPublish={onPublish}
+        onUnpublish={onUnpublish}
       />
       {phase === 'grid' && !confirming && (
         <Button variant="quiet" data-testid="enter-hints-button" onClick={() => setConfirming(true)}>

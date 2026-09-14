@@ -15,7 +15,14 @@ import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 
-export type PuzzleWithMeta = Puzzle & { id: string; title: string };
+export type Visibility = 'private' | 'public';
+
+export type PuzzleWithMeta = Puzzle & {
+  id: string;
+  title: string;
+  publishedAt: Date | null;
+  visibility: Visibility;
+};
 
 export async function createPuzzle(input: {
   title: string;
@@ -113,6 +120,27 @@ export async function enterHints(
   return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
 }
 
+/** Publishes the puzzle with the given visibility, stamping publishedAt now. */
+export async function publishPuzzle(
+  id: string,
+  visibility: Visibility
+): Promise<{ publishedAt: Date; visibility: Visibility }> {
+  const record = await prisma.puzzle.update({
+    where: { id },
+    data: { publishedAt: new Date(), visibility },
+  });
+  return { publishedAt: record.publishedAt!, visibility: record.visibility as Visibility };
+}
+
+/** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
+ *  for if it's published again. */
+export async function unpublishPuzzle(id: string): Promise<void> {
+  await prisma.puzzle.update({
+    where: { id },
+    data: { publishedAt: null },
+  });
+}
+
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   await prisma.puzzle.delete({ where: { id } });
@@ -129,5 +157,11 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     phase: record.phase as Puzzle['phase'],
   });
 
-  return { ...puzzle, id: record.id, title: record.title };
+  return {
+    ...puzzle,
+    id: record.id,
+    title: record.title,
+    publishedAt: record.publishedAt,
+    visibility: record.visibility as Visibility,
+  };
 }
