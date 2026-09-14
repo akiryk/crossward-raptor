@@ -12,7 +12,14 @@ import { deserializeGrid, serializeGrid, type SerializedGrid } from '../../lib/p
 import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { keyToIntent } from '../../lib/keyboard-intent';
-import { saveGrid, saveHints, enterHints, publishPuzzle, unpublishPuzzle } from '../../app/puzzles/actions';
+import {
+  saveGrid,
+  saveHints,
+  saveTitle,
+  enterHints,
+  publishPuzzle,
+  unpublishPuzzle,
+} from '../../app/puzzles/actions';
 import type { Visibility } from '../../app/puzzles/actions';
 import { PuzzleGrid } from './PuzzleGrid';
 import { PhaseControls } from './PhaseControls';
@@ -35,6 +42,7 @@ interface EditorState {
   cursor: CursorState;
   phase: Phase;
   hints: Record<string, string>;
+  title: string;
   geometryLocked: boolean;
   publishedAt: Date | null;
   visibility: Visibility;
@@ -86,6 +94,7 @@ export function PuzzleGridEditor({
       cursor: { current: firstActiveCell(grid), orientation: 'across' },
       phase: initialPhase,
       hints: initialHints,
+      title: initialTitle,
       geometryLocked: false,
       publishedAt: initialPublishedAt,
       visibility: initialVisibility,
@@ -93,6 +102,15 @@ export function PuzzleGridEditor({
   });
   const isFirstGridRender = useRef(true);
   const isFirstHintsRender = useRef(true);
+  const isFirstTitleRender = useRef(true);
+  // Pending debounced-save timers, tracked so a publish click can cancel
+  // whatever's pending and save the latest value immediately instead --
+  // otherwise a save queued just before publishing loses the race against
+  // publishPuzzle's now-published guard and is silently dropped (PB4
+  // review finding).
+  const gridSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isReady, setIsReady] = useState(false);
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
@@ -103,12 +121,15 @@ export function PuzzleGridEditor({
       isFirstGridRender.current = false;
       return;
     }
-    const timer = setTimeout(() => {
+    gridSaveTimer.current = setTimeout(() => {
+      gridSaveTimer.current = null;
       saveGrid(puzzleId, serializeGrid(state.grid)).catch((error) => {
         console.error('Failed to save puzzle grid', error);
       });
     }, SAVE_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      if (gridSaveTimer.current !== null) clearTimeout(gridSaveTimer.current);
+    };
   }, [state.grid, puzzleId]);
 
   useEffect(() => {
@@ -116,13 +137,32 @@ export function PuzzleGridEditor({
       isFirstHintsRender.current = false;
       return;
     }
-    const timer = setTimeout(() => {
+    hintsSaveTimer.current = setTimeout(() => {
+      hintsSaveTimer.current = null;
       saveHints(puzzleId, state.hints).catch((error) => {
         console.error('Failed to save puzzle hints', error);
       });
     }, SAVE_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      if (hintsSaveTimer.current !== null) clearTimeout(hintsSaveTimer.current);
+    };
   }, [state.hints, puzzleId]);
+
+  useEffect(() => {
+    if (isFirstTitleRender.current) {
+      isFirstTitleRender.current = false;
+      return;
+    }
+    titleSaveTimer.current = setTimeout(() => {
+      titleSaveTimer.current = null;
+      saveTitle(puzzleId, state.title).catch((error) => {
+        console.error('Failed to save puzzle title', error);
+      });
+    }, SAVE_DEBOUNCE_MS);
+    return () => {
+      if (titleSaveTimer.current !== null) clearTimeout(titleSaveTimer.current);
+    };
+  }, [state.title, puzzleId]);
 
   useEffect(() => {
     if (!state.geometryLocked) return;
@@ -210,14 +250,43 @@ export function PuzzleGridEditor({
       });
   }
 
+  // Cancels any pending debounced saves and re-issues them immediately
+  // with the current in-memory values, so an edit made just before
+  // publishing is persisted before publishPuzzle's guard would otherwise
+  // reject it.
+  function flushPendingSaves(): Promise<unknown> {
+    if (gridSaveTimer.current !== null) {
+      clearTimeout(gridSaveTimer.current);
+      gridSaveTimer.current = null;
+    }
+    if (hintsSaveTimer.current !== null) {
+      clearTimeout(hintsSaveTimer.current);
+      hintsSaveTimer.current = null;
+    }
+    if (titleSaveTimer.current !== null) {
+      clearTimeout(titleSaveTimer.current);
+      titleSaveTimer.current = null;
+    }
+    return Promise.all([
+      saveGrid(puzzleId, serializeGrid(state.grid)),
+      saveHints(puzzleId, state.hints),
+      saveTitle(puzzleId, state.title),
+    ]);
+  }
+
   function handlePublish(visibility: Visibility) {
-    publishPuzzle(puzzleId, visibility)
+    flushPendingSaves()
+      .then(() => publishPuzzle(puzzleId, visibility))
       .then(({ publishedAt, visibility }) => {
         setState((prev) => ({ ...prev, publishedAt, visibility }));
       })
       .catch((error) => {
         console.error('Failed to publish puzzle', error);
       });
+  }
+
+  function handleTitleChange(title: string) {
+    setState((prev) => ({ ...prev, title }));
   }
 
   function handleUnpublish() {
@@ -243,7 +312,7 @@ export function PuzzleGridEditor({
     });
   }
 
-  const { grid, cursor, phase, hints, geometryLocked, publishedAt, visibility } = state;
+  const { grid, cursor, phase, hints, title, geometryLocked, publishedAt, visibility } = state;
   const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
@@ -260,7 +329,7 @@ export function PuzzleGridEditor({
 
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
-      <PuzzleTitle puzzleId={puzzleId} initialTitle={initialTitle} disabled={isPublished} />
+      <PuzzleTitle value={title} onChange={handleTitleChange} disabled={isPublished} />
       <div data-testid="editor-actions" className="flex flex-wrap items-center gap-3">
         <PhaseControls
           phase={phase}
