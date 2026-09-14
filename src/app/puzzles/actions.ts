@@ -15,7 +15,14 @@ import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 
-export type PuzzleWithMeta = Puzzle & { id: string; title: string };
+export type Visibility = 'private' | 'public';
+
+export type PuzzleWithMeta = Puzzle & {
+  id: string;
+  title: string;
+  publishedAt: Date | null;
+  visibility: Visibility;
+};
 
 export async function createPuzzle(input: {
   title: string;
@@ -113,6 +120,40 @@ export async function enterHints(
   return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
 }
 
+/** Publishes the puzzle with the given visibility, stamping publishedAt now.
+ *  Requires the puzzle to be in hints phase and not already published --
+ *  enforced in the single update's WHERE clause, not a separate check, so a
+ *  concurrent call can't slip a grid-phase or already-published puzzle
+ *  through between a check and a write. */
+export async function publishPuzzle(
+  id: string,
+  visibility: Visibility
+): Promise<{ publishedAt: Date; visibility: Visibility }> {
+  if (visibility !== 'private' && visibility !== 'public') {
+    throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
+  }
+
+  const publishedAt = new Date();
+  const { count } = await prisma.puzzle.updateMany({
+    where: { id, phase: 'hints', publishedAt: null },
+    data: { publishedAt, visibility },
+  });
+  if (count === 0) {
+    throw new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
+  }
+
+  return { publishedAt, visibility };
+}
+
+/** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
+ *  for if it's published again. */
+export async function unpublishPuzzle(id: string): Promise<void> {
+  await prisma.puzzle.update({
+    where: { id },
+    data: { publishedAt: null },
+  });
+}
+
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   await prisma.puzzle.delete({ where: { id } });
@@ -129,5 +170,11 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     phase: record.phase as Puzzle['phase'],
   });
 
-  return { ...puzzle, id: record.id, title: record.title };
+  return {
+    ...puzzle,
+    id: record.id,
+    title: record.title,
+    publishedAt: record.publishedAt,
+    visibility: record.visibility as Visibility,
+  };
 }

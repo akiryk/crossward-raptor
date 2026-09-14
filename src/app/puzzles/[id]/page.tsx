@@ -26,6 +26,8 @@ export default async function PuzzleDetailPage({
         initialGrid={serializeGrid(puzzle.grid)}
         initialPhase={puzzle.phase}
         initialHints={puzzle.hints}
+        initialPublishedAt={puzzle.publishedAt}
+        initialVisibility={puzzle.visibility}
       />
       <div data-testid="danger-zone" className="mt-8 border-t border-rule pt-4">
         <DeletePuzzleButton puzzleId={puzzle.id} />

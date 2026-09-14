@@ -95,10 +95,12 @@ test.describe('PB2-2 readiness panel', () => {
     });
     await openPublishStep(page, id);
 
-    // even with a clean puzzle, publishing isn't built yet
+    // a clean puzzle is no more or less publishable than a messy one --
+    // hints phase alone makes publish available (Story PB3), regardless
+    // of what the readiness panel reports
     await expect(
       page.locator('[data-testid="step"][data-step-id="publish"]')
-    ).toHaveAttribute('data-step-status', 'unavailable');
+    ).toHaveAttribute('data-step-status', 'available');
     await expect(page.getByTestId('phase-badge')).toContainText('hints');
   });
 });

@@ -11,8 +11,12 @@ export interface Step {
   readonly reason?: string;
 }
 
-export function stepStates(args: { phase: Phase; hintsComplete: boolean }): readonly Step[] {
-  const { phase, hintsComplete } = args;
+export function stepStates(args: {
+  phase: Phase;
+  hintsComplete: boolean;
+  isPublished: boolean;
+}): readonly Step[] {
+  const { phase, isPublished } = args;
 
   const build: Step =
     phase === 'grid'
@@ -27,17 +31,17 @@ export function stepStates(args: { phase: Phase; hintsComplete: boolean }): read
   const clues: Step =
     phase === 'grid'
       ? { id: 'clues', label: 'Write clues', status: 'available' }
-      : { id: 'clues', label: 'Write clues', status: 'current' };
+      : { id: 'clues', label: 'Write clues', status: isPublished ? 'complete' : 'current' };
 
-  const publish: Step = {
-    id: 'publish',
-    label: 'Publish',
-    status: 'unavailable',
-    reason:
-      phase === 'hints' && !hintsComplete
-        ? 'Finish writing the remaining clues before publishing.'
-        : 'Publishing is not available yet.',
-  };
+  const publish: Step =
+    phase === 'grid'
+      ? {
+          id: 'publish',
+          label: 'Publish',
+          status: 'unavailable',
+          reason: 'The grid must be in hints phase before it can be published.',
+        }
+      : { id: 'publish', label: 'Publish', status: isPublished ? 'current' : 'available' };
 
   return [build, clues, publish];
 }

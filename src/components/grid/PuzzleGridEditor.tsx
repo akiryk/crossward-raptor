@@ -12,7 +12,8 @@ import { deserializeGrid, serializeGrid, type SerializedGrid } from '../../lib/p
 import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { keyToIntent } from '../../lib/keyboard-intent';
-import { saveGrid, saveHints, enterHints } from '../../app/puzzles/actions';
+import { saveGrid, saveHints, enterHints, publishPuzzle, unpublishPuzzle } from '../../app/puzzles/actions';
+import type { Visibility } from '../../app/puzzles/actions';
 import { PuzzleGrid } from './PuzzleGrid';
 import { PhaseControls } from './PhaseControls';
 import { HintsPanel } from './HintsPanel';
@@ -33,6 +34,8 @@ interface EditorState {
   phase: Phase;
   hints: Record<string, string>;
   geometryLocked: boolean;
+  publishedAt: Date | null;
+  visibility: Visibility;
 }
 
 function firstActiveCell(grid: Grid): Coord {
@@ -62,11 +65,15 @@ export function PuzzleGridEditor({
   initialGrid,
   initialPhase,
   initialHints,
+  initialPublishedAt,
+  initialVisibility,
 }: {
   puzzleId: string;
   initialGrid: SerializedGrid;
   initialPhase: Phase;
   initialHints: Record<string, string>;
+  initialPublishedAt: Date | null;
+  initialVisibility: Visibility;
 }) {
   const [state, setState] = useState<EditorState>(() => {
     const grid = deserializeGrid(initialGrid);
@@ -76,6 +83,8 @@ export function PuzzleGridEditor({
       phase: initialPhase,
       hints: initialHints,
       geometryLocked: false,
+      publishedAt: initialPublishedAt,
+      visibility: initialVisibility,
     };
   });
   const isFirstGridRender = useRef(true);
@@ -191,6 +200,26 @@ export function PuzzleGridEditor({
       });
   }
 
+  function handlePublish(visibility: Visibility) {
+    publishPuzzle(puzzleId, visibility)
+      .then(({ publishedAt, visibility }) => {
+        setState((prev) => ({ ...prev, publishedAt, visibility }));
+      })
+      .catch((error) => {
+        console.error('Failed to publish puzzle', error);
+      });
+  }
+
+  function handleUnpublish() {
+    unpublishPuzzle(puzzleId)
+      .then(() => {
+        setState((prev) => ({ ...prev, publishedAt: null }));
+      })
+      .catch((error) => {
+        console.error('Failed to unpublish puzzle', error);
+      });
+  }
+
   function handleHintChange(key: string, text: string) {
     setState((prev) => ({ ...prev, hints: { ...prev.hints, [key]: text } }));
   }
@@ -204,7 +233,7 @@ export function PuzzleGridEditor({
     });
   }
 
-  const { grid, cursor, phase, hints, geometryLocked } = state;
+  const { grid, cursor, phase, hints, geometryLocked, publishedAt, visibility } = state;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
   const gridRatio = grid.cols / grid.rows;
@@ -226,7 +255,11 @@ export function PuzzleGridEditor({
           emptyCellCount={countEmptyActiveCells(grid)}
           hintsComplete={hintsComplete({ grid, hints, phase })}
           puzzle={{ grid, hints, phase }}
+          isPublished={publishedAt !== null}
+          visibility={visibility}
           onEnterHints={handleEnterHints}
+          onPublish={handlePublish}
+          onUnpublish={handleUnpublish}
         />
         <ClearLettersButton onConfirm={handleClearLetters} />
         {phase === 'grid' && (
