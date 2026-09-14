@@ -532,6 +532,15 @@ all `parseGoogleFontUrl`). `e2e/style-guide.spec.ts`: 34/34, first
 attempt, no retries needed. Full suite: 168/168, also first attempt —
 no repeat of D9's container-fatigue flakiness this time.
 
+Stories D8 (live token editing), D9 (type scale), and D10 (utility tab
+and font loading) extended the style-guide work beyond
+`docs/epics/05-visual-design-epic.md`'s own suggested build order —
+informal additions, never folded into the epic doc itself, which is why
+that doc's own scope reads as fully covered without them. All three are
+complete, per their entries above. Nothing is pending anywhere in this
+epic, original scope or extensions; completing it resumes the publishing
+epic's PB2–PB5 (`04-HANDOFF-publishing.md`).
+
 ### What exists
 
 ```
@@ -812,27 +821,3 @@ Story L1 (local Postgres) has since landed, resolving the
 `TEST_DATABASE_URL`-load unreliability Story D8's entry above
 described; Story D9's own infrastructure-fatigue note didn't recur for
 D10.
-
----
-
-## Current status
-
-The visual-design epic (Story Groups D1–D7, including the D1b and D1c
-follow-ups) is complete — nothing in `docs/epics/05-visual-design-epic.md`'s
-own suggested build order is pending. D4 absorbed PB1b (the grid-phase
-preview toggle) as part of this epic, per the epic's own framing.
-
-Three further stories (D8 live token editing, D9 type scale, D10 utility
-tab and font loading) extended the style-guide work beyond that original
-build order — informal additions, never added to the epic doc itself,
-which is why the epic doc's own scope reads as fully covered without
-them. All three are also complete; see "Where things stand" above for
-each. Nothing is currently pending anywhere in this epic, original scope
-or extensions.
-
-This epic's completion resumes the publishing epic:
-`docs/epics/04-publishing-epic.md`'s PB2 (advisory publish-readiness
-checks), PB3 (publish/unpublish), PB4 (locking edits to a published
-puzzle), and PB5 (published status in the builder's list) are next, in
-that order, per that epic's own dependency chain
-(`04-HANDOFF-publishing.md`).
