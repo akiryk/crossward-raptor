@@ -167,10 +167,9 @@ test.describe('D8-1 structure', () => {
 
     await page.locator('[data-testid="token-tab"][data-tab-id="utility"]').click();
 
-    const panel = page.locator('[data-testid="token-tab-panel"][data-tab-id="utility"]');
-    await expect(panel).toBeVisible();
-    expect((await panel.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
-
+    await expect(
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="utility"]')
+    ).toBeVisible();
     await expect(
       page.locator('[data-testid="token-tab-panel"][data-tab-id="colors"]')
     ).toHaveCount(0);
@@ -436,6 +435,194 @@ test.describe('D8-3 real grid samples', () => {
       expect(container.bottom - Math.max(...cells.map((c) => c.bottom))).toBeCloseTo(line, 0);
     });
   }
+});
+
+// --- D10-2: the Utility tab ---
+const UTILITY_TOKENS = [
+  '--radius-btn',
+  '--radius-md',
+  '--radius-lg',
+  '--radius-grid',
+  '--grid-line-width',
+];
+
+test.describe('D10-2 utility tab', () => {
+  async function openUtility(page: Page) {
+    await page.goto('/style-guide');
+    await page.locator('[data-testid="token-tab"][data-tab-id="utility"]').click();
+    await expect(
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="utility"]')
+    ).toBeVisible();
+  }
+
+  test('a control renders for each utility token, at its committed value', async ({ page }) => {
+    await openUtility(page);
+
+    for (const token of UTILITY_TOKENS) {
+      const control = page.locator(
+        `[data-testid="utility-control"][data-token-name="${token}"]`
+      );
+      await expect(control, `expected a control for ${token}`).toBeVisible();
+      await expect(control).toContainText(token);
+
+      const shown = await control.locator('[data-testid="utility-number"]').inputValue();
+      const committed = await tokenValue(page, token);
+      expect(parseFloat(shown), `${token} initial value`).toBeCloseTo(
+        parseFloat(committed),
+        2
+      );
+    }
+  });
+
+  test('changing a radius changes a rendered corner', async ({ page }) => {
+    await openUtility(page);
+
+    const button = page.getByTestId('sg-button-primary').first();
+    const before = await button.evaluate((el) => getComputedStyle(el).borderTopLeftRadius);
+
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--radius-btn', '2px')
+    );
+
+    const after = await button.evaluate((el) => getComputedStyle(el).borderTopLeftRadius);
+    expect(after).not.toBe(before);
+  });
+
+  test('changing the line width changes the measured gap between cells', async ({ page }) => {
+    await openUtility(page);
+
+    const gap = async () => {
+      const { cells } = await measureSample(page, 'sg-grid-build');
+      const sorted = [...cells].sort((a, b) => a.top - b.top || a.left - b.left);
+      return sorted[1].left - sorted[0].right;
+    };
+
+    const before = await gap();
+
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--grid-line-width', '5px')
+    );
+
+    const after = await gap();
+    expect(after).toBeGreaterThan(before);
+    expect(after).toBeCloseTo(5, 0);
+  });
+
+  test('reloading restores committed utility values', async ({ page }) => {
+    await openUtility(page);
+
+    const committed = await tokenValue(page, '--radius-md');
+    await page.evaluate(() =>
+      document.documentElement.style.setProperty('--radius-md', '1px')
+    );
+    expect(await tokenValue(page, '--radius-md')).not.toBe(committed);
+
+    await page.reload();
+
+    expect(await tokenValue(page, '--radius-md')).toBe(committed);
+  });
+});
+
+// --- D10-3: font loading ---
+test.describe('D10-3 font loading', () => {
+  const VALID =
+    'https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap';
+
+  async function openFonts(page: Page) {
+    await page.goto('/style-guide');
+    await page.locator('[data-testid="token-tab"][data-tab-id="fonts"]').click();
+    await expect(
+      page.locator('[data-testid="token-tab-panel"][data-tab-id="fonts"]')
+    ).toBeVisible();
+  }
+
+  function linkCount(page: Page, href: string) {
+    return page.evaluate(
+      (h) => document.querySelectorAll(`link[rel="stylesheet"][href="${h}"]`).length,
+      href
+    );
+  }
+
+  test('a family control renders for each font token', async ({ page }) => {
+    await openFonts(page);
+
+    for (const token of ['--font-display', '--font-body', '--font-data']) {
+      const control = page.locator(
+        `[data-testid="font-family-control"][data-token-name="${token}"]`
+      );
+      await expect(control, `expected a control for ${token}`).toBeVisible();
+      await expect(control).toContainText(token);
+    }
+  });
+
+  test('a valid URL loads the stylesheet and offers its family', async ({ page }) => {
+    await openFonts(page);
+
+    await page.getByTestId('font-url-input').fill(VALID);
+    await page.getByTestId('font-url-apply').click();
+
+    await expect(page.getByTestId('font-url-error')).toHaveCount(0);
+    expect(await linkCount(page, VALID)).toBe(1);
+
+    const options = await page
+      .locator('[data-testid="font-family-control"][data-token-name="--font-body"]')
+      .locator('[data-testid="font-family-select"] option')
+      .allTextContents();
+    expect(options.join('|')).toContain('Lora');
+  });
+
+  test('selecting a loaded family changes rendered text', async ({ page }) => {
+    await openFonts(page);
+
+    await page.getByTestId('font-url-input').fill(VALID);
+    await page.getByTestId('font-url-apply').click();
+
+    const body = page.getByTestId('sg-text').locator('p').first();
+    const before = await body.evaluate((el) => getComputedStyle(el).fontFamily);
+
+    await page
+      .locator('[data-testid="font-family-control"][data-token-name="--font-body"]')
+      .locator('[data-testid="font-family-select"]')
+      .selectOption({ label: 'Lora' });
+
+    const after = await body.evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(after).not.toBe(before);
+    expect(after).toContain('Lora');
+  });
+
+  test('a non-Google URL is rejected and loads nothing', async ({ page }) => {
+    await openFonts(page);
+
+    const bad = 'https://evil.example.com/css2?family=Inter';
+    await page.getByTestId('font-url-input').fill(bad);
+    await page.getByTestId('font-url-apply').click();
+
+    const error = page.getByTestId('font-url-error');
+    await expect(error).toBeVisible();
+    expect((await error.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
+    expect(await linkCount(page, bad)).toBe(0);
+  });
+
+  test('nonsense input is rejected', async ({ page }) => {
+    await openFonts(page);
+
+    await page.getByTestId('font-url-input').fill('not a url');
+    await page.getByTestId('font-url-apply').click();
+
+    await expect(page.getByTestId('font-url-error')).toBeVisible();
+  });
+
+  test('reloading clears loaded fonts', async ({ page }) => {
+    await openFonts(page);
+
+    await page.getByTestId('font-url-input').fill(VALID);
+    await page.getByTestId('font-url-apply').click();
+    expect(await linkCount(page, VALID)).toBe(1);
+
+    await page.reload();
+
+    expect(await linkCount(page, VALID)).toBe(0);
+  });
 });
 
 // --- D8-4: the pane stays put ---
