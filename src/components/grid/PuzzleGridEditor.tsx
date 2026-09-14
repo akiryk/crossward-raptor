@@ -19,6 +19,8 @@ import { PhaseControls } from './PhaseControls';
 import { HintsPanel } from './HintsPanel';
 import { ClearLettersButton } from './ClearLettersButton';
 import { PreviewToggle } from './PreviewToggle';
+import { PublishedLockMessage } from './PublishedLockMessage';
+import { PuzzleTitle } from '../puzzle/PuzzleTitle';
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -65,6 +67,7 @@ export function PuzzleGridEditor({
   initialGrid,
   initialPhase,
   initialHints,
+  initialTitle,
   initialPublishedAt,
   initialVisibility,
 }: {
@@ -72,6 +75,7 @@ export function PuzzleGridEditor({
   initialGrid: SerializedGrid;
   initialPhase: Phase;
   initialHints: Record<string, string>;
+  initialTitle: string;
   initialPublishedAt: Date | null;
   initialVisibility: Visibility;
 }) {
@@ -138,11 +142,17 @@ export function PuzzleGridEditor({
       event.preventDefault();
 
       setState((prev) => {
+        // Letters/deletion are the content a published puzzle freezes
+        // (PB4); cursor movement and the reject-only geometry path below
+        // are unaffected -- geometry is already frozen by hints phase
+        // (Story E), which every published puzzle is already in (PB3).
         if (intent.type === 'letter') {
+          if (prev.publishedAt !== null) return prev;
           const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
           return { ...prev, grid, cursor };
         }
         if (intent.type === 'delete') {
+          if (prev.publishedAt !== null) return prev;
           const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
           return { ...prev, grid, cursor };
         }
@@ -234,6 +244,7 @@ export function PuzzleGridEditor({
   }
 
   const { grid, cursor, phase, hints, geometryLocked, publishedAt, visibility } = state;
+  const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
   const gridRatio = grid.cols / grid.rows;
@@ -249,19 +260,20 @@ export function PuzzleGridEditor({
 
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
+      <PuzzleTitle puzzleId={puzzleId} initialTitle={initialTitle} disabled={isPublished} />
       <div data-testid="editor-actions" className="flex flex-wrap items-center gap-3">
         <PhaseControls
           phase={phase}
           emptyCellCount={countEmptyActiveCells(grid)}
           hintsComplete={hintsComplete({ grid, hints, phase })}
           puzzle={{ grid, hints, phase }}
-          isPublished={publishedAt !== null}
+          isPublished={isPublished}
           visibility={visibility}
           onEnterHints={handleEnterHints}
           onPublish={handlePublish}
           onUnpublish={handleUnpublish}
         />
-        <ClearLettersButton onConfirm={handleClearLetters} />
+        {!isPublished && <ClearLettersButton onConfirm={handleClearLetters} />}
         {phase === 'grid' && (
           <PreviewToggle
             isPreviewing={isPreviewing}
@@ -269,6 +281,7 @@ export function PuzzleGridEditor({
           />
         )}
       </div>
+      {isPublished && <PublishedLockMessage />}
       {geometryLocked && (
         <p data-testid="geometry-locked-message" className="text-help text-ink-2">
           Geometry is locked in hints phase
@@ -299,6 +312,7 @@ export function PuzzleGridEditor({
               slots={slotLookup}
               hints={hints}
               activeKey={activeKey}
+              disabled={isPublished}
               onHintChange={handleHintChange}
               onHintFocus={handleHintFocus}
             />

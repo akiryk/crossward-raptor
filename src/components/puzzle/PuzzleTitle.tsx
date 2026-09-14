@@ -9,9 +9,11 @@ const SAVE_DEBOUNCE_MS = 500;
 export function PuzzleTitle({
   puzzleId,
   initialTitle,
+  disabled,
 }: {
   puzzleId: string;
   initialTitle: string;
+  disabled?: boolean;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const isFirstRender = useRef(true);
@@ -30,6 +32,12 @@ export function PuzzleTitle({
   }, [title, puzzleId]);
 
   return (
-    <TextInput data-testid="puzzle-title" aria-label="Puzzle title" value={title} onChange={setTitle} />
+    <TextInput
+      data-testid="puzzle-title"
+      aria-label="Puzzle title"
+      value={title}
+      onChange={setTitle}
+      disabled={disabled}
+    />
   );
 }

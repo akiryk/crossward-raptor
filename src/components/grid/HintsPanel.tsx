@@ -6,12 +6,14 @@ export function HintsPanel({
   slots,
   hints,
   activeKey,
+  disabled,
   onHintChange,
   onHintFocus,
 }: {
   slots: ReadonlyMap<string, NumberedSlot>;
   hints: Record<string, string>;
   activeKey: string | null;
+  disabled?: boolean;
   onHintChange: (key: string, text: string) => void;
   onHintFocus: (key: string) => void;
 }) {
@@ -36,6 +38,7 @@ export function HintsPanel({
               value={hints[key] ?? ''}
               onChange={(text) => onHintChange(key, text)}
               onFocus={() => onHintFocus(key)}
+              disabled={disabled}
             />
           </div>
         );
