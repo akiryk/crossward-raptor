@@ -819,10 +819,20 @@ D10.
 
 The visual-design epic (Story Groups D1–D7, including the D1b and D1c
 follow-ups) is complete — nothing in `docs/epics/05-visual-design-epic.md`'s
-suggested build order is pending. D4 absorbed PB1b (the grid-phase preview
-toggle) as part of this epic, per the epic's own framing. This epic's
-completion resumes the publishing epic: `docs/epics/04-publishing-epic.md`'s
-PB2 (advisory publish-readiness checks), PB3 (publish/unpublish), PB4
-(locking edits to a published puzzle), and PB5 (published status in the
-builder's list) are next, in that order, per that epic's own dependency
-chain (`04-HANDOFF-publishing.md`).
+own suggested build order is pending. D4 absorbed PB1b (the grid-phase
+preview toggle) as part of this epic, per the epic's own framing.
+
+Three further stories (D8 live token editing, D9 type scale, D10 utility
+tab and font loading) extended the style-guide work beyond that original
+build order — informal additions, never added to the epic doc itself,
+which is why the epic doc's own scope reads as fully covered without
+them. All three are also complete; see "Where things stand" above for
+each. Nothing is currently pending anywhere in this epic, original scope
+or extensions.
+
+This epic's completion resumes the publishing epic:
+`docs/epics/04-publishing-epic.md`'s PB2 (advisory publish-readiness
+checks), PB3 (publish/unpublish), PB4 (locking edits to a published
+puzzle), and PB5 (published status in the builder's list) are next, in
+that order, per that epic's own dependency chain
+(`04-HANDOFF-publishing.md`).
