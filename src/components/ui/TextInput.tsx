@@ -5,6 +5,7 @@ export function TextInput({
   onChange,
   onFocus,
   autoFocus,
+  disabled,
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
@@ -13,6 +14,7 @@ export function TextInput({
   onChange: (value: string) => void;
   onFocus?: () => void;
   autoFocus?: boolean;
+  disabled?: boolean;
   'aria-label': string;
   placeholder?: string;
   'data-testid'?: string;
@@ -27,11 +29,12 @@ export function TextInput({
       onChange={(event) => onChange(event.target.value)}
       onFocus={onFocus}
       autoFocus={autoFocus}
+      disabled={disabled}
       // The border is subtle by default (--color-rule) rather than
       // invisible, since the affordance must always be visible, not
       // hover-only (D2 decision) -- it strengthens to --color-accent on
       // both hover and focus, uniformly for every use of this component.
-      className="rounded-md border border-rule bg-background px-3 py-2 text-foreground outline-none hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent"
+      className="rounded-md border border-rule bg-background px-3 py-2 text-foreground outline-none hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
     />
   );
 }
