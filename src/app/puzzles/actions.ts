@@ -85,25 +85,35 @@ export async function listPuzzles(): Promise<
   });
 }
 
+/** Defense in depth for a path the UI shouldn't allow (PB4): the
+ *  published-not-null check lives in the same update's WHERE clause as the
+ *  write, not a separate check beforehand, so it can't race a concurrent
+ *  publish. The UI is what actually prevents this in normal use. */
+async function updateUnlessPublished(
+  id: string,
+  action: string,
+  data: Prisma.PuzzleUpdateManyMutationInput
+): Promise<void> {
+  const { count } = await prisma.puzzle.updateMany({ where: { id, publishedAt: null }, data });
+  if (count === 0) {
+    throw new Error(`${action}: puzzle ${id} is published and cannot be edited`);
+  }
+}
+
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
-  await prisma.puzzle.update({
-    where: { id },
-    data: { grid: grid as unknown as Prisma.InputJsonValue },
+  await updateUnlessPublished(id, 'saveGrid', {
+    grid: grid as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
-  await prisma.puzzle.update({
-    where: { id },
-    data: { hints: hints as unknown as Prisma.InputJsonValue },
+  await updateUnlessPublished(id, 'saveHints', {
+    hints: hints as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveTitle(id: string, title: string): Promise<void> {
-  await prisma.puzzle.update({
-    where: { id },
-    data: { title: normalizeTitle(title) },
-  });
+  await updateUnlessPublished(id, 'saveTitle', { title: normalizeTitle(title) });
 }
 
 /** Loads the puzzle, transitions it to 'hints' phase via the engine's

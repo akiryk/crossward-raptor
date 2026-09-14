@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { PuzzleGridEditor } from '@/components/grid/PuzzleGridEditor';
-import { PuzzleTitle } from '@/components/puzzle/PuzzleTitle';
 import { DeletePuzzleButton } from '@/components/puzzle/DeletePuzzleButton';
 import { serializeGrid } from '@/lib/puzzle-storage';
 import { loadPuzzle } from '../actions';
@@ -19,13 +18,13 @@ export default async function PuzzleDetailPage({
 
   return (
     <div className="p-6">
-      <PuzzleTitle puzzleId={puzzle.id} initialTitle={puzzle.title} />
       <p data-testid="puzzle-phase">{puzzle.phase}</p>
       <PuzzleGridEditor
         puzzleId={puzzle.id}
         initialGrid={serializeGrid(puzzle.grid)}
         initialPhase={puzzle.phase}
         initialHints={puzzle.hints}
+        initialTitle={puzzle.title}
         initialPublishedAt={puzzle.publishedAt}
         initialVisibility={puzzle.visibility}
       />
