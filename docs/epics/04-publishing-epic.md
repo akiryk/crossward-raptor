@@ -101,6 +101,12 @@ final geometry must be decided.
 changing any data, so a builder can see what the conversion will do before
 committing. Pure rendering — no engine involvement, no persistence.
 
+**This toggle (PB1b) was absorbed into epic 05 as Story D4** and has
+shipped — see `docs/epics/05-visual-design-epic.md` and
+`docs/stories/05-D4-preview-grid.md`. `src/components/grid/PreviewToggle.tsx`
+and `e2e/preview.spec.ts` are its implementation, not a to-be-built part of
+this epic.
+
 **The transition gets a confirmation showing what will be blackened.**
 This is irreversible and there is no reverse transition, which puts it in
 the same category as delete and clear-letters: an irreversible action gets

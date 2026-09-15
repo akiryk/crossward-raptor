@@ -228,9 +228,9 @@ immediately, reload) confirmed to fail against the pre-fix code and
 pass after — not part of the committed suite, since the story's own
 acceptance tests don't cover this interaction.
 
-**Story PB5 (published status in the list) is complete, on branch
-`story/04-PB5-publish-status`, pending PR review** — the epic's fifth
-and final slice. New pure `puzzleStatus` (`src/lib/puzzle-status.ts`)
+**Story PB5 (published status in the list) is complete and merged to
+`main` via PR #7** — the epic's fifth and final slice. New pure
+`puzzleStatus` (`src/lib/puzzle-status.ts`)
 takes over the phase-aware status text Story M3 put inline in
 `page.tsx`, now with a third input (`publishedAt`/`visibility`) and a
 fourth branch: published outranks phase, so a published puzzle in hints
@@ -388,16 +388,3 @@ tests passing across 20 files**. `npm run test:e2e` exits 0: **192
 Playwright tests passing across 26 spec files** — rerun in full after
 merging `main` (Story PB4) into this branch, per review; the
 `published-lock.spec.ts` gap that existed before that merge is gone.
-
----
-
-## Current status
-
-Story PB1a is complete. Still open in Epic 04, per
-`docs/epics/04-publishing-epic.md`: PB1b (the grid-phase preview toggle,
-deliberately split out of PB1 and touching no committed files), PB2
-(advisory publish-readiness checks), PB3 (publish/unpublish), PB4 (locking
-edits to a published puzzle), and PB5 (published status in the builder's
-list). The epic's own suggested build order sequences these as
-PB1 (a/b), PB2, PB3, PB4, PB5 — a real dependency chain, unlike Epic 03's
-mostly-independent stories.

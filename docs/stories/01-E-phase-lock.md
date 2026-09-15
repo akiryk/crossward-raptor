@@ -6,6 +6,14 @@ the slot set and numbering, since both are derived from geometry — while
 still allowing letter edits. This is what keeps the required-hint list from
 desyncing mid-authoring.
 
+**Superseded for `enterHintsPhase` by Story PB1a.** The publishing epic's
+`docs/stories/04-PB1a-empty-cells-black.md` changed `enterHintsPhase` to
+convert every active cell holding no letter into a black cell before
+deriving required hints. The contract below and the E2 examples describe
+this story's original, geometry-preserving behavior — accurate for Story E
+and Story P4, not for what's shipped today. See PB1a's doc for the current
+contract.
+
 Repo paths:
 - `src/engine/phase.ts` — `applyGeometryEdit`, `enterHintsPhase`,
   `applyLetterEdit` (new file)
@@ -43,6 +51,11 @@ export function applyGeometryEdit(
  * Transitions phase to 'hints' and fills in blank ('') entries for any
  * required hint not already present in puzzle.hints. Does not snapshot
  * slots or numbering — those stay derived.
+ *
+ * Superseded by Story PB1a: it now also converts every active cell holding
+ * no letter into a black cell before deriving required hints, so slots and
+ * numbering are no longer derived from an untouched grid. See
+ * docs/stories/04-PB1a-empty-cells-black.md.
  */
 export function enterHintsPhase(puzzle: Puzzle): Puzzle;
 
@@ -188,7 +201,8 @@ locking.
 - Fully black grid → `phase` becomes `'hints'`; `hints` unchanged (no keys
   added).
 - `extractSlots(result.grid)` equals `extractSlots(puzzle.grid)` before the
-  call — geometry itself is untouched by this function.
+  call — geometry itself is untouched by this function. **No longer true
+  after Story PB1a** — see the superseding note above.
 
 **E3 — `applyLetterEdit`, both phases**
 - `'grid'` phase, active cell, `applyLetterEdit(puzzle, coord, 'A')` →
