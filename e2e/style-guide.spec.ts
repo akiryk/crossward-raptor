@@ -19,6 +19,7 @@ const COLOR_TOKENS = [
   '--color-selected',
   '--color-slot',
   '--color-required',
+  '--color-recommended',
   '--color-incomplete',
 ];
 
