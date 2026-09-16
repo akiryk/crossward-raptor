@@ -18,7 +18,6 @@ export default async function PuzzleDetailPage({
 
   return (
     <div className="p-6">
-      <p data-testid="puzzle-phase">{puzzle.phase}</p>
       <PuzzleGridEditor
         puzzleId={puzzle.id}
         initialGrid={serializeGrid(puzzle.grid)}

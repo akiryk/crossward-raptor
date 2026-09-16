@@ -101,6 +101,8 @@ test.describe('PB2-2 readiness panel', () => {
     await expect(
       page.locator('[data-testid="step"][data-step-id="publish"]')
     ).toHaveAttribute('data-step-status', 'available');
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
+    await expect(
+      page.locator('[data-testid="step"][data-step-id="build"]')
+    ).toHaveAttribute('data-step-status', 'unavailable');
   });
 });

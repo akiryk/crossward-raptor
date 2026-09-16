@@ -46,11 +46,7 @@ test.describe('D2-1 buttons', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    for (const testid of [
-      'clear-letters-button',
-      'enter-hints-button',
-      'delete-puzzle-button',
-    ]) {
+    for (const testid of ['clear-letters-button', 'delete-puzzle-button']) {
       const button = page.getByTestId(testid);
       const cursor = await button.evaluate((el) => getComputedStyle(el).cursor);
       const bg = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
@@ -128,19 +124,24 @@ test.describe('D2-2 puzzles list', () => {
 
 // --- D2-3: inputs ---
 test.describe('D2-3 inputs', () => {
-  test('the title input has a visible border and an accessible name', async ({ page }) => {
+  // Superseded (visual-polish-02): the title now reads as a page heading,
+  // not a form field, until interacted with -- no visible border by
+  // default, one on hover, and the normal input look on focus. See
+  // docs/handoffs/06-HANDOFF-visual-polish.md.
+  test('the title input has no border by default, gets one on hover, and has an accessible name', async ({
+    page,
+  }) => {
     const { id } = await seedForControls();
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
     const title = page.getByTestId('puzzle-title');
-    const border = await title.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { width: s.borderTopWidth, color: s.borderTopColor };
-    });
+    const borderColor = await title.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(TRANSPARENT).toContain(borderColor);
 
-    expect(border.width).not.toBe('0px');
-    expect(TRANSPARENT).not.toContain(border.color);
+    await title.hover();
+    const hoveredColor = await title.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(TRANSPARENT).not.toContain(hoveredColor);
 
     const name = await title.evaluate(
       (el) => el.getAttribute('aria-label') ?? el.getAttribute('title') ?? ''

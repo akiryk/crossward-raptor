@@ -47,9 +47,16 @@ describe('D3-1 cellAppearance', () => {
     expect(appearance(EMPTY, { isSelected: true, isSymmetricHint: true })).toBe('selected');
   });
 
-  it('slot membership outranks content', () => {
-    expect(appearance(LETTER, { isInSlot: true })).toBe('slot');
-    expect(appearance(EMPTY, { isInSlot: true, isSymmetricHint: true })).toBe('slot');
+  it('slot membership combines with content: a lettered slot cell is slot-letter', () => {
+    expect(appearance(LETTER, { isInSlot: true })).toBe('slot-letter');
+  });
+
+  it('slot membership combines with content: a required slot cell is slot-required', () => {
+    expect(appearance(EMPTY, { isInSlot: true, isSymmetricHint: true })).toBe('slot-required');
+  });
+
+  it('a plain empty slot cell -- no letter, no symmetry requirement -- is slot', () => {
+    expect(appearance(EMPTY, { isInSlot: true })).toBe('slot');
   });
 
   it('an ordinary lettered cell is letter', () => {

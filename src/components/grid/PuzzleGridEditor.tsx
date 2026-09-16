@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { Coord, Grid } from '../../engine/grid';
 import { clearLetters } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
@@ -16,7 +17,6 @@ import {
   saveGrid,
   saveHints,
   saveTitle,
-  enterHints,
   publishPuzzle,
   unpublishPuzzle,
 } from '../../app/puzzles/actions';
@@ -57,17 +57,6 @@ function firstActiveCell(grid: Grid): Coord {
     }
   }
   throw new Error('firstActiveCell: grid has no active cells');
-}
-
-function countEmptyActiveCells(grid: Grid): number {
-  let count = 0;
-  for (let row = 0; row < grid.rows; row++) {
-    for (let col = 0; col < grid.cols; col++) {
-      const cell = grid.at(col, row);
-      if (cell.kind === 'active' && cell.letter === null) count++;
-    }
-  }
-  return count;
 }
 
 export function PuzzleGridEditor({
@@ -115,6 +104,14 @@ export function PuzzleGridEditor({
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
   const [isPreviewing, setIsPreviewing] = useState(false);
+  // Whether the grid (or something that logically belongs to it, like a
+  // hint input -- see the onFocus/onBlur on editor-layout below) currently
+  // holds keyboard focus. Drives both whether the cursor/slot highlight
+  // renders and whether typed keys reach the grid at all: clicking a
+  // button or the title moves real focus away, which should blur the grid
+  // rather than leave it looking (and acting) selected forever.
+  const [isFocused, setIsFocused] = useState(false);
+  const gridRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isFirstGridRender.current) {
@@ -173,81 +170,69 @@ export function PuzzleGridEditor({
   }, [state.geometryLocked]);
 
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-
-      const intent = keyToIntent(event.key);
-      if (!intent) return;
-      event.preventDefault();
-
-      setState((prev) => {
-        // Letters/deletion are the content a published puzzle freezes
-        // (PB4); cursor movement and the reject-only geometry path below
-        // are unaffected -- geometry is already frozen by hints phase
-        // (Story E), which every published puzzle is already in (PB3).
-        if (intent.type === 'letter') {
-          if (prev.publishedAt !== null) return prev;
-          const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
-          return { ...prev, grid, cursor };
-        }
-        if (intent.type === 'delete') {
-          if (prev.publishedAt !== null) return prev;
-          const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
-          return { ...prev, grid, cursor };
-        }
-        if (intent.type === 'arrow') {
-          return { ...prev, cursor: arrowKey(prev.grid, prev.cursor, intent.direction) };
-        }
-        if (intent.type === 'toggleOrientation') {
-          return { ...prev, cursor: toggleOrientation(prev.cursor) };
-        }
-
-        const coord = prev.cursor.current;
-        const isBlack = prev.grid.at(coord.col, coord.row).kind === 'black';
-        const result = applyGeometryEdit(
-          { grid: prev.grid, hints: {}, phase: prev.phase },
-          coord,
-          !isBlack
-        );
-        return result.ok
-          ? { ...prev, grid: result.puzzle.grid, geometryLocked: false }
-          : { ...prev, geometryLocked: true };
-      });
-    }
-
-    window.addEventListener('keydown', handleKeyDown);
-    // isReady must flip exactly when the listener above is live, so tests
-    // (and any other consumer) can wait for a real "can respond to input"
-    // signal rather than racing hydration.
+    // Focusing the grid here (rather than leaving it unfocused until a
+    // click) keeps the pre-existing "type immediately after load, no click
+    // needed" behavior -- the effect that used to attach a global keydown
+    // listener now establishes focus instead; onKeyDown below only ever
+    // fires while the grid actually has it. isReady still flips exactly
+    // when the grid can respond to input, so tests can wait for it rather
+    // than racing hydration.
+    gridRegionRef.current?.focus();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsReady(true);
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const intent = keyToIntent(event.key);
+    if (!intent) return;
+    event.preventDefault();
+
+    setState((prev) => {
+      // Letters/deletion are the content a published puzzle freezes
+      // (PB4); cursor movement and the reject-only geometry path below
+      // are unaffected -- geometry is already frozen by hints phase
+      // (Story E), which every published puzzle is already in (PB3).
+      if (intent.type === 'letter') {
+        if (prev.publishedAt !== null) return prev;
+        const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
+        return { ...prev, grid, cursor };
+      }
+      if (intent.type === 'delete') {
+        if (prev.publishedAt !== null) return prev;
+        const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
+        return { ...prev, grid, cursor };
+      }
+      if (intent.type === 'arrow') {
+        return { ...prev, cursor: arrowKey(prev.grid, prev.cursor, intent.direction) };
+      }
+      if (intent.type === 'toggleOrientation') {
+        return { ...prev, cursor: toggleOrientation(prev.cursor) };
+      }
+
+      const coord = prev.cursor.current;
+      const isBlack = prev.grid.at(coord.col, coord.row).kind === 'black';
+      const result = applyGeometryEdit(
+        { grid: prev.grid, hints: {}, phase: prev.phase },
+        coord,
+        !isBlack
+      );
+      return result.ok
+        ? { ...prev, grid: result.puzzle.grid, geometryLocked: false }
+        : { ...prev, geometryLocked: true };
+    });
+  }
+
   function handleCellClick(coord: Coord) {
+    // A plain click on a non-focusable cell doesn't move DOM focus to its
+    // focusable ancestor by itself -- without this, clicking a cell after
+    // focus had moved elsewhere (a button, the title) would update the
+    // cursor but leave the grid still visually and functionally blurred.
+    gridRegionRef.current?.focus();
     setState((prev) => ({ ...prev, cursor: moveTo(prev.grid, prev.cursor, coord) }));
   }
 
   function handleClearLetters() {
     setState((prev) => ({ ...prev, grid: clearLetters(prev.grid) }));
-  }
-
-  function handleEnterHints() {
-    // Unlike the old grid-only-changes-client-side assumption, the
-    // transition now blackens empty cells server-side (enterHintsPhase
-    // needs the puzzle's real hints, which the client doesn't hold — same
-    // reason this already ran server-side). phase, hints, and grid all
-    // apply together once the response lands, rather than flipping phase
-    // optimistically: doing that would let the phase badge read "hints"
-    // for a moment before the blackened grid actually renders.
-    enterHints(puzzleId)
-      .then(({ phase, hints, grid }) => {
-        setState((prev) => ({ ...prev, phase, hints, grid: deserializeGrid(grid) }));
-      })
-      .catch((error) => {
-        console.error('Failed to enter hints phase', error);
-      });
   }
 
   // Cancels any pending debounced saves and re-issues them immediately
@@ -318,30 +303,46 @@ export function PuzzleGridEditor({
   const activeKey = activeHintKey(slotLookup, cursor);
   const gridRatio = grid.cols / grid.rows;
 
+  // No highlight at all once focus has moved somewhere that isn't the grid
+  // or a hint input (a button, the title) -- otherwise the cursor cell
+  // would read as selected forever, regardless of what actually has focus.
   const highlights = new Map<string, 'selected' | 'slot'>();
-  if (activeKey) {
-    const activeSlot = slotLookup.get(activeKey)!;
-    for (const cell of activeSlot.cells) {
-      highlights.set(cellNumberKey(cell), 'slot');
+  if (isFocused) {
+    if (activeKey) {
+      const activeSlot = slotLookup.get(activeKey)!;
+      for (const cell of activeSlot.cells) {
+        highlights.set(cellNumberKey(cell), 'slot');
+      }
     }
+    highlights.set(cellNumberKey(cursor.current), 'selected');
   }
-  highlights.set(cellNumberKey(cursor.current), 'selected');
+
+  // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
+  // pair on the shared ancestor of the grid and the hint inputs tracks
+  // "focus is somewhere that should keep the grid looking selected."
+  // Moving focus from the grid to a hint input fires blur-then-focus here
+  // in the same tick, which React batches into one update -- isFocused
+  // never visibly flips false in between.
+  function handleEditorFocus() {
+    setIsFocused(true);
+  }
+  function handleEditorBlur() {
+    setIsFocused(false);
+  }
 
   return (
     <div data-testid="puzzle-editor" data-ready={isReady}>
       <PuzzleTitle value={title} onChange={handleTitleChange} disabled={isPublished} />
-      <div data-testid="editor-actions" className="flex flex-wrap items-center gap-3">
-        <PhaseControls
-          phase={phase}
-          emptyCellCount={countEmptyActiveCells(grid)}
-          hintsComplete={hintsComplete({ grid, hints, phase })}
-          puzzle={{ grid, hints, phase }}
-          isPublished={isPublished}
-          visibility={visibility}
-          onEnterHints={handleEnterHints}
-          onPublish={handlePublish}
-          onUnpublish={handleUnpublish}
-        />
+      <PhaseControls
+        phase={phase}
+        hintsComplete={hintsComplete({ grid, hints, phase })}
+        puzzle={{ grid, hints, phase }}
+        isPublished={isPublished}
+        visibility={visibility}
+        onPublish={handlePublish}
+        onUnpublish={handleUnpublish}
+      />
+      <div data-testid="editor-actions" className="my-6 flex flex-wrap items-center gap-3">
         {!isPublished && <ClearLettersButton onConfirm={handleClearLetters} />}
         {phase === 'grid' && (
           <PreviewToggle
@@ -356,10 +357,18 @@ export function PuzzleGridEditor({
           Geometry is locked in hints phase
         </p>
       )}
-      <div data-testid="editor-layout" className="flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div
+        data-testid="editor-layout"
+        className="flex flex-col gap-6 lg:flex-row lg:items-start"
+        onFocus={handleEditorFocus}
+        onBlur={handleEditorBlur}
+      >
         <div
+          ref={gridRegionRef}
           data-testid="grid-region"
-          className="max-w-full lg:max-w-[45%]"
+          tabIndex={0}
+          onKeyDown={handleGridKeyDown}
+          className="max-w-full outline-none lg:max-w-[45%]"
           style={{
             width: `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${gridRatio}), 640px)`,
           }}

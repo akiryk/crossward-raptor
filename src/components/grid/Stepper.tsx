@@ -47,11 +47,22 @@ export function Stepper({
     onStepClick(step.id);
   }
 
+  const revealedStep = steps.find((step) => step.id === revealedId) ?? null;
+
   return (
-    <div data-testid="stepper" className="flex flex-wrap items-center gap-4">
-      {steps.map((step) => (
-        <div key={step.id}>
+    <div>
+      {/* The row's own height and each button's own position must never
+          depend on revealed content -- otherwise revealing Publish's long
+          readiness text made that button's column widen (shifting it left
+          under justify-between) and the row grow taller (breaking the
+          three labels' shared baseline under items-center). Revealed
+          content renders as a sibling below the row instead, so it can
+          push page content further down without feeding back into the
+          row's own layout. */}
+      <div data-testid="stepper" className="my-6 flex flex-wrap items-center justify-between gap-4">
+        {steps.map((step) => (
           <button
+            key={step.id}
             type="button"
             data-testid="step"
             data-step-id={step.id}
@@ -62,26 +73,26 @@ export function Stepper({
           >
             {step.label}
           </button>
-          {revealedId === step.id && (step.reason || step.id === 'publish') && (
-            <div data-testid="step-reason" className="text-help text-ink-2">
-              {step.reason && <p>{step.reason}</p>}
-              {step.id === 'publish' && (
-                <>
-                  <ReadinessPanel findings={publishReadiness(puzzle)} />
-                  {step.status !== 'unavailable' && (
-                    <PublishControls
-                      isPublished={isPublished}
-                      visibility={visibility}
-                      onPublish={onPublish}
-                      onUnpublish={onUnpublish}
-                    />
-                  )}
-                </>
+        ))}
+      </div>
+      {revealedStep && (revealedStep.reason || revealedStep.id === 'publish') && (
+        <div data-testid="step-reason" className="text-help text-ink-2">
+          {revealedStep.reason && <p>{revealedStep.reason}</p>}
+          {revealedStep.id === 'publish' && (
+            <>
+              <ReadinessPanel findings={publishReadiness(puzzle)} />
+              {revealedStep.status !== 'unavailable' && (
+                <PublishControls
+                  isPublished={isPublished}
+                  visibility={visibility}
+                  onPublish={onPublish}
+                  onUnpublish={onUnpublish}
+                />
               )}
-            </div>
+            </>
           )}
         </div>
-      ))}
+      )}
     </div>
   );
 }

@@ -19,6 +19,11 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   'symmetric-hint': 'bg-background',
   required: 'bg-required',
   slot: 'bg-slot',
+  // Both point at the same token for now (one color for "has a letter" and
+  // "needs one for symmetry" within the active slot). Splitting them later
+  // -- e.g. keeping slot-letter white -- is a one-line change here.
+  'slot-letter': 'bg-slot-content',
+  'slot-required': 'bg-slot-content',
   selected: 'bg-selected',
 };
 
@@ -79,10 +84,11 @@ export function PuzzleGrid({
       data-testid="puzzle-grid"
       data-grid-mode={mode}
       // Hairlines use the container-background technique (D1c): painted
-      // --color-grid-line, with gap and padding both --grid-line-width so
-      // the same one-pixel division surrounds the outside too, not just
-      // between cells.
-      className="grid w-full bg-grid-line"
+      // --color-grid-line-build or --color-grid-line-play depending on
+      // mode, with gap and padding both --grid-line-width so the same
+      // one-pixel division surrounds the outside too, not just between
+      // cells.
+      className={`grid w-full ${mode === 'build' ? 'bg-grid-line-build' : 'bg-grid-line-play'}`}
       style={{
         // minmax(0, 1fr), not bare 1fr: fr tracks default to an implicit
         // min-size of their content's min-content, which lets a small

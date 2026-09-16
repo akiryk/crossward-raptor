@@ -127,6 +127,8 @@ test.describe('M5-2 clear all letters', () => {
     for (const { coord, letter } of LETTERED) {
       await expect(page.locator(`[data-coord="${coord}"]`)).not.toContainText(letter);
     }
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
+    await expect(
+      page.locator('[data-testid="step"][data-step-id="build"]')
+    ).toHaveAttribute('data-step-status', 'unavailable');
   });
 });

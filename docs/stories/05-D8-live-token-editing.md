@@ -91,7 +91,9 @@ Concrete enough to judge, specified loosely enough not to over-constrain:
   another.
 - Exactly one cell in the `selected` state.
 - An active slot through the selected cell containing **both** lettered and
-  empty cells, so `slot` styling can be judged against both.
+  empty cells, so `slot` styling can be judged against both. **Superseded
+  by a later, undocumented change**: a lettered slot cell now renders as
+  `slot-letter`, not `slot` — see `src/lib/cell-appearance.ts`.
 - At least one plain `empty` cell outside that slot.
 - At least one `symmetric-hint` cell.
 - At least one numbered cell.
@@ -139,6 +141,7 @@ black, lettered, and `required` cells.
 - It contains at least one cell in each of `empty`, `letter`, `selected`,
   `slot`, and `symmetric-hint`, and at least one `cell-number`.
 - The active slot contains both a lettered cell and an empty cell.
+  (Superseded: the lettered one is `slot-letter`, not `slot`.)
 - The preview sample contains at least one `black`, one `letter`, and one
   `required` cell.
 - Geometry still holds in both samples, measured per `LEARNINGS.md` entry

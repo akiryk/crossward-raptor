@@ -58,17 +58,18 @@ test.describe('D5b-2 stepper', () => {
     expect((await reason.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
   });
 
-  test('clicking the clues step starts the hints transition', async ({ page }) => {
+  // The enter-hints button and its confirmation were removed (visual-polish-02);
+  // "Write clues" is the one control for entering hints phase, but it's a
+  // no-op for now, pending a confirmation popup that doesn't exist yet. See
+  // docs/handoffs/06-HANDOFF-visual-polish.md.
+  test('clicking the clues step does nothing yet', async ({ page }) => {
     await open(page);
 
     await step(page, 'clues').click();
 
-    // same confirmed transition the continue button triggers
-    await expect(page.getByTestId('enter-hints-confirmation')).toBeVisible();
-    await page.getByTestId('enter-hints-confirm-button').click();
-
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
-    await expect(step(page, 'clues')).toHaveAttribute('data-step-status', 'current');
+    await expect(page.getByTestId('step-reason')).toHaveCount(0);
+    await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'current');
+    await expect(step(page, 'clues')).toHaveAttribute('data-step-status', 'available');
   });
 
   test('the build step explains itself rather than reversing the phase', async ({ page }) => {
@@ -79,27 +80,7 @@ test.describe('D5b-2 stepper', () => {
     await step(page, 'build').click();
 
     await expect(page.getByTestId('step-reason')).toBeVisible();
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
-  });
-
-  test('the continue button still exists and works in grid phase', async ({ page }) => {
-    await open(page);
-
-    const button = page.getByTestId('enter-hints-button');
-    await expect(button).toBeVisible();
-
-    await button.click();
-    await page.getByTestId('enter-hints-confirm-button').click();
-
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
-  });
-
-  test('the phase badge is unchanged', async ({ page }) => {
-    await open(page);
-    await expect(page.getByTestId('phase-badge')).toContainText('grid');
-
-    await open(page, 'hints');
-    await expect(page.getByTestId('phase-badge')).toContainText('hints');
+    await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'unavailable');
   });
 
   test('no horizontal overflow at phone width', async ({ page }) => {

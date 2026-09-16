@@ -14,10 +14,12 @@ const COLOR_TOKENS = [
   '--color-accent-hover',
   '--color-ok-tint',
   '--color-grid-empty',
-  '--color-grid-line',
+  '--color-grid-line-build',
+  '--color-grid-line-play',
   '--color-cell-fill',
   '--color-selected',
   '--color-slot',
+  '--color-slot-content',
   '--color-required',
   '--color-incomplete',
 ];
@@ -238,12 +240,25 @@ test.describe('D8-2 colour pickers', () => {
     );
   });
 
-  test('changing the grid-line token repaints the hairline', async ({ page }) => {
+  test('changing the grid-line-build token repaints the build-phase hairline', async ({
+    page,
+  }) => {
     await page.goto('/style-guide');
 
-    await setToken(page, '--color-grid-line', '#00ff00');
+    await setToken(page, '--color-grid-line-build', '#00ff00');
 
     const container = page.getByTestId('sg-grid-build').getByTestId('puzzle-grid');
+    expect(await bgOf(container)).toBe(await asRgb(page, '#00ff00'));
+  });
+
+  test('changing the grid-line-play token repaints the preview-phase hairline', async ({
+    page,
+  }) => {
+    await page.goto('/style-guide');
+
+    await setToken(page, '--color-grid-line-play', '#00ff00');
+
+    const container = page.getByTestId('sg-grid-preview').getByTestId('puzzle-grid');
     expect(await bgOf(container)).toBe(await asRgb(page, '#00ff00'));
   });
 
@@ -362,7 +377,7 @@ test.describe('D8-3 real grid samples', () => {
     const sample = page.getByTestId('sg-grid-build');
     await expect(sample.getByTestId('grid-cell')).toHaveCount(100);
 
-    for (const state of ['empty', 'letter', 'selected', 'slot', 'symmetric-hint']) {
+    for (const state of ['empty', 'letter', 'selected', 'slot', 'slot-letter', 'symmetric-hint']) {
       await expect(
         cellIn(page, 'sg-grid-build', state).first(),
         `expected a ${state} cell`
@@ -374,14 +389,18 @@ test.describe('D8-3 real grid samples', () => {
   test('the active slot spans both lettered and empty cells', async ({ page }) => {
     await page.goto('/style-guide');
 
-    // cells in the slot are styled 'slot' regardless of content, so read the
-    // underlying kind/letter to confirm the slot really crosses both
-    const slotCells = cellIn(page, 'sg-grid-build', 'slot');
-    const texts = await slotCells.allTextContents();
+    // A slot cell holding a letter is styled 'slot-letter', distinct from a
+    // plain empty 'slot' cell -- confirm the active slot really has both.
+    const letterCells = cellIn(page, 'sg-grid-build', 'slot-letter');
+    const emptyCells = cellIn(page, 'sg-grid-build', 'slot');
 
-    expect(texts.length).toBeGreaterThan(1);
-    expect(texts.some((t) => /[A-Z]/.test(t))).toBe(true);
-    expect(texts.some((t) => !/[A-Z]/.test(t))).toBe(true);
+    const letterTexts = await letterCells.allTextContents();
+    const emptyTexts = await emptyCells.allTextContents();
+
+    expect(letterTexts.length).toBeGreaterThan(0);
+    expect(letterTexts.every((t) => /[A-Z]/.test(t))).toBe(true);
+    expect(emptyTexts.length).toBeGreaterThan(0);
+    expect(emptyTexts.every((t) => !/[A-Z]/.test(t))).toBe(true);
   });
 
   test('the preview sample shows black, lettered and required cells', async ({ page }) => {

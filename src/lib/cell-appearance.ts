@@ -9,6 +9,8 @@ export type CellAppearance =
   | 'symmetric-hint'
   | 'required' // preview only
   | 'slot'
+  | 'slot-letter'
+  | 'slot-required'
   | 'selected';
 
 export type GridMode = 'build' | 'preview';
@@ -16,10 +18,15 @@ export type GridMode = 'build' | 'preview';
 /**
  * The single visual state a cell should render in.
  *
- * Build mode precedence, highest first: selected, slot, then the cell's
- * own content. Preview mode ignores selection and slot entirely -- it
- * answers "what will this look like published", and the builder's own
- * cursor state would obscure that.
+ * Build mode precedence, highest first: selected, then slot membership
+ * combined with content -- a cell in the active slot that holds a letter
+ * ('slot-letter') or is a symmetric hint ('slot-required') stays
+ * distinguishable from a slot cell with no known purpose yet ('slot'),
+ * which otherwise would be indistinguishable from it once the slot's
+ * final length isn't decided (no black cells yet on that row/column).
+ * Preview mode ignores selection and slot entirely -- it answers "what
+ * will this look like published", and the builder's own cursor state
+ * would obscure that.
  */
 export function cellAppearance(args: {
   cell: Cell;
@@ -38,7 +45,10 @@ export function cellAppearance(args: {
   }
 
   if (isSelected) return 'selected';
-  if (isInSlot) return 'slot';
+  if (isInSlot) {
+    if (cell.letter !== null) return 'slot-letter';
+    return isSymmetricHint ? 'slot-required' : 'slot';
+  }
   if (cell.letter !== null) return 'letter';
   return isSymmetricHint ? 'symmetric-hint' : 'empty';
 }

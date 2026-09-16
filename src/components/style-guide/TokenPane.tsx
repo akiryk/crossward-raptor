@@ -31,10 +31,12 @@ const COLOR_TOKENS = [
   '--color-accent-hover',
   '--color-ok-tint',
   '--color-grid-empty',
-  '--color-grid-line',
+  '--color-grid-line-build',
+  '--color-grid-line-play',
   '--color-cell-fill',
   '--color-selected',
   '--color-slot',
+  '--color-slot-content',
   '--color-required',
   '--color-incomplete',
 ];

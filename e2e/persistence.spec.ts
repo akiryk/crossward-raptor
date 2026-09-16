@@ -30,7 +30,9 @@ test.describe('P1-2 persistence', () => {
     await createViaDialog(page, title);
 
     await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
-    await expect(page.getByTestId('puzzle-phase')).toContainText('grid');
+    await expect(
+      page.locator('[data-testid="step"][data-step-id="build"]')
+    ).toHaveAttribute('data-step-status', 'current');
   });
 
   test('reloading the detail page shows the same puzzle (persisted, not in-memory)', async ({
@@ -47,7 +49,9 @@ test.describe('P1-2 persistence', () => {
 
     await expect(page).toHaveURL(url);
     await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
-    await expect(page.getByTestId('puzzle-phase')).toContainText('grid');
+    await expect(
+      page.locator('[data-testid="step"][data-step-id="build"]')
+    ).toHaveAttribute('data-step-status', 'current');
   });
 
   test('a created puzzle appears in the list', async ({ page }) => {

@@ -136,7 +136,11 @@ new code.
 - A black cell is `'black'` regardless of every other flag.
 - Selection outranks slot membership, which outranks content: a selected
   cell in a slot holding a letter is `'selected'`; an unselected cell in a
-  slot is `'slot'`.
+  slot is `'slot'`. **Superseded by a later, undocumented change**: slot
+  membership now combines with content instead of fully outranking it — a
+  slot cell with a letter is `'slot-letter'` and a slot cell that's a
+  symmetric hint is `'slot-required'`; only a slot cell with neither is
+  still plain `'slot'`. See `src/lib/cell-appearance.ts`.
 - An active cell with a letter, not selected or in a slot, is `'letter'`.
 - An empty active cell that's a symmetric hint is `'symmetric-hint'`; one
   that isn't is `'empty'`.
