@@ -1,5 +1,6 @@
 import type { Cell, Coord, Grid } from '../../engine/grid';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
+import { recommendedCells } from '../../engine/slots';
 import { buildCellNumberLookup, cellNumberKey } from '../../lib/cell-number-lookup';
 import {
   cellAppearance,
@@ -18,6 +19,7 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   letter: 'bg-background',
   'symmetric-hint': 'bg-background',
   required: 'bg-required',
+  recommended: 'bg-recommended',
   slot: 'bg-slot',
   // Both point at the same token for now (one color for "has a letter" and
   // "needs one for symmetry" within the active slot). Splitting them later
@@ -44,6 +46,7 @@ export function PuzzleGrid({
   // numbers in both modes -- preview doesn't change the effective geometry.
   const numbers = buildCellNumberLookup(convertEmptyCellsToBlack(grid));
   const hints = symmetricHintKeys(grid);
+  const recommended = new Set(recommendedCells(grid).map(cellNumberKey));
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
@@ -56,6 +59,7 @@ export function PuzzleGrid({
         isSelected: highlight === 'selected',
         isInSlot: highlight === 'slot',
         isSymmetricHint: hints.has(key),
+        isRecommended: recommended.has(key),
         mode,
       });
       cells.push(

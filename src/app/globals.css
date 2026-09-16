@@ -35,6 +35,13 @@
   --color-slot-content: #ffffe2; /* active-row/column cells that hold a letter
     or need one for symmetry, distinct from plain undecided slot space */
   --color-required: #ff251a; /* preview: unfilled symmetric counterpart */
+  /* A separate token from --color-required on purpose (Story D6) -- the
+     builder wants the option to recolor "needs a word for symmetry"
+     independently from "part of a two-letter word" later, without a code
+     change. Distinct value now too: the D6-2 acceptance test requires
+     recommended's rendered background to actually differ from
+     required's, not just be independently reconfigurable in principle. */
+  --color-recommended: #c9772e; /* preview: cell in a length-2 slot */
 
   /* --- hint status (P0 names kept) --- */
   /* --color-complete removed: identical value to --color-accent, which

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createGrid, type Coord, type Grid } from "./grid";
-import { extractSlots, type Slot } from "./slots";
+import { createGrid, withLetter, type Coord, type Grid } from "./grid";
+import { extractSlots, recommendedCells, type Slot } from "./slots";
 
 const across = (slots: readonly Slot[]): readonly Slot[] =>
   slots.filter((s) => s.orientation === "across");
@@ -36,6 +36,9 @@ const snapshot = (grid: Grid) =>
 
 const splitRow0 = () =>
   createGrid({ cols: 15, rows: 15, black: [{ col: 10, row: 0 }] });
+
+const coordKey = (c: Coord) => `${c.col},${c.row}`;
+const keySet = (coords: readonly Coord[]) => new Set(coords.map(coordKey));
 
 describe("B1 — across runs", () => {
   it("splits a row at a black cell into two maximal across slots", () => {
@@ -173,5 +176,127 @@ describe("B5 — purity and letter-independence", () => {
     const plain = splitRow0();
 
     expect(extractSlots(withLetters(plain))).toEqual(extractSlots(plain));
+  });
+});
+
+describe("B6 — recommendedCells (two-letter slots)", () => {
+  it("flags both cells of a standalone 2-letter across word", () => {
+    const grid = createGrid({
+      cols: 4,
+      rows: 5,
+      black: [{ col: 2, row: 0 }],
+    });
+    let g = withLetter(grid, { col: 0, row: 0 }, "M");
+    g = withLetter(g, { col: 1, row: 0 }, "A");
+
+    expect(keySet(recommendedCells(g))).toEqual(
+      keySet([
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+      ]),
+    );
+  });
+
+  it("flags an empty length-2 slot with no letters at all", () => {
+    const grid = createGrid({
+      cols: 5,
+      rows: 5,
+      black: [
+        { col: 2, row: 0 },
+        { col: 3, row: 0 },
+        { col: 4, row: 0 },
+        { col: 0, row: 1 },
+        { col: 1, row: 1 },
+        { col: 2, row: 1 },
+        { col: 3, row: 1 },
+        { col: 4, row: 1 },
+      ],
+    });
+
+    expect(keySet(recommendedCells(grid))).toEqual(
+      keySet([
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+      ]),
+    );
+  });
+
+  it("does not flag a 3-letter word", () => {
+    let grid = createGrid({ cols: 5, rows: 5 });
+    grid = withLetter(grid, { col: 0, row: 0 }, "M");
+    grid = withLetter(grid, { col: 1, row: 0 }, "A");
+    grid = withLetter(grid, { col: 2, row: 0 }, "N");
+
+    expect(recommendedCells(grid)).toEqual([]);
+  });
+
+  it("flags a cell via its down-slot even when its across-slot is longer than 2", () => {
+    // Row 0, cols 0-4 all active: a 5-letter across word.
+    // Col 0, row 2 is black, so col 0's down-slot is just rows 0-1: length 2.
+    const grid = createGrid({ cols: 5, rows: 5, black: [{ col: 0, row: 2 }] });
+
+    const flagged = keySet(recommendedCells(grid));
+    expect(flagged.has(coordKey({ col: 0, row: 0 }))).toBe(true);
+    expect(flagged.has(coordKey({ col: 0, row: 1 }))).toBe(true);
+    expect(flagged.has(coordKey({ col: 1, row: 0 }))).toBe(false);
+    expect(flagged.has(coordKey({ col: 4, row: 0 }))).toBe(false);
+  });
+
+  it("does not double-count a cell that is length-2 in both directions", () => {
+    const grid = createGrid({
+      cols: 5,
+      rows: 5,
+      black: Array.from({ length: 5 }, (_, row) =>
+        Array.from({ length: 5 }, (_, col) => ({ col, row })),
+      )
+        .flat()
+        .filter(
+          ({ col, row }) =>
+            !(
+              (col === 0 && row === 0) ||
+              (col === 1 && row === 0) ||
+              (col === 0 && row === 1)
+            ),
+        ),
+    });
+
+    const flagged = recommendedCells(grid);
+    expect(flagged.length).toBe(keySet(flagged).size);
+    expect(keySet(flagged)).toEqual(
+      keySet([
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 0, row: 1 },
+      ]),
+    );
+  });
+
+  it("flags empty cells created purely to satisfy rotational symmetry, when they form a length-2 slot", () => {
+    // MA at top-left; its symmetric counterpart (per symmetricCounterpart:
+    // col' = cols-1-col, row' = rows-1-row) sits at the bottom-right and
+    // stays empty. Every other cell is black, isolating both as clean
+    // length-2 across slots with nothing else contributing a slot.
+    const active = new Set(
+      [
+        { col: 0, row: 0 },
+        { col: 1, row: 0 },
+        { col: 3, row: 4 },
+        { col: 4, row: 4 },
+      ].map(coordKey),
+    );
+    const black: Coord[] = [];
+    for (let row = 0; row < 5; row += 1) {
+      for (let col = 0; col < 5; col += 1) {
+        if (!active.has(coordKey({ col, row }))) black.push({ col, row });
+      }
+    }
+
+    let g = createGrid({ cols: 5, rows: 5, black });
+    g = withLetter(g, { col: 0, row: 0 }, "M");
+    g = withLetter(g, { col: 1, row: 0 }, "A");
+
+    const flagged = keySet(recommendedCells(g));
+    expect(flagged.has(coordKey({ col: 3, row: 4 }))).toBe(true);
+    expect(flagged.has(coordKey({ col: 4, row: 4 }))).toBe(true);
   });
 });

@@ -38,6 +38,7 @@ const COLOR_TOKENS = [
   '--color-slot',
   '--color-slot-content',
   '--color-required',
+  '--color-recommended',
   '--color-incomplete',
 ];
 
