@@ -22,7 +22,12 @@ export function PuzzleTitle({
       // The negative left margin offsets px-1's padding so the text lines
       // up flush with the rest of the page instead of looking indented,
       // without removing the padding the hover/focus outline needs.
-      className="-ml-1.5 mb-6 w-full rounded-md border border-transparent bg-transparent px-1 py-0.5 font-display text-title text-foreground outline-none [font-weight:var(--weight-bold)] hover:border-rule-strong focus:border-accent focus:bg-background focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:hover:border-transparent"
+      // `block`: an <input> defaults to inline-block, and inline-block
+      // boxes never participate in margin collapsing with a sibling --
+      // that's what was making mb-6 here and the Stepper's mt-6 add up
+      // to 48px instead of collapsing to 24px like every other adjacent
+      // pair in this component already does.
+      className="-ml-1.5 mb-6 block w-full rounded-md border border-transparent bg-transparent px-1 py-0.5 font-display text-title text-foreground outline-none [font-weight:var(--weight-bold)] hover:border-rule-strong focus:border-accent focus:bg-background focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:hover:border-transparent"
     />
   );
 }
