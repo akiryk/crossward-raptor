@@ -271,13 +271,12 @@ test.describe('D6 two-letter highlighting', () => {
 });
 
 /**
- * "AS" in the top-left of a 3x3, with no black cells placed at all —
- * relying entirely on Preview's "effective grid" conversion
- * (convertEmptyCellsToBlack) to bound it, the way an in-progress
- * builder grid actually looks before any black squares have been
- * committed. Regression coverage for D6r: D6 as shipped checked the raw
- * grid only, so a trailing undecided run like this one wasn't flagged
- * even though it reads as a bounded two-letter word in Preview.
+ * "AS" in the top-left of a 3x3, with no black cells placed at all --
+ * relying entirely on the effective geometry (intendedGeometry) to bound
+ * it, the way an in-progress builder grid actually looks before any black
+ * squares have been committed. Regression coverage for D7: D6 as shipped
+ * checked the raw grid only, so a trailing undecided run like this one
+ * wasn't flagged even though it reads as a bounded two-letter word.
  */
 function undecidedTwoLetterGrid(): Grid {
   let grid = createGrid({ cols: 3, rows: 3 });
@@ -286,9 +285,26 @@ function undecidedTwoLetterGrid(): Grid {
   return grid;
 }
 
-// --- D6r: two-letter highlighting against the effective grid ---
-test.describe('D6r effective-grid two-letter highlighting', () => {
-  test('flags an undecided two-letter word once trailing cells convert to black', async ({
+/**
+ * CAT on row 0 and DOG on row 1 of a 5x5, overlapping at cols 1-2 so the
+ * two across words are both fine but the crossings make two-letter DOWN
+ * words. No black cells anywhere. This is the shape the builder actually
+ * hit in manual testing, and the one D6 missed entirely.
+ */
+function abuttingWordsGrid(): Grid {
+  let grid = createGrid({ cols: 5, rows: 5 });
+  for (const [col, letter] of [[0, 'C'], [1, 'A'], [2, 'T']] as const) {
+    grid = withLetter(grid, { col, row: 0 }, letter);
+  }
+  for (const [col, letter] of [[1, 'D'], [2, 'O'], [3, 'G']] as const) {
+    grid = withLetter(grid, { col, row: 1 }, letter);
+  }
+  return grid;
+}
+
+// --- D7: two-letter highlighting against the effective geometry ---
+test.describe('D7 effective-geometry two-letter highlighting', () => {
+  test('flags an undecided two-letter word with nothing blackened after it', async ({
     page,
   }) => {
     await openPuzzle(page, 'grid', undecidedTwoLetterGrid());
@@ -302,12 +318,42 @@ test.describe('D6r effective-grid two-letter highlighting', () => {
     }
   });
 
-  test('flags the undecided word\'s symmetric counterpart the same way', async ({ page }) => {
+  test('flags the undecided word\'s still-empty symmetric counterpart', async ({ page }) => {
     await openPuzzle(page, 'grid', undecidedTwoLetterGrid());
     await page.getByTestId('preview-toggle').click();
 
     // counterpart of (0,0)/(1,0) on a 3x3, per symmetricCounterpart
-    for (const coord of ['1,2', '2,2']) {
+    for (const coord of ['2,2', '1,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+  });
+
+  test('flags two-letter down words created by two abutting across words', async ({ page }) => {
+    await openPuzzle(page, 'grid', abuttingWordsGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    // cols 1 and 2 are two-letter down words; both across words are fine
+    for (const coord of ['1,0', '1,1', '2,0', '2,1']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+    // the lone C is a length-1 down run -- not a slot, so not flagged
+    await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute(
+      'data-cell-state',
+      'letter'
+    );
+  });
+
+  test('flags the empty mirrors of those down words too', async ({ page }) => {
+    await openPuzzle(page, 'grid', abuttingWordsGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['3,3', '3,4', '2,3', '2,4']) {
       await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
         'data-cell-state',
         'recommended'
@@ -323,6 +369,24 @@ test.describe('D6r effective-grid two-letter highlighting', () => {
       await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
         'data-cell-state',
         'recommended'
+      );
+    }
+  });
+
+  test('a three-letter word and its counterparts stay letter/required', async ({ page }) => {
+    await openPuzzle(page); // catGrid: CAT, nothing blackened
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['0,0', '1,0', '2,0']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'letter'
+      );
+    }
+    for (const coord of ['0,2', '1,2', '2,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'required'
       );
     }
   });

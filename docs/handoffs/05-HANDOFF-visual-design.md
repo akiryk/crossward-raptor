@@ -586,6 +586,48 @@ relies on intact.
 all `recommendedCells`). `npm run test:e2e`: 196/196, first attempt after
 the `--color-recommended` value fix above.
 
+**Story D6r (an attempted follow-up fix to D6) was withdrawn and must not
+be revived.** Manual testing after D6 merged found a real scope gap: D6
+checked slot length against the raw grid, so a word with nothing
+blackened after it — the normal state of a grid mid-construction — was
+never flagged, even though Preview already renders trailing undecided
+cells as black. D6r's fix passed `convertEmptyCellsToBlack(grid)` into
+`recommendedCells`, copying the pattern `buildCellNumberLookup` already
+uses for numbering. That pattern doesn't transfer: `convertEmptyCellsToBlack`
+blackens every empty active cell, which is exactly the set this feature
+needs to point at, so under D6r's contract no empty cell could ever be
+flagged — only already-lettered ones survive the conversion. This isn't
+an edge case; it's structural, and it regressed D6's own passing cases
+(confirmed by running the suite: 4 failures, all traced to this one
+cause). No code from D6r shipped; its story doc and test file were
+discarded rather than merged.
+
+**Story D7 (two-letter highlighting against the effective geometry)
+replaces D6r and is complete, merged via PR.** High blast radius (new
+`src/engine/puzzle-geometry.ts`), so it went to a branch and a PR.
+Landing it required first merging D6's own PR — D7 fixes D6's behavior,
+so a branch cut from `main` needs D6's actual implementation already
+there, not just its spec/test files (which is all `main` had; D6's
+implementation had been left on its own unmerged branch). New pure
+`intendedGeometry` (`src/engine/puzzle-geometry.ts`) avoids D6r's trap by
+keeping *both* lettered cells and their empty symmetric counterparts
+active — everything else is blackened. Only cells with no letter and no
+lettered counterpart disappear, so an empty cell the feature needs to
+flag is never a casualty of computing the boundary around it. Deliberately
+a new engine module rather than reusing `symmetricHintKeys`
+(`src/lib/cell-appearance.ts`), which computes the same counterpart
+relationship but returns render keys for a component to look up, not a
+`Grid` — `intendedGeometry` needs a `Grid` for `extractSlots` and belongs
+where it gets real unit coverage without dragging render-layer key
+formats into the engine. `PuzzleGrid.tsx`'s one-line call site now reads
+`recommendedCells(intendedGeometry(grid))`; `recommendedCells` itself,
+`extractSlots`, and `symmetricHintKeys` are all untouched, per the
+story's own scope discipline.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 268 Vitest tests — 16
+new, all `intendedGeometry` and its composition with `recommendedCells`).
+`npm run test:e2e`: 202/202, first attempt.
+
 Nothing is pending anywhere in this epic, original scope or extensions;
 completing it resumes the publishing epic's PB2–PB5
 (`04-HANDOFF-publishing.md`).
@@ -612,6 +654,12 @@ docs/stories/
   05-D6-two-letter-highlighting.md     Story D6 (two-letter-highlighting)'s
                                          specification, tracked -- a
                                          different story from the D6 above
+  05-D7-effective-geometry.md          Story D7's specification, tracked
+                                         -- replaces the withdrawn D6r
+                                         (never merged to main; its own
+                                         spec doc lives only on the
+                                         visual-polish-02 branch, not
+                                         here). See "Where things stand"
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -661,8 +709,11 @@ e2e/
                          (404) is unchanged
   preview.spec.ts        Story D4's acceptance test; Story D6
                          (two-letter-highlighting) appended a new "D6
-                         two-letter highlighting" describe block — do
-                         not edit
+                         two-letter highlighting" describe block. Story
+                         D7 appended a "D7 effective-geometry two-letter
+                         highlighting" block; D6r's own block, briefly
+                         present only on visual-polish-02, was never
+                         part of this file on main — do not edit
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -834,7 +885,10 @@ src/components/grid/
   PuzzleGrid.tsx         Story D6 (two-letter-highlighting) — computes
                           recommendedCells(grid) once per render, passes
                           isRecommended per cell; APPEARANCE_BG gains
-                          'recommended': 'bg-recommended'
+                          'recommended': 'bg-recommended'. Story D7 —
+                          the one call site changes to
+                          recommendedCells(intendedGeometry(grid));
+                          recommendedCells itself is untouched
   PuzzleGridEditor.tsx   Story D5a — grid and hints wrapped in a new
                           editor-layout div (grid-region, hints-region);
                           grid-region sizes via min(height-based term,
@@ -856,11 +910,17 @@ src/engine/
   phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
               visibility only, no behavior change, no existing test
               affected (see "Where things stand" above)
+  puzzle-geometry.ts   Story D7 — new; intendedGeometry(grid), keeping
+                        lettered cells and their empty symmetric
+                        counterparts active, everything else black
+  puzzle-geometry.test.ts   Story D7's acceptance test — do not edit
   slots.ts   Story D6 (two-letter-highlighting) — new; recommendedCells(
-              grid), a thin filter over extractSlots's existing output
+              grid), a thin filter over extractSlots's existing output.
+              Untouched by Story D7 -- only its caller's input grid
+              changed, per that story's own scope discipline
   slots.test.ts   Group B's frozen file, extended with a new B6 block
-                   (already provided by the story, do not edit) --
-                   two of B6's own fixtures were corrected during
+                   (already provided by Story D6, do not edit) -- two of
+                   B6's own fixtures were corrected during D6's
                    implementation; see "Where things stand" above
 src/lib/
   google-font.ts        Story D10 — new; parseGoogleFontUrl (exact
@@ -897,3 +957,8 @@ D10.
 Story D6 (two-letter-highlighting) since landed: **252 Vitest tests**
 (6 new), **196 Playwright tests**, both full-suite, first attempt after
 the `--color-recommended` token-value fix described above.
+
+Story D7 (effective-geometry fix, replacing the withdrawn D6r) since
+landed: **268 Vitest tests** (16 new, all `intendedGeometry` and its
+composition with `recommendedCells`), **202 Playwright tests**, both
+full-suite, first attempt.
