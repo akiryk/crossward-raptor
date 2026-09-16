@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { Step, StepId } from '../../lib/stepper';
-import type { Puzzle } from '../../engine/puzzle';
-import type { Visibility } from '../../app/puzzles/actions';
-import { publishReadiness } from '../../lib/publish-readiness';
-import { ReadinessPanel } from './ReadinessPanel';
-import { PublishControls } from './PublishControls';
+import { useState } from "react";
+import type { Step, StepId } from "../../lib/stepper";
+import type { Puzzle } from "../../engine/puzzle";
+import type { Visibility } from "../../app/puzzles/actions";
+import { publishReadiness } from "../../lib/publish-readiness";
+import { ReadinessPanel } from "./ReadinessPanel";
+import { PublishControls } from "./PublishControls";
 
-const STATUS_STYLE: Record<Step['status'], string> = {
-  complete: 'text-accent',
-  current: 'text-foreground font-semibold',
-  available: 'text-ink-2 cursor-pointer hover:text-accent',
-  unavailable: 'text-ink-3 cursor-pointer',
+const STATUS_STYLE: Record<Step["status"], string> = {
+  complete: "text-accent",
+  current: "text-foreground font-semibold",
+  available: "text-ink-2 cursor-pointer hover:text-accent",
+  unavailable: "text-ink-3 cursor-pointer",
 };
 
 export function Stepper({
@@ -39,7 +39,7 @@ export function Stepper({
     // controls) must stay reachable by click regardless of its status --
     // unlike build/clues, whose reveal only ever shows an explanatory
     // reason for being unavailable.
-    if (step.id === 'publish' || step.status === 'unavailable') {
+    if (step.id === "publish" || step.status === "unavailable") {
       setRevealedId((prev) => (prev === step.id ? null : step.id));
       return;
     }
@@ -50,7 +50,7 @@ export function Stepper({
   const revealedStep = steps.find((step) => step.id === revealedId) ?? null;
 
   return (
-    <div>
+    <>
       {/* The row's own height and each button's own position must never
           depend on revealed content -- otherwise revealing Publish's long
           readiness text made that button's column widen (shifting it left
@@ -59,7 +59,10 @@ export function Stepper({
           content renders as a sibling below the row instead, so it can
           push page content further down without feeding back into the
           row's own layout. */}
-      <div data-testid="stepper" className="my-6 flex flex-wrap items-center justify-between gap-4">
+      <div
+        data-testid="stepper"
+        className="my-4 flex flex-wrap items-center justify-between gap-4"
+      >
         {steps.map((step) => (
           <button
             key={step.id}
@@ -75,24 +78,25 @@ export function Stepper({
           </button>
         ))}
       </div>
-      {revealedStep && (revealedStep.reason || revealedStep.id === 'publish') && (
-        <div data-testid="step-reason" className="text-help text-ink-2">
-          {revealedStep.reason && <p>{revealedStep.reason}</p>}
-          {revealedStep.id === 'publish' && (
-            <>
-              <ReadinessPanel findings={publishReadiness(puzzle)} />
-              {revealedStep.status !== 'unavailable' && (
-                <PublishControls
-                  isPublished={isPublished}
-                  visibility={visibility}
-                  onPublish={onPublish}
-                  onUnpublish={onUnpublish}
-                />
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
+      {revealedStep &&
+        (revealedStep.reason || revealedStep.id === "publish") && (
+          <div data-testid="step-reason" className="text-help text-ink-2">
+            {revealedStep.reason && <p>{revealedStep.reason}</p>}
+            {revealedStep.id === "publish" && (
+              <>
+                <ReadinessPanel findings={publishReadiness(puzzle)} />
+                {revealedStep.status !== "unavailable" && (
+                  <PublishControls
+                    isPublished={isPublished}
+                    visibility={visibility}
+                    onPublish={onPublish}
+                    onUnpublish={onUnpublish}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        )}
+    </>
   );
 }
