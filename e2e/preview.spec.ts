@@ -269,3 +269,61 @@ test.describe('D6 two-letter highlighting', () => {
     }
   });
 });
+
+/**
+ * "AS" in the top-left of a 3x3, with no black cells placed at all —
+ * relying entirely on Preview's "effective grid" conversion
+ * (convertEmptyCellsToBlack) to bound it, the way an in-progress
+ * builder grid actually looks before any black squares have been
+ * committed. Regression coverage for D6r: D6 as shipped checked the raw
+ * grid only, so a trailing undecided run like this one wasn't flagged
+ * even though it reads as a bounded two-letter word in Preview.
+ */
+function undecidedTwoLetterGrid(): Grid {
+  let grid = createGrid({ cols: 3, rows: 3 });
+  grid = withLetter(grid, { col: 0, row: 0 }, 'A');
+  grid = withLetter(grid, { col: 1, row: 0 }, 'S');
+  return grid;
+}
+
+// --- D6r: two-letter highlighting against the effective grid ---
+test.describe('D6r effective-grid two-letter highlighting', () => {
+  test('flags an undecided two-letter word once trailing cells convert to black', async ({
+    page,
+  }) => {
+    await openPuzzle(page, 'grid', undecidedTwoLetterGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['0,0', '1,0']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+  });
+
+  test('flags the undecided word\'s symmetric counterpart the same way', async ({ page }) => {
+    await openPuzzle(page, 'grid', undecidedTwoLetterGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    // counterpart of (0,0)/(1,0) on a 3x3, per symmetricCounterpart
+    for (const coord of ['1,2', '2,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+  });
+
+  test('D6\'s explicitly-bounded case still passes unchanged', async ({ page }) => {
+    await openPuzzle(page, 'grid', twoLetterGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['0,0', '1,0', '1,2', '2,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+  });
+});
