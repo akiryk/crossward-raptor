@@ -35,3 +35,24 @@ function extractRuns(grid: Grid, orientation: Orientation): Slot[] {
 export function extractSlots(grid: Grid): readonly Slot[] {
   return [...extractRuns(grid, 'across'), ...extractRuns(grid, 'down')];
 }
+
+/**
+ * Every cell belonging to a length-2 slot -- a two-letter word, filled or
+ * not. A cell that is length-2 in both directions at once appears once.
+ */
+export function recommendedCells(grid: Grid): readonly Coord[] {
+  const seen = new Set<string>();
+  const cells: Coord[] = [];
+
+  for (const slot of extractSlots(grid)) {
+    if (slot.length !== 2) continue;
+    for (const cell of slot.cells) {
+      const key = `${cell.col},${cell.row}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      cells.push(cell);
+    }
+  }
+
+  return cells;
+}

@@ -537,9 +537,58 @@ and font loading) extended the style-guide work beyond
 `docs/epics/05-visual-design-epic.md`'s own suggested build order —
 informal additions, never folded into the epic doc itself, which is why
 that doc's own scope reads as fully covered without them. All three are
-complete, per their entries above. Nothing is pending anywhere in this
-epic, original scope or extensions; completing it resumes the publishing
-epic's PB2–PB5 (`04-HANDOFF-publishing.md`).
+complete, per their entries above.
+
+**Story D6 (two-letter slot highlighting) is complete, merged via PR** —
+note this is a second, unrelated story also named "D6"
+(`docs/stories/05-D6-two-letter-highlighting.md`, distinct from
+`05-D6-new-puzzle-dialog.md` above); the collision wasn't caught before
+the story was specified and is flagged here rather than silently
+resolved. High blast radius (`src/engine/slots.ts`), so it went to a
+branch and a PR rather than merging straight to `main`. New pure
+`recommendedCells` (`src/engine/slots.ts`) returns the deduplicated union
+of every cell belonging to a length-2 slot, reusing `extractSlots`
+letter-agnostically — a still-empty length-2 slot is flagged exactly like
+a filled one, since `extractSlots` determines slot boundaries from
+active/black kind alone (Group B's own tests already establish this).
+`cellAppearance` (`src/lib/cell-appearance.ts`) gains a `recommended`
+appearance and an `isRecommended` input, checked first inside the
+preview-mode branch, ahead of the lettered-cell check — a two-letter
+word's own lettered cells must still read as `recommended`, overriding
+`letter`, per the story's decision that the rule is letter-agnostic.
+`isRecommended` is optional, defaulting to `false`, rather than required
+as the story's own illustrative contract showed — making it required
+would have broken Story D3/D4's already-committed `cell-appearance.test.ts`
+calls, and the story's own Definition of Done requires every other spec
+to keep passing unmodified. `PuzzleGrid.tsx` computes
+`recommendedCells(grid)` once per render and passes `isRecommended` per
+cell, the same pattern `symmetricHintKeys` already established. New
+token `--color-recommended` is a separate `@theme` value from
+`--color-required`, not a reused one — the builder wants independent
+recolor options for "needs a word for symmetry" versus "part of a
+two-letter word," and needed a genuinely different value from the start
+since the D6-2 acceptance test requires the two to render as visibly
+different colors, not just be independently reconfigurable in principle.
+
+Two of the story's own provided `src/engine/slots.test.ts` B6 fixtures
+were corrected during implementation, authorized directly by the builder
+as spec corrections rather than implementation-driven edits: the first
+B6 test originally placed letters in a grid with no black cells at all,
+so the across run it exercised was actually length 5, not 2; patched
+once to bound the word with a black cell, then again to narrow the grid
+from 5 to 4 columns after the first patch left an unintended second
+length-2 run past the black cell. Both corrections are their own
+commits on `main`, pushed independently of the implementation, keeping
+the specification-only/implementation-only split the `/story` skill
+relies on intact.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 252 Vitest tests — 6 new,
+all `recommendedCells`). `npm run test:e2e`: 196/196, first attempt after
+the `--color-recommended` value fix above.
+
+Nothing is pending anywhere in this epic, original scope or extensions;
+completing it resumes the publishing epic's PB2–PB5
+(`04-HANDOFF-publishing.md`).
 
 ### What exists
 
@@ -560,6 +609,9 @@ docs/stories/
   05-D8-live-token-editing.md          Story D8's specification, tracked
   05-D9-type-scale.md                  Story D9's specification, tracked
   05-D10-utility-and-fonts.md          Story D10's specification, tracked
+  05-D6-two-letter-highlighting.md     Story D6 (two-letter-highlighting)'s
+                                         specification, tracked -- a
+                                         different story from the D6 above
 docs/handoffs/
   05-HANDOFF-visual-design.md       this file, tracked
 docs/
@@ -607,6 +659,10 @@ e2e/
                          dialog and assert the typed title instead of
                          "Untitled Puzzle" — authorized edit, the fourth
                          (404) is unchanged
+  preview.spec.ts        Story D4's acceptance test; Story D6
+                         (two-letter-highlighting) appended a new "D6
+                         two-letter highlighting" describe block — do
+                         not edit
 src/app/
   globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
                  ten names kept unchanged. Story D1b — removed
@@ -615,7 +671,9 @@ src/app/
                  as an uncommitted ad hoc edit before this story; see
                  "Where things stand" above). Story D9 — --text-eyebrow
                  replaced by --text-headline/-body/-help/-label and
-                 --weight-normal/-bold
+                 --weight-normal/-bold. Story D6 (two-letter-highlighting)
+                 — new --color-recommended, a separate token from
+                 --color-required with its own distinct value
   layout.tsx    Story D1 — loads Space Grotesk and Inter via
                  next/font/google, exposed as --font-space-grotesk/
                  --font-inter and referenced from --font-display/
@@ -773,6 +831,10 @@ src/components/grid/
                           derived bg-selected/40 to the new bg-slot
                           (--color-slot); see "Where things stand" above
                           for this token's actual, corrected provenance
+  PuzzleGrid.tsx         Story D6 (two-letter-highlighting) — computes
+                          recommendedCells(grid) once per render, passes
+                          isRecommended per cell; APPEARANCE_BG gains
+                          'recommended': 'bg-recommended'
   PuzzleGridEditor.tsx   Story D5a — grid and hints wrapped in a new
                           editor-layout div (grid-region, hints-region);
                           grid-region sizes via min(height-based term,
@@ -794,6 +856,12 @@ src/engine/
   phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
               visibility only, no behavior change, no existing test
               affected (see "Where things stand" above)
+  slots.ts   Story D6 (two-letter-highlighting) — new; recommendedCells(
+              grid), a thin filter over extractSlots's existing output
+  slots.test.ts   Group B's frozen file, extended with a new B6 block
+                   (already provided by the story, do not edit) --
+                   two of B6's own fixtures were corrected during
+                   implementation; see "Where things stand" above
 src/lib/
   google-font.ts        Story D10 — new; parseGoogleFontUrl (exact
                          fonts.googleapis.com hostname match, extracts
@@ -802,6 +870,10 @@ src/lib/
                         Story D4 — cellAppearance gains optional mode?
                         param ('build' default); preview mode ignores
                         selection/slot, adds the 'required' appearance
+                        Story D6 (two-letter-highlighting) — gains a
+                        'recommended' appearance and an optional
+                        isRecommended? input, checked first in preview
+                        mode, ahead of the lettered-cell check
   stepper.ts           Story D5b — new; pure stepStates(phase,
                         hintsComplete) -> readonly Step[]
   puzzle-size.ts       Story D6 — new; PuzzleSize, DEFAULT_SIZE
@@ -821,3 +893,7 @@ Story L1 (local Postgres) has since landed, resolving the
 `TEST_DATABASE_URL`-load unreliability Story D8's entry above
 described; Story D9's own infrastructure-fatigue note didn't recur for
 D10.
+
+Story D6 (two-letter-highlighting) since landed: **252 Vitest tests**
+(6 new), **196 Playwright tests**, both full-suite, first attempt after
+the `--color-recommended` token-value fix described above.
