@@ -23,6 +23,31 @@ function catGrid(): Grid {
   return grid;
 }
 
+/**
+ * MA in the top-left of a 3x3, isolated as a clean length-2 across slot;
+ * every other cell is black except its symmetric counterpart (bottom-right,
+ * per symmetricCounterpart: col' = 2-col, row' = 2-row), which is also a
+ * clean, empty length-2 across slot. Used for the two-letter highlighting
+ * tests (Story D6): both ends should render as "recommended" in preview,
+ * with or without letters.
+ */
+function twoLetterGrid(): Grid {
+  const grid = createGrid({
+    cols: 3,
+    rows: 3,
+    black: [
+      { col: 2, row: 0 },
+      { col: 0, row: 1 },
+      { col: 1, row: 1 },
+      { col: 2, row: 1 },
+      { col: 0, row: 2 },
+    ],
+  });
+  let g = withLetter(grid, { col: 0, row: 0 }, 'M');
+  g = withLetter(g, { col: 1, row: 0 }, 'A');
+  return g;
+}
+
 function bgOf(page: Page, coord: string) {
   return page
     .locator(`[data-coord="${coord}"]`)
@@ -51,8 +76,12 @@ async function measureGrid(page: Page) {
   });
 }
 
-async function openPuzzle(page: Page, phase: 'grid' | 'hints' = 'grid') {
-  const { id } = await seedPuzzle({ grid: catGrid(), hints: {}, phase });
+async function openPuzzle(
+  page: Page,
+  phase: 'grid' | 'hints' = 'grid',
+  grid: Grid = catGrid()
+) {
+  const { id } = await seedPuzzle({ grid, hints: {}, phase });
   await page.goto(`/puzzles/${id}`);
   await waitForEditorReady(page);
   return id;
@@ -184,5 +213,59 @@ test.describe('D4-2 preview', () => {
     await openPuzzle(page, 'hints');
 
     await expect(page.getByTestId('preview-toggle')).toHaveCount(0);
+  });
+});
+
+// --- D6: two-letter slot highlighting ---
+test.describe('D6 two-letter highlighting', () => {
+  test('flags a standalone 2-letter word and its empty symmetric counterpart, overriding required', async ({
+    page,
+  }) => {
+    await openPuzzle(page, 'grid', twoLetterGrid());
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['0,0', '1,0', '1,2', '2,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'recommended'
+      );
+    }
+
+    const recommended = await bgOf(page, '0,0');
+    expect(recommended).not.toBe(await bgOf(page, '1,1')); // vs black
+  });
+
+  test('recommended is visually distinct from required', async ({ page }) => {
+    await openPuzzle(page); // catGrid: has required cells at (0,2)/(1,2)/(2,2)
+    await page.getByTestId('preview-toggle').click();
+    const required = await bgOf(page, '0,2');
+
+    await openPuzzle(page, 'grid', twoLetterGrid());
+    await page.getByTestId('preview-toggle').click();
+    const recommended = await bgOf(page, '1,2');
+
+    expect(recommended).not.toBe(required);
+  });
+
+  test('does not flag a 3-letter word', async ({ page }) => {
+    await openPuzzle(page); // catGrid
+    await page.getByTestId('preview-toggle').click();
+
+    for (const coord of ['0,0', '1,0', '2,0']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveAttribute(
+        'data-cell-state',
+        'letter'
+      );
+    }
+  });
+
+  test('build mode never shows the recommended state', async ({ page }) => {
+    await openPuzzle(page, 'grid', twoLetterGrid());
+    // still in build mode -- no toggle click
+
+    for (const coord of ['0,0', '1,0', '1,2', '2,2']) {
+      const state = await page.locator(`[data-coord="${coord}"]`).getAttribute('data-cell-state');
+      expect(state).not.toBe('recommended');
+    }
   });
 });
