@@ -181,11 +181,15 @@ describe("B5 — purity and letter-independence", () => {
 
 describe("B6 — recommendedCells (two-letter slots)", () => {
   it("flags both cells of a standalone 2-letter across word", () => {
-    let grid = createGrid({ cols: 5, rows: 5 });
-    grid = withLetter(grid, { col: 0, row: 0 }, "M");
-    grid = withLetter(grid, { col: 1, row: 0 }, "A");
+    const grid = createGrid({
+      cols: 5,
+      rows: 5,
+      black: [{ col: 2, row: 0 }],
+    });
+    let g = withLetter(grid, { col: 0, row: 0 }, "M");
+    g = withLetter(g, { col: 1, row: 0 }, "A");
 
-    expect(keySet(recommendedCells(grid))).toEqual(
+    expect(keySet(recommendedCells(g))).toEqual(
       keySet([
         { col: 0, row: 0 },
         { col: 1, row: 0 },
