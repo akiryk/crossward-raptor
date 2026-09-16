@@ -182,7 +182,7 @@ describe("B5 — purity and letter-independence", () => {
 describe("B6 — recommendedCells (two-letter slots)", () => {
   it("flags both cells of a standalone 2-letter across word", () => {
     const grid = createGrid({
-      cols: 5,
+      cols: 4,
       rows: 5,
       black: [{ col: 2, row: 0 }],
     });
