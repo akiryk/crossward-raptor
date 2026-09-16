@@ -8,6 +8,7 @@ export type CellAppearance =
   | 'letter'
   | 'symmetric-hint'
   | 'required' // preview only
+  | 'recommended' // preview only
   | 'slot'
   | 'selected';
 
@@ -19,20 +20,33 @@ export type GridMode = 'build' | 'preview';
  * Build mode precedence, highest first: selected, slot, then the cell's
  * own content. Preview mode ignores selection and slot entirely -- it
  * answers "what will this look like published", and the builder's own
- * cursor state would obscure that.
+ * cursor state would obscure that. `recommended` (Story D6: a cell that's
+ * part of a two-letter slot) is checked first within preview mode, ahead
+ * of `cell.letter !== null` -- it applies whether or not the cell holds a
+ * letter, so a lettered cell in a too-short word still reads as
+ * `recommended`, not `letter`.
  */
 export function cellAppearance(args: {
   cell: Cell;
   isSelected: boolean;
   isInSlot: boolean;
   isSymmetricHint: boolean;
+  isRecommended?: boolean;
   mode?: GridMode;
 }): CellAppearance {
-  const { cell, isSelected, isInSlot, isSymmetricHint, mode = 'build' } = args;
+  const {
+    cell,
+    isSelected,
+    isInSlot,
+    isSymmetricHint,
+    isRecommended = false,
+    mode = 'build',
+  } = args;
 
   if (cell.kind === 'black') return 'black';
 
   if (mode === 'preview') {
+    if (isRecommended) return 'recommended';
     if (cell.letter !== null) return 'letter';
     return isSymmetricHint ? 'required' : 'black';
   }
