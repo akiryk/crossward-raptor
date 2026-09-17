@@ -50,6 +50,7 @@
 
   /* --- shape --- */
   --radius-btn: 999px;
+  --radius-sm: 10px; /* stepper number badges */
   --radius-md: 14px;
   --radius-lg: 18px;
   --radius-grid: 8px;

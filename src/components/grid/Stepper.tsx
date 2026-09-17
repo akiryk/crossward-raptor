@@ -8,11 +8,30 @@ import { publishReadiness } from "../../lib/publish-readiness";
 import { ReadinessPanel } from "./ReadinessPanel";
 import { PublishControls } from "./PublishControls";
 
-const STATUS_STYLE: Record<Step["status"], string> = {
-  complete: "text-accent",
-  current: "text-foreground font-semibold",
-  available: "text-ink-2 cursor-pointer hover:text-accent",
-  unavailable: "text-ink-3 cursor-pointer",
+// Numbered rail: a badge per step (filled when current, tinted when
+// complete, outlined otherwise) connected by a hairline, matching the
+// design mock's "workflow rail" rather than plain text tabs.
+const STEP_STYLE: Record<Step["status"], { badge: string; label: string; button: string }> = {
+  complete: {
+    badge: "border-accent bg-ok-tint text-accent",
+    label: "text-accent",
+    button: "",
+  },
+  current: {
+    badge: "border-accent bg-accent text-background",
+    label: "text-foreground font-semibold",
+    button: "",
+  },
+  available: {
+    badge: "border-rule-strong bg-background text-ink-3",
+    label: "text-ink-2 group-hover:text-accent",
+    button: "cursor-pointer group",
+  },
+  unavailable: {
+    badge: "border-rule-strong bg-background text-ink-3",
+    label: "text-ink-3",
+    button: "cursor-pointer",
+  },
 };
 
 export function Stepper({
@@ -61,22 +80,40 @@ export function Stepper({
           row's own layout. */}
       <div
         data-testid="stepper"
-        className="my-4 flex flex-wrap items-center justify-between gap-4"
+        className="my-4 flex flex-wrap items-center gap-3"
       >
-        {steps.map((step) => (
-          <button
-            key={step.id}
-            type="button"
-            data-testid="step"
-            data-step-id={step.id}
-            data-step-status={step.status}
-            title={step.reason}
-            onClick={() => handleClick(step)}
-            className={STATUS_STYLE[step.status]}
-          >
-            {step.label}
-          </button>
-        ))}
+        {steps.flatMap((step, index) => {
+          const style = STEP_STYLE[step.status];
+          const button = (
+            <button
+              key={step.id}
+              type="button"
+              data-testid="step"
+              data-step-id={step.id}
+              data-step-status={step.status}
+              title={step.reason}
+              onClick={() => handleClick(step)}
+              className={`flex shrink-0 items-center gap-2 ${style.button}`}
+            >
+              <span
+                className={`flex size-7.5 shrink-0 items-center justify-center rounded-sm border text-label [font-weight:var(--weight-bold)] ${style.badge}`}
+              >
+                {index + 1}
+              </span>
+              <span className={style.label}>{step.label}</span>
+            </button>
+          );
+
+          if (index === steps.length - 1) return [button];
+          return [
+            button,
+            <span
+              key={`${step.id}-connector`}
+              aria-hidden="true"
+              className="h-px min-w-4.5 flex-1 bg-rule-strong"
+            />,
+          ];
+        })}
       </div>
       {revealedStep &&
         (revealedStep.reason || revealedStep.id === "publish") && (
