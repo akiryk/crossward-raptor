@@ -27,7 +27,7 @@ export function PuzzleTitle({
       // that's what was making mb-6 here and the Stepper's mt-6 add up
       // to 48px instead of collapsing to 24px like every other adjacent
       // pair in this component already does.
-      className="-ml-1.5 mb-6 block w-full rounded-md border border-transparent bg-transparent px-1 py-0.5 font-display text-title text-foreground outline-none [font-weight:var(--weight-bold)] hover:border-rule-strong focus:border-accent focus:bg-background focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:hover:border-transparent"
+      className="-ml-2 mb-4 block w-full rounded-md border border-transparent bg-transparent px-1 py-0.5 font-display text-title text-foreground outline-none [font-weight:var(--weight-bold)] hover:border-rule-strong focus:border-accent focus:bg-background focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:hover:border-transparent"
     />
   );
 }
