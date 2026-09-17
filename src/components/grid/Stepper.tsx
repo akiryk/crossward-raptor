@@ -19,7 +19,7 @@ const STEP_STYLE: Record<Step["status"], { badge: string; label: string; button:
   },
   current: {
     badge: "border-accent bg-accent text-background",
-    label: "text-foreground font-semibold",
+    label: "text-foreground",
     button: "",
   },
   available: {
@@ -100,7 +100,7 @@ export function Stepper({
               >
                 {index + 1}
               </span>
-              <span className={style.label}>{step.label}</span>
+              <span className={`text-help font-semibold ${style.label}`}>{step.label}</span>
             </button>
           );
 
