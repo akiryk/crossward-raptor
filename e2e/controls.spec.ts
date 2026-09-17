@@ -186,7 +186,13 @@ test.describe('D2-3 inputs', () => {
 
 // --- D2-4: delete is separated ---
 test.describe('D2-4 delete separation', () => {
-  test('delete lives in a danger zone, apart from the editor controls', async ({ page }) => {
+  // Superseded (visual-polish-02): clear-letters moved from editor-actions
+  // into the danger zone, next to delete, at the builder's request -- both
+  // are maintenance/destructive actions on the puzzle's content, distinct
+  // from editor-actions' remaining ordinary control (preview).
+  test('delete and clear-letters live together in a danger zone, apart from the ordinary editor controls', async ({
+    page,
+  }) => {
     const { id } = await seedForControls();
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
@@ -194,10 +200,11 @@ test.describe('D2-4 delete separation', () => {
     const dangerZone = page.getByTestId('danger-zone');
     await expect(dangerZone).toBeVisible();
     await expect(dangerZone.getByTestId('delete-puzzle-button')).toBeVisible();
+    await expect(dangerZone.getByTestId('clear-letters-button')).toBeVisible();
 
     const editorActions = page.getByTestId('editor-actions');
     await expect(editorActions).toBeVisible();
-    await expect(editorActions.getByTestId('clear-letters-button')).toBeVisible();
+    await expect(editorActions.getByTestId('clear-letters-button')).toHaveCount(0);
     await expect(editorActions.getByTestId('delete-puzzle-button')).toHaveCount(0);
   });
 

@@ -1,33 +1,44 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
-import type { Coord, Grid } from '../../engine/grid';
-import { clearLetters } from '../../engine/grid';
-import type { CursorState } from '../../engine/cursor';
-import { arrowKey, deleteAt, moveTo, place, toggleOrientation } from '../../engine/cursor';
-import type { Phase } from '../../engine/puzzle';
-import { applyGeometryEdit } from '../../engine/phase';
-import { hintsComplete } from '../../engine/hints';
-import { deserializeGrid, serializeGrid, type SerializedGrid } from '../../lib/puzzle-storage';
-import { cellNumberKey } from '../../lib/cell-number-lookup';
-import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
-import { keyToIntent } from '../../lib/keyboard-intent';
+import { useEffect, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { Coord, Grid } from "../../engine/grid";
+import { clearLetters } from "../../engine/grid";
+import type { CursorState } from "../../engine/cursor";
+import {
+  arrowKey,
+  deleteAt,
+  moveTo,
+  place,
+  toggleOrientation,
+} from "../../engine/cursor";
+import type { Phase } from "../../engine/puzzle";
+import { applyGeometryEdit } from "../../engine/phase";
+import { hintsComplete } from "../../engine/hints";
+import {
+  deserializeGrid,
+  serializeGrid,
+  type SerializedGrid,
+} from "../../lib/puzzle-storage";
+import { cellNumberKey } from "../../lib/cell-number-lookup";
+import { buildSlotLookup, activeHintKey } from "../../lib/hint-lookup";
+import { keyToIntent } from "../../lib/keyboard-intent";
 import {
   saveGrid,
   saveHints,
   saveTitle,
   publishPuzzle,
   unpublishPuzzle,
-} from '../../app/puzzles/actions';
-import type { Visibility } from '../../app/puzzles/actions';
-import { PuzzleGrid } from './PuzzleGrid';
-import { PhaseControls } from './PhaseControls';
-import { HintsPanel } from './HintsPanel';
-import { ClearLettersButton } from './ClearLettersButton';
-import { PreviewToggle } from './PreviewToggle';
-import { PublishedLockMessage } from './PublishedLockMessage';
-import { PuzzleTitle } from '../puzzle/PuzzleTitle';
+} from "../../app/puzzles/actions";
+import type { Visibility } from "../../app/puzzles/actions";
+import { PuzzleGrid } from "./PuzzleGrid";
+import { PhaseControls } from "./PhaseControls";
+import { HintsPanel } from "./HintsPanel";
+import { ClearLettersButton } from "./ClearLettersButton";
+import { PreviewToggle } from "./PreviewToggle";
+import { PublishedLockMessage } from "./PublishedLockMessage";
+import { PuzzleTitle } from "../puzzle/PuzzleTitle";
+import { DeletePuzzleButton } from "../puzzle/DeletePuzzleButton";
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -51,12 +62,12 @@ interface EditorState {
 function firstActiveCell(grid: Grid): Coord {
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
-      if (grid.at(col, row).kind === 'active') {
+      if (grid.at(col, row).kind === "active") {
         return { col, row };
       }
     }
   }
-  throw new Error('firstActiveCell: grid has no active cells');
+  throw new Error("firstActiveCell: grid has no active cells");
 }
 
 export function PuzzleGridEditor({
@@ -80,7 +91,7 @@ export function PuzzleGridEditor({
     const grid = deserializeGrid(initialGrid);
     return {
       grid,
-      cursor: { current: firstActiveCell(grid), orientation: 'across' },
+      cursor: { current: firstActiveCell(grid), orientation: "across" },
       phase: initialPhase,
       hints: initialHints,
       title: initialTitle,
@@ -121,7 +132,7 @@ export function PuzzleGridEditor({
     gridSaveTimer.current = setTimeout(() => {
       gridSaveTimer.current = null;
       saveGrid(puzzleId, serializeGrid(state.grid)).catch((error) => {
-        console.error('Failed to save puzzle grid', error);
+        console.error("Failed to save puzzle grid", error);
       });
     }, SAVE_DEBOUNCE_MS);
     return () => {
@@ -137,7 +148,7 @@ export function PuzzleGridEditor({
     hintsSaveTimer.current = setTimeout(() => {
       hintsSaveTimer.current = null;
       saveHints(puzzleId, state.hints).catch((error) => {
-        console.error('Failed to save puzzle hints', error);
+        console.error("Failed to save puzzle hints", error);
       });
     }, SAVE_DEBOUNCE_MS);
     return () => {
@@ -153,7 +164,7 @@ export function PuzzleGridEditor({
     titleSaveTimer.current = setTimeout(() => {
       titleSaveTimer.current = null;
       saveTitle(puzzleId, state.title).catch((error) => {
-        console.error('Failed to save puzzle title', error);
+        console.error("Failed to save puzzle title", error);
       });
     }, SAVE_DEBOUNCE_MS);
     return () => {
@@ -192,29 +203,32 @@ export function PuzzleGridEditor({
       // (PB4); cursor movement and the reject-only geometry path below
       // are unaffected -- geometry is already frozen by hints phase
       // (Story E), which every published puzzle is already in (PB3).
-      if (intent.type === 'letter') {
+      if (intent.type === "letter") {
         if (prev.publishedAt !== null) return prev;
         const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
         return { ...prev, grid, cursor };
       }
-      if (intent.type === 'delete') {
+      if (intent.type === "delete") {
         if (prev.publishedAt !== null) return prev;
         const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
         return { ...prev, grid, cursor };
       }
-      if (intent.type === 'arrow') {
-        return { ...prev, cursor: arrowKey(prev.grid, prev.cursor, intent.direction) };
+      if (intent.type === "arrow") {
+        return {
+          ...prev,
+          cursor: arrowKey(prev.grid, prev.cursor, intent.direction),
+        };
       }
-      if (intent.type === 'toggleOrientation') {
+      if (intent.type === "toggleOrientation") {
         return { ...prev, cursor: toggleOrientation(prev.cursor) };
       }
 
       const coord = prev.cursor.current;
-      const isBlack = prev.grid.at(coord.col, coord.row).kind === 'black';
+      const isBlack = prev.grid.at(coord.col, coord.row).kind === "black";
       const result = applyGeometryEdit(
         { grid: prev.grid, hints: {}, phase: prev.phase },
         coord,
-        !isBlack
+        !isBlack,
       );
       return result.ok
         ? { ...prev, grid: result.puzzle.grid, geometryLocked: false }
@@ -228,7 +242,10 @@ export function PuzzleGridEditor({
     // focus had moved elsewhere (a button, the title) would update the
     // cursor but leave the grid still visually and functionally blurred.
     gridRegionRef.current?.focus();
-    setState((prev) => ({ ...prev, cursor: moveTo(prev.grid, prev.cursor, coord) }));
+    setState((prev) => ({
+      ...prev,
+      cursor: moveTo(prev.grid, prev.cursor, coord),
+    }));
   }
 
   function handleClearLetters() {
@@ -266,7 +283,7 @@ export function PuzzleGridEditor({
         setState((prev) => ({ ...prev, publishedAt, visibility }));
       })
       .catch((error) => {
-        console.error('Failed to publish puzzle', error);
+        console.error("Failed to publish puzzle", error);
       });
   }
 
@@ -280,7 +297,7 @@ export function PuzzleGridEditor({
         setState((prev) => ({ ...prev, publishedAt: null }));
       })
       .catch((error) => {
-        console.error('Failed to unpublish puzzle', error);
+        console.error("Failed to unpublish puzzle", error);
       });
   }
 
@@ -292,12 +309,24 @@ export function PuzzleGridEditor({
     setState((prev) => {
       const slot = buildSlotLookup(prev.grid).get(key);
       return slot
-        ? { ...prev, cursor: { current: slot.start, orientation: slot.orientation } }
+        ? {
+            ...prev,
+            cursor: { current: slot.start, orientation: slot.orientation },
+          }
         : prev;
     });
   }
 
-  const { grid, cursor, phase, hints, title, geometryLocked, publishedAt, visibility } = state;
+  const {
+    grid,
+    cursor,
+    phase,
+    hints,
+    title,
+    geometryLocked,
+    publishedAt,
+    visibility,
+  } = state;
   const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
@@ -306,15 +335,15 @@ export function PuzzleGridEditor({
   // No highlight at all once focus has moved somewhere that isn't the grid
   // or a hint input (a button, the title) -- otherwise the cursor cell
   // would read as selected forever, regardless of what actually has focus.
-  const highlights = new Map<string, 'selected' | 'slot'>();
+  const highlights = new Map<string, "selected" | "slot">();
   if (isFocused) {
     if (activeKey) {
       const activeSlot = slotLookup.get(activeKey)!;
       for (const cell of activeSlot.cells) {
-        highlights.set(cellNumberKey(cell), 'slot');
+        highlights.set(cellNumberKey(cell), "slot");
       }
     }
-    highlights.set(cellNumberKey(cursor.current), 'selected');
+    highlights.set(cellNumberKey(cursor.current), "selected");
   }
 
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
@@ -331,8 +360,16 @@ export function PuzzleGridEditor({
   }
 
   return (
-    <div data-testid="puzzle-editor" data-ready={isReady}>
-      <PuzzleTitle value={title} onChange={handleTitleChange} disabled={isPublished} />
+    <div
+      data-testid="puzzle-editor"
+      data-ready={isReady}
+      className="max-w-7xl m-auto"
+    >
+      <PuzzleTitle
+        value={title}
+        onChange={handleTitleChange}
+        disabled={isPublished}
+      />
       <PhaseControls
         phase={phase}
         hintsComplete={hintsComplete({ grid, hints, phase })}
@@ -342,9 +379,11 @@ export function PuzzleGridEditor({
         onPublish={handlePublish}
         onUnpublish={handleUnpublish}
       />
-      <div data-testid="editor-actions" className="my-6 flex flex-wrap items-center gap-3">
-        {!isPublished && <ClearLettersButton onConfirm={handleClearLetters} />}
-        {phase === 'grid' && (
+      <div
+        data-testid="editor-actions"
+        className="my-6 flex flex-wrap items-center gap-3"
+      >
+        {phase === "grid" && (
           <PreviewToggle
             isPreviewing={isPreviewing}
             onToggle={() => setIsPreviewing((prev) => !prev)}
@@ -353,7 +392,10 @@ export function PuzzleGridEditor({
       </div>
       {isPublished && <PublishedLockMessage />}
       {geometryLocked && (
-        <p data-testid="geometry-locked-message" className="text-help text-ink-2">
+        <p
+          data-testid="geometry-locked-message"
+          className="text-help text-ink-2"
+        >
           Geometry is locked in hints phase
         </p>
       )}
@@ -376,11 +418,11 @@ export function PuzzleGridEditor({
           <PuzzleGrid
             grid={grid}
             highlights={highlights}
-            mode={isPreviewing ? 'preview' : 'build'}
+            mode={isPreviewing ? "preview" : "build"}
             onCellClick={handleCellClick}
           />
         </div>
-        {phase === 'hints' && (
+        {phase === "hints" && (
           <div
             data-testid="hints-region"
             className="flex-1 overflow-y-auto"
@@ -396,6 +438,13 @@ export function PuzzleGridEditor({
             />
           </div>
         )}
+      </div>
+      <div
+        data-testid="danger-zone"
+        className="mt-8 flex items-center gap-3 border-t border-rule pt-4"
+      >
+        <DeletePuzzleButton puzzleId={puzzleId} />
+        {!isPublished && <ClearLettersButton onConfirm={handleClearLetters} />}
       </div>
     </div>
   );

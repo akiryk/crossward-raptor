@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { PuzzleGridEditor } from '@/components/grid/PuzzleGridEditor';
-import { DeletePuzzleButton } from '@/components/puzzle/DeletePuzzleButton';
 import { serializeGrid } from '@/lib/puzzle-storage';
 import { loadPuzzle } from '../actions';
 
@@ -27,9 +26,6 @@ export default async function PuzzleDetailPage({
         initialPublishedAt={puzzle.publishedAt}
         initialVisibility={puzzle.visibility}
       />
-      <div data-testid="danger-zone" className="mt-8 border-t border-rule pt-4">
-        <DeletePuzzleButton puzzleId={puzzle.id} />
-      </div>
     </div>
   );
 }
