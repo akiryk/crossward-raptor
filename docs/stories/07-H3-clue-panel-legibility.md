@@ -23,6 +23,8 @@ Repo paths:
   `HintsPanel`
 - `e2e/hints-panel.spec.ts` — extended (**already provided — do not
   edit; P5-2's cases unchanged, H3-2's appended**)
+- `e2e/controls.spec.ts` — extended (already provided — do not edit;
+  D2-3's border assertion widened from border-top to any edge)
 
 ## Required contract
 

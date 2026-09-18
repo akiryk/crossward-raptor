@@ -171,13 +171,25 @@ test.describe('D2-3 inputs', () => {
     await waitForEditorReady(page);
 
     const input = page.getByTestId('hint-input').first();
-    const border = await input.evaluate((el) => {
+    // Checked per-edge rather than on border-top alone: since Story H3 the
+    // hint input uses TextInput's 'underline' variant, which carries its
+    // rule on the bottom edge only. What D2 was protecting is that the
+    // affordance is visible by default rather than hover-only (see
+    // TextInput's own comment), not which edge carries it -- so this
+    // asserts at least one edge has a non-zero, non-transparent border,
+    // which still fails if the border disappears or goes invisible.
+    const edges = await input.evaluate((el) => {
       const s = getComputedStyle(el);
-      return { width: s.borderTopWidth, color: s.borderTopColor };
+      return (['top', 'right', 'bottom', 'left'] as const).map((side) => ({
+        width: s.getPropertyValue(`border-${side}-width`),
+        color: s.getPropertyValue(`border-${side}-color`),
+      }));
     });
 
-    expect(border.width).not.toBe('0px');
-    expect(TRANSPARENT).not.toContain(border.color);
+    const visible = edges.filter(
+      (edge) => edge.width !== '0px' && !TRANSPARENT.includes(edge.color)
+    );
+    expect(visible.length).toBeGreaterThan(0);
 
     const name = await input.evaluate((el) => el.getAttribute('aria-label') ?? '');
     expect(name.length).toBeGreaterThan(0);
