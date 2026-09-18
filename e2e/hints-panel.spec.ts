@@ -73,22 +73,26 @@ test.describe('P5-2 hints panel', () => {
 
     // Typing in hints phase requires EDIT GRID mode since Story H4.
     // Clicking the toggle moves DOM focus off the grid, so click a cell
-    // afterwards to give it back -- that also puts the cursor at (0,0).
+    // afterwards to give it back. It must be a cell the cursor is NOT
+    // already on: moveTo toggles orientation when you click the current
+    // cell (Story F2r), which would leave the ArrowDown below parallel
+    // rather than perpendicular. The cursor starts at (0,0), so click
+    // (1,0) -- a plain move, orientation still 'across'.
     await page.getByTestId('edit-grid-toggle').click();
-    await page.locator('[data-coord="0,0"]').click();
+    await page.locator('[data-coord="1,0"]').click();
 
-    // ArrowDown from (0,0) 'across' is perpendicular: orientation flips to
-    // 'down', cursor stays at (0,0) (Story F2r). Typing 'x' then writes
-    // there and advances to (0,1).
+    // ArrowDown from (1,0) 'across' is perpendicular: orientation flips to
+    // 'down', cursor stays at (1,0) (Story F2r). Typing 'x' then writes
+    // there and advances to (1,1).
     await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('x'); // writes at (0,0), advances to (0,1)
+    await page.keyboard.press('x'); // writes at (1,0), advances to (1,1)
 
-    await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-highlight', 'slot');
-    await expect(page.locator('[data-coord="0,1"]')).toHaveAttribute(
+    await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-highlight', 'slot');
+    await expect(page.locator('[data-coord="1,1"]')).toHaveAttribute(
       'data-highlight',
       'selected'
     );
-    await expect(page.locator('[data-coord="0,2"]')).toHaveAttribute('data-highlight', 'slot');
+    await expect(page.locator('[data-coord="1,2"]')).toHaveAttribute('data-highlight', 'slot');
   });
 
   test("clicking into a hint input moves the grid cursor to that slot's start", async ({
