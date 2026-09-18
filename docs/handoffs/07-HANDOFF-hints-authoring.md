@@ -52,6 +52,29 @@ the epic mentions is separate, not-yet-built work. No grid appearance
 changes and no `HintsPanel` changes; the hints-phase grid still renders
 exactly as it did before this story (Story H2 in the epic covers that).
 
+**Story H2 (snapshot the grid before locking it) is implemented on
+branch `story/07-H2-snapshot-pre-lock-grid`, opened as a PR pending
+independent review — not yet merged to `main`.** It's the other half of
+what H1 started: `enterHintsPhase` blackens every unfilled cell, so
+afterward a black square the builder chose is indistinguishable from one
+the conversion produced. This story adds a new nullable
+`gridBeforeHints` column (`prisma/schema.prisma`, migration
+`20260918212943_add_grid_before_hints`) and writes it, once, at the
+transition — read by nothing yet; it's insurance for a future
+"reopen the grid" affordance, not a commitment to build one.
+
+`enterHints` (`src/app/puzzles/actions.ts`) now includes
+`gridBeforeHints` in its single `prisma.puzzle.update` call, but only
+when the loaded puzzle's phase was still `'grid'` — `enterHintsPhase` is
+a no-op on a puzzle already in hints phase, so an unconditional write
+would let a second call silently overwrite the one true snapshot with
+the already-converted grid. The value written is `serializeGrid` of the
+grid exactly as loaded, before `enterHintsPhase` runs on it — no extra
+query, since `enterHints` already holds that grid in memory. Nothing in
+`src/engine/`, `loadPuzzle`, `serializePuzzle`, or `deserializePuzzle`
+changed; the snapshot is written and read as raw JSON at the Prisma
+layer only, per the story's scope discipline. No UI changes of any kind.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -59,10 +82,14 @@ docs/epics/
   07-hints-authoring-epic.md   the epic this document tracks
 docs/stories/
   07-H1-enter-hints-confirmation.md   Story H1's specification
+  07-H2-snapshot-pre-lock-grid.md     Story H2's specification
 docs/handoffs/
   07-HANDOFF-hints-authoring.md   this file
 e2e/
-  enter-hints.spec.ts   Story H1's acceptance test — do not edit
+  enter-hints.spec.ts            Story H1's acceptance test — do not edit
+  enter-hints-snapshot.spec.ts   Story H2's acceptance test — do not edit
+  helpers/read-puzzle-row.ts     Story H2 — test-only read-back of a raw
+                                   puzzle row, bypassing Server Actions
 src/components/ui/
   Modal.tsx   new — reusable open/title/confirm/cancel dialog
 src/components/grid/
@@ -71,11 +98,18 @@ src/components/grid/
   PuzzleGridEditor.tsx   dialog state; onStepClick opens it for 'clues';
                           confirming flushes pending saves, then calls the
                           existing enterHints Server Action
+prisma/
+  schema.prisma   Story H2 — new nullable Puzzle.gridBeforeHints column
+  migrations/20260918212943_add_grid_before_hints/   Story H2 — the
+    generated migration
+src/app/puzzles/
+  actions.ts   Story H2 — enterHints writes gridBeforeHints, once, only
+                on the actual grid->hints crossing
 ```
 
 ## The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 270 Vitest
-tests passing (unchanged — this story added no engine or lib logic).
-`npm run test:e2e`: 204 Playwright tests passing (9 net new, from
-`enter-hints.spec.ts`).
+tests passing (unchanged by either H1 or H2 — neither story added engine
+or lib logic). `npm run test:e2e`: 209 Playwright tests passing (9 from
+H1's `enter-hints.spec.ts`, 5 from H2's `enter-hints-snapshot.spec.ts`).

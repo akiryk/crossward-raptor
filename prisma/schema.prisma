@@ -10,6 +10,7 @@ model Puzzle {
   id          String    @id @default(cuid())
   title       String    @default("Untitled Puzzle")
   grid        Json
+  gridBeforeHints Json?
   hints       Json
   phase       String    @default("grid")
   publishedAt DateTime?
