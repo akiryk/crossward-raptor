@@ -3,22 +3,15 @@
 import type { Phase, Puzzle } from '../../engine/puzzle';
 import type { Visibility } from '../../app/puzzles/actions';
 import { Stepper } from './Stepper';
-import { stepStates } from '../../lib/stepper';
+import { stepStates, type StepId } from '../../lib/stepper';
 
-// The hints-transition button and its confirmation were removed here
-// (visual-polish-02): "Write clues" in the stepper is the one control for
-// entering hints phase now, not a second button beside it. It's a no-op
-// for the moment -- onStepClick is intentionally empty -- until the
-// confirmation popup that belongs on that click is built. The engine call
-// (enterHintsPhase) and Server Action (enterHints) this used to invoke are
-// untouched and still covered by phase.test.ts; only the UI wiring to them
-// was removed. See docs/handoffs/06-HANDOFF-visual-polish.md.
 export function PhaseControls({
   phase,
   hintsComplete,
   puzzle,
   isPublished,
   visibility,
+  onStepClick,
   onPublish,
   onUnpublish,
 }: {
@@ -27,6 +20,7 @@ export function PhaseControls({
   puzzle: Puzzle;
   isPublished: boolean;
   visibility: Visibility;
+  onStepClick: (id: StepId) => void;
   onPublish: (visibility: Visibility) => void;
   onUnpublish: () => void;
 }) {
@@ -36,7 +30,7 @@ export function PhaseControls({
       puzzle={puzzle}
       isPublished={isPublished}
       visibility={visibility}
-      onStepClick={() => {}}
+      onStepClick={onStepClick}
       onPublish={onPublish}
       onUnpublish={onUnpublish}
     />

@@ -23,12 +23,14 @@ import {
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey } from "../../lib/hint-lookup";
 import { keyToIntent } from "../../lib/keyboard-intent";
+import type { StepId } from "../../lib/stepper";
 import {
   saveGrid,
   saveHints,
   saveTitle,
   publishPuzzle,
   unpublishPuzzle,
+  enterHints,
 } from "../../app/puzzles/actions";
 import type { Visibility } from "../../app/puzzles/actions";
 import { PuzzleGrid } from "./PuzzleGrid";
@@ -37,6 +39,7 @@ import { HintsPanel } from "./HintsPanel";
 import { ClearLettersButton } from "./ClearLettersButton";
 import { PreviewToggle } from "./PreviewToggle";
 import { PublishedLockMessage } from "./PublishedLockMessage";
+import { EnterHintsDialog } from "./EnterHintsDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 import { DeletePuzzleButton } from "../puzzle/DeletePuzzleButton";
 
@@ -123,6 +126,7 @@ export function PuzzleGridEditor({
   // rather than leave it looking (and acting) selected forever.
   const [isFocused, setIsFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
+  const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isFirstGridRender.current) {
@@ -276,6 +280,33 @@ export function PuzzleGridEditor({
     ]);
   }
 
+  // Only the 'clues' step opens the dialog -- Stepper already routes
+  // unavailable steps and the publish step to its own reveal behavior, so
+  // 'build' and 'publish' should never actually reach here, but the guard
+  // doesn't assume that.
+  function handleStepClick(id: StepId) {
+    if (id === "clues") setIsEnterHintsDialogOpen(true);
+  }
+
+  function handleCancelEnterHints() {
+    setIsEnterHintsDialogOpen(false);
+  }
+
+  function handleConfirmEnterHints() {
+    setIsEnterHintsDialogOpen(false);
+    // enterHints reloads the puzzle from the database, so a letter typed
+    // within the last debounce window has to be flushed first or the
+    // conversion would read that cell as empty and blacken it.
+    flushPendingSaves()
+      .then(() => enterHints(puzzleId))
+      .then(({ phase, hints, grid }) => {
+        setState((prev) => ({ ...prev, phase, hints, grid: deserializeGrid(grid) }));
+      })
+      .catch((error) => {
+        console.error("Failed to enter hints phase", error);
+      });
+  }
+
   function handlePublish(visibility: Visibility) {
     flushPendingSaves()
       .then(() => publishPuzzle(puzzleId, visibility))
@@ -376,8 +407,14 @@ export function PuzzleGridEditor({
         puzzle={{ grid, hints, phase }}
         isPublished={isPublished}
         visibility={visibility}
+        onStepClick={handleStepClick}
         onPublish={handlePublish}
         onUnpublish={handleUnpublish}
+      />
+      <EnterHintsDialog
+        open={isEnterHintsDialogOpen}
+        onConfirm={handleConfirmEnterHints}
+        onCancel={handleCancelEnterHints}
       />
       <div
         data-testid="editor-actions"
