@@ -71,6 +71,12 @@ test.describe('P5-2 hints panel', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
+    // Typing in hints phase requires EDIT GRID mode since Story H4.
+    // Clicking the toggle moves DOM focus off the grid, so click a cell
+    // afterwards to give it back -- that also puts the cursor at (0,0).
+    await page.getByTestId('edit-grid-toggle').click();
+    await page.locator('[data-coord="0,0"]').click();
+
     // ArrowDown from (0,0) 'across' is perpendicular: orientation flips to
     // 'down', cursor stays at (0,0) (Story F2r). Typing 'x' then writes
     // there and advances to (0,1).

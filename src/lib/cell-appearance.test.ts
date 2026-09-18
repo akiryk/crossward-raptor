@@ -169,3 +169,112 @@ describe('D4-1 cellAppearance preview mode', () => {
     expect(cellAppearance(args)).toBe('symmetric-hint');
   });
 });
+
+function locked(
+  cell: Cell,
+  flags: Partial<{ isSelected: boolean; isInSlot: boolean; isSymmetricHint: boolean }> = {}
+) {
+  return cellAppearance({
+    cell,
+    isSelected: flags.isSelected ?? false,
+    isInSlot: flags.isInSlot ?? false,
+    isSymmetricHint: flags.isSymmetricHint ?? false,
+    isHintsPhase: true,
+  });
+}
+
+function editing(
+  cell: Cell,
+  flags: Partial<{ isSelected: boolean; isInSlot: boolean; isSymmetricHint: boolean }> = {}
+) {
+  return cellAppearance({
+    cell,
+    isSelected: flags.isSelected ?? false,
+    isInSlot: flags.isInSlot ?? false,
+    isSymmetricHint: flags.isSymmetricHint ?? false,
+    isHintsPhase: true,
+    isEditingGrid: true,
+  });
+}
+
+// --- H4-1: cellAppearance in hints phase ---
+describe('H4-1 cellAppearance hints phase, grid locked', () => {
+  it('a lettered cell reads as locked-letter', () => {
+    expect(locked(LETTER)).toBe('locked-letter');
+  });
+
+  it('a black cell still reads as black', () => {
+    expect(locked(BLACK)).toBe('black');
+  });
+
+  it('an empty cell reads as empty, not black', () => {
+    expect(locked(EMPTY)).toBe('empty');
+  });
+
+  it('selection is ignored', () => {
+    expect(locked(LETTER, { isSelected: true })).toBe('locked-letter');
+    expect(locked(EMPTY, { isSelected: true })).toBe('empty');
+  });
+
+  it('slot membership is ignored', () => {
+    expect(locked(LETTER, { isInSlot: true })).toBe('locked-letter');
+    expect(locked(EMPTY, { isInSlot: true })).toBe('empty');
+  });
+});
+
+describe('H4-1 cellAppearance hints phase, EDIT GRID mode', () => {
+  it('a lettered cell reads as editable-letter', () => {
+    expect(editing(LETTER)).toBe('editable-letter');
+  });
+
+  it('a black cell still reads as black', () => {
+    expect(editing(BLACK)).toBe('black');
+  });
+
+  it('selection still outranks content, as in build mode', () => {
+    expect(editing(LETTER, { isSelected: true })).toBe('selected');
+  });
+
+  it('a lettered cell inside the cursor slot is still slot-letter', () => {
+    expect(editing(LETTER, { isInSlot: true })).toBe('slot-letter');
+  });
+
+  it('an empty cell behaves as in build mode', () => {
+    expect(editing(EMPTY)).toBe('empty');
+    expect(editing(EMPTY, { isSymmetricHint: true })).toBe('symmetric-hint');
+  });
+});
+
+describe('H4-1 flag precedence', () => {
+  it('preview outranks the hints flags', () => {
+    expect(
+      cellAppearance({
+        cell: LETTER,
+        isSelected: false,
+        isInSlot: false,
+        isSymmetricHint: false,
+        isHintsPhase: true,
+        mode: 'preview',
+      })
+    ).toBe('letter');
+  });
+
+  it('isEditingGrid alone, without isHintsPhase, changes nothing', () => {
+    const args = {
+      cell: LETTER,
+      isSelected: false,
+      isInSlot: false,
+      isSymmetricHint: false,
+    };
+    expect(cellAppearance({ ...args, isEditingGrid: true })).toBe(cellAppearance(args));
+    expect(cellAppearance({ ...args, isEditingGrid: true })).toBe('letter');
+  });
+
+  it('omitting both flags behaves exactly as build mode', () => {
+    const args = { cell: EMPTY, isSelected: false, isInSlot: false, isSymmetricHint: true };
+    expect(cellAppearance(args)).toBe(
+      cellAppearance({ ...args, isHintsPhase: false, isEditingGrid: false })
+    );
+    expect(cellAppearance(args)).toBe('symmetric-hint');
+  });
+});

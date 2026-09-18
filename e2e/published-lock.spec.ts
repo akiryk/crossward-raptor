@@ -61,6 +61,10 @@ test.describe('PB4-1 a published puzzle is read-only', () => {
     await expect(page.getByTestId('puzzle-title')).toBeDisabled();
     await expect(page.getByTestId('hint-input').first()).toBeDisabled();
     await expect(page.getByTestId('clear-letters-button')).toHaveCount(0);
+    // Story H4: edit mode can't be entered at all while published, so a
+    // published puzzle's letters stay frozen behind a disabled control
+    // rather than an inert one.
+    await expect(page.getByTestId('edit-grid-toggle')).toBeDisabled();
   });
 
   test('typing a letter changes nothing', async ({ page }) => {
@@ -115,7 +119,12 @@ test.describe('PB4-2 unpublishing restores editing', () => {
     await expect(page.getByTestId('puzzle-title')).toBeEnabled();
     await expect(page.getByTestId('hint-input').first()).toBeEnabled();
     await expect(page.getByTestId('clear-letters-button')).toBeVisible();
+    await expect(page.getByTestId('edit-grid-toggle')).toBeEnabled();
 
+    // Story H4: the grid is locked in hints phase whether or not the
+    // puzzle is published, so restoring editability now means the toggle
+    // works again -- one click, then letters are typeable as before.
+    await page.getByTestId('edit-grid-toggle').click();
     await cell(page, '1,1').click();
     await page.keyboard.press('z');
     await expect(cell(page, '1,1')).toContainText('Z');
@@ -133,6 +142,9 @@ test.describe('PB4-3 an unpublished puzzle is unaffected', () => {
     await expect(page.getByTestId('hint-input').first()).toBeEnabled();
     await expect(page.getByTestId('clear-letters-button')).toBeVisible();
 
+    // Story H4: hints phase locks the grid, so typing goes through EDIT
+    // GRID mode. Nothing about being unpublished changes that.
+    await page.getByTestId('edit-grid-toggle').click();
     await cell(page, '1,1').click();
     await page.keyboard.press('z');
     await expect(cell(page, '1,1')).toContainText('Z');
