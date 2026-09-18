@@ -1,11 +1,25 @@
 'use client';
 
+export type TextInputVariant = 'box' | 'underline';
+
+// 'box' is exactly the original styling, unchanged. 'underline' drops the
+// border, radius, focus ring and horizontal padding, keeping a single
+// bottom rule that strengthens to --color-accent on hover and focus --
+// the same affordance rule (D2) as 'box', just drawn with one line
+// instead of four.
+const VARIANT_CLASS: Record<TextInputVariant, string> = {
+  box: 'rounded-md border border-rule bg-background px-3 py-2 hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent',
+  underline:
+    'border-b border-rule bg-transparent hover:border-accent focus:border-accent',
+};
+
 export function TextInput({
   value,
   onChange,
   onFocus,
   autoFocus,
   disabled,
+  variant = 'box',
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
@@ -15,6 +29,7 @@ export function TextInput({
   onFocus?: () => void;
   autoFocus?: boolean;
   disabled?: boolean;
+  variant?: TextInputVariant;
   'aria-label': string;
   placeholder?: string;
   'data-testid'?: string;
@@ -30,11 +45,7 @@ export function TextInput({
       onFocus={onFocus}
       autoFocus={autoFocus}
       disabled={disabled}
-      // The border is subtle by default (--color-rule) rather than
-      // invisible, since the affordance must always be visible, not
-      // hover-only (D2 decision) -- it strengthens to --color-accent on
-      // both hover and focus, uniformly for every use of this component.
-      className="rounded-md border border-rule bg-background px-3 py-2 text-foreground outline-none hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+      className={`text-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASS[variant]}`}
     />
   );
 }

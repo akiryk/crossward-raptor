@@ -466,6 +466,7 @@ export function PuzzleGridEditor({
             style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
           >
             <HintsPanel
+              grid={grid}
               slots={slotLookup}
               hints={hints}
               activeKey={activeKey}
