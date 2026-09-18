@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import {
   createBlankPuzzle,
   deserializePuzzle,
+  serializeGrid,
   serializePuzzle,
   type SerializedGrid,
 } from '@/lib/puzzle-storage';
@@ -137,6 +138,13 @@ export async function enterHints(
       grid: stored.grid as unknown as Prisma.InputJsonValue,
       hints: stored.hints as unknown as Prisma.InputJsonValue,
       phase: stored.phase,
+      // Only written on the actual grid->hints crossing (Story H2) -- a
+      // second call on an already-hints puzzle (enterHintsPhase is a
+      // no-op then) must not overwrite the one snapshot of the original,
+      // pre-conversion grid with the already-converted one.
+      ...(puzzle.phase === 'grid'
+        ? { gridBeforeHints: serializeGrid(puzzle.grid) as unknown as Prisma.InputJsonValue }
+        : {}),
     },
   });
 
