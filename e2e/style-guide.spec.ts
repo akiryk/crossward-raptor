@@ -22,6 +22,8 @@ const COLOR_TOKENS = [
   '--color-slot-content',
   '--color-required',
   '--color-recommended',
+  '--color-locked-letter',
+  '--color-editable-letter',
   '--color-incomplete',
 ];
 
@@ -64,9 +66,16 @@ const SECTIONS = [
   'sg-stepper',
   'sg-grid-build',
   'sg-grid-preview',
+  'sg-grid-hints',
+  'sg-grid-hints-editing',
 ];
 
-const GRID_SAMPLES = ['sg-grid-build', 'sg-grid-preview'];
+const GRID_SAMPLES = [
+  'sg-grid-build',
+  'sg-grid-preview',
+  'sg-grid-hints',
+  'sg-grid-hints-editing',
+];
 const TOLERANCE = 0.5;
 
 function tokenValue(page: Page, name: string) {
@@ -413,6 +422,53 @@ test.describe('D8-3 real grid samples', () => {
         `expected a ${state} cell`
       ).toBeVisible();
     }
+  });
+
+  // --- H5-2: the hints-phase samples ---
+  test('the hints sample shows black and locked-letter cells', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    for (const state of ['black', 'locked-letter']) {
+      await expect(
+        cellIn(page, 'sg-grid-hints', state).first(),
+        `expected a ${state} cell`
+      ).toBeVisible();
+    }
+  });
+
+  test('the hints sample shows no build-phase or editing states', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    // The grid is locked there: no cursor, and every unfilled cell was
+    // converted to black by the transition.
+    for (const state of ['empty', 'selected', 'slot', 'editable-letter']) {
+      await expect(
+        cellIn(page, 'sg-grid-hints', state),
+        `expected no ${state} cell`
+      ).toHaveCount(0);
+    }
+  });
+
+  test('the editing sample shows the EDIT GRID states together', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    for (const state of ['black', 'editable-letter', 'selected', 'slot-letter']) {
+      await expect(
+        cellIn(page, 'sg-grid-hints-editing', state).first(),
+        `expected a ${state} cell`
+      ).toBeVisible();
+    }
+  });
+
+  test('the two hints samples differ only in their lettered-cell state', async ({ page }) => {
+    await page.goto('/style-guide');
+
+    const lockedBg = await bgOf(cellIn(page, 'sg-grid-hints', 'locked-letter').first());
+    const editingBg = await bgOf(
+      cellIn(page, 'sg-grid-hints-editing', 'editable-letter').first()
+    );
+
+    expect(lockedBg).not.toBe(editingBg);
   });
 
   for (const sample of GRID_SAMPLES) {
