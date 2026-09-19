@@ -58,6 +58,44 @@ clearing the dev-server lock and Playwright's own port) that
 `npm run test:e2e` passed all 20 immediately, and the two regression
 specs are confirmed unmodified (`git diff` on both is empty).
 
+**Story L1 (the new-puzzle dialog) is complete and committed.**
+`NewPuzzleDialog` predated `Modal` entirely — a bare block with no
+backdrop or shell, unlabelled `<button>`s standing in for a size
+choice, and a name field with no visible label. It now renders through
+`Modal` (the same `fixed inset-0` wrapper-div mechanism
+`EnterHintsDialog` established, reused rather than invented twice),
+passing `<ModalActions>` as its footer. Its own Escape handler is
+gone — `Modal` already owns that, and two handlers for one key was a
+bug waiting to happen. `hasSubmittedRef`'s double-submit guard is
+untouched, still proven by `new-puzzle-resubmit.spec.ts`.
+
+`PuzzleSize` gained `'midi'` (9×9 — the size the NYT publishes between
+Mini and the weekday puzzle, odd-dimensioned so rotational symmetry
+still has a true centre cell), ordered smallest to largest everywhere
+it's listed. The size controls are now real `<input type="radio">`s
+sharing one `name`, with `data-size` kept on the input itself (not a
+wrapping label) and `data-selected` kept alongside the native checked
+state — a committed hook, cheap to preserve even though `toBeChecked()`
+is the more meaningful assertion now. The name field gained a visible
+label and a placeholder; its `aria-label` stays the accessible name, so
+nothing depends on label association.
+
+**A genuine contract error surfaced before any implementation, and was
+corrected before it caused rework.** The story's original markup
+contract asked for `NewPuzzleDialog`'s Create/Cancel buttons to carry
+both `new-puzzle-create`/`new-puzzle-cancel` *and* `modal-confirm`/
+`modal-cancel` as `data-testid` — impossible, since `data-testid` is a
+single exact-match attribute and Playwright's `getByTestId` doesn't do
+token matching, and it has to be the literal `<button>` for
+`new-puzzle-resubmit.spec.ts`'s direct `.click()` calls and
+`new-puzzle.spec.ts`'s `toBeDisabled()`/`toBeEnabled()` assertions to
+mean anything. Caught before any code was written; the builder
+corrected the contract to give `ModalActions` two more optional props,
+`confirmTestId`/`cancelTestId` (defaulting to `'modal-confirm'`/
+`'modal-cancel'`), so each button carries exactly one testid.
+`EnterHintsDialog` passes neither and is unaffected; `NewPuzzleDialog`
+passes its own pair.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -65,25 +103,38 @@ docs/epics/
   08-puzzle-library-epic.md   the epic this document tracks
 docs/stories/
   08-M1-modal-footer-slot.md   Story M1's specification
+  08-L1-new-puzzle-dialog.md   Story L1's specification (amended:
+                                 confirmTestId/cancelTestId correction)
 docs/handoffs/
   08-HANDOFF-puzzle-library.md   this file
 e2e/
-  modal.spec.ts   Story M1's acceptance test, new — do not edit
+  modal.spec.ts        Story M1's acceptance test, new — do not edit
+  new-puzzle.spec.ts   Story L1 — extended, not new: D6-3's cases
+                         unchanged except the default-selection test,
+                         plus a Midi case — do not edit
 src/components/ui/
   Modal.tsx          footer slot replaces confirm/cancel props; onClose
                       replaces onCancel; new modal-close control
-  ModalActions.tsx   new — the standard cancel/confirm button row
+  ModalActions.tsx   new — the standard cancel/confirm button row.
+                      Story L1 — confirmDisabled, confirmTestId,
+                      cancelTestId added
 src/components/grid/
   EnterHintsDialog.tsx   passes onClose and a ModalActions footer;
                           own props and copy unchanged
+src/components/puzzle/
+  NewPuzzleDialog.tsx   Story L1 — renders through Modal/ModalActions;
+                         radios instead of buttons; labelled name field;
+                         own Escape handler removed
+src/lib/
+  puzzle-size.ts        Story L1 — midi (9x9) added
+  puzzle-size.test.ts   Story L1's Vitest acceptance test, extended —
+                         do not edit
 ```
 
 ## The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 290 Vitest
-tests passing (unchanged — this story added no engine or lib logic).
-`npm run test:e2e`: 245 Playwright tests passing (6 net new, from
-`modal.spec.ts`), plus one pre-existing, unrelated flake
-(`style-guide.spec.ts`'s D8-2 "reloading restores committed values" —
-passed 3/3 in isolation immediately after; documented since
-`06-HANDOFF-visual-polish.md`).
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 292 Vitest
+tests passing (2 net new, from `puzzle-size.test.ts`'s Midi coverage).
+`npm run test:e2e`: 247 Playwright tests passing (6 from M1's
+`modal.spec.ts`, 2 from L1's additions to `new-puzzle.spec.ts`). The
+D8-2 flake noted after M1 did not recur on this run.

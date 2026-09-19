@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { DEFAULT_SIZE, type PuzzleSize } from '../../lib/puzzle-size';
-import { Button } from '../ui/Button';
+import { Modal } from '../ui/Modal';
+import { ModalActions } from '../ui/ModalActions';
 import { TextInput } from '../ui/TextInput';
 
 const SIZES: { id: PuzzleSize; label: string }[] = [
   { id: 'mini', label: 'Mini (5×5)' },
+  { id: 'midi', label: 'Midi (9×9)' },
   { id: 'daily', label: 'Daily (15×15)' },
   { id: 'sunday', label: 'Sunday (21×21)' },
 ];
@@ -28,14 +30,6 @@ export function NewPuzzleDialog({
   // synchronous mutation, not something that waits for a re-render.
   const hasSubmittedRef = useRef(false);
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onCancel();
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onCancel]);
-
   const canCreate = title.trim() !== '' && !isSubmitting;
 
   function handleCreate() {
@@ -46,34 +40,55 @@ export function NewPuzzleDialog({
   }
 
   return (
-    <div data-testid="new-puzzle-dialog" role="dialog">
-      <TextInput
-        data-testid="new-puzzle-name"
-        aria-label="Puzzle name"
-        value={title}
-        onChange={setTitle}
-        autoFocus
-      />
-      <div data-testid="new-puzzle-size">
-        {SIZES.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            data-size={id}
-            data-selected={size === id ? 'true' : 'false'}
-            onClick={() => setSize(id)}
-            className="text-label"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <Button data-testid="new-puzzle-create" disabled={!canCreate} onClick={handleCreate}>
-        Create
-      </Button>
-      <Button variant="quiet" data-testid="new-puzzle-cancel" onClick={onCancel}>
-        Cancel
-      </Button>
+    <div data-testid="new-puzzle-dialog" className="fixed inset-0 z-50">
+      <Modal
+        open
+        title="New puzzle"
+        onClose={onCancel}
+        footer={
+          <ModalActions
+            confirmLabel="Create"
+            cancelLabel="Cancel"
+            onConfirm={handleCreate}
+            onCancel={onCancel}
+            confirmDisabled={!canCreate}
+            confirmTestId="new-puzzle-create"
+            cancelTestId="new-puzzle-cancel"
+          />
+        }
+      >
+        <div className="flex flex-col gap-1">
+          <span className="text-label text-ink-2">Puzzle name</span>
+          <TextInput
+            data-testid="new-puzzle-name"
+            aria-label="Puzzle name"
+            placeholder="e.g. Monday Puzzle"
+            value={title}
+            onChange={setTitle}
+            autoFocus
+          />
+        </div>
+        <div
+          data-testid="new-puzzle-size"
+          role="radiogroup"
+          aria-label="Puzzle size"
+          className="flex flex-col gap-2"
+        >
+          {SIZES.map(({ id, label }) => (
+            <label key={id} className="flex items-center gap-2 text-label">
+              <input
+                type="radio"
+                name="new-puzzle-size"
+                data-size={id}
+                data-selected={size === id ? 'true' : 'false'}
+                checked={size === id}
+                onChange={() => setSize(id)}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 }
