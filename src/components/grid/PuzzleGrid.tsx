@@ -21,6 +21,8 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   'symmetric-hint': 'bg-background',
   required: 'bg-required',
   recommended: 'bg-recommended',
+  'locked-letter': 'bg-locked-letter',
+  'editable-letter': 'bg-editable-letter',
   slot: 'bg-slot',
   // Both point at the same token for now (one color for "has a letter" and
   // "needs one for symmetry" within the active slot). Splitting them later
@@ -34,12 +36,16 @@ export function PuzzleGrid({
   grid,
   highlights,
   mode = 'build',
+  isHintsPhase = false,
+  isEditingGrid = false,
   onCellClick,
 }: {
   grid: Grid;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   mode?: GridMode;
+  isHintsPhase?: boolean;
+  isEditingGrid?: boolean;
   onCellClick?: (coord: Coord) => void;
 }) {
   // Numbers reflect the puzzle as it will actually be, not the raw grid --
@@ -61,6 +67,8 @@ export function PuzzleGrid({
         isInSlot: highlight === 'slot',
         isSymmetricHint: hints.has(key),
         isRecommended: recommended.has(key),
+        isHintsPhase,
+        isEditingGrid,
         mode,
       });
       cells.push(
@@ -84,10 +92,17 @@ export function PuzzleGrid({
     }
   }
 
+  // Widened from plain `mode` (Story H4): the container's data-grid-mode
+  // also distinguishes the two hints-phase states, which cellAppearance
+  // sees as separate flags rather than as a third GridMode value. Preview
+  // keeps precedence over both -- see cell-appearance.ts's own comment.
+  const gridMode =
+    mode === 'preview' ? 'preview' : isHintsPhase ? (isEditingGrid ? 'hints-editing' : 'hints') : 'build';
+
   return (
     <div
       data-testid="puzzle-grid"
-      data-grid-mode={mode}
+      data-grid-mode={gridMode}
       // Hairlines use the container-background technique (D1c): painted
       // --color-grid-line-build or --color-grid-line-play depending on
       // mode, with gap and padding both --grid-line-width so the same

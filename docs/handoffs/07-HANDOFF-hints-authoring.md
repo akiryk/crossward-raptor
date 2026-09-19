@@ -108,6 +108,62 @@ authorized correction to check all four edges for at least one visible
 border, which holds for both variants. Both corrections are their own
 commit, separate from the implementation.
 
+**Story H4 (the locked grid, and the way back into it) is complete and
+committed.** Once in hints phase, the grid used to render and behave
+exactly as it did while building — same colors, clickable cells, typing
+and deleting both live — with nothing telling the builder the geometry
+was already frozen for good. `cellAppearance` gained two new flags,
+`isHintsPhase` and `isEditingGrid` (both default false, and
+`isEditingGrid` means nothing unless `isHintsPhase` is also true): a
+lettered cell reads `'locked-letter'` in hints phase normally, or
+`'editable-letter'` inside the new EDIT GRID mode; an empty cell reads
+`'empty'`, never black, so a stray one (which shouldn't occur once the
+transition has run) shows as a real problem rather than hiding as a
+black square. Selection and slot membership are ignored while locked
+(the grid isn't interactive there, so a cursor highlight would be a
+lie) but behave exactly as build mode once editing. Two new tokens,
+`--color-locked-letter` and `--color-editable-letter`, render distinctly
+from each other and from `--color-cell-fill`.
+
+`PuzzleGrid`'s `data-grid-mode` widened from `"build" | "preview"` to
+include `"hints"` and `"hints-editing"`, computed from the same flags
+(preview keeps precedence over both, per the story's own defensive
+Decision, even though no user path reaches that combination today).
+New `EditGridToggle` (`src/components/grid/EditGridToggle.tsx`) replaces
+`PreviewToggle` in `editor-actions` whenever `phase === 'hints'`,
+reading "Edit grid" or "Edit hints"; it renders `disabled` while
+published, so edit mode can't be entered at all on a published puzzle.
+`PuzzleGridEditor` owns `isEditingGrid` as unpersisted component state
+(same reasoning as preview, D4) and gates letters, Backspace, and
+cell-click cursor movement on it in `handleGridKeyDown` and
+`handleCellClick`, beside the existing `publishedAt` guards — deletion
+stays blocked even inside EDIT GRID mode, since geometry is frozen and
+every legal repair is an overtype. `HintsPanel`'s existing `disabled`
+prop now also covers `isEditingGrid`, since clue inputs and letter
+editing are mutually exclusive. Nothing in `src/engine/` changed.
+
+**Four previously-committed specs broke on contact with this story, all
+for the same underlying reason (typing in hints phase now requires EDIT
+GRID mode), and all four are documented, authorized corrections rather
+than edits made to fit the implementation.** The story doc itself named
+and supplied corrected versions of two — `e2e/hints-panel.spec.ts`
+(P5-2's typing test now enters EDIT GRID mode first) and
+`e2e/published-lock.spec.ts` (PB4-1 gains a disabled-toggle assertion;
+PB4-2 and PB4-3 enter EDIT GRID mode before typing). A third surfaced
+mid-implementation: the refocusing click the story's own
+`hints-panel.spec.ts` used (clicking cell `(0,0)`, the cursor's initial
+position) tripped `moveTo`'s pre-existing click-the-current-cell-toggles-
+orientation rule (Story F2r), silently changing what the following
+`ArrowDown` did and failing the test's own highlight assertions —
+corrected by clicking `(1,0)` instead, a cell the cursor isn't already
+on. A fourth was found only by a full-suite run and a targeted grep
+after the fact, since the story doc's "Existing specs this story
+changes" list didn't name it: `e2e/phase-controls.spec.ts`'s P4-2
+"letter editing still works normally in hints phase" asserted the
+pre-H4 contract outright — corrected the same way, entering EDIT GRID
+mode first. A grep of every spec that both seeds `phase: 'hints'` and
+presses a key confirmed no fifth instance exists.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -117,6 +173,7 @@ docs/stories/
   07-H1-enter-hints-confirmation.md   Story H1's specification
   07-H2-snapshot-pre-lock-grid.md     Story H2's specification
   07-H3-clue-panel-legibility.md      Story H3's specification
+  07-H4-locked-grid-and-edit-mode.md  Story H4's specification
 docs/handoffs/
   07-HANDOFF-hints-authoring.md   this file
 e2e/
@@ -125,10 +182,20 @@ e2e/
   helpers/read-puzzle-row.ts     Story H2 — test-only read-back of a raw
                                    puzzle row, bypassing Server Actions
   hints-panel.spec.ts   Story H3 — extended, not new: P5-2's seven cases
-                          unchanged, H3-2's seven appended — do not edit
+                          unchanged, H3-2's seven appended — do not edit.
+                          Story H4 further corrected P5-2's typing test's
+                          refocusing click (0,0 -> 1,0; see Where things
+                          stand) and added an EDIT GRID step before typing
   controls.spec.ts      Story H3 — D2-3's border assertion widened from
                           border-top alone to any edge (authorized
                           correction; see Where things stand) — do not edit
+  locked-grid.spec.ts   Story H4's acceptance test, new — do not edit
+  published-lock.spec.ts   Story H4 — PB4-1 gains a disabled-toggle
+                             assertion; PB4-2 and PB4-3 enter EDIT GRID
+                             mode before typing — do not edit
+  phase-controls.spec.ts   Story H4 — authorized correction, not named
+                             in the story doc: P4-2's letter-editing test
+                             now enters EDIT GRID mode first
 src/components/ui/
   Modal.tsx        new — reusable open/title/confirm/cancel dialog
   TextInput.tsx    Story H3 — gained optional variant ('box' default,
@@ -138,10 +205,14 @@ src/components/grid/
   PhaseControls.tsx      accepts and forwards onStepClick (was a no-op)
   HintsPanel.tsx         Story H3 — two columns (Across/Down), answers,
                           takes a grid prop
+  EditGridToggle.tsx     Story H4 — new: replaces PreviewToggle in hints phase
+  PuzzleGrid.tsx         Story H4 — forwards isHintsPhase/isEditingGrid to
+                          cellAppearance; data-grid-mode widened
   PuzzleGridEditor.tsx   dialog state; onStepClick opens it for 'clues';
                           confirming flushes pending saves, then calls the
                           existing enterHints Server Action; passes grid
-                          to HintsPanel (Story H3)
+                          to HintsPanel (Story H3); isEditingGrid state,
+                          input guards, renders EditGridToggle (Story H4)
 prisma/
   schema.prisma   Story H2 — new nullable Puzzle.gridBeforeHints column
   migrations/20260918212943_add_grid_before_hints/   Story H2 — the
@@ -150,14 +221,24 @@ src/app/puzzles/
   actions.ts   Story H2 — enterHints writes gridBeforeHints, once, only
                 on the actual grid->hints crossing
 src/lib/
-  slot-answer.ts        Story H3 — new: slotAnswer
-  slot-answer.test.ts   Story H3's Vitest acceptance test — do not edit
+  slot-answer.ts         Story H3 — new: slotAnswer
+  slot-answer.test.ts    Story H3's Vitest acceptance test — do not edit
+  cell-appearance.ts       Story H4 — locked-letter/editable-letter, two
+                            new flags
+  cell-appearance.test.ts  Story H4 — extended, not new: D3's and D4's
+                            cases unchanged, H4's appended — do not edit
+src/app/
+  globals.css   Story H4 — --color-locked-letter, --color-editable-letter
 ```
 
 ## The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 277 Vitest
-tests passing (7 net new, from `slot-answer.test.ts` — H1 and H2 added
-none). `npm run test:e2e`: 216 Playwright tests passing (9 from H1's
-`enter-hints.spec.ts`, 5 from H2's `enter-hints-snapshot.spec.ts`, 7 from
-H3-2's additions to `hints-panel.spec.ts`).
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 290 Vitest
+tests passing (13 net new, from H4-1's additions to
+`cell-appearance.test.ts` — H1, H2 and H3's own additions already
+counted above). `npm run test:e2e`: 228 Playwright tests passing (9 from
+H1's `enter-hints.spec.ts`, 5 from H2's `enter-hints-snapshot.spec.ts`, 7
+from H3-2's additions to `hints-panel.spec.ts`, 12 from H4's
+`locked-grid.spec.ts` — H4's other three corrected files added
+assertions to existing tests rather than new tests, so contribute no
+additional count).

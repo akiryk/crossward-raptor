@@ -38,6 +38,7 @@ import { PhaseControls } from "./PhaseControls";
 import { HintsPanel } from "./HintsPanel";
 import { ClearLettersButton } from "./ClearLettersButton";
 import { PreviewToggle } from "./PreviewToggle";
+import { EditGridToggle } from "./EditGridToggle";
 import { PublishedLockMessage } from "./PublishedLockMessage";
 import { EnterHintsDialog } from "./EnterHintsDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
@@ -118,6 +119,9 @@ export function PuzzleGridEditor({
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
   const [isPreviewing, setIsPreviewing] = useState(false);
+  // Same reasoning as preview (D4): a way of looking at the puzzle, not a
+  // property of it. Not persisted -- a reload returns to the locked grid.
+  const [isEditingGrid, setIsEditingGrid] = useState(false);
   // Whether the grid (or something that logically belongs to it, like a
   // hint input -- see the onFocus/onBlur on editor-layout below) currently
   // holds keyboard focus. Drives both whether the cursor/slot highlight
@@ -209,11 +213,18 @@ export function PuzzleGridEditor({
       // (Story E), which every published puzzle is already in (PB3).
       if (intent.type === "letter") {
         if (prev.publishedAt !== null) return prev;
+        // Hints phase locks letters too, except inside EDIT GRID mode
+        // (Story H4) -- geometry stays frozen either way.
+        if (prev.phase === "hints" && !isEditingGrid) return prev;
         const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
         return { ...prev, grid, cursor };
       }
       if (intent.type === "delete") {
         if (prev.publishedAt !== null) return prev;
+        // Deletion stays blocked even in EDIT GRID mode (Story H4): every
+        // legal repair is an overtype once geometry is frozen, so a
+        // cleared cell could only ever leave a hole.
+        if (prev.phase === "hints") return prev;
         const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
         return { ...prev, grid, cursor };
       }
@@ -246,6 +257,11 @@ export function PuzzleGridEditor({
     // focus had moved elsewhere (a button, the title) would update the
     // cursor but leave the grid still visually and functionally blurred.
     gridRegionRef.current?.focus();
+    // Clicking does not move the cursor while the grid is locked (Story
+    // H4) -- otherwise the clicked cell would read as selected via
+    // PuzzleGridEditor's own highlights map, independently of
+    // cellAppearance's own hints-phase-locked branch ignoring selection.
+    if (state.phase === "hints" && !isEditingGrid) return;
     setState((prev) => ({
       ...prev,
       cursor: moveTo(prev.grid, prev.cursor, coord),
@@ -300,7 +316,12 @@ export function PuzzleGridEditor({
     flushPendingSaves()
       .then(() => enterHints(puzzleId))
       .then(({ phase, hints, grid }) => {
-        setState((prev) => ({ ...prev, phase, hints, grid: deserializeGrid(grid) }));
+        setState((prev) => ({
+          ...prev,
+          phase,
+          hints,
+          grid: deserializeGrid(grid),
+        }));
       })
       .catch((error) => {
         console.error("Failed to enter hints phase", error);
@@ -316,6 +337,10 @@ export function PuzzleGridEditor({
       .catch((error) => {
         console.error("Failed to publish puzzle", error);
       });
+  }
+
+  function handleEditGridToggle() {
+    setIsEditingGrid((prev) => !prev);
   }
 
   function handleTitleChange(title: string) {
@@ -391,11 +416,7 @@ export function PuzzleGridEditor({
   }
 
   return (
-    <div
-      data-testid="puzzle-editor"
-      data-ready={isReady}
-      className="max-w-7xl m-auto"
-    >
+    <div data-testid="puzzle-editor" data-ready={isReady} className=" m-auto">
       <PuzzleTitle
         value={title}
         onChange={handleTitleChange}
@@ -424,6 +445,13 @@ export function PuzzleGridEditor({
           <PreviewToggle
             isPreviewing={isPreviewing}
             onToggle={() => setIsPreviewing((prev) => !prev)}
+          />
+        )}
+        {phase === "hints" && (
+          <EditGridToggle
+            isEditingGrid={isEditingGrid}
+            disabled={isPublished}
+            onToggle={handleEditGridToggle}
           />
         )}
       </div>
@@ -456,6 +484,8 @@ export function PuzzleGridEditor({
             grid={grid}
             highlights={highlights}
             mode={isPreviewing ? "preview" : "build"}
+            isHintsPhase={phase === "hints"}
+            isEditingGrid={isEditingGrid}
             onCellClick={handleCellClick}
           />
         </div>
@@ -470,7 +500,7 @@ export function PuzzleGridEditor({
               slots={slotLookup}
               hints={hints}
               activeKey={activeKey}
-              disabled={isPublished}
+              disabled={isPublished || isEditingGrid}
               onHintChange={handleHintChange}
               onHintFocus={handleHintFocus}
             />

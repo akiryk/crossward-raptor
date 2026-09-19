@@ -42,6 +42,8 @@
      recommended's rendered background to actually differ from
      required's, not just be independently reconfigurable in principle. */
   --color-recommended: #c9772e; /* preview: cell in a length-2 slot */
+  --color-locked-letter: #e7e9ee; /* hints phase, grid locked (Story H4) */
+  --color-editable-letter: #fff1c2; /* hints phase, EDIT GRID mode (Story H4) */
 
   /* --- hint status (P0 names kept) --- */
   /* --color-complete removed: identical value to --color-accent, which
