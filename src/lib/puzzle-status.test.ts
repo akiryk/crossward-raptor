@@ -24,19 +24,23 @@ describe('PB5-1 unpublished puzzles', () => {
     expect(status({ phase: 'grid' }).kind).toBe('grid');
   });
 
+  it('grid phase says the grid is being built', () => {
+    expect(status({ phase: 'grid' }).label).toBe('Building grid');
+  });
+
   it('hints phase with incomplete hints reads as hints, and says so', () => {
     const result = status({ phase: 'hints', hintsComplete: false });
 
     expect(result.kind).toBe('hints');
-    expect(result.label).toMatch(/incomplete/i);
+    expect(result.label).toBe('Writing clues');
   });
 
   it('hints phase with complete hints reads as hints, and says so', () => {
     const result = status({ phase: 'hints', hintsComplete: true });
 
     expect(result.kind).toBe('hints');
-    expect(result.label).toMatch(/complete/i);
-    expect(result.label).not.toMatch(/incomplete/i);
+    expect(result.label).toBe('Clues done');
+    expect(result.label).not.toBe(status({ phase: 'hints', hintsComplete: false }).label);
   });
 });
 
@@ -74,7 +78,18 @@ describe('PB5-1 published puzzles', () => {
     });
 
     expect(result.kind).toBe('published');
-    expect(result.label).not.toMatch(/incomplete/i);
+    expect(result.label).toBe('Published · Private');
+  });
+
+  it('a public puzzle names its visibility the same way', () => {
+    const result = status({
+      phase: 'hints',
+      hintsComplete: true,
+      publishedAt: PUBLISHED_AT,
+      visibility: 'public',
+    });
+
+    expect(result.label).toBe('Published · Public');
   });
 });
 
@@ -85,6 +100,20 @@ describe('PB5-1 general properties', () => {
     { phase: 'hints' as const, hintsComplete: true, publishedAt: null },
     { phase: 'hints' as const, hintsComplete: true, publishedAt: PUBLISHED_AT },
   ];
+
+  it('no label uses the internal word "hints"', () => {
+    // "Hints" is what the phase is called in code; it is not what a
+    // builder would say. Story L2a draws the line at the boundary --
+    // internal names stay, user-facing words change.
+    for (const input of INPUTS) {
+      for (const visibility of ['private', 'public'] as Visibility[]) {
+        const { label } = puzzleStatus({ ...input, visibility });
+        expect(label.toLowerCase(), JSON.stringify({ ...input, visibility })).not.toContain(
+          'hint'
+        );
+      }
+    }
+  });
 
   it('every label is non-empty', () => {
     for (const input of INPUTS) {

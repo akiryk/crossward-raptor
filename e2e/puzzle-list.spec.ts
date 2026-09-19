@@ -34,7 +34,7 @@ test.describe('M3-2 list metadata', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-phase', 'grid');
-    await expect(item).toContainText('Grid');
+    await expect(item).toContainText('Building grid');
     await expect(item).not.toContainText('Hints');
   });
 
@@ -50,7 +50,8 @@ test.describe('M3-2 list metadata', () => {
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-phase', 'hints');
     await expect(item).toHaveAttribute('data-hints-complete', 'true');
-    await expect(item).toContainText('complete');
+    await expect(item).toContainText('Clues done');
+    await expect(item).not.toContainText('Hints');
   });
 
   test('a hints-phase puzzle with a blank hint reads as incomplete', async ({ page }) => {
@@ -65,7 +66,8 @@ test.describe('M3-2 list metadata', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-hints-complete', 'false');
-    await expect(item).toContainText('incomplete');
+    await expect(item).toContainText('Writing clues');
+    await expect(item).not.toContainText('Hints');
   });
 
   test('every row carries a non-empty updated-at timestamp', async ({ page }) => {
