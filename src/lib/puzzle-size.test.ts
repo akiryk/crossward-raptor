@@ -5,20 +5,43 @@ import { createBlankPuzzle } from './puzzle-storage';
 
 const EXPECTED: Record<PuzzleSize, { cols: number; rows: number }> = {
   mini: { cols: 5, rows: 5 },
+  midi: { cols: 9, rows: 9 },
   daily: { cols: 15, rows: 15 },
   sunday: { cols: 21, rows: 21 },
 };
+
+// Driven off EXPECTED's keys rather than a literal list: EXPECTED is a
+// Record<PuzzleSize, ...>, so a new size is a compile error there and is
+// then picked up by every loop below automatically. A literal
+// `['mini', ...] as PuzzleSize[]` would keep passing while silently never
+// exercising the new size.
+const ALL_SIZES = Object.keys(EXPECTED) as PuzzleSize[];
 
 // --- D6-1: puzzle-size ---
 describe('D6-1 puzzle-size', () => {
   it('maps each size to its dimensions', () => {
     expect(dimensionsFor('mini')).toEqual(EXPECTED.mini);
+    expect(dimensionsFor('midi')).toEqual(EXPECTED.midi);
     expect(dimensionsFor('daily')).toEqual(EXPECTED.daily);
     expect(dimensionsFor('sunday')).toEqual(EXPECTED.sunday);
   });
 
+  it('maps every size, with no gaps', () => {
+    for (const size of ALL_SIZES) {
+      expect(dimensionsFor(size), size).toEqual(EXPECTED[size]);
+    }
+  });
+
   it('defaults to daily', () => {
     expect(DEFAULT_SIZE).toBe('daily');
+  });
+
+  it('every size is square and odd, so rotational symmetry has a centre cell', () => {
+    for (const size of ALL_SIZES) {
+      const { cols, rows } = dimensionsFor(size);
+      expect(cols, size).toBe(rows);
+      expect(cols % 2, size).toBe(1);
+    }
   });
 
   it('purity: two calls return equal results', () => {
@@ -38,7 +61,7 @@ describe('D6-2 createBlankPuzzle', () => {
   });
 
   it('builds a grid of the requested size', () => {
-    for (const size of ['mini', 'daily', 'sunday'] as PuzzleSize[]) {
+    for (const size of ALL_SIZES) {
       const puzzle = createBlankPuzzle(size);
       expect(puzzle.grid.cols, size).toBe(EXPECTED[size].cols);
       expect(puzzle.grid.rows, size).toBe(EXPECTED[size].rows);
@@ -46,7 +69,7 @@ describe('D6-2 createBlankPuzzle', () => {
   });
 
   it('every cell is active and empty, at every size', () => {
-    for (const size of ['mini', 'daily', 'sunday'] as PuzzleSize[]) {
+    for (const size of ALL_SIZES) {
       const { grid } = createBlankPuzzle(size);
       for (let row = 0; row < grid.rows; row++) {
         for (let col = 0; col < grid.cols; col++) {
@@ -60,7 +83,7 @@ describe('D6-2 createBlankPuzzle', () => {
   });
 
   it('hints and phase are the same regardless of size', () => {
-    for (const size of ['mini', 'daily', 'sunday'] as PuzzleSize[]) {
+    for (const size of ALL_SIZES) {
       const puzzle = createBlankPuzzle(size);
       expect(puzzle.hints).toEqual({});
       expect(puzzle.phase).toBe('grid');

@@ -51,9 +51,25 @@ test.describe('D6-3 new-puzzle dialog', () => {
   test('daily is selected by default', async ({ page }) => {
     await openDialog(page);
 
+    // Asserted twice on purpose: toBeChecked is the real semantics now
+    // that these are radios (Story L1), and data-selected is the hook the
+    // original D6-3 test used, kept so it keeps meaning what it meant.
+    await expect(sizeOption(page, 'daily')).toBeChecked();
     await expect(sizeOption(page, 'daily')).toHaveAttribute('data-selected', 'true');
-    await expect(sizeOption(page, 'mini')).toHaveAttribute('data-selected', 'false');
-    await expect(sizeOption(page, 'sunday')).toHaveAttribute('data-selected', 'false');
+
+    for (const size of ['mini', 'midi', 'sunday']) {
+      await expect(sizeOption(page, size), size).not.toBeChecked();
+      await expect(sizeOption(page, size), size).toHaveAttribute('data-selected', 'false');
+    }
+  });
+
+  test('choosing a size checks it and unchecks the previous one', async ({ page }) => {
+    await openDialog(page);
+
+    await sizeOption(page, 'midi').click();
+
+    await expect(sizeOption(page, 'midi')).toBeChecked();
+    await expect(sizeOption(page, 'daily')).not.toBeChecked();
   });
 
   test('create is disabled until a name is typed', async ({ page }) => {
@@ -105,6 +121,14 @@ test.describe('D6-3 new-puzzle dialog', () => {
 
     await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
     await expect(page.getByTestId('grid-cell')).toHaveCount(225);
+  });
+
+  test('creating a midi puzzle yields a 9x9', async ({ page }) => {
+    const title = uniqueTitle('midi');
+    await createPuzzle(page, title, 'midi');
+
+    await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
+    await expect(page.getByTestId('grid-cell')).toHaveCount(81);
   });
 
   test('creating a sunday puzzle yields a 21x21', async ({ page }) => {
