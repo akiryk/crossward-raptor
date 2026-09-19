@@ -1,6 +1,7 @@
 'use client';
 
 import { Modal } from '../ui/Modal';
+import { ModalActions } from '../ui/ModalActions';
 
 export function EnterHintsDialog({
   open,
@@ -18,10 +19,15 @@ export function EnterHintsDialog({
           <Modal
             open={open}
             title="Ready to write clues?"
-            confirmLabel="Write clues"
-            cancelLabel="Keep building"
-            onConfirm={onConfirm}
-            onCancel={onCancel}
+            onClose={onCancel}
+            footer={
+              <ModalActions
+                confirmLabel="Write clues"
+                cancelLabel="Keep building"
+                onConfirm={onConfirm}
+                onCancel={onCancel}
+              />
+            }
           >
             <p>
               Writing clues locks your grid. Every empty square becomes a

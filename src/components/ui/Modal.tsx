@@ -2,33 +2,28 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { Button } from './Button';
 
 export function Modal({
   open,
   title,
-  confirmLabel,
-  cancelLabel,
-  onConfirm,
-  onCancel,
+  onClose,
+  footer,
   children,
 }: {
   open: boolean;
   title: string;
-  confirmLabel: string;
-  cancelLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
+  onClose: () => void;
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   useEffect(() => {
     if (!open) return;
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onCancel();
+      if (event.key === 'Escape') onClose();
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onCancel]);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -36,11 +31,20 @@ export function Modal({
     <div data-testid="modal" role="dialog" className="fixed inset-0 z-50">
       <div
         data-testid="modal-backdrop"
-        onClick={onCancel}
+        onClick={onClose}
         className="absolute inset-0 bg-foreground/50"
       />
       <div className="pointer-events-none relative flex h-full items-center justify-center p-4">
-        <div className="pointer-events-auto max-w-md rounded-md border border-rule-strong bg-background p-6">
+        <div className="pointer-events-auto relative max-w-md rounded-md border border-rule-strong bg-background p-6">
+          <button
+            type="button"
+            data-testid="modal-close"
+            aria-label="Close"
+            onClick={onClose}
+            className="absolute top-3 right-3 cursor-pointer text-ink-2 hover:text-foreground"
+          >
+            ✕
+          </button>
           <h2
             data-testid="modal-title"
             className="font-display text-headline [font-weight:var(--weight-bold)]"
@@ -48,14 +52,7 @@ export function Modal({
             {title}
           </h2>
           <div className="text-body text-ink-2 mt-3 space-y-3">{children}</div>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="quiet" data-testid="modal-cancel" onClick={onCancel}>
-              {cancelLabel}
-            </Button>
-            <Button data-testid="modal-confirm" onClick={onConfirm}>
-              {confirmLabel}
-            </Button>
-          </div>
+          {footer}
         </div>
       </div>
     </div>
