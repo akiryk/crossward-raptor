@@ -10,7 +10,7 @@ export type TextInputVariant = 'box' | 'underline';
 const VARIANT_CLASS: Record<TextInputVariant, string> = {
   box: 'rounded-md border border-rule bg-background px-3 py-2 hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent',
   underline:
-    'border-b border-rule bg-transparent hover:border-accent focus:border-accent',
+    'w-full border-b border-rule bg-transparent hover:border-accent focus:border-accent',
 };
 
 export function TextInput({

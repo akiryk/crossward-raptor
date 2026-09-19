@@ -164,6 +164,43 @@ pre-H4 contract outright — corrected the same way, entering EDIT GRID
 mode first. A grep of every spec that both seeds `phase: 'hints'` and
 presses a key confirmed no fifth instance exists.
 
+**Story H5 (clue row layout, and the hints-phase style guide sample) is
+complete and committed.** Two independent pieces of tidying left over
+from H3 and H4. Part A: the clue input used to render as a bare
+`<input>` at the browser's default intrinsic width, with the answer
+inline in the same flex row, so each row's input started at a different
+x depending on how long its own answer was. `HintsPanel` now measures
+the longest answer and the most digits in any slot number (via
+`slotAnswer`, already available) once, and gives the number and answer
+spans fixed `ch`-based widths — shared across both columns, not
+per-column, so the two halves stay visually symmetrical even though
+Across and Down usually have different longest answers. `TextInput`'s
+`'underline'` variant gained a `w-full` rule, and `HintsPanel` wraps it
+in a `flex-1 min-w-0` child so it claims exactly the remaining space (a
+flex item won't shrink below its content's intrinsic width without
+`min-w-0`, which was the specific reason the input was stuck at its
+default size before).
+
+Part B: `TokenPane`'s `COLOR_TOKENS` gained the two tokens H4 added to
+`globals.css` but never registered (`--color-locked-letter`,
+`--color-editable-letter`), and `GridExamples` gained two more sections
+following the existing one-per-state pattern —
+`sg-grid-hints` (`isHintsPhase`, no highlights) and
+`sg-grid-hints-editing` (`isHintsPhase` and `isEditingGrid`, with
+highlights). Both render the existing 10x10 fixture passed through
+`convertEmptyCellsToBlack`, since a real hints-phase puzzle has no empty
+cells and showing one would document a state that cannot occur; the
+editing sample needed its own cursor, `(3,1)` rather than the build
+sample's `(3,5)`, because conversion blackens `(3,5)` and a cursor on a
+black cell produces no highlight at all — `(3,1)` sits inside the
+four-cell down slot conversion leaves at column 3, so the sample shows
+`selected`, `slot-letter`, `editable-letter` and `black` together. No
+changes to `src/engine/`, `slotAnswer`, `cellAppearance`, or
+`PuzzleGrid` itself — both pieces are pure presentation, confirmed by a
+diff of the story's provided `e2e/style-guide.spec.ts` against `HEAD`
+before overwriting, which showed only the three token/section/sample
+arrays widened and H5-2's four tests appended.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -174,6 +211,7 @@ docs/stories/
   07-H2-snapshot-pre-lock-grid.md     Story H2's specification
   07-H3-clue-panel-legibility.md      Story H3's specification
   07-H4-locked-grid-and-edit-mode.md  Story H4's specification
+  07-H5-clue-row-layout-and-style-guide.md   Story H5's specification
 docs/handoffs/
   07-HANDOFF-hints-authoring.md   this file
 e2e/
@@ -196,15 +234,20 @@ e2e/
   phase-controls.spec.ts   Story H4 — authorized correction, not named
                              in the story doc: P4-2's letter-editing test
                              now enters EDIT GRID mode first
+  hints-layout.spec.ts   Story H5's acceptance test, new — do not edit
+  style-guide.spec.ts    Story H5 — extended: COLOR_TOKENS, SECTIONS and
+                           GRID_SAMPLES widened, H5-2's four tests
+                           appended — do not edit
 src/components/ui/
   Modal.tsx        new — reusable open/title/confirm/cancel dialog
   TextInput.tsx    Story H3 — gained optional variant ('box' default,
-                    'underline' new)
+                    'underline' new). Story H5 — 'underline' gains w-full
 src/components/grid/
   EnterHintsDialog.tsx   new — the enter-hints confirmation copy, wraps Modal
   PhaseControls.tsx      accepts and forwards onStepClick (was a no-op)
   HintsPanel.tsx         Story H3 — two columns (Across/Down), answers,
-                          takes a grid prop
+                          takes a grid prop. Story H5 — fixed-width
+                          number/answer spans, growing input
   EditGridToggle.tsx     Story H4 — new: replaces PreviewToggle in hints phase
   PuzzleGrid.tsx         Story H4 — forwards isHintsPhase/isEditingGrid to
                           cellAppearance; data-grid-mode widened
@@ -213,6 +256,11 @@ src/components/grid/
                           existing enterHints Server Action; passes grid
                           to HintsPanel (Story H3); isEditingGrid state,
                           input guards, renders EditGridToggle (Story H4)
+src/components/style-guide/
+  TokenPane.tsx      Story H5 — --color-locked-letter and
+                      --color-editable-letter added to COLOR_TOKENS
+  GridExamples.tsx   Story H5 — new sg-grid-hints and
+                      sg-grid-hints-editing sections
 prisma/
   schema.prisma   Story H2 — new nullable Puzzle.gridBeforeHints column
   migrations/20260918212943_add_grid_before_hints/   Story H2 — the
@@ -234,11 +282,13 @@ src/app/
 ## The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 290 Vitest
-tests passing (13 net new, from H4-1's additions to
-`cell-appearance.test.ts` — H1, H2 and H3's own additions already
-counted above). `npm run test:e2e`: 228 Playwright tests passing (9 from
+tests passing (unchanged by H5 — it added no engine or lib logic, only
+presentation). `npm run test:e2e`: 239 Playwright tests passing (9 from
 H1's `enter-hints.spec.ts`, 5 from H2's `enter-hints-snapshot.spec.ts`, 7
 from H3-2's additions to `hints-panel.spec.ts`, 12 from H4's
 `locked-grid.spec.ts` — H4's other three corrected files added
-assertions to existing tests rather than new tests, so contribute no
-additional count).
+assertions to existing tests rather than new tests, so contributed no
+additional count — 5 from H5's `hints-layout.spec.ts`, and 6 from H5-2's
+additions to `style-guide.spec.ts`: its four new tests plus two more
+from widening `GRID_SAMPLES`, which drives one geometry test per sample
+via a loop).

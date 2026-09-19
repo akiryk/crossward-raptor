@@ -39,6 +39,8 @@ const COLOR_TOKENS = [
   '--color-slot-content',
   '--color-required',
   '--color-recommended',
+  '--color-locked-letter',
+  '--color-editable-letter',
   '--color-incomplete',
 ];
 

@@ -27,6 +27,14 @@ export function HintsPanel({
   onHintFocus: (key: string) => void;
 }) {
   const entries = Array.from(slots.entries());
+  // Both columns share these widths (Decisions: "measured across every
+  // slot in the puzzle"), so every input's left edge lands at the same x
+  // regardless of which column or row it's in.
+  const maxNumberDigits = Math.max(1, ...entries.map(([, slot]) => String(slot.number).length));
+  const maxAnswerLength = Math.max(
+    1,
+    ...entries.map(([, slot]) => slotAnswer(grid, slot).length)
+  );
 
   return (
     <div className="flex gap-6">
@@ -53,21 +61,31 @@ export function HintsPanel({
                   data-active={activeKey === key ? 'true' : undefined}
                   className="mb-3 flex items-baseline gap-2"
                 >
-                  <span data-testid="hint-label" className="text-label text-ink-3">
+                  <span
+                    data-testid="hint-label"
+                    className="text-label text-ink-3 shrink-0 text-right"
+                    style={{ width: `${maxNumberDigits}ch` }}
+                  >
                     {slot.number}
                   </span>
-                  <span data-testid="hint-answer" className="text-label text-foreground">
+                  <span
+                    data-testid="hint-answer"
+                    className="text-label text-foreground shrink-0 text-left"
+                    style={{ width: `${maxAnswerLength}ch` }}
+                  >
                     {slotAnswer(grid, slot)}
                   </span>
-                  <TextInput
-                    data-testid="hint-input"
-                    aria-label={`${label} clue`}
-                    variant="underline"
-                    value={hints[key] ?? ''}
-                    onChange={(text) => onHintChange(key, text)}
-                    onFocus={() => onHintFocus(key)}
-                    disabled={disabled}
-                  />
+                  <div className="min-w-0 flex-1">
+                    <TextInput
+                      data-testid="hint-input"
+                      aria-label={`${label} clue`}
+                      variant="underline"
+                      value={hints[key] ?? ''}
+                      onChange={(text) => onHintChange(key, text)}
+                      onFocus={() => onHintFocus(key)}
+                      disabled={disabled}
+                    />
+                  </div>
                 </div>
               );
             })}
