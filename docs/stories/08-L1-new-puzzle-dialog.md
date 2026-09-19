@@ -37,11 +37,22 @@ everywhere they are listed.
 
 ```tsx
 // src/components/ui/ModalActions.tsx (edited)
-// gains: confirmDisabled?: boolean   // defaults false
+export function ModalActions(props: {
+  confirmLabel: string;
+  cancelLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  confirmDisabled?: boolean;
+  confirmTestId?: string;   // defaults to 'modal-confirm'
+  cancelTestId?: string;    // defaults to 'modal-cancel'
+}): React.JSX.Element;
 ```
 
-Forwarded to the confirm `Button`'s existing `disabled` prop. Nothing
-else changes.
+`confirmDisabled` is forwarded to the confirm `Button`'s existing
+`disabled` prop. `confirmTestId`/`cancelTestId` let a caller override
+each button's `data-testid`, since a `<button>` can only carry one --
+`EnterHintsDialog` passes neither and is unchanged; `NewPuzzleDialog`
+passes its own.
 
 `NewPuzzleDialog` keeps its existing props (`onCancel`, `onCreate`) and
 renders through `Modal`, passing `<ModalActions>` as the footer.
@@ -64,9 +75,9 @@ Every existing testid keeps its meaning: `new-puzzle-dialog`,
 - **`data-selected` is kept** alongside the native checked state.
   Real radios make `toBeChecked()` the better assertion, but
   `data-selected` is a committed hook and preserving it costs nothing.
-- `new-puzzle-create` and `new-puzzle-cancel` move onto
-  `ModalActions`' buttons, which also carry `modal-confirm` and
-  `modal-cancel`. Both sets of testids must be present.
+- `new-puzzle-create` and `new-puzzle-cancel` are passed to
+  `ModalActions` as `confirmTestId`/`cancelTestId`, so each button
+  carries exactly one testid and remains a real `<button>` element.
 
 ## Decisions
 
