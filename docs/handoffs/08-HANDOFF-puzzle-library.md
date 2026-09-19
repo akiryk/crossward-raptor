@@ -96,6 +96,27 @@ corrected the contract to give `ModalActions` two more optional props,
 `EnterHintsDialog` passes neither and is unaffected; `NewPuzzleDialog`
 passes its own pair.
 
+**Story L2a (say what the puzzle is actually doing) is complete and
+committed** — the smaller half of what the epic called L2; the row
+redesign (L2b) is next. Pure wording change to `puzzleStatus`'s four
+labels: `'Grid'` → `'Building grid'`, `'Hints — incomplete'` →
+`'Writing clues'`, `'Hints — complete'` → `'Clues done'`, and
+`'Published — private'`/`'Published — public'` → `'Published · Private'`/
+`'Published · Public'` (capitalized visibility, joined with a middle
+dot instead of an em-dash). `StatusKind`, `puzzleStatus`'s signature,
+and every other file are untouched — `page.tsx`'s em-dash-joined row
+layout stays exactly as it is until L2b, and the badge L2b adds will
+key off `kind`, not off parsing these strings. The word "hints" itself
+is unchanged everywhere in code (`hintsComplete`, `HintsPanel`, `phase:
+'hints'`, the hint keys) — this story drew the line at the boundary
+between internal names and what a builder reads. Confirmed (per the
+story's own scope discipline) that `src/app/style-guide/page.tsx` does
+contain a static `['Grid', 'Hints', 'Published']` example array
+unrelated to `puzzleStatus` — left untouched, as instructed, for L2b.
+`publish-status.spec.ts` was checked and doesn't assert on any label
+text (only `data-*` attributes), so it needed no changes and stayed
+green.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -105,6 +126,7 @@ docs/stories/
   08-M1-modal-footer-slot.md   Story M1's specification
   08-L1-new-puzzle-dialog.md   Story L1's specification (amended:
                                  confirmTestId/cancelTestId correction)
+  08-L2a-status-wording.md     Story L2a's specification
 docs/handoffs/
   08-HANDOFF-puzzle-library.md   this file
 e2e/
@@ -112,6 +134,9 @@ e2e/
   new-puzzle.spec.ts   Story L1 — extended, not new: D6-3's cases
                          unchanged except the default-selection test,
                          plus a Midi case — do not edit
+  puzzle-list.spec.ts  Story L2a — extended: M3-2's cases unchanged
+                         except the three that assert label text — do
+                         not edit
 src/components/ui/
   Modal.tsx          footer slot replaces confirm/cancel props; onClose
                       replaces onCancel; new modal-close control
@@ -126,15 +151,21 @@ src/components/puzzle/
                          radios instead of buttons; labelled name field;
                          own Escape handler removed
 src/lib/
-  puzzle-size.ts        Story L1 — midi (9x9) added
-  puzzle-size.test.ts   Story L1's Vitest acceptance test, extended —
-                         do not edit
+  puzzle-size.ts          Story L1 — midi (9x9) added
+  puzzle-size.test.ts     Story L1's Vitest acceptance test, extended —
+                           do not edit
+  puzzle-status.ts        Story L2a — the four label strings reworded
+  puzzle-status.test.ts   Story L2a's Vitest acceptance test, extended
+                           — do not edit
 ```
 
 ## The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 292 Vitest
-tests passing (2 net new, from `puzzle-size.test.ts`'s Midi coverage).
-`npm run test:e2e`: 247 Playwright tests passing (6 from M1's
-`modal.spec.ts`, 2 from L1's additions to `new-puzzle.spec.ts`). The
-D8-2 flake noted after M1 did not recur on this run.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 295 Vitest
+tests passing (3 net new, from L2a's additions to
+`puzzle-status.test.ts`). `npm run test:e2e`: 247 Playwright tests
+passing (6 from M1's `modal.spec.ts`, 2 from L1's additions to
+`new-puzzle.spec.ts` — L2a's changes to `puzzle-list.spec.ts` reworded
+existing assertions rather than adding tests, so contributed no
+additional count). The D8-2 flake noted after M1 did not recur on
+either this run or L1's.

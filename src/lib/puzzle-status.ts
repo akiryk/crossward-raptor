@@ -5,7 +5,7 @@ export type StatusKind = 'grid' | 'hints' | 'published';
 
 export interface PuzzleStatus {
   readonly kind: StatusKind;
-  /** What the builder reads, e.g. "Published — private". */
+  /** What the builder reads, e.g. "Published · Private". */
   readonly label: string;
 }
 
@@ -24,15 +24,16 @@ export function puzzleStatus(args: {
   const { phase, hintsComplete, publishedAt, visibility } = args;
 
   if (publishedAt !== null) {
-    return { kind: 'published', label: `Published — ${visibility}` };
+    const capitalizedVisibility = visibility[0]!.toUpperCase() + visibility.slice(1);
+    return { kind: 'published', label: `Published · ${capitalizedVisibility}` };
   }
 
   if (phase === 'grid') {
-    return { kind: 'grid', label: 'Grid' };
+    return { kind: 'grid', label: 'Building grid' };
   }
 
   return {
     kind: 'hints',
-    label: hintsComplete ? 'Hints — complete' : 'Hints — incomplete',
+    label: hintsComplete ? 'Clues done' : 'Writing clues',
   };
 }
