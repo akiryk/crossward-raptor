@@ -107,16 +107,21 @@ test.describe('D2-2 puzzles list', () => {
     expect(headingSize).toBeGreaterThan(rowSize);
   });
 
-  test('list rows are interactive and respond to hover', async ({ page }) => {
+  // Retargeted (Story L2b): the row itself is no longer the interactive
+  // element -- each row now carries an explicit Edit link, and the row
+  // is inert. What D2 was protecting is that the list's interactive
+  // element looks and behaves interactive; only which element that is
+  // has moved.
+  test('the list\'s edit control is interactive and responds to hover', async ({ page }) => {
     await seedForControls();
     await page.goto('/puzzles');
 
-    const row = page.getByTestId('puzzle-list-item').first();
-    expect(await row.evaluate((el) => getComputedStyle(el).cursor)).toBe('pointer');
+    const edit = page.getByTestId('puzzle-edit-link').first();
+    expect(await edit.evaluate((el) => getComputedStyle(el).cursor)).toBe('pointer');
 
-    const before = await styleOf(row, ['background-color', 'color', 'text-decoration-line']);
-    await row.hover();
-    const after = await styleOf(row, ['background-color', 'color', 'text-decoration-line']);
+    const before = await styleOf(edit, ['background-color', 'color', 'text-decoration-line']);
+    await edit.hover();
+    const after = await styleOf(edit, ['background-color', 'color', 'text-decoration-line']);
 
     expect(after).not.toBe(before);
   });
