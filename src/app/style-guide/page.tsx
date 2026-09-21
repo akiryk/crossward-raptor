@@ -142,7 +142,7 @@ export default function StyleGuidePage() {
             Stepper
           </h2>
           <ol className="flex items-center gap-2 text-sm">
-            {['Grid', 'Hints', 'Published'].map((label, index) => (
+            {['Build the grid', 'Write clues', 'Publish'].map((label, index) => (
               <li key={label} className="flex items-center gap-2">
                 <span
                   className={

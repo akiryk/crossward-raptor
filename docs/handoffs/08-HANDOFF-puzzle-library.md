@@ -117,6 +117,37 @@ unrelated to `puzzleStatus` — left untouched, as instructed, for L2b.
 text (only `data-*` attributes), so it needed no changes and stayed
 green.
 
+**Story L2b (the library page and its rows) is complete and
+committed** — the visual half of L2. `src/app/puzzles/page.tsx`'s
+header is now a flex row with the heading left and `NewPuzzleButton`
+right, wrapped in `puzzle-list-header`. Each row (`puzzle-list-item`,
+still an `<li>`, no longer a `<Link>`) is title-over-metadata: a
+truncating, bold, display-face `puzzle-list-title`, then a help-size
+secondary-ink metadata line holding a `puzzle-status-badge`
+(`data-status-kind` from `StatusKind` — neutral outline for `grid`/
+`hints`, `bg-ok-tint`/`text-accent` for `published`, styled off `kind`
+never the label) and `puzzle-list-updated`, joined by a middle dot.
+Rows are separated by a `border-rule` hairline instead of a background
+tint. An explicit `puzzle-edit-link` — a real `<a href="/puzzles/{id}">`,
+not a button with a router push, so browser-native behaviors (new tab,
+middle-click) keep working — sits on the right, styled to read as a
+quiet button. `puzzle-list-item` keeps the `text-body` class directly
+(not merely inherited), satisfying the two committed `typography.spec.ts`
+assertions that read `font-size` off that element without touching that
+file at all. `sg-stepper`'s hardcoded `['Grid', 'Hints', 'Published']`
+labels (stale since before this epic — the real stepper has always read
+"Build the grid / Write clues / Publish") are corrected to match;
+`sg-hint-rows`' own, unrelated staleness is confirmed out of scope here,
+per the story's own Decisions.
+
+Per the story's Definition-of-Done item 3, grepped the whole suite for
+any spec that clicks a `puzzle-list-item` to navigate before writing
+any code — none exists, so no spec broke silently by the row losing its
+`<Link>` behavior. `controls.spec.ts`'s D2-2 hover test was the one
+committed assertion that did depend on the row being interactive; its
+provided, already-corrected version retargets the same two assertions
+(pointer cursor, hover changes appearance) onto `puzzle-edit-link`.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -127,6 +158,7 @@ docs/stories/
   08-L1-new-puzzle-dialog.md   Story L1's specification (amended:
                                  confirmTestId/cancelTestId correction)
   08-L2a-status-wording.md     Story L2a's specification
+  08-L2b-library-page-and-rows.md   Story L2b's specification
 docs/handoffs/
   08-HANDOFF-puzzle-library.md   this file
 e2e/
@@ -137,6 +169,11 @@ e2e/
   puzzle-list.spec.ts  Story L2a — extended: M3-2's cases unchanged
                          except the three that assert label text — do
                          not edit
+  puzzle-list-layout.spec.ts   Story L2b's acceptance test, new — do
+                                 not edit
+  controls.spec.ts     Story L2b — extended: D2-1/D2-3/D2-4 unchanged,
+                         D2-2's hover test retargeted from the row to
+                         puzzle-edit-link — do not edit
 src/components/ui/
   Modal.tsx          footer slot replaces confirm/cancel props; onClose
                       replaces onCancel; new modal-close control
@@ -157,15 +194,21 @@ src/lib/
   puzzle-status.ts        Story L2a — the four label strings reworded
   puzzle-status.test.ts   Story L2a's Vitest acceptance test, extended
                            — do not edit
+src/app/puzzles/
+  page.tsx   Story L2b — header row, title/metadata row layout, status
+              badge, edit link; row is an li, not a Link
+src/app/style-guide/
+  page.tsx   Story L2b — sg-stepper's stale labels corrected to match
+              the real stepper's wording
 ```
 
 ## The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 295 Vitest
-tests passing (3 net new, from L2a's additions to
-`puzzle-status.test.ts`). `npm run test:e2e`: 247 Playwright tests
-passing (6 from M1's `modal.spec.ts`, 2 from L1's additions to
-`new-puzzle.spec.ts` — L2a's changes to `puzzle-list.spec.ts` reworded
-existing assertions rather than adding tests, so contributed no
-additional count). The D8-2 flake noted after M1 did not recur on
-either this run or L1's.
+tests passing (unchanged by L2b — pure presentation, no engine or lib
+logic). `npm run test:e2e`: 256 Playwright tests passing (6 from M1's
+`modal.spec.ts`, 2 from L1's additions to `new-puzzle.spec.ts`, 9 from
+L2b's `puzzle-list-layout.spec.ts` — L2a's and L2b's changes to
+`puzzle-list.spec.ts`/`controls.spec.ts` reworded existing assertions
+rather than adding tests, so contributed no additional count). The D8-2
+flake noted after M1 did not recur on any subsequent run.
