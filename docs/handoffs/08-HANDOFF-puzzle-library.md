@@ -148,6 +148,41 @@ committed assertion that did depend on the row being interactive; its
 provided, already-corrected version retargets the same two assertions
 (pointer cursor, hover changes appearance) onto `puzzle-edit-link`.
 
+**Story L3 (a library grouped by size) is implemented on branch
+`story/08-L3-grouped-library`, opened as a PR pending independent
+review — not yet merged to `main`.** The final slice of the epic: the
+page content is now constrained to `max-w-3xl` and centred, so Edit
+sits beside the title it acts on instead of across a wide window; new
+pure `groupPuzzles`/`sizeFor` (`src/lib/puzzle-groups.ts`) sort puzzles
+into one section per standard size (Mini, Midi, Daily, Sunday, smallest
+to largest, empty groups omitted), with anything matching no standard
+size collecting into a final "Other sizes" group rather than vanishing
+— needed because the app only ever creates the four standard sizes but
+nearly every test seeds an off-size grid. Within a group, unpublished
+work sorts before published, then most-recently-updated first, so what
+needs attention sits at the top. New `GridThumbnail`
+(`src/components/puzzle/GridThumbnail.tsx`) draws a small,
+`aria-hidden` square from the puzzle's actual black-square pattern —
+one element per cell, `data-black="true"/"false"` — derived from the
+stored grid at render time, never stored itself. `listPuzzles`
+(`src/app/puzzles/actions.ts`) now also returns each row's `cols`,
+`rows`, and a `black: boolean[][]` pattern, read from the same
+`record.grid` it already deserializes for `summarizePuzzle` — no new
+query, no schema change. The row itself reorganised left to right:
+thumbnail, then title-over-updated-date, then badge and Edit together
+on the right — the badge moved next to the action it relates to, and
+the middle dot from L2b's metadata line is gone since nothing is left
+for it to separate.
+
+All four specs the story named as must-pass-unmodified
+(`puzzle-list.spec.ts`, `puzzle-list-layout.spec.ts`,
+`typography.spec.ts`, `controls.spec.ts`) passed on the first run,
+confirmed via `git diff` to be untouched — the markup contract
+(`puzzle-list-item`'s six data attributes, `puzzle-list-title`,
+`puzzle-status-badge`, `puzzle-list-updated`, `puzzle-edit-link`,
+`puzzle-list-header`, `page-heading`, and `puzzle-list-item` still
+carrying `text-body` directly) held exactly as specified.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -159,6 +194,7 @@ docs/stories/
                                  confirmTestId/cancelTestId correction)
   08-L2a-status-wording.md     Story L2a's specification
   08-L2b-library-page-and-rows.md   Story L2b's specification
+  08-L3-grouped-library.md     Story L3's specification
 docs/handoffs/
   08-HANDOFF-puzzle-library.md   this file
 e2e/
@@ -174,6 +210,7 @@ e2e/
   controls.spec.ts     Story L2b — extended: D2-1/D2-3/D2-4 unchanged,
                          D2-2's hover test retargeted from the row to
                          puzzle-edit-link — do not edit
+  puzzle-groups.spec.ts   Story L3's acceptance test, new — do not edit
 src/components/ui/
   Modal.tsx          footer slot replaces confirm/cancel props; onClose
                       replaces onCancel; new modal-close control
@@ -196,19 +233,32 @@ src/lib/
                            — do not edit
 src/app/puzzles/
   page.tsx   Story L2b — header row, title/metadata row layout, status
-              badge, edit link; row is an li, not a Link
+              badge, edit link; row is an li, not a Link. Story L3 —
+              max-w-3xl content column, grouped rendering via
+              groupPuzzles, thumbnail, row reorganised (thumbnail,
+              title/date, badge+edit)
+  actions.ts   Story L3 — listPuzzles also returns cols/rows/black,
+                read from the same stored grid it already deserializes
 src/app/style-guide/
   page.tsx   Story L2b — sg-stepper's stale labels corrected to match
               the real stepper's wording
+src/lib/
+  puzzle-groups.ts        Story L3 — new: sizeFor, groupPuzzles
+  puzzle-groups.test.ts   Story L3's Vitest acceptance test, new — do
+                           not edit
+src/components/puzzle/
+  GridThumbnail.tsx   Story L3 — new: a decorative square drawn from
+                       the puzzle's actual black-square pattern
 ```
 
 ## The gate
 
-`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 295 Vitest
-tests passing (unchanged by L2b — pure presentation, no engine or lib
-logic). `npm run test:e2e`: 256 Playwright tests passing (6 from M1's
-`modal.spec.ts`, 2 from L1's additions to `new-puzzle.spec.ts`, 9 from
-L2b's `puzzle-list-layout.spec.ts` — L2a's and L2b's changes to
-`puzzle-list.spec.ts`/`controls.spec.ts` reworded existing assertions
-rather than adding tests, so contributed no additional count). The D8-2
-flake noted after M1 did not recur on any subsequent run.
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 310 Vitest
+tests passing (15 net new, from `puzzle-groups.test.ts`). `npm run
+test:e2e`: 263 Playwright tests passing (6 from M1's `modal.spec.ts`, 2
+from L1's additions to `new-puzzle.spec.ts`, 9 from L2b's
+`puzzle-list-layout.spec.ts`, 7 from L3's `puzzle-groups.spec.ts` —
+L2a's, L2b's and L3's changes to already-committed specs reworded
+existing assertions rather than adding tests, so contributed no
+additional count). The D8-2 flake noted after M1 did not recur on any
+subsequent run, including L3's.

@@ -52,6 +52,9 @@ export async function listPuzzles(): Promise<
     hintsComplete: boolean;
     publishedAt: Date | null;
     visibility: Visibility;
+    cols: number;
+    rows: number;
+    black: boolean[][];
   }[]
 > {
   const records = await prisma.puzzle.findMany({
@@ -69,8 +72,9 @@ export async function listPuzzles(): Promise<
   });
 
   return records.map((record) => {
+    const grid = record.grid as unknown as SerializedGrid;
     const summary = summarizePuzzle({
-      grid: record.grid as unknown as SerializedGrid,
+      grid,
       hints: record.hints as Record<string, string>,
       phase: record.phase as Phase,
     });
@@ -82,6 +86,9 @@ export async function listPuzzles(): Promise<
       hintsComplete: summary.hintsComplete,
       publishedAt: record.publishedAt,
       visibility: record.visibility as Visibility,
+      cols: grid.cols,
+      rows: grid.rows,
+      black: grid.cells.map((row) => row.map((cell) => cell.kind === 'black')),
     };
   });
 }
