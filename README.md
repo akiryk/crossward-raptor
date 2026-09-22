@@ -14,6 +14,18 @@ and `DATABASE_URL_UNPOOLED` (the dev database) and `TEST_DATABASE_URL`
 data). All three should point at the containers `docker-compose.yml`
 defines.
 
+Accounts (magic-link sign-in via Better Auth and Resend) add three more
+`.env.local` variables: `BETTER_AUTH_SECRET` (a signing secret),
+`BETTER_AUTH_URL` (the app's base URL), and `RESEND_API_KEY` (the Resend
+API key used to deliver sign-in links). Leave `RESEND_API_KEY` unset
+locally and in the test environment — with no key, no email is sent (the
+link is still issued and, in tests, read from the database), which is how
+the suite avoids sending mail. Set it only where real delivery is wanted.
+Real delivery also requires **one verified domain in Resend**: until a
+domain is verified, Resend will only send to the account owner's own
+address, which is enough for building but blocks a second person signing
+in.
+
 1. `npm install`
 2. `npm run db:setup` — starts the containers and applies migrations
 3. `npm run dev`

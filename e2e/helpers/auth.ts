@@ -92,5 +92,19 @@ export async function getSession(
 
 /** Sign the current browser context out. */
 export async function signOut(page: Page): Promise<void> {
-  await page.request.post('/api/auth/sign-out');
+  // Better Auth's /sign-out requires an application/json request even though
+  // it takes no fields; sending an empty object sets that Content-Type (a
+  // bare POST is rejected 415). The body schema is optional.
+  //
+  // It also enforces an origin check on state-changing POSTs. A browser fetch
+  // sends Origin automatically, but Playwright's request context does not, so
+  // it is set here to the page's own (trusted) origin — otherwise the request
+  // is rejected 403 MISSING_OR_NULL_ORIGIN.
+  const res = await page.request.post('/api/auth/sign-out', {
+    data: {},
+    headers: { origin: new URL(page.url()).origin },
+  });
+  if (!res.ok()) {
+    throw new Error(`signOut failed: ${res.status()} ${await res.text()}`);
+  }
 }
