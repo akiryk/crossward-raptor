@@ -87,19 +87,6 @@ describe('PB2-1 unwritten hints', () => {
   });
 });
 
-describe('PB2-1 unchecked squares', () => {
-  it('counts cells not covered by both an across and a down answer', () => {
-    // a single row: one across answer, no column long enough to be a down one
-    const grid = fillAll(createGrid({ cols: 3, rows: 1 }));
-    expect(find(publishReadiness(puzzle(grid)), 'unchecked-squares')?.count).toBe(3);
-  });
-
-  it('reports nothing when every cell is in both directions', () => {
-    const grid = fillAll(createGrid({ cols: 3, rows: 3 }));
-    expect(find(publishReadiness(puzzle(grid, ALL_HINTS)), 'unchecked-squares')).toBeUndefined();
-  });
-});
-
 describe('PB2-1 short answers', () => {
   it('counts slots shorter than three letters', () => {
     const grid = fillAll(createGrid({ cols: 3, rows: 1, black: [{ col: 2, row: 0 }] }));
@@ -159,7 +146,6 @@ describe('PB2-1 the clean case and general properties', () => {
 
     expect(reported).toContain('unfilled-cells');
     expect(reported).toContain('short-answers');
-    expect(reported).toContain('unchecked-squares');
   });
 
   it('purity: two calls are deep-equal and the puzzle is untouched', () => {

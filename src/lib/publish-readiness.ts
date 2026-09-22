@@ -7,7 +7,6 @@ export type FindingKind =
   | 'unfilled-cells'
   | 'unwritten-hints'
   | 'short-answers'
-  | 'unchecked-squares'
   | 'asymmetric';
 
 export interface Finding {
@@ -68,28 +67,6 @@ export function publishReadiness(puzzle: Puzzle): readonly Finding[] {
       kind: 'short-answers',
       count: shortCount,
       message: `${shortCount} ${plural(shortCount, 'answer is', 'answers are')} shorter than three letters.`,
-    });
-  }
-
-  const acrossCells = new Set<string>();
-  const downCells = new Set<string>();
-  for (const slot of slots) {
-    const cells = slot.orientation === 'across' ? acrossCells : downCells;
-    for (const { col, row } of slot.cells) cells.add(`${col},${row}`);
-  }
-  let uncheckedCount = 0;
-  for (let row = 0; row < grid.rows; row++) {
-    for (let col = 0; col < grid.cols; col++) {
-      if (grid.at(col, row).kind !== 'active') continue;
-      const key = `${col},${row}`;
-      if (!acrossCells.has(key) || !downCells.has(key)) uncheckedCount++;
-    }
-  }
-  if (uncheckedCount > 0) {
-    findings.push({
-      kind: 'unchecked-squares',
-      count: uncheckedCount,
-      message: `${uncheckedCount} ${plural(uncheckedCount, 'square is', 'squares are')} not covered by both an across and a down answer.`,
     });
   }
 
