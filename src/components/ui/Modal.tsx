@@ -45,18 +45,23 @@ export function Modal({
   const previouslyFocusedRef = useRef<Element | null>(
     typeof document !== 'undefined' ? document.activeElement : null
   );
-  const isMountRef = useRef(true);
+  const wasOpenRef = useRef(open);
 
   // Re-capture on a reopen of an already-mounted instance, skipping the
   // render where this component itself just mounted -- that case is
-  // already covered by previouslyFocusedRef's initial value, and an
-  // effect is accurate for a reopen since nothing shifts focus before it
-  // runs for the consumer that reuses one instance.
+  // already covered by previouslyFocusedRef's initial value. Comparing
+  // against the last-seen `open` value (not a one-shot "have we mounted"
+  // flag) keeps this reentrant under Strict Mode's mount replay: a flag
+  // flipped once can't tell a genuine reopen from the replay's second
+  // pass, but `wasOpenRef` and `open` always agree on a fresh mount no
+  // matter how many times the effect reruns, so it only fires on a real
+  // false-to-true transition (see LEARNINGS.md entry 8).
   useEffect(() => {
-    const isMount = isMountRef.current;
-    isMountRef.current = false;
-    if (!open || isMount) return;
-    previouslyFocusedRef.current = document.activeElement;
+    const wasOpen = wasOpenRef.current;
+    wasOpenRef.current = open;
+    if (open && !wasOpen) {
+      previouslyFocusedRef.current = document.activeElement;
+    }
   }, [open]);
 
   useEffect(() => {
