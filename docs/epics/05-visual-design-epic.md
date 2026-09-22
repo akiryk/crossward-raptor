@@ -147,6 +147,13 @@ size options deferred as a non-goal in epic 3.
 `createBlankPuzzle` currently hardcodes 15×15; it takes dimensions
 instead. Nothing in the engine assumes 15, so no engine change is needed.
 
+**A second, unrelated story also shipped as "D6"** — two-letter slot
+highlighting in Preview mode (`docs/stories/05-D6-two-letter-highlighting.md`),
+not planned here and not described by this Story Group. The identifier
+collision was caught only after both landed; see
+`docs/handoffs/05-HANDOFF-visual-design.md` for the incident and why
+neither was renumbered after the fact.
+
 ## Story Group D7 — Remove duplicate
 
 Remove the duplicate-puzzle feature entirely: the Server Action, the
@@ -155,6 +162,13 @@ button, `duplicateTitle` and its tests, and `e2e/duplicate.spec.ts`.
 It came from a proposal in epic 3 rather than from a real need, and it
 isn't wanted. Deleting an unwanted feature is cheaper than carrying it
 through every subsequent design and layout story.
+
+**The identifier D7 was reused for a second, unrelated story** —
+`docs/stories/05-D7-effective-geometry.md`, a correction to the D6
+two-letter-highlighting story above (replacing a withdrawn `D6r`
+attempt), not this removal. This Story Group's own removal work has no
+story file under its own number; see `docs/handoffs/05-HANDOFF-visual-design.md`
+for both stories' actual history.
 
 ---
 
