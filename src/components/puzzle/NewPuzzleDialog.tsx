@@ -40,55 +40,54 @@ export function NewPuzzleDialog({
   }
 
   return (
-    <div data-testid="new-puzzle-dialog" className="fixed inset-0 z-50">
-      <Modal
-        open
-        title="New puzzle"
-        onClose={onCancel}
-        footer={
-          <ModalActions
-            confirmLabel="Create"
-            cancelLabel="Cancel"
-            onConfirm={handleCreate}
-            onCancel={onCancel}
-            confirmDisabled={!canCreate}
-            confirmTestId="new-puzzle-create"
-            cancelTestId="new-puzzle-cancel"
-          />
-        }
+    <Modal
+      open
+      title="New puzzle"
+      onClose={onCancel}
+      testId="new-puzzle-dialog"
+      footer={
+        <ModalActions
+          confirmLabel="Create"
+          cancelLabel="Cancel"
+          onConfirm={handleCreate}
+          onCancel={onCancel}
+          confirmDisabled={!canCreate}
+          confirmTestId="new-puzzle-create"
+          cancelTestId="new-puzzle-cancel"
+        />
+      }
+    >
+      <div data-modal-initial-focus className="flex flex-col gap-1">
+        <span className="text-label text-ink-2">Puzzle name</span>
+        <TextInput
+          data-testid="new-puzzle-name"
+          aria-label="Puzzle name"
+          placeholder="e.g. Monday Puzzle"
+          value={title}
+          onChange={setTitle}
+          autoFocus
+        />
+      </div>
+      <div
+        data-testid="new-puzzle-size"
+        role="radiogroup"
+        aria-label="Puzzle size"
+        className="flex flex-col gap-2"
       >
-        <div className="flex flex-col gap-1">
-          <span className="text-label text-ink-2">Puzzle name</span>
-          <TextInput
-            data-testid="new-puzzle-name"
-            aria-label="Puzzle name"
-            placeholder="e.g. Monday Puzzle"
-            value={title}
-            onChange={setTitle}
-            autoFocus
-          />
-        </div>
-        <div
-          data-testid="new-puzzle-size"
-          role="radiogroup"
-          aria-label="Puzzle size"
-          className="flex flex-col gap-2"
-        >
-          {SIZES.map(({ id, label }) => (
-            <label key={id} className="flex items-center gap-2 text-label">
-              <input
-                type="radio"
-                name="new-puzzle-size"
-                data-size={id}
-                data-selected={size === id ? 'true' : 'false'}
-                checked={size === id}
-                onChange={() => setSize(id)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </Modal>
-    </div>
+        {SIZES.map(({ id, label }) => (
+          <label key={id} className="flex items-center gap-2 text-label">
+            <input
+              type="radio"
+              name="new-puzzle-size"
+              data-size={id}
+              data-selected={size === id ? 'true' : 'false'}
+              checked={size === id}
+              onChange={() => setSize(id)}
+            />
+            {label}
+          </label>
+        ))}
+      </div>
+    </Modal>
   );
 }

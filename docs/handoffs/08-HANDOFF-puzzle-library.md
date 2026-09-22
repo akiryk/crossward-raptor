@@ -183,6 +183,70 @@ confirmed via `git diff` to be untouched — the markup contract
 `puzzle-list-header`, `page-heading`, and `puzzle-list-item` still
 carrying `text-body` directly) held exactly as specified.
 
+**Story M2 (an accessible Modal) is complete and committed** — the
+final story of the epic. `Modal` looked like a dialog but didn't act
+like one: no focus trap, no focus restore, `role="dialog"` sitting on
+the outer (backdrop-including) container with no `aria-modal` or
+accessible name, a scrollable page underneath it, and no portal (so a
+`fixed` overlay could be clipped by any ancestor establishing a
+containing block). Fixing the portal required a structural change
+first: both dialogs had wrapped `Modal` in their own `fixed inset-0`
+div to carry their testid, which coincided harmlessly with `Modal`'s
+own identical root — until a portal moves `Modal`'s content to
+`document.body` while that wrapper stays put, becoming an empty,
+invisible, full-screen layer no longer containing anything. `Modal`
+now takes a `testId` prop directly on the dialog panel (the visible
+box, not the backdrop), and both dialogs dropped their wrapper
+entirely — `EnterHintsDialog` and `NewPuzzleDialog` render `<Modal>`
+straight through now, matching the reduction the story's own
+Decisions section argued for (`role="dialog"` moving to the panel is
+what actually makes the earlier markup's "announces nothing useful"
+problem go away).
+
+Focus trap and Tab-cycling are hand-rolled (a few lines, per the
+story's explicit no-library decision): a keydown handler computes the
+panel's focusable elements fresh on every Tab/Shift+Tab, cycling with
+wraparound regardless of where focus currently sits, so disabled
+controls (`new-puzzle-create` until a name is typed) are never a stop
+simply by matching `:not([disabled])`. Scroll lock captures and
+restores `document.body`'s exact prior `overflow` value, never assuming
+a default. Focus restore captures whatever had focus immediately before
+the dialog opened and returns it on close, tolerating a vanished target
+(`document.contains` check) for the case where creating a puzzle
+navigates away and unmounts the button that opened the dialog.
+
+**A real, non-obvious bug surfaced during implementation and is worth
+recording in full, since the same shape could bite a future portal or
+focus-management change.** The natural design for "initial focus" —
+leave focus wherever a child's own `autoFocus` already put it,
+otherwise focus the panel — works for `EnterHintsDialog` (a single,
+persistently-mounted `Modal` instance that only toggles its `open`
+prop) but silently fails for `NewPuzzleDialog` (a fresh `Modal`
+instance mounted each time it opens, per `NewPuzzleButton`'s
+`{open && <NewPuzzleDialog/>}`). Empirically isolated (a chain of
+throwaway repro pages, deleted before commit) to React's dev-only
+Strict Mode behavior: a *fresh mount's* effects run, clean up, and run
+again once, simulating an unmount/remount to surface exactly this class
+of bug — but this replay applies only to genuine mounts, not to prop
+changes on an already-mounted instance, which is why only
+`NewPuzzleDialog` was affected. The scroll-lock effect's cleanup (which
+correctly restores focus to whatever opened the dialog, for the *real*
+close case) fires during that simulated unmount too, moving focus back
+to the New Puzzle button — and nothing re-established the name field's
+focus afterward, since "leave it wherever autoFocus put it" is not
+reentrant: it reads transient focus state that Strict Mode's replay
+invalidates between passes. `e2e/modal-a11y.spec.ts` runs against
+`next dev` (Strict Mode on), so this was a real, reproducible test
+failure, not a theoretical concern. Fixed by making the decision
+explicit and idempotent instead of state-dependent:
+`NewPuzzleDialog` marks its name field's wrapper with
+`data-modal-initial-focus`, and `Modal`'s effect looks for that marker
+and calls `.focus()` on the first focusable element inside it every
+time the effect runs — correct after one pass or two, since it never
+depends on what focus happened to be beforehand. `EnterHintsDialog`
+uses no marker and continues to fall through to focusing the panel
+itself, unchanged.
+
 ## What exists (files touched, cumulative across this document)
 
 ```
@@ -195,6 +259,7 @@ docs/stories/
   08-L2a-status-wording.md     Story L2a's specification
   08-L2b-library-page-and-rows.md   Story L2b's specification
   08-L3-grouped-library.md     Story L3's specification
+  08-M2-modal-accessibility.md   Story M2's specification
 docs/handoffs/
   08-HANDOFF-puzzle-library.md   this file
 e2e/
@@ -211,19 +276,30 @@ e2e/
                          D2-2's hover test retargeted from the row to
                          puzzle-edit-link — do not edit
   puzzle-groups.spec.ts   Story L3's acceptance test, new — do not edit
+  modal-a11y.spec.ts   Story M2's acceptance test, new — do not edit
 src/components/ui/
   Modal.tsx          footer slot replaces confirm/cancel props; onClose
-                      replaces onCancel; new modal-close control
+                      replaces onCancel; new modal-close control.
+                      Story M2 — portaled into document.body; testId
+                      moved onto the dialog panel; role="dialog"/
+                      aria-modal/aria-labelledby on the panel; focus
+                      trap, initial focus (data-modal-initial-focus
+                      marker), focus restore, and scroll lock
   ModalActions.tsx   new — the standard cancel/confirm button row.
                       Story L1 — confirmDisabled, confirmTestId,
                       cancelTestId added
 src/components/grid/
   EnterHintsDialog.tsx   passes onClose and a ModalActions footer;
-                          own props and copy unchanged
+                          own props and copy unchanged. Story M2 —
+                          drops its own fixed inset-0 wrapper, passes
+                          testId="enter-hints-dialog" to Modal instead
 src/components/puzzle/
   NewPuzzleDialog.tsx   Story L1 — renders through Modal/ModalActions;
                          radios instead of buttons; labelled name field;
-                         own Escape handler removed
+                         own Escape handler removed. Story M2 — drops
+                         its own wrapper, passes testId="new-puzzle-dialog",
+                         marks its name field's wrapper with
+                         data-modal-initial-focus
 src/lib/
   puzzle-size.ts          Story L1 — midi (9x9) added
   puzzle-size.test.ts     Story L1's Vitest acceptance test, extended —
@@ -254,11 +330,15 @@ src/components/puzzle/
 ## The gate
 
 `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 310 Vitest
-tests passing (15 net new, from `puzzle-groups.test.ts`). `npm run
-test:e2e`: 263 Playwright tests passing (6 from M1's `modal.spec.ts`, 2
-from L1's additions to `new-puzzle.spec.ts`, 9 from L2b's
-`puzzle-list-layout.spec.ts`, 7 from L3's `puzzle-groups.spec.ts` —
-L2a's, L2b's and L3's changes to already-committed specs reworded
-existing assertions rather than adding tests, so contributed no
-additional count). The D8-2 flake noted after M1 did not recur on any
-subsequent run, including L3's.
+tests passing (unchanged by M2 — pure presentation/behavior, no engine
+or lib logic). `npm run test:e2e`: 276 Playwright tests passing (6 from
+M1's `modal.spec.ts`, 2 from L1's additions to `new-puzzle.spec.ts`, 9
+from L2b's `puzzle-list-layout.spec.ts`, 7 from L3's
+`puzzle-groups.spec.ts`, 13 from M2's `modal-a11y.spec.ts` — L2a's,
+L2b's and L3's changes to already-committed specs reworded existing
+assertions rather than adding tests, so contributed no additional
+count). All six specs M2 requires to pass unmodified
+(`modal.spec.ts`, `enter-hints.spec.ts`, `enter-hints-snapshot.spec.ts`,
+`new-puzzle.spec.ts`, `new-puzzle-resubmit.spec.ts`,
+`persistence.spec.ts`) confirmed via `git diff` to be untouched. The
+D8-2 flake noted after M1 did not recur on any subsequent run.
