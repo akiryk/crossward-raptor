@@ -104,9 +104,20 @@ export function PuzzleGridEditor({
       visibility: initialVisibility,
     };
   });
-  const isFirstGridRender = useRef(true);
-  const isFirstHintsRender = useRef(true);
-  const isFirstTitleRender = useRef(true);
+  // What's already been persisted, so each autosave effect can tell a
+  // genuine edit apart from React re-running it with the same value.
+  // Seeded from the hook's own initial value (evaluated once, at the true
+  // mount), not a boolean "have we run before" flag: in dev, React's
+  // Strict Mode runs a fresh mount's effects twice (mount, simulated
+  // unmount, mount again) to surface exactly this class of bug, and a
+  // one-shot flag gets consumed by the first of those two passes, leaving
+  // the second to wrongly treat the untouched initial value as a real
+  // edit and schedule a save -- which a published puzzle's server-side
+  // guard then rejects. Comparing against the last-saved value instead is
+  // reentrant: replayed with the same value, it keeps skipping.
+  const lastSavedGridRef = useRef(state.grid);
+  const lastSavedHintsRef = useRef(state.hints);
+  const lastSavedTitleRef = useRef(state.title);
   // Pending debounced-save timers, tracked so a publish click can cancel
   // whatever's pending and save the latest value immediately instead --
   // otherwise a save queued just before publishing loses the race against
@@ -133,10 +144,8 @@ export function PuzzleGridEditor({
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (isFirstGridRender.current) {
-      isFirstGridRender.current = false;
-      return;
-    }
+    if (lastSavedGridRef.current === state.grid) return;
+    lastSavedGridRef.current = state.grid;
     gridSaveTimer.current = setTimeout(() => {
       gridSaveTimer.current = null;
       saveGrid(puzzleId, serializeGrid(state.grid)).catch((error) => {
@@ -149,10 +158,8 @@ export function PuzzleGridEditor({
   }, [state.grid, puzzleId]);
 
   useEffect(() => {
-    if (isFirstHintsRender.current) {
-      isFirstHintsRender.current = false;
-      return;
-    }
+    if (lastSavedHintsRef.current === state.hints) return;
+    lastSavedHintsRef.current = state.hints;
     hintsSaveTimer.current = setTimeout(() => {
       hintsSaveTimer.current = null;
       saveHints(puzzleId, state.hints).catch((error) => {
@@ -165,10 +172,8 @@ export function PuzzleGridEditor({
   }, [state.hints, puzzleId]);
 
   useEffect(() => {
-    if (isFirstTitleRender.current) {
-      isFirstTitleRender.current = false;
-      return;
-    }
+    if (lastSavedTitleRef.current === state.title) return;
+    lastSavedTitleRef.current = state.title;
     titleSaveTimer.current = setTimeout(() => {
       titleSaveTimer.current = null;
       saveTitle(puzzleId, state.title).catch((error) => {
