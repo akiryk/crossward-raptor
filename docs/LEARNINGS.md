@@ -151,3 +151,52 @@ screenshot them. Tests that assert on CSS properties describe how a layout
 was *meant* to be achieved; tests that measure geometry describe what a
 person will actually see, and only the second kind survives a change in
 technique.
+
+## 8. A one-shot "have we mounted" ref isn't reentrant under Strict Mode
+
+The same bug shape appeared twice, in unrelated code, within one epic's
+worth of work. Both times a `useRef` flag was meant to fire an effect's
+real side effect on every render *except* the first:
+
+- **Modal's initial focus** (Story M2): "leave focus wherever a child's
+  own `autoFocus` already put it, otherwise focus the panel" silently
+  focused the panel instead of the intended field — but only for a
+  `Modal` instance that mounts fresh each time it opens, never for one
+  that stays mounted and only toggles `open`.
+- **`PuzzleGridEditor`'s autosave effects**: a `useRef(true)` "is this the
+  first render" flag, meant to skip saving the just-loaded initial value,
+  fired a real save anyway on a plain client-side navigation into a
+  puzzle's editor — harmless (silently redundant) for an unpublished
+  puzzle, three console errors for a published one, since the server-side
+  guard correctly rejected the redundant write.
+
+Both share one cause: in dev, React's Strict Mode runs a *fresh mount's*
+effects twice — mount, simulated unmount, mount again — specifically to
+surface bugs like this one. A boolean flag flipped once and never reset
+gets consumed by the first of those two passes, leaving the second to
+behave as if the guarded condition had never held. The replay applies
+only to genuine mounts, which is why a persistently-mounted instance that
+merely toggles a prop (the Modal case's `EnterHintsDialog`) was never
+affected — that asymmetry was the clue both times, found by deliberately
+reproducing the *specific* mount shape (a fresh instance each open) side
+by side with the *specific* shape that didn't fail (one instance,
+toggled prop), not by reasoning about React's internals in the abstract.
+
+Both fixes replaced the one-shot flag with something that recomputes the
+same answer no matter how many times Strict Mode replays it: Modal
+switched to an explicit, idempotent DOM marker (`data-modal-initial-focus`)
+that gets re-applied identically on every pass; the autosave effects
+switched to comparing against a ref holding the *last value actually
+saved*, so a replay with the same value keeps comparing equal and
+skipping, while a genuine later edit still compares unequal exactly once.
+
+**Rule:** a `useRef` flag meant to gate an effect's real work on "the
+first time only" is not safe against Strict Mode's mount replay in dev.
+Prefer comparing against a *value* (the last-seen dependency, an explicit
+marker in the DOM) rather than a one-shot boolean — a value comparison
+naturally produces the same answer no matter how many times the same
+render is replayed; a flag flipped once cannot. When a fix like this
+seems to work for one call site of a pattern but not another that looks
+structurally identical, check whether one mounts fresh each time and the
+other stays mounted and only toggles a prop — Strict Mode's replay
+applies only to the former.

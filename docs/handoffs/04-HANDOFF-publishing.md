@@ -54,13 +54,25 @@ the count is exactly the information a builder needs to decide.
 **Story PB2 (advisory publish-readiness) is complete and committed** — the
 epic's second slice, resuming after epic 05 absorbed PB1b as its own
 Story D4. New pure `publishReadiness` (`src/lib/publish-readiness.ts`)
-reports five finding kinds — `unfilled-cells`, `unwritten-hints`,
-`short-answers`, `unchecked-squares`, `asymmetric` — reusing
-`requiredHints`/`hintKey` (the same rule `hintsComplete` already encodes),
-`extractSlots`, and `isSymmetric` rather than adding new engine logic; the
-story's own Scope discipline barred any `src/engine/` change; all five
-checks consume existing exports. It returns findings, never a boolean —
-there is no `canPublish` — so nothing could mistake the result for
+originally reported five finding kinds — `unfilled-cells`,
+`unwritten-hints`, `short-answers`, `unchecked-squares`, `asymmetric` —
+reusing `requiredHints`/`hintKey` (the same rule `hintsComplete` already
+encodes), `extractSlots`, and `isSymmetric` rather than adding new engine
+logic; the story's own Scope discipline barred any `src/engine/` change;
+all five checks consumed existing exports.
+
+**`unchecked-squares` was removed after this story, by direct product
+decision (not a further story).** Flagging every square not covered by
+both an across and a down answer implied every valid puzzle must be fully
+checked, which isn't a real constraint, and the finding told the builder
+nothing they couldn't already see by looking at the grid. `publishReadiness`
+now reports four kinds — `unfilled-cells`, `unwritten-hints`,
+`short-answers`, `asymmetric` — with the `unchecked-squares` computation
+and its dedicated test cases deleted outright, not merely hidden from the
+UI.
+
+It returns findings, never a boolean — there is no `canPublish` — so
+nothing could mistake the result for
 permission, matching the epic's governing principle that the builder
 decides when a puzzle is done.
 
@@ -305,8 +317,14 @@ src/engine/
                     purity check updated by PB1a — do not edit
 src/lib/
   publish-readiness.ts       Story PB2 — new; publishReadiness(puzzle) ->
-                               readonly Finding[], five finding kinds
-  publish-readiness.test.ts Story PB2's acceptance test — do not edit
+                               readonly Finding[]. Four finding kinds as
+                               of a post-story product decision that
+                               removed unchecked-squares (see Where
+                               things stand)
+  publish-readiness.test.ts Story PB2's acceptance test, frozen during
+                              the story itself; its unchecked-squares
+                              cases were later deleted along with the
+                              feature by the same post-story decision
   stepper.ts       Story PB3 — stepStates gains isPublished; publish is
                      available/current in hints phase instead of always
                      unavailable; clues reads complete once published
