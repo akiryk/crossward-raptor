@@ -11,21 +11,25 @@ Repo: `crossward-raptor`. Branch `main`, tracking `origin/main`.
 
 ## Where things stand
 
-**A1 is complete** (opened as a PR for review — high blast radius, it
-touches `prisma/**`). Better Auth is installed and configured against the
-existing Prisma/Postgres, with `User`, `Session`, `Account` and
-`Verification` tables plus `displayName` (nullable) and `role` (defaults
-to `'user'`, deliberate unused dead weight) on the user. The magic-link
-flow — request a link, consume it, sign out — works end to end, driven by
+**A1 and A2 are complete** (A1 merged to `main` via PR — high blast
+radius, it touched `prisma/**`; A2 pushed straight to `main` — low blast
+radius). Better Auth is installed and configured against the existing
+Prisma/Postgres, with `User`, `Session`, `Account` and `Verification`
+tables plus `displayName` (nullable) and `role` (defaults to `'user'`,
+deliberate unused dead weight) on the user. The magic-link flow — request
+a link, consume it, sign out — works end to end, driven by
 `e2e/magic-link.spec.ts` reading the token from the database rather than
-an inbox. `npm run verify` is green (308 vitest tests) and
-`npm run test:e2e` is green (278 tests, the 2 new magic-link tests plus
-every prior spec unmodified — nothing is protected yet).
+an inbox. `/` is now a real front door: a signed-out visitor sees the
+app name, marketing copy, a sign-in form and a privacy line; a signed-in
+visitor is redirected server-side to `/puzzles`, driven by
+`e2e/front-door.spec.ts`. `npm run verify` is green (308 vitest tests) and
+`npm run test:e2e` is green (281 tests — the 2 magic-link tests plus the 3
+new front-door tests, every prior spec unmodified — nothing is protected
+yet).
 
-Still to do: A2 (the public front door at `/`), then A3 (route protection
-plus the signed-in-user test helper). A3 is the riskiest — it changes the
-precondition of the entire e2e suite — and lands last. See the epic for
-the reasoning.
+Still to do: A3 (route protection plus the signed-in-user test helper).
+It is the riskiest — it changes the precondition of the entire e2e suite —
+and lands last. See the epic for the reasoning.
 
 ## What exists
 
@@ -46,6 +50,21 @@ prisma/migrations/20260922211911_add_auth_models/
                                        the generated migration for the above
 e2e/magic-link.spec.ts                 frozen acceptance spec (the flow)
 e2e/helpers/auth.ts                    editable plumbing the spec imports
+```
+
+A2 added:
+
+```
+src/app/page.tsx                       async server component — redirects a
+                                       signed-in visitor to /puzzles, else
+                                       renders the front door
+src/lib/auth-client.ts                 Better Auth's React client
+                                       (createAuthClient + magicLinkClient),
+                                       the browser-side counterpart to
+                                       src/lib/auth.ts
+src/components/auth/SignInForm.tsx     client component — email input, submit
+                                       button, sent state, privacy line
+e2e/front-door.spec.ts                 frozen acceptance spec (the front door)
 ```
 
 ## Decision log
