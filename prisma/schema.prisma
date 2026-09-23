@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,14 +8,86 @@ datasource db {
 }
 
 model Puzzle {
-  id          String    @id @default(cuid())
-  title       String    @default("Untitled Puzzle")
-  grid        Json
+  id              String    @id @default(cuid())
+  title           String    @default("Untitled Puzzle")
+  grid            Json
   gridBeforeHints Json?
-  hints       Json
-  phase       String    @default("grid")
-  publishedAt DateTime?
-  visibility  String    @default("private")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  hints           Json
+  phase           String    @default("grid")
+  publishedAt     DateTime?
+  visibility      String    @default("private")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
+  // prompts for one when it is first needed.
+  displayName String?
+  // Deliberate, documented dead weight: nothing reads this. It exists from
+  // the first migration so adding it later to a populated table -- the
+  // expensive change -- isn't needed. Authorization machinery is deferred
+  // until a second role exists (epic 09). Not an oversight; do not build on it.
+  role String @default("user")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
