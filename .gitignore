@@ -45,3 +45,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# request logger
+/request-logger/logs/
+/request-logger/.agent-choice.json
