@@ -19,10 +19,13 @@ export async function sendMagicLink(email: string, url: string): Promise<void> {
   if (!apiKey) return;
 
   const resend = new Resend(apiKey);
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'Your Crossward sign-in link',
     text: `Sign in to Crossward by opening this link:\n\n${url}\n\nIt expires in 15 minutes and can be used once.`,
   });
+  if (error) {
+    throw new Error(`sendMagicLink failed: ${error.name} ${error.message}`);
+  }
 }

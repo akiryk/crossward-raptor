@@ -83,7 +83,9 @@ export async function getSession(
   page: Page
 ): Promise<{ user?: { email?: string } } | null> {
   const res = await page.request.get('/api/auth/get-session');
-  if (!res.ok()) return null;
+  if (!res.ok()) {
+    throw new Error(`getSession failed: ${res.status()} ${await res.text()}`);
+  }
   const text = await res.text();
   if (!text) return null;
   const body = JSON.parse(text) as { user?: { email?: string } } | null;

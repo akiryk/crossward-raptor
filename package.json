@@ -13,8 +13,7 @@
     "db:setup": "npm run db:up && npm run db:migrate",
     "pretest:e2e": "npm run db:up && node scripts/migrate-test-db.mjs && node scripts/reset-test-db.mjs && node scripts/free-e2e-port.mjs",
     "test:e2e": "playwright test",
-    "verify": "tsc --noEmit && npm run lint && vitest run",
-    "request-logger": "tsx request-logger/proxy.ts"
+    "verify": "tsc --noEmit && npm run lint && vitest run"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -31,7 +30,6 @@
     "resend": "^6.28.1"
   },
   "devDependencies": {
-    "@clack/prompts": "^1.8.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -42,7 +40,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
-    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }
