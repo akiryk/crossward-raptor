@@ -7,20 +7,28 @@ existing e2e spec — all ~276 of which navigate straight into a protected
 route without signing in — has to keep passing.
 
 The rule is one sentence: **`/` is public; everything else redirects a
-signed-out visitor to `/`.** Applied in one place (middleware), so no page
-below it has to branch on "is there a user?".
+signed-out visitor to `/`.** Middleware performs a lightweight cookie check;
+server-side session validation protects data access and the style guide.
 
 The work that makes this safe is not the middleware — it's making the suite
 pass **without editing specs one at a time**. That happens two ways, both
 below: a Playwright project split by auth need, and a session seeded once per
 run into a shared `storageState`.
 
-**Blast radius: low by the file rule** — this touches no `prisma/**`, engine,
-`puzzle-storage.ts`, or `actions.ts`, so `/story` will push it to `main`
-without a PR. But it changes the precondition of the entire e2e suite, which
-no file-based rule captures. **Recommend a manual review anyway** (a different
-agent), given the risk; that's the user's call, not something `/story` will
-force.
+**Blast radius: high** — the corrected scope touches `actions.ts` and requires
+a branch/PR and independent review/merge under `docs/CODE-REVIEW.md`.
+
+## Scope correction (2026-10-14)
+
+Inspection found that the original story's assumption that routes already
+fully validate sessions was false. Header's `getSession` call controls only
+sign-out visibility; it does not reject access. The user authorized resuming
+A3 after this gap and the required Server Action changes were explained.
+Keep middleware optimistic and validate the actual session server-side before
+protected reads/writes or rendering the style guide. Missing, invalid, expired,
+and revoked sessions must be rejected; a cookie's presence is insufficient.
+This adds authentication only, without ownership or role checks. Existing
+acceptance tests remain frozen; supplemental regression tests cover this gap.
 
 ## Repo paths
 
@@ -28,8 +36,15 @@ force.
   `/api/auth/*`, and Next internals/static assets; redirects a request with no
   session to `/`. Use Better Auth's lightweight middleware cookie check
   (`getSessionCookie`, an optimistic presence check — no DB call in
-  middleware); full validation stays in the routes. Confirm the exact helper
+  middleware); full validation runs server-side. Confirm the exact helper
   name against the installed version.
+- `src/lib/require-session.ts` — new shared server-side session guard using
+  Better Auth's actual session validation and redirecting rejected requests to `/`.
+- `src/app/puzzles/actions.ts` — edited: guard every exported Server Action,
+  including list/detail reads, before data access or side effects. These guards
+  also protect the puzzle pages that call those actions.
+- `src/app/style-guide/layout.tsx` — new server-side guard around the existing
+  client page. No style guide redesign or route moves.
 - `src/components/layout/Header.tsx` — edited: render a sign-out control **only
   when a session exists** (check server-side with `auth.api.getSession`). The
   Header renders on `/` too, where a signed-out visitor must not see it.
@@ -38,6 +53,9 @@ force.
   the user to `/`. This is the sign-out affordance the epic said A3 must
   decide on.
 - `playwright.config.ts` — edited: the project split (below).
+- `vitest.config.mts` — editable test plumbing if needed for source import aliases.
+- Supplemental new session-validation tests and their editable helpers may be
+  added independently; all existing specs stay frozen.
 - `e2e/auth.setup.ts` — new: seeds the shared signed-in session once per run
   and saves `storageState` (below). Infrastructure, implementer-owned.
 - `scripts/reset-test-db.mjs` — edited: also clear the auth tables (`user`,
@@ -62,6 +80,8 @@ Two projects, assigned by file — **no spec file is edited or moved**:
   only assert layout that renders on `/`'s front door (header, main landmark,
   design tokens, no overflow), so they pass signed out, unchanged — I checked
   each assertion against the front door.
+  Supplemental invalid/expired/revoked-session regression specs also start
+  signed out and belong in this project.
 - **`authenticated`** (`storageState` from the setup below, `dependencies:
   ['setup']`): everything else — every spec that visits `/puzzles`,
   `/style-guide` or `/puzzles/{id}`. They navigate straight in, exactly as
@@ -112,7 +132,9 @@ and the frozen spec is agnostic to the choice.
 
 - **`/` and `/api/auth/*` stay reachable signed out.** Sign-in must keep
   working, so the auth API must never be behind the redirect.
-- **Every other route redirects a signed-out visitor to `/`.**
+- **Every other route redirects a signed-out visitor to `/`.** Invalid,
+  expired, or revoked sessions are rejected server-side before protected data
+  is read or modified, including direct Server Action calls.
 - **A signed-in visitor reaches every route as before** — the entire existing
   suite passes unmodified.
 - **Sign-out** returns the user to `/` and clears the session.
@@ -129,7 +151,7 @@ and the frozen spec is agnostic to the choice.
 - **No new tokens, no design work** on the sign-out control beyond making it a
   real, reachable control. Match existing Header/Button conventions.
 - **Middleware stays a cookie-presence check.** Don't add per-request DB
-  validation in middleware; the routes already run server-side.
+  validation in middleware; perform actual validation at server-side boundaries.
 
 ## Acceptance examples
 
@@ -155,8 +177,9 @@ control returns to `/` and leaves no session.
    redirects to `/`. Demonstrated by A3-1 plus the suite passing.
 4. Running the suite twice in a row passes both times (proves the auth-table
    wipe and the once-per-run seed compose correctly).
-5. Pushed to `main` (low blast radius). **Flag for manual review** given the
-   suite-wide precondition change, and report that recommendation explicitly.
+5. Delivered through a PR and independent review, then merged by the reviewer
+   after verification/configured CI pass. The corrected Server Action scope
+   makes this high blast radius under `docs/CODE-REVIEW.md`.
 
 Report anything that doesn't work — especially any spec that the project split
 alone couldn't rescue, or any place the seeding had to change — rather than
