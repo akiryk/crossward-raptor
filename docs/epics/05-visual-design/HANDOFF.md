@@ -1,0 +1,978 @@
+# Visual Design — Handoff
+
+## Read first
+
+1. `AGENTS.md` — core rules, if not already loaded.
+2. `docs/epics/05-visual-design/EPIC.md` — scope and Decisions; this handoff preserves
+   historical reasoning and checkpoints.
+3. For a change in this area, the specific story in `docs/epics/05-visual-design/stories/`
+   and the code/tests named by that story.
+
+For the next active product task, use `docs/epics/README.md` →
+`Find the current work`, then the selected handoff's `Read first` and current state.
+Read this handoff's older narrative only when the task depends on its decisions.
+Historical branch states, test counts, and next steps below are recorded
+checkpoints; confirm the live checkout before acting on them.
+
+Current state of the crossword-builder project's fifth epic, for an agent or
+collaborator picking it up fresh. Read alongside
+`docs/epics/05-visual-design/EPIC.md` and `AGENTS.md`, which remain
+authoritative for scope and behavior. This document covers what has actually
+happened and the decisions that live only in conversation. See
+`docs/epics/01-grid-engine/HANDOFF.md`, `docs/epics/02-builder-ui/HANDOFF.md`,
+`docs/epics/03-puzzle-management/HANDOFF.md`, and `docs/epics/04-publishing/HANDOFF.md` for the
+first four epics' handoffs.
+
+Repo: `crossward-raptor`. Branch `main`, tracking `origin/main`.
+
+This epic pauses the publishing epic after its first story (PB1a, complete
+— see `docs/epics/04-publishing/HANDOFF.md`). PB1b (the grid-phase preview toggle) is
+absorbed into this epic as Story D4; PB2–PB5 resume once this epic
+completes.
+
+---
+
+## Where things stand
+
+**Story D1 (token vocabulary and style guide) is complete and committed.**
+It's the epic's first slice, and everything after it styles against the
+tokens it establishes.
+
+`src/app/globals.css`'s `@theme` block expanded from P0's ten names to a
+27-token vocabulary: typefaces, paper/ink at several weights, structural
+rule colors, an accent pair, per-grid-phase cell fills, hint-status colors,
+radii, and a couple of misc sizing values. All ten of P0's original names
+are kept unchanged (`shell.spec.ts` pins them by name), only their values
+and the surrounding set changed. `src/app/layout.tsx` now loads Space
+Grotesk and Inter via `next/font/google` (re-adding the font-loading
+boilerplate P0 deliberately removed), exposing them as `--font-space-grotesk`
+and `--font-inter` CSS variables that `--font-display`/`--font-body`/
+`--font-data` build on top of — editing `--font-display` etc. directly in
+devtools still works, since it's just an ordinary custom property either
+way.
+
+A new `/style-guide` route (`src/app/style-guide/page.tsx`) renders all
+twelve required sections — tokens, text, buttons, inputs, links, hint rows,
+a confirmation, an error message, a tooltip, a stepper, and a build-phase
+and preview-phase grid stub — as static markup, not by importing the real
+`PuzzleGrid`/`HintsPanel` components (per the story's decision: a style
+guide that depends on the component it's meant to inform is circular, and
+D1 shouldn't be blocked on D3/D4). The grid sections are deliberately
+representative stubs; D3 and D4 render the real thing later. The new
+`TokenPanel` component (`src/components/style-guide/TokenPanel.tsx`) lists
+every token from a hardcoded array mirroring `globals.css`'s `@theme`
+block — there's no runtime-readable source of truth to generate this list
+from, since Tailwind v4 compiles `@theme` into CSS at build time.
+
+No test in this story pins a specific colour value, per the epic's
+stated convention; assertions check that states are *distinguishable*
+(different background, different cursor, a visible border, a focus-state
+difference) rather than pinning exact tokens, so the token values stay
+freely adjustable via the devtools iteration loop the epic's Conventions
+section describes.
+
+**Story D1b (style guide refinements) is complete and committed.** A
+follow-up from looking at the rendered D1 output, three corrections to D1's
+own output rather than new surface area. `--color-complete` is gone —
+identical value to `--color-accent` (`#1F9D6B` under two names, inherited
+from the mock), so hint completeness now reads `--color-accent` directly;
+removed from `globals.css`, `TokenPanel`'s token list, the one style-guide
+sample that referenced it, and (**authorized one-line edit to a committed
+acceptance test**) `shell.spec.ts`'s pinned token list. Hover states landed
+for the first time — `--color-accent-hover` was declared in D1 but never
+used; the primary button, quiet button, and a link in the new `sg-hover`
+section now use it (and `--color-hover-tint` for the quiet button), while
+the disabled button deliberately gets no hover styling at all, since it
+isn't interactive. `sg-hover` physically *contains* the same
+`sg-button-primary`/`sg-button-disabled` elements D1's own unscoped
+assertions already query — not a duplicate pair — since Playwright's
+strict-mode `getByTestId` would otherwise resolve two elements for both
+that query and D1b's own scoped one. The grid samples were rebuilt around
+the technique the mock actually uses: a `data-testid="sg-grid"` container
+painted `--color-grid-line` with `gap: var(--grid-line-width)`, and
+`data-testid="sg-cell"` cells with no border of their own — the gap alone
+is the hairline, exactly one pixel of one colour regardless of what's on
+either side, which per-cell borders couldn't guarantee. Cells are fixed
+squares (`h-10 w-10`) so letters and numbers never resize them. Both
+samples now show identifiable states via `data-cell-state` (`empty`,
+`letter`, `black`, `required`, `cursor`, `symmetric-hint`) with a
+`data-testid="sg-cell-number"` badge on numbered cells, replacing D1's
+blank placeholder cells. Still static markup — D3 and D4 render the real
+thing.
+
+**Story D2 (core controls) is complete and committed.** Applies D1's
+tokens to the real app via two new shared components,
+`src/components/ui/Button.tsx` (`primary`/`quiet`/`danger` variants) and
+`src/components/ui/TextInput.tsx` — every existing button and text input
+in the app now goes through one of these rather than growing its own
+classes. Danger uses `--color-required` (already established as the
+error/attention colour by D1b's `sg-error` sample) with a
+`hover:brightness-90` filter rather than a dedicated hover token, since
+`--color-required` has no `-hover` companion and this story adds no new
+tokens. `TextInput`'s border is subtle (`--color-rule`) by default and
+strengthens to `--color-accent` on both hover and focus, uniformly for
+every instance — this is what makes the puzzle title's edit affordance
+"always visible, not hover-only" per the story's decision, without
+needing per-site typography overrides the component's contract has no
+room for; the title lost its previous oversized heading-style type
+(`font-display text-2xl font-bold`) as a direct consequence, since
+`TextInput` has one canonical look and the story is explicit that this is
+one styling decision made once, not per-site styling.
+
+Delete moved out of the editor entirely into a `data-testid="danger-zone"`
+region at the end of the puzzle detail page, now the only thing in it.
+`data-testid="editor-actions"` groups the editor's ordinary controls
+(`clear-letters-button`, `enter-hints-button`) with a real gap between
+them. **`src/components/grid/PuzzleGridEditor.tsx` needed a small edit to
+add that wrapper, despite not being listed in this story's Repo
+paths** — `editor-actions` has to physically contain both testids, and
+they're rendered as siblings only there (`PhaseControls` owns
+`enter-hints-button`, `ClearLettersButton` owns `clear-letters-button`).
+Confirmed via the story's own markup contract and acceptance tests before
+making the change, not guessed.
+
+`src/app/style-guide/page.tsx` became a client component (`useState` for
+a real, controlled `sg-input` demo, since `TextInput.onChange` is a
+required prop) and now renders the real `Button`/`TextInput` in every
+place D1/D1b had hand-styled markup standing in for them (`sg-hover`'s
+three buttons, `sg-input`, `sg-confirmation`'s confirm/cancel) — every
+existing testid preserved exactly, `e2e/style-guide.spec.ts` passes
+unmodified as the story required. `sg-input-focused-example` and
+`sg-tooltip`'s trigger button were left as hand-styled markup: neither is
+referenced by any test, and neither is one of the app's real migrated
+controls (the focused-example is a decorative side-by-side demo,
+sourced by neither `Button` nor `TextInput`'s contract).
+
+**Story D1c (grid hairline: outer edge and real measurement) is complete
+and committed.** A second D1 follow-up, from looking at the corrected D1b
+samples: white cells against the white page had no visible edge at all,
+since the inner hairline only ever showed up *between* cells, never around
+the outside. Fixed with `padding: var(--grid-line-width)` on the `sg-grid`
+container — its background now shows around the perimeter exactly as it
+already did between cells, so every cell edge is bounded regardless of
+what's adjacent to it or what the cell itself contains.
+
+The more consequential change is in the tests, not the markup.
+`e2e/style-guide.spec.ts`'s old hairline assertions checked
+`getComputedStyle(container).gap` — CSS that was never actually wrong
+(D1b's real bug left `rowGap`/`columnGap` both reporting a correct `1px`
+the entire time the render was broken by ~13px). Those assertions are
+**removed, not kept alongside**: a new `measureSample` helper reads
+`getBoundingClientRect()` on the actual cells and container, checking the
+real pixel distance between adjacent cells and between the outermost
+cells and the container's edge, within half a pixel. That holds regardless
+of *how* the spacing is achieved (gap, padding, track sizing), which is
+what's actually worth testing — a declared-CSS assertion describes intent,
+not result, and D1b proved intent and result can silently diverge.
+`docs/LEARNINGS.md` gained entry 7 documenting the incident this story is
+a direct response to.
+
+**Story D3 (build-phase grid) is complete and committed.** Makes the real
+grid look like the style guide's build sample. A new pure
+`src/lib/cell-appearance.ts` exports `cellAppearance` (one derived
+`CellAppearance` value per cell — `black` beats `selected` beats `slot`
+beats the cell's own content — rather than a pile of booleans checked in
+JSX) and `symmetricHintKeys` (Story A's `symmetricCounterpart`, unused by
+any UI until now, applied per render: a lettered cell's empty counterpart
+renders white as a suggestion, never stored). Numbering now derives from
+the *effective* grid — `buildCellNumberLookup(convertEmptyCellsToBlack(
+grid))` — computed at `PuzzleGrid`'s call site rather than inside
+`buildCellNumberLookup` itself, so that function's own committed tests
+(which assert over raw grids) stay meaningful. `PuzzleGrid` adopted D1c's
+container-background hairline technique verbatim (`bg-grid-line`, `gap`
+and `padding` both `--grid-line-width`, `grid-template-rows` added
+alongside the existing `grid-template-columns` so row and column tracks
+divide evenly the same way) — cells carry no border of their own.
+Backgrounds live on the `grid-cell` wrapper `div`, not `GridCell`'s inner
+leaf, since that wrapper is what the hairline's gap/padding surrounds and
+the only element any geometry or background assertion has reason to
+inspect; `GridCell`/`EmptyCell`/`LetterCell`/`BlackCell` dropped the
+`highlight` prop entirely; `BlackCell` needed no functional change beyond
+that (it already had no border).
+
+Two contradictions surfaced during implementation, both resolved with the
+user before proceeding rather than guessed past:
+
+1. The Decisions section requires reusing `convertEmptyCellsToBlack`
+   (PB1a, `src/engine/phase.ts`) at `PuzzleGrid`'s call site, but that
+   function wasn't exported, and Scope discipline separately claimed "no
+   changes to `src/engine/`... consumed as they are." Resolved by
+   exporting it — a visibility-only change, no behavior difference, no
+   existing test affected.
+2. `e2e/grid-rendering.spec.ts` (Story P2's frozen test, not in this
+   story's Repo paths) asserted 5 numbered cells under raw-grid numbering
+   on a fixture where D3's own effective-geometry decision correctly
+   produces exactly 1 (the fixture's two empty cells become black before
+   numbering runs, per `convertEmptyCellsToBlack`, leaving one run in
+   each direction, both starting at `(0,0)`) — contradicting D3's own
+   Definition of Done ("every other spec passes unmodified"). The
+   expected count and resolved coordinate were derived by hand from
+   `convertEmptyCellsToBlack` and `numberGrid`'s rules, then confirmed
+   against the actual render, before narrowing the assertion to match.
+   Recorded in `docs/epics/05-visual-design/stories/05-D3-build-grid.md`'s new Test changes
+   section.
+
+**Story D4 (preview and published grid) is complete and committed.** It
+absorbs PB1b from the publishing epic — the grid-phase preview toggle
+showing the grid as it will look once published. `cellAppearance` gained
+an optional `mode?: GridMode` parameter (`'build'` default) rather than a
+second function, so D3's committed cases call it exactly as before;
+preview mode ignores selection and slot entirely (the builder's cursor
+state isn't the puzzle's), and answers only: black stays black, lettered
+cells are letters, empty cells go black, and empty symmetric
+counterparts become the new `required` appearance (`--color-required`,
+already established, no new token). New `PreviewToggle.tsx` renders a
+`<Button variant="quiet">`, shown only in grid phase (`PuzzleGridEditor`
+gates it on `phase === 'grid'`, alongside the other `editor-actions`
+controls); preview state is a plain `useState` in `PuzzleGridEditor`,
+never persisted, so a reload always returns to build view. `PuzzleGrid`
+gained a `mode?: GridMode` prop (default `'build'`), threading straight
+into `cellAppearance` and onto a new `data-grid-mode` attribute on the
+container.
+
+D3's architecture — background centralized on the `grid-cell` wrapper
+via a single `APPEARANCE_BG` lookup in `PuzzleGrid.tsx`, with
+`GridCell`/`EmptyCell`/`LetterCell`/`BlackCell` reduced to pure
+dispatch/layout — meant the `required` state needed only one new entry
+in that lookup table. None of those four leaf components changed at
+all, despite being named in this story's own Repo paths (an assumption
+carried over from before D3's refactor); a `required` cell is still
+content-wise just an empty active cell, so it still renders through the
+same `EmptyCell` branch, only with a different background. No repeat of
+D3's frozen-test surprise this time — `npm run test:e2e` passed clean on
+the first run across every spec, `grid-rendering.spec.ts` included.
+
+**Story D5a (editor layout) is complete and committed.** It fixes the
+complaint that started the epic — a 15×15 ran off the bottom of the
+screen, with hints further down still. `PuzzleGridEditor` now wraps the
+grid and hints panel in a new `editor-layout` div (`flex flex-col
+lg:flex-row`, `lg` = Tailwind's 1024px breakpoint: side by side above
+it, stacked below). `grid-region` sizes the grid via a `min()` of a
+height-based term (`calc((100vh - 260px) * cols/rows)`, the 260px
+allowance reserved for the title/phase-line/editor-actions row above
+it) and a hard maximum (640px) as an inline style, composed with a
+responsive `max-width` class (`max-w-full` stacked, `lg:max-w-[45%]`
+side-by-side) for the width-based term — CSS's own `min(width,
+max-width)` resolution combines all three without needing them in one
+expression. `hints-region` caps its own height to the same formula and
+scrolls internally (`overflow-y-auto`), so a long hint list no longer
+grows the page.
+
+Neither `page.tsx` nor `HintsPanel.tsx` needed changes despite being
+named in the story's Repo paths — sizing and scrolling are fully owned
+by the two new wrapper divs in `PuzzleGridEditor.tsx`, the same
+centralize-in-the-wrapper pattern D3 established for cell appearance.
+One real bug surfaced only at the phone viewport: `PuzzleGrid`'s grid
+tracks were bare `repeat(n, 1fr)`, and `1fr` tracks carry an implicit
+`min-height: auto` sized to their content — at small enough cell sizes,
+a letter's default line-height forced rows taller than the width,
+breaking squareness. Fixed by switching to `repeat(n, minmax(0, 1fr))`,
+the standard fix for this class of bug (same family as the column-
+shrink issue D1c fixed for the style guide, now hitting rows in the
+real grid).
+
+**Story D5b (stepper navigation) is complete and committed.** It adds
+the build → clues → publish header and makes its labels the primary
+navigation, alongside (not replacing) the existing continue button. New
+`src/lib/stepper.ts` exports `stepStates`, a pure function of `{ phase,
+hintsComplete }` returning the three steps in order, each carrying a
+derived `status` and — only when `unavailable` — a `reason` explaining
+why. New `Stepper.tsx` renders them, revealing a step's reason on click
+rather than hover (touch devices have no hover), and calling back up to
+`PhaseControls` only for clicks on a non-unavailable step. `PhaseControls`
+now computes `hintsComplete` via the engine's existing `hintsComplete
+(puzzle)` (already used by `puzzle-summary.ts` for the list page) rather
+than a new rule, and the continue button drops to the `quiet` variant —
+it's no longer the most prominent thing on the page during the phase
+where leaving is least wanted.
+
+Adding the stepper grew the header above `editor-layout`, which broke
+D5a's own frozen fit test at 1280×800 by a few pixels — `grid.bottom`
+exceeded the viewport because D5a's `VERTICAL_ALLOWANCE_PX` constant
+didn't anticipate the new row. Bumped from 260 to 300; this is the
+exact class of thing D5b's own DoD item 3 says to check for, not a
+layout redesign (D5a's arrangement itself is untouched). Separately,
+`persistence.spec.ts`'s new-puzzle test failed under direct `npx
+playwright test` invocation, mid-session, with no network request ever
+firing on the button click — bisected via `git stash` to rule out a
+D5b regression, then traced to a stale `next dev -p 3100` process left
+over from bypassing `npm run test:e2e`'s `pretest:e2e` port/lock-clearing
+hook (see the port/lock note earlier in this file and in `AGENTS.md`).
+Running through `npm run test:e2e` as intended made it disappear —
+no code was at fault.
+
+**Story D7 (remove duplicate) is complete, merged via
+`story/05-D7-remove-duplicate`** — high blast radius per
+`docs/CODE-REVIEW.md`, since it touches `src/app/puzzles/actions.ts`.
+Its own commit branched right after Story D4, but the PR sat unmerged
+through D5a, D5b, and D6's spec baseline before landing — merged ahead
+of D6's own PR, not after, despite D6 being drafted first. Removes the
+duplicate-puzzle feature outright: `duplicatePuzzle`
+(`src/app/puzzles/actions.ts`), `DuplicatePuzzleButton.tsx` and its use
+on the detail page, `duplicateTitle` (`src/lib/puzzle-title.ts`) and its
+M4 tests (`normalizeTitle` and its own tests are untouched), and
+`e2e/duplicate.spec.ts` — it came from a proposal in epic 3 rather than
+a real need and wasn't wanted, per the epic's own Story Group D7.
+`docs/epics/03-puzzle-management/HANDOFF.md`'s record of Story M4 is
+left intact as a record of what happened, with one line added there
+noting the later removal; `docs/epics/03-puzzle-management/stories/03-M4-duplicate.md` itself is
+deleted, not archived. This backfills the entry that should have
+existed here from the start — the PR merged outside the normal `/story`
+flow (found and merged during an unrelated audit follow-up), so step 6
+never ran for it.
+
+**Story D6 (new-puzzle dialog) is implemented, verified, and opened as a
+PR (`story/05-D6-new-puzzle-dialog`) rather than merged to `main`** —
+high blast radius per `docs/CODE-REVIEW.md`, since it touches
+`src/lib/puzzle-storage.ts` and `src/app/puzzles/actions.ts`. Clicking
+"New Puzzle" now opens `NewPuzzleDialog` instead of creating an
+untitled 15×15 immediately: a required name and one of three sizes
+(new `src/lib/puzzle-size.ts` — mini 5×5, daily 15×15, sunday 21×21,
+matching `docs/NYT-CROSSWORD-REFERENCE.md`'s conventions) are collected
+first. `createBlankPuzzle` and `createPuzzle` both widened to take an
+optional/required size respectively; `createBlankPuzzle()` with no
+argument still returns the original 15×15 (Story P1's committed
+`puzzle-storage.test.ts` passes unmodified, by design — the decision
+explicitly calls out keeping the no-arg default rather than breaking
+that contract). `TextInput` gained a small `autoFocus` prop (not in the
+story's own Repo paths, but the minimal way to satisfy "the name input
+is focused on open" without ref-forwarding).
+
+`persistence.spec.ts` was overwritten as an authorized edit: three of
+its four tests now go through the dialog and assert the typed title
+instead of the old "Untitled Puzzle" default — a consequence of the
+flow this story deliberately changes, not a weakening. The fourth
+(nonexistent id → 404) is untouched. Full-suite `npm run test:e2e` runs
+were noisy under parallel load this story (13 unrelated failures on one
+run, 1 on another, 0 on a third, no repeated failure and nothing
+touching the dialog) — DB-contention flakiness under four parallel
+workers now hitting more Server-Action-backed puzzle creation, not a
+D6 regression.
+
+**Story D8 (live token editing) is complete and committed** — low blast
+radius, merged straight to `main`. Restructures `/style-guide` into a
+pinned left `TokenPane` (three tabs — Colors has real `ColorPicker`
+controls; Fonts and Utility render placeholder text pending D9/D10) and
+a scrolling right `examples-pane`. Each `ColorPicker` writes straight to
+`document.documentElement.style`, overriding the `@theme` value
+document-wide with nothing persisted — a reload always shows the
+committed `globals.css` value. `TokenPanel.tsx`'s flat list is removed
+outright, superseded by `TokenPane`.
+
+The grid samples (`GridExamples.tsx`) now build and render a real 10×10
+`Grid` through the actual `PuzzleGrid` component — `createGrid` +
+`withLetter`, a hand-placed cursor whose active down-slot spans both
+lettered and empty cells, and letters whose 180°-rotational counterparts
+stay empty (`symmetricHintKeys` picks them up as `symmetric-hint`
+automatically) — replacing D1's static `sg-grid`/`sg-cell` stand-ins.
+Numbering, hairline geometry, and preview-mode all come free from
+reusing the real component, per the story's own reasoning that static
+markup can now only drift from what the app actually renders.
+
+`--color-slot` is now registered in `@theme` and `TokenPane`'s token
+list. The story doc's own premise — that this token "was added during
+D3 without being registered" — didn't hold up under a `git show
+main:...` check: no commit anywhere in this repo's history ever added
+`--color-slot`, in D3 or otherwise. It existed only as an uncommitted,
+ad hoc edit from an earlier, out-of-band conversation (decoupling the
+selected-cell and row/column highlight colors, at the human's request),
+never part of any story. Flagged and confirmed with the human before
+proceeding; this story is what actually commits it for the first time,
+correctly attributed here rather than to D3.
+
+`ColorPicker`'s `<input type="color">` is deliberately uncontrolled (a
+ref plus a plain `addEventListener('input', ...)`, not React's
+`value`/`onChange`) — the acceptance test drives it by setting `.value`
+directly and dispatching a native event, which is exactly the pattern
+React's controlled-input value-tracking can silently swallow (the
+tracker sees the value as already updated and never re-fires
+`onChange`). A native listener has no such tracker.
+
+Two authorized corrections to the frozen `e2e/style-guide.spec.ts`
+before implementation started: `box!.top` doesn't exist on
+Playwright's `Locator.boundingBox()` (which returns `{x, y, width,
+height}`, not a `DOMRect`) — `tsc --noEmit` failed on it outright, not a
+logic disagreement. Corrected to `box!.y` by the human, re-supplied, and
+committed as a spec correction before implementing.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest tests
+unchanged — this story added no Vitest coverage). `e2e/style-guide.spec.ts`
+passes 19/19, confirmed twice in isolation. A full-suite `npm run
+test:e2e` run this story was severely degraded (35 minutes instead of
+the usual ~2, "timeout exceeded while setting up page," 30 failures
+spanning files this story never touches) with no leftover Chromium/Next
+processes to explain it — traced to the shared `TEST_DATABASE_URL`
+branch's accumulated row count from this session's many runs, the same
+un-cleaned-up test data `docs/epics/03-puzzle-management/HANDOFF.md` already flags
+as a scaling risk. Separately, and confirmed independently of that
+slowdown: `e2e/new-puzzle.spec.ts`'s `openDialog()` helper clicks
+`new-puzzle-button` immediately after `page.goto()` with no readiness
+wait, and 5/5 manual reproductions confirmed the dialog reliably fails
+to open without one (5/5 succeed with `waitForLoadState('networkidle')`
+first) — the same hydration-race class `docs/LEARNINGS.md` entries 1 and
+4 already document and that `PuzzleGridEditor` was given an `isReady`
+signal for, never applied to `NewPuzzleButton`/`/puzzles`. Neither issue
+touches any file this story's Repo paths name; both are pre-existing and
+out of scope here, reported rather than fixed. (Update: the fix was
+sitting ready on `wip/new-puzzle-hydration-race`, unverifiable until
+Story L1 gave local Postgres fast enough round-trips to test it — see
+that story's own entry once it lands.)
+
+**Story D9 (type scale and Fonts tab) is complete and committed** — low
+blast radius, merged straight to `main`. Replaces the single
+`--text-eyebrow` token with a real four-role scale (`--text-headline:
+1.75rem`, `--text-body: 1rem`, `--text-help: 0.875rem`, `--text-label:
+0.75rem`) plus two weight tokens (`--weight-normal: 400`,
+`--weight-bold: 700`), and wires both into the Fonts tab D8 stubbed out
+with new `SizeControl` (a range input, uncontrolled for the same
+React-value-tracking reason as D8's `ColorPicker`) and `WeightControl`
+(a `<select>`, same pattern) components.
+
+**Role mapping, as the story asked to have reported:**
+- **headline** (`text-headline` + `[font-weight:var(--weight-bold)]`):
+  every real `h1`/`h2` in the app — `/puzzles`' `page-heading`,
+  `TokenPane`'s "Style guide" `h1`, and every section heading in
+  `/style-guide` and `GridExamples` (nine `h2`s). The `sg-text`
+  section's "Display heading sample" line was a `<p>` styled to look
+  like a heading; converted to a real `h2` so the sample is honest and
+  `typography.spec.ts`'s `h1, h2` lookup has something to find beyond
+  the section's own "Text" title.
+- **body** (`text-body`): `/puzzles`' list-item links, and the
+  "Body text sample" line in `sg-text`.
+- **help** (`text-help text-ink-2`): `Stepper`'s `step-reason`,
+  `PuzzleGridEditor`'s `geometry-locked-message`, and every "This
+  cannot be undone" confirmation paragraph (`DeletePuzzleButton`,
+  `ClearLettersButton`, `PhaseControls`' `enter-hints-confirmation`,
+  and the static `sg-confirmation` sample) — the story names
+  "confirmation warnings" as a help example explicitly, so these read
+  as help text, not body text, despite visually looking like plain
+  prose. Also converted `sg-text`'s pre-existing "Secondary text
+  (ink-2)" sample, which was already hand-styled to exactly this
+  role's spec (`text-sm text-ink-2`) without the token backing it.
+- **label** (`text-label`): `HintsPanel`'s hint-key text, given a new
+  `data-testid="hint-label"` per the acceptance test (there was no
+  hook to select it from before); token-name spans in `ColorPicker`,
+  `SizeControl`, and `WeightControl`; and `NewPuzzleDialog`'s size
+  option buttons. That last one is a real tension in the story's own
+  text: the Decisions section excludes "button, link, and nav text"
+  from conversion, but the four-roles section explicitly names "size
+  options in the new-puzzle dialog" as a label example. Resolved by
+  reading the Decisions exclusion as being about the shared `Button`
+  *component* specifically (primary/quiet/danger, pure interface
+  chrome) — the size options are hand-rolled native `<button>`s, never
+  routed through that component, closer to selectable labels than
+  interface chrome. Followed the explicit, specific instruction over
+  the general one.
+- **Left alone, on purpose:** `TokenPane`'s tab buttons (`Colors`/
+  `Fonts`/`Utility`) and the `Stepper`'s own step-label buttons — both
+  are nav-equivalent interactive controls, matching the Button/link/nav
+  exclusion. The puzzle title input, per the story's own explicit call
+  (still an open item from Story D2). `sg-error`'s sample text — a
+  distinct semantic (error) state via `--color-required`, not one of
+  the four roles. `phase-badge` and `puzzle-phase` — status readouts
+  that don't obviously fit prose, help, or a label, left on their
+  existing classes.
+
+**A real bug, not a spec quirk, surfaced by the acceptance test rather
+than guessed at:** `SizeControl`'s range input (`min=0.5, step=0.05` per
+the story's own suggested range) cannot land exactly on `0.875rem`
+(`--text-help`'s required committed value) — `(0.875 - 0.5) / 0.05 =
+7.5`, not a whole number of steps, so Chromium silently rounded the
+input's initial value to `0.9` on assignment, caught by
+`style-guide.spec.ts`'s "starts at its committed value" test (0.875
+expected, 0.9 received). Fixed by tightening the step to `0.025` — still
+covers 0.5rem-3rem, still fine-grained, but now divides all four
+committed values exactly. A `0.05` step was never going to work for an
+eighth-based value like `0.875` no matter what `min` was chosen.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest tests —
+unchanged, this story added no Vitest coverage of its own, matching D8's
+precedent). `e2e/typography.spec.ts`: 6/6. `e2e/style-guide.spec.ts`:
+24/24. Full suite: 158/158, confirmed after Story L1's containers (up
+several hours and hit hard by that story's own repeated verification
+runs) were restarted — two prior full-suite attempts this story showed
+4 failures each, in different files each time (`controls.spec.ts`,
+`cursor-direction.spec.ts`, `new-puzzle.spec.ts`), all passing cleanly
+in isolation and none touching any file this story changed; a fresh
+`docker compose restart` made the full suite pass clean in well under a
+minute. Infrastructure fatigue after a long session, not a D9 (or L1)
+regression — but worth knowing the containers aren't entirely immune to
+needing a restart under sustained heavy use.
+
+**Story D10 (utility tab and font loading) is complete and committed** —
+low blast radius, merged straight to `main`. Fills in the Utility tab
+D8 stubbed out with a new `UtilityControl` (a range+number pair per
+token, the number authoritative) covering the four radius tokens and
+`--grid-line-width`, and adds font-family switching to the Fonts tab:
+paste a Google Fonts stylesheet URL into the new `FontLoader`, and its
+families become options in a `FontFamilyControl` select per
+`--font-display`/`--font-body`/`--font-data`. New pure
+`parseGoogleFontUrl` (`src/lib/google-font.ts`) validates the URL is
+genuinely `https://fonts.googleapis.com/...` (exact hostname match, not
+`.includes()` — a URL on `fonts.googleapis.com.evil.example.com` is a
+different host that merely contains the real one as a substring) and
+extracts the family names, stripping each `family=` parameter's
+weight/style axis after the colon.
+
+`UtilityControl`'s range is deliberately narrower than its number field
+can express: 0–64px for radii, 0–8px for `--grid-line-width`, both
+clamped silently outside that span. `--radius-btn` is `999px` (a pill)
+— the number field shows it exactly, matching the acceptance test's
+"including `--radius-btn` at its out-of-slider-range value," while the
+slider pegs at its own maximum. A slider range wide enough to include
+999 honestly would make it useless for adjusting every other radius by
+eye, which is the entire point of this epic's token architecture.
+
+Font-family selection doesn't attempt to parse or display the
+*currently committed* family as a friendly name — `--font-display`
+etc.'s declared value is `var(--font-space-grotesk), system-ui,
+sans-serif` (a nested custom-property reference `next/font/google` set
+up in Story P0/D1), not a literal family string, and `getComputedStyle`
+on a custom property returns that text as declared rather than
+resolving it. Extracting something human-readable from it wasn't worth
+building for a control whose whole job is switching to a *newly
+loaded* family — each select simply offers "Current" (a no-op) plus
+whatever `FontLoader` has loaded this session, which is exactly what
+the acceptance tests exercise. Selecting a family writes
+`"{family}", system-ui, sans-serif` straight to
+`document.documentElement.style`, which every element already inherits
+`font-family` from via `<body>`'s existing `font-body` class (`--font-display`/
+`--font-data` reach headings/grid letters the same way, through their
+own existing utility classes) — no new CSS wiring needed for the change
+to actually render.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 217 Vitest tests — 9 new,
+all `parseGoogleFontUrl`). `e2e/style-guide.spec.ts`: 34/34, first
+attempt, no retries needed. Full suite: 168/168, also first attempt —
+no repeat of D9's container-fatigue flakiness this time.
+
+Stories D8 (live token editing), D9 (type scale), and D10 (utility tab
+and font loading) extended the style-guide work beyond
+`docs/epics/05-visual-design/EPIC.md`'s own suggested build order —
+informal additions, never folded into the epic doc itself, which is why
+that doc's own scope reads as fully covered without them. All three are
+complete, per their entries above.
+
+**Story D6 (two-letter slot highlighting) is complete, merged via PR** —
+note this is a second, unrelated story also named "D6"
+(`docs/epics/05-visual-design/stories/05-D6-two-letter-highlighting.md`, distinct from
+`docs/epics/05-visual-design/stories/05-D6-new-puzzle-dialog.md` above); the collision wasn't caught before
+the story was specified and is flagged here rather than silently
+resolved. High blast radius (`src/engine/slots.ts`), so it went to a
+branch and a PR rather than merging straight to `main`. New pure
+`recommendedCells` (`src/engine/slots.ts`) returns the deduplicated union
+of every cell belonging to a length-2 slot, reusing `extractSlots`
+letter-agnostically — a still-empty length-2 slot is flagged exactly like
+a filled one, since `extractSlots` determines slot boundaries from
+active/black kind alone (Group B's own tests already establish this).
+`cellAppearance` (`src/lib/cell-appearance.ts`) gains a `recommended`
+appearance and an `isRecommended` input, checked first inside the
+preview-mode branch, ahead of the lettered-cell check — a two-letter
+word's own lettered cells must still read as `recommended`, overriding
+`letter`, per the story's decision that the rule is letter-agnostic.
+`isRecommended` is optional, defaulting to `false`, rather than required
+as the story's own illustrative contract showed — making it required
+would have broken Story D3/D4's already-committed `cell-appearance.test.ts`
+calls, and the story's own Definition of Done requires every other spec
+to keep passing unmodified. `PuzzleGrid.tsx` computes
+`recommendedCells(grid)` once per render and passes `isRecommended` per
+cell, the same pattern `symmetricHintKeys` already established. New
+token `--color-recommended` is a separate `@theme` value from
+`--color-required`, not a reused one — the builder wants independent
+recolor options for "needs a word for symmetry" versus "part of a
+two-letter word," and needed a genuinely different value from the start
+since the D6-2 acceptance test requires the two to render as visibly
+different colors, not just be independently reconfigurable in principle.
+
+Two of the story's own provided `src/engine/slots.test.ts` B6 fixtures
+were corrected during implementation, authorized directly by the builder
+as spec corrections rather than implementation-driven edits: the first
+B6 test originally placed letters in a grid with no black cells at all,
+so the across run it exercised was actually length 5, not 2; patched
+once to bound the word with a black cell, then again to narrow the grid
+from 5 to 4 columns after the first patch left an unintended second
+length-2 run past the black cell. Both corrections are their own
+commits on `main`, pushed independently of the implementation, keeping
+the specification-only/implementation-only split the `/story` skill
+relies on intact.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 252 Vitest tests — 6 new,
+all `recommendedCells`). `npm run test:e2e`: 196/196, first attempt after
+the `--color-recommended` value fix above.
+
+**Story D6r (an attempted follow-up fix to D6) was withdrawn and must not
+be revived.** Manual testing after D6 merged found a real scope gap: D6
+checked slot length against the raw grid, so a word with nothing
+blackened after it — the normal state of a grid mid-construction — was
+never flagged, even though Preview already renders trailing undecided
+cells as black. D6r's fix passed `convertEmptyCellsToBlack(grid)` into
+`recommendedCells`, copying the pattern `buildCellNumberLookup` already
+uses for numbering. That pattern doesn't transfer: `convertEmptyCellsToBlack`
+blackens every empty active cell, which is exactly the set this feature
+needs to point at, so under D6r's contract no empty cell could ever be
+flagged — only already-lettered ones survive the conversion. This isn't
+an edge case; it's structural, and it regressed D6's own passing cases
+(confirmed by running the suite: 4 failures, all traced to this one
+cause). No code from D6r shipped; its story doc and test file were
+discarded rather than merged.
+
+**Story D7 (two-letter highlighting against the effective geometry)
+replaces D6r and is complete, merged via PR.** High blast radius (new
+`src/engine/puzzle-geometry.ts`), so it went to a branch and a PR.
+Landing it required first merging D6's own PR — D7 fixes D6's behavior,
+so a branch cut from `main` needs D6's actual implementation already
+there, not just its spec/test files (which is all `main` had; D6's
+implementation had been left on its own unmerged branch). New pure
+`intendedGeometry` (`src/engine/puzzle-geometry.ts`) avoids D6r's trap by
+keeping *both* lettered cells and their empty symmetric counterparts
+active — everything else is blackened. Only cells with no letter and no
+lettered counterpart disappear, so an empty cell the feature needs to
+flag is never a casualty of computing the boundary around it. Deliberately
+a new engine module rather than reusing `symmetricHintKeys`
+(`src/lib/cell-appearance.ts`), which computes the same counterpart
+relationship but returns render keys for a component to look up, not a
+`Grid` — `intendedGeometry` needs a `Grid` for `extractSlots` and belongs
+where it gets real unit coverage without dragging render-layer key
+formats into the engine. `PuzzleGrid.tsx`'s one-line call site now reads
+`recommendedCells(intendedGeometry(grid))`; `recommendedCells` itself,
+`extractSlots`, and `symmetricHintKeys` are all untouched, per the
+story's own scope discipline.
+
+`npm run verify` exits 0 (`tsc --noEmit`, lint, 268 Vitest tests — 16
+new, all `intendedGeometry` and its composition with `recommendedCells`).
+`npm run test:e2e`: 202/202, first attempt.
+
+Nothing is pending anywhere in this epic, original scope or extensions;
+completing it resumes the publishing epic's PB2–PB5
+(`docs/epics/04-publishing/HANDOFF.md`).
+
+### What exists
+
+```
+docs/epics/05-visual-design/
+  docs/epics/05-visual-design/EPIC.md          the visual-design epic, tracked
+docs/epics/05-visual-design/stories/
+  docs/epics/05-visual-design/stories/05-D1-tokens-style-guide.md        Story D1's specification, tracked
+  docs/epics/05-visual-design/stories/05-D1b-style-guide-refinements.md  Story D1b's specification, tracked
+  docs/epics/05-visual-design/stories/05-D2-core-controls.md             Story D2's specification, tracked
+  docs/epics/05-visual-design/stories/05-D1c-grid-hairline.md            Story D1c's specification, tracked
+  docs/epics/05-visual-design/stories/05-D3-build-grid.md                Story D3's specification, tracked;
+                                       gained a Test changes section for
+                                       the grid-rendering.spec.ts edit
+  docs/epics/05-visual-design/stories/05-D5a-editor-layout.md             Story D5a's specification, tracked
+  docs/epics/05-visual-design/stories/05-D5b-stepper.md                    Story D5b's specification, tracked
+  docs/epics/05-visual-design/stories/05-D6-new-puzzle-dialog.md           Story D6's specification, tracked
+  docs/epics/05-visual-design/stories/05-D8-live-token-editing.md          Story D8's specification, tracked
+  docs/epics/05-visual-design/stories/05-D9-type-scale.md                  Story D9's specification, tracked
+  docs/epics/05-visual-design/stories/05-D10-utility-and-fonts.md          Story D10's specification, tracked
+  docs/epics/05-visual-design/stories/05-D6-two-letter-highlighting.md     Story D6 (two-letter-highlighting)'s
+                                         specification, tracked -- a
+                                         different story from the D6 above
+  docs/epics/05-visual-design/stories/05-D7-effective-geometry.md          Story D7's specification, tracked
+                                         -- replaces the withdrawn D6r
+                                         (never merged to main; its own
+                                         spec doc lives only on the
+                                         visual-polish-02 branch, not
+                                         here). See "Where things stand"
+docs/epics/05-visual-design/
+  docs/epics/05-visual-design/HANDOFF.md       this file, tracked
+docs/
+  LEARNINGS.md   Story D1c — entry 7, measuring rendered geometry
+                  instead of declared CSS for visual bugs
+e2e/
+  style-guide.spec.ts   Story D1's acceptance test, extended by D1b
+                         (hover, grid hairline, grid samples, the
+                         --color-complete removal). Story D1c — the
+                         gap/background-based hairline assertions
+                         replaced with a measureSample helper reading
+                         getBoundingClientRect. Story D8 — full rewrite
+                         for the token-pane/examples-pane restructure and
+                         real-PuzzleGrid samples; corrected once before
+                         implementation (box!.top -> box!.y, a
+                         boundingBox()/DOMRect mixup tsc caught). Story
+                         D9 — --text-eyebrow swapped for the six new
+                         type-scale/weight tokens in the resolves-check
+                         list; new D9-2 size/weight control tests; the
+                         D8-1 "selecting another tab" test retargeted
+                         from fonts (now real controls, not placeholder
+                         text) to utility (still a placeholder). Story
+                         D10 — new D10-2 (utility tab) and D10-3 (font
+                         loading) blocks; the D8-1 "selecting another
+                         tab" test's target panel no longer has any
+                         placeholder text to assert on either, but
+                         doesn't need to since it only checks visibility
+                         — do not edit
+  typography.spec.ts    Story D9's new acceptance test — do not edit
+  shell.spec.ts         Story P0's acceptance test; Story D1b removed
+                         --color-complete from its pinned token list
+                         (authorized one-line edit)
+  controls.spec.ts      Story D2's acceptance test — do not edit
+  build-grid.spec.ts    Story D3's acceptance test — do not edit
+  grid-rendering.spec.ts  Story P2's acceptance test; Story D3 narrowed
+                         its numbered-cell assertion from 5 (raw-grid
+                         numbering) to 1 at (0,0) (effective-geometry
+                         numbering) -- authorized edit, derived and
+                         confirmed against the render, not guessed
+  editor-layout.spec.ts  Story D5a's acceptance test — do not edit
+  stepper.spec.ts        Story D5b's acceptance test — do not edit
+  new-puzzle.spec.ts     Story D6's acceptance test — do not edit
+  persistence.spec.ts    Story P1's acceptance test; Story D6 overwrote
+                         three of its four tests to go through the new
+                         dialog and assert the typed title instead of
+                         "Untitled Puzzle" — authorized edit, the fourth
+                         (404) is unchanged
+  preview.spec.ts        Story D4's acceptance test; Story D6
+                         (two-letter-highlighting) appended a new "D6
+                         two-letter highlighting" describe block. Story
+                         D7 appended a "D7 effective-geometry two-letter
+                         highlighting" block; D6r's own block, briefly
+                         present only on visual-polish-02, was never
+                         part of this file on main — do not edit
+src/app/
+  globals.css   Story D1 — @theme expanded from 10 to 27 tokens; P0's
+                 ten names kept unchanged. Story D1b — removed
+                 --color-complete (identical value to --color-accent).
+                 Story D8 — registers --color-slot (existed in code only
+                 as an uncommitted ad hoc edit before this story; see
+                 "Where things stand" above). Story D9 — --text-eyebrow
+                 replaced by --text-headline/-body/-help/-label and
+                 --weight-normal/-bold. Story D6 (two-letter-highlighting)
+                 — new --color-recommended, a separate token from
+                 --color-required with its own distinct value
+  layout.tsx    Story D1 — loads Space Grotesk and Inter via
+                 next/font/google, exposed as --font-space-grotesk/
+                 --font-inter and referenced from --font-display/
+                 --font-body/--font-data
+src/app/style-guide/
+  page.tsx      Story D1 — new; all twelve sections as static/
+                 representative markup, renders <TokenPanel />. Story
+                 D1b — sg-hover wraps the primary/quiet/disabled buttons
+                 and a link with hover styling; grid samples rebuilt on
+                 a shared GridSample helper using the container-gap
+                 hairline technique with real per-state cells; the
+                 --color-complete hint-row reference fixed to
+                 --color-accent. Story D2 — client component now
+                 (useState for a controlled sg-input demo); sg-hover's
+                 buttons, sg-input, and sg-confirmation's buttons render
+                 the real Button/TextInput. Story D1c — sg-grid gains
+                 padding: var(--grid-line-width) so the hairline
+                 surrounds the outside too, not just divisions between
+                 cells. Story D8 — restructured into a two-pane layout
+                 (sticky <TokenPane /> left, scrolling examples-pane
+                 right); grid sections now render <GridExamples />
+                 instead of the static GridSample helper, which is
+                 removed along with the rest of that static markup.
+                 Story D9 — sg-text's heading/body/secondary-text
+                 samples converted to the real headline/body/help
+                 tokens (see "Where things stand" above for the full
+                 role mapping); every other h2 in this file also
+                 converted to headline
+src/app/puzzles/
+  page.tsx            Story D2 — page-heading testid + heading styling;
+                       list rows get cursor-pointer and a hover state.
+                       Story D9 — page-heading uses text-headline +
+                       weight-bold; list-item links use text-body
+  NewPuzzleButton.tsx  Story D2 — renders <Button>. Story D6 — opens
+                       <NewPuzzleDialog> instead of calling createPuzzle
+                       directly; createPuzzle now takes {title, size}
+  actions.ts           Story D6 — createPuzzle widened to
+                       ({title, size}), normalizes the title and builds
+                       via createBlankPuzzle(size)
+  [id]/page.tsx        Story D2 — DeletePuzzleButton moved into a new
+                       danger-zone region at the end of the page
+src/components/style-guide/
+  TokenPanel.tsx   Story D1 — new; one token-row per declared token,
+                    a color swatch/font sample/radius or size preview
+                    per token kind. Story D1b — --color-complete entry
+                    removed. Story D8 — removed outright, superseded by
+                    TokenPane.tsx
+  TokenPane.tsx    Story D8 — new; three tabs (Colors/Fonts/Utility),
+                    Colors renders a <ColorPicker /> per color token,
+                    Fonts/Utility are D9/D10 placeholders. Story D9 —
+                    Fonts tab renders SizeControl/WeightControl per
+                    token instead of placeholder text; "Style guide" h1
+                    uses text-headline + weight-bold. Story D10 —
+                    Utility tab renders UtilityControl per token instead
+                    of placeholder text; Fonts tab gains FontLoader plus
+                    a FontFamilyControl (defined in this file, not a
+                    separate one -- the story only named FontLoader.tsx
+                    as a new file) per font token, backed by new
+                    loadedFamilies state
+  ColorPicker.tsx  Story D8 — new; an uncontrolled <input type="color">
+                    (ref + native addEventListener, not value/onChange —
+                    see "Where things stand" above) writing straight to
+                    document.documentElement.style. Story D9 — token-
+                    name span uses text-label instead of text-sm
+  SizeControl.tsx  Story D9 — new; uncontrolled <input type="range">
+                    (same pattern as ColorPicker) for a --text-* token;
+                    0.5rem-3rem range, 0.025rem step (not the nominal
+                    0.05 — see "Where things stand" above for why)
+  WeightControl.tsx Story D9 — new; uncontrolled <select> (same pattern)
+                    for a --weight-* token, offering 400 and 700
+  UtilityControl.tsx Story D10 — new; range+number pair (number
+                    authoritative) for a pixel-valued token; range
+                    clamps silently for a committed value outside its
+                    span (--radius-btn's 999px pill), same pattern as
+                    every other control here
+  FontLoader.tsx    Story D10 — new; pastes a Google Fonts URL, injects
+                    a real <link> on apply via parseGoogleFontUrl,
+                    reports loaded families back up to TokenPane
+  GridExamples.tsx Story D8 — new; builds a real 10x10 Grid via
+                    createGrid/withLetter and renders it through the
+                    real PuzzleGrid (build and preview modes), replacing
+                    D1's static sg-grid/sg-cell markup. Story D9 — both
+                    section h2s use text-headline + weight-bold
+src/components/ui/
+  Button.tsx      Story D2 — new; primary/quiet/danger variants, no
+                   hover classes at all when disabled
+  TextInput.tsx   Story D2 — new; subtle border strengthening to
+                   --color-accent on hover and focus, uniformly. Story
+                   D6 — gains an autoFocus? prop (not in the story's own
+                   Repo paths; the minimal way to focus the dialog's
+                   name input on open)
+src/components/puzzle/
+  PuzzleTitle.tsx        Story D2 — renders <TextInput>, dropped its
+                          previous oversized heading-style typography
+  DeletePuzzleButton.tsx Story D2 — renders <Button variant="danger">
+                          (trigger, confirm) / quiet (cancel). Story D9
+                          — confirmation paragraph uses text-help
+                          text-ink-2
+  NewPuzzleDialog.tsx    Story D6 — new; name + size (mini/daily/sunday)
+                          inputs, Escape and cancel both close without
+                          creating, create disabled while the name is
+                          blank. Story D9 — size option buttons use
+                          text-label (see "Where things stand" above for
+                          why, despite the Decisions section's general
+                          button-text exclusion)
+src/components/grid/
+  ClearLettersButton.tsx Story D2 — renders <Button variant="quiet">
+                          (trigger) / danger (confirm) / quiet (cancel).
+                          Story D9 — confirmation paragraph uses
+                          text-help text-ink-2
+  PhaseControls.tsx      Story D2 — renders <Button> (enter-hints) /
+                          danger (confirm) / quiet (cancel). Story D9 —
+                          enter-hints-confirmation paragraph uses
+                          text-help text-ink-2
+  HintsPanel.tsx         Story D2 — hint inputs render <TextInput>
+                          with a derived "N Across/Down clue" aria-label.
+                          Story D9 — hint-key span gains
+                          data-testid="hint-label" (new, needed by the
+                          acceptance test) and uses text-label
+  PuzzleGridEditor.tsx   Story D2 — adds the editor-actions wrapper div
+                          around PhaseControls/ClearLettersButton;
+                          not listed in the story's Repo paths but
+                          required for editor-actions to physically
+                          contain both testids (see "Where things
+                          stand" above). Story D9 — geometry-locked-
+                          message uses text-help text-ink-2
+  PuzzleGrid.tsx         Story D3 — container-background hairline
+                          (bg-grid-line, gap + padding, grid-template-
+                          rows added); numbers from
+                          buildCellNumberLookup(convertEmptyCellsToBlack(
+                          grid)); computes cellAppearance/
+                          symmetricHintKeys per cell and puts the
+                          resulting background on the grid-cell wrapper
+  GridCell.tsx           Story D3 — dropped the highlight prop; no
+                          longer needs appearance either, since
+                          background moved to PuzzleGrid's wrapper
+  EmptyCell.tsx          Story D3 — dropped highlight and its own
+                          background/border; pure layout now
+  LetterCell.tsx         Story D3 — same as EmptyCell
+  BlackCell.tsx          Story D3 — dropped its own bg-foreground
+                          (now on the wrapper); otherwise unchanged
+  PreviewToggle.tsx      Story D4 — new; <Button variant="quiet">,
+                          toggles build/preview
+  PuzzleGrid.tsx         Story D4 — adds mode? prop (default 'build'),
+                          threaded into cellAppearance and onto a new
+                          data-grid-mode attribute
+  PuzzleGridEditor.tsx   Story D4 — adds isPreviewing useState (not
+                          persisted); renders PreviewToggle in
+                          editor-actions, gated on phase === 'grid'
+  PuzzleGrid.tsx         Story D5a — grid-template-columns/rows switched
+                          from bare 1fr to minmax(0, 1fr), so a small
+                          cell's letter text can't force a track past the
+                          aspect-ratio-derived square size. Story D8 —
+                          APPEARANCE_BG's 'slot' entry changed from the
+                          derived bg-selected/40 to the new bg-slot
+                          (--color-slot); see "Where things stand" above
+                          for this token's actual, corrected provenance
+  PuzzleGrid.tsx         Story D6 (two-letter-highlighting) — computes
+                          recommendedCells(grid) once per render, passes
+                          isRecommended per cell; APPEARANCE_BG gains
+                          'recommended': 'bg-recommended'. Story D7 —
+                          the one call site changes to
+                          recommendedCells(intendedGeometry(grid));
+                          recommendedCells itself is untouched
+  PuzzleGridEditor.tsx   Story D5a — grid and hints wrapped in a new
+                          editor-layout div (grid-region, hints-region);
+                          grid-region sizes via min(height-based term,
+                          640px hard max) composed with a responsive
+                          max-width class; hints-region caps height to
+                          the same formula and scrolls internally
+  Stepper.tsx            Story D5b — new; renders the three steps,
+                          reveals a step's reason on click (not hover).
+                          Story D9 — step-reason paragraph uses
+                          text-help text-ink-2
+  PhaseControls.tsx      Story D5b — renders <Stepper>; continue button
+                          drops to the quiet variant; now takes a
+                          hintsComplete prop
+  PuzzleGridEditor.tsx   Story D5b — passes hintsComplete (via the
+                          engine's hintsComplete(puzzle)) to
+                          PhaseControls; VERTICAL_ALLOWANCE_PX bumped
+                          260 -> 300 for the taller header
+src/engine/
+  phase.ts   Story D3 — convertEmptyCellsToBlack (PB1a) exported;
+              visibility only, no behavior change, no existing test
+              affected (see "Where things stand" above)
+  puzzle-geometry.ts   Story D7 — new; intendedGeometry(grid), keeping
+                        lettered cells and their empty symmetric
+                        counterparts active, everything else black
+  puzzle-geometry.test.ts   Story D7's acceptance test — do not edit
+  slots.ts   Story D6 (two-letter-highlighting) — new; recommendedCells(
+              grid), a thin filter over extractSlots's existing output.
+              Untouched by Story D7 -- only its caller's input grid
+              changed, per that story's own scope discipline
+  slots.test.ts   Group B's frozen file, extended with a new B6 block
+                   (already provided by Story D6, do not edit) -- two of
+                   B6's own fixtures were corrected during D6's
+                   implementation; see "Where things stand" above
+src/lib/
+  google-font.ts        Story D10 — new; parseGoogleFontUrl (exact
+                         fonts.googleapis.com hostname match, extracts
+                         family names, strips each's weight/style axis)
+  cell-appearance.ts   Story D3 — new; cellAppearance, symmetricHintKeys
+                        Story D4 — cellAppearance gains optional mode?
+                        param ('build' default); preview mode ignores
+                        selection/slot, adds the 'required' appearance
+                        Story D6 (two-letter-highlighting) — gains a
+                        'recommended' appearance and an optional
+                        isRecommended? input, checked first in preview
+                        mode, ahead of the lettered-cell check
+  stepper.ts           Story D5b — new; pure stepStates(phase,
+                        hintsComplete) -> readonly Step[]
+  puzzle-size.ts       Story D6 — new; PuzzleSize, DEFAULT_SIZE
+                        ('daily'), dimensionsFor(size)
+  puzzle-storage.ts    Story D6 — createBlankPuzzle(size?: PuzzleSize),
+                        defaulting to DEFAULT_SIZE; no-arg call keeps
+                        Story P1's 15x15, puzzle-storage.test.ts
+                        unmodified
+```
+
+### The gate
+
+`npm run verify` exits 0: `tsc --noEmit` clean, lint clean, **217 Vitest
+tests passing across 18 files**. **168 Playwright tests across 22 spec
+files**, all passing on a full `npm run test:e2e` run, first attempt —
+Story L1 (local Postgres) has since landed, resolving the
+`TEST_DATABASE_URL`-load unreliability Story D8's entry above
+described; Story D9's own infrastructure-fatigue note didn't recur for
+D10.
+
+Story D6 (two-letter-highlighting) since landed: **252 Vitest tests**
+(6 new), **196 Playwright tests**, both full-suite, first attempt after
+the `--color-recommended` token-value fix described above.
+
+Story D7 (effective-geometry fix, replacing the withdrawn D6r) since
+landed: **268 Vitest tests** (16 new, all `intendedGeometry` and its
+composition with `recommendedCells`), **202 Playwright tests**, both
+full-suite, first attempt.

@@ -1,0 +1,233 @@
+# Crossward — Handoff
+
+## Read first
+
+1. `AGENTS.md` — core rules, if not already loaded.
+2. `docs/epics/01-grid-engine/EPIC.md` — scope and Decisions; this handoff preserves
+   historical reasoning and checkpoints.
+3. For a change in this area, the specific story in `docs/epics/01-grid-engine/stories/`
+   and the code/tests named by that story.
+
+For the next active product task, use `docs/epics/README.md` →
+`Find the current work`, then the selected handoff's `Read first` and current state.
+Read this handoff's older narrative only when the task depends on its decisions.
+Historical branch states, test counts, and next steps below are recorded
+checkpoints; confirm the live checkout before acting on them.
+
+Current state of the crossword-builder project, for an agent or collaborator
+picking it up fresh. Read alongside `docs/epics/01-grid-engine/EPIC.md` and `AGENTS.md`,
+which remain authoritative for scope and behavior. This document covers what has
+actually happened and the decisions that live only in conversation.
+
+Repo: `crossward-raptor`. Branch `main`. Nothing pushed to a remote.
+
+---
+
+## Where things stand
+
+**Stories A through G — the whole epic's Group A–G — are complete and
+committed.** `npm run verify` exits 0: `tsc --noEmit` clean, lint clean, 103
+tests passing across 8 files.
+
+**Story F2r (cursor direction handling) is complete and committed** — a
+correction to Story F's cursor rules, landed well after this epic was
+otherwise declared done, once real usage surfaced that arrow keys doing two
+things at once (move *and* reorient in one press) made it impossible to
+change direction without also moving. `arrowKey` (`src/engine/cursor.ts`)
+now does exactly one thing per press: along the current orientation it
+moves; perpendicular to it, it only changes orientation, matching standard
+solver convention (`docs/NYT-CROSSWORD-REFERENCE.md`). `moveTo` gained the
+matching click-again-to-toggle behavior, both now built on a new exported
+`toggleOrientation(cursor)` so the space-bar intent and the same-cell click
+case share one implementation instead of duplicating the flip.
+`src/lib/keyboard-intent.ts` maps `' '` to a new `toggleOrientation` intent;
+`PuzzleGridEditor.tsx` handles it the same way it handles every other
+intent. Two committed Playwright specs asserted the old move-and-reorient
+behavior directly and needed authorized rewrites, exactly as the story
+doc anticipated: `e2e/editing.spec.ts`'s arrow-key test and
+`e2e/hints-panel.spec.ts`'s "typing highlights..." test both pressed
+ArrowDown from an across cursor and expected the cursor to have moved:
+under the new rule that press only reorients, so both were rewritten to
+press twice (reorient, then move) rather than once.
+`e2e/hints-panel.spec.ts`'s other arrow-pressing test needed no change —
+it only asserts which hint row is active, which lands on the same slot
+either way. `npm run verify` exits 0 (`tsc --noEmit`, lint, 208 Vitest
+tests across 17 files); `npm run test:e2e` exits 0 (151 Playwright tests
+across 21 spec files, `e2e/cursor-direction.spec.ts`'s 9 new tests
+included).
+
+### What exists
+
+```
+src/engine/
+  grid.ts             types + createGrid + withLetter (Story G); at() is now a
+                       single shared method (see Story F note below)
+  grid.test.ts         the Story G (G1) specification — do not edit
+  symmetry.ts         Story A — symmetricCounterpart, isSymmetric, toggleBlackSymmetric;
+                       Story G — toggleBlackSymmetric now preserves letters
+  symmetry.test.ts    the Story A specification, plus Story G's G2 tests — do not edit
+  slots.ts            Story B — extractSlots
+  slots.test.ts       the Story B specification — do not edit
+  numbering.ts        Story C — numberGrid, slotsWithNumbers
+  numbering.test.ts   the Story C specification — do not edit
+  hints.ts            Story D — hintKey, requiredHints, hintsComplete
+  hints.test.ts       the Story D specification — do not edit
+  puzzle.ts           the Puzzle type (type-only module)
+  phase.ts            Story E — applyGeometryEdit, enterHintsPhase, applyLetterEdit
+  phase.test.ts       the Story E specification — do not edit
+  cursor.ts           Story F — CursorState, place, arrowKey, deleteAt, moveTo;
+                       Story F2r — arrowKey does one thing per press, moveTo's
+                       same-cell click toggles orientation, new
+                       toggleOrientation(cursor)
+  cursor.test.ts      the Story F specification, F2/F4 rewritten and F4r/toggleOrientation
+                       cases added by Story F2r — do not edit
+.claude/settings.json permission gates, committed
+.claude/skills/       story and audit skills, committed
+eslint.config.mjs     includes the engine boundary rule
+vitest.config.mts     note the .mts extension
+docs/epics/           the grid engine epic, tracked
+docs/epics/01-grid-engine/stories/         story files A–G, tracked; Story F2r — new
+docs/epics/01-grid-engine/        this file, tracked
+src/lib/
+  keyboard-intent.ts      Story F2r — adds toggleOrientation intent (' ')
+  keyboard-intent.test.ts Story F2r — F2r-3 cases added — do not edit
+src/components/grid/
+  PuzzleGridEditor.tsx    Story F2r — handles the toggleOrientation intent
+e2e/
+  cursor-direction.spec.ts Story F2r's new acceptance test — do not edit
+  editing.spec.ts          Story F2r — authorized rewrite of the arrow-key
+                            test (see "Where things stand" above)
+  hints-panel.spec.ts      Story F2r — authorized rewrite of one arrow-key
+                            test; a second one needed no change
+docs/
+  NYT-CROSSWORD-REFERENCE.md  Story F2r — vague arrow-key line made specific,
+                               two open questions (direction-toggle-on-reclick,
+                               spacebar's role) answered
+```
+
+**Story F note, not a decision-log entry (session lacks authority to prune
+the log):** implementing F surfaced that `Grid.at` was a fresh closure on
+every `createGrid`/`withLetter` call, so two structurally identical grids
+were never `toEqual` to each other — vitest requires function-reference
+equality for function-typed properties. Story F's F5 test was the first to
+`toEqual` a result containing a whole `Grid`. Fixed in `grid.ts` by giving all
+grids a single shared `at` (a plain function referenced via `this`, not a
+closure) — no change to the public `Grid` interface or any signature.
+
+### The gate
+
+`npm run verify` → `tsc --noEmit && npm run lint && vitest run`.
+
+It has been proven in both directions: green on passing tests, and red for the
+right reason (missing modules) before each of Stories A–D was implemented. It is
+a demonstrated fact, not an assumption. Keep it that way.
+
+---
+
+## Decisions made in conversation, not in the epic
+
+These are binding and are not recorded anywhere else.
+
+### 3. `createGrid` does not validate its inputs
+
+Out-of-range coordinates in `black` throw a `TypeError` from array indexing.
+`cols`/`rows` below 1 are not checked. This is deliberate under AGENTS.md rule 2
+(no error handling for impossible states) — these are caller bugs, not user
+states. Do not add validation without being asked.
+
+### 7. `Puzzle` lives in the engine, and `phase` lives on it for now
+
+Build and play are two consumers of one engine, so the engine owns what a
+puzzle is — otherwise each UI grows its own version and they drift.
+
+Strictly, `phase` is builder-session state: a published puzzle has no phase and
+the player never sees one. The clean split is `Puzzle` (the artifact) wrapped in
+`Draft = { puzzle, phase }`. That split is deliberately deferred — it is
+speculative structure for a mode not yet being built, and the refactor is
+mechanical. When play arrives, the move is to split, **not** to bolt solver
+entries onto an editing type.
+
+### 8. Grid size is never assumed
+
+Sunday grids are 21×21 and novelty grids may go larger. No engine
+implementation may hardcode a dimension; dimensions come from the grid. Story
+fixtures may use 15×15 freely, but from Story D onward each story's tests
+include at least one acceptance example run at a second size.
+
+---
+
+## How work gets done here
+
+The method matters as much as the code. Full rationale is in the conventions doc
+from the sibling project; the operative rules:
+
+### The tests are the specification
+
+Acceptance test files are provided with each story and are **never edited** to
+match an implementation. If a test seems wrong, stop and say so — do not adjust
+it.
+
+### The human owns the tests; the agent owns the implementation
+
+If one session produces both the specification and the code satisfying it, the
+gate closes on nothing. The workable split: an agent may *draft* a test file in
+its own session, the human reviews and edits it, and a **fresh** session
+implements against the reviewed version.
+
+### Negative definition-of-done items
+
+Where a story's guardrail is a rule that fires on bad input, the DoD requires
+demonstrating the failure and **reporting the error text**, not observing a clean
+run. "Lint passed" proves nothing when the rule matches zero files.
+
+The engine boundary rule was proven this way during Story A. It fires on a
+`react` import in `src/engine/`. No need to re-demonstrate it each story.
+
+### Review order, after any implementation
+
+1. `git diff` on the test files is empty. If the specification moved, nothing else
+   matters.
+2. Run `verify` yourself rather than reading that it was run.
+3. `git status` for files nobody asked for.
+4. Read the implementation — looking for invented scope, and for special-case
+   branches that handle one named test where the general rule would have covered
+   it. Both pass the gate; neither is caught by automation.
+
+### The `/story` skill
+
+`.claude/skills/story/SKILL.md` encodes the loop: read the story, implement,
+verify until green, confirm no test file changed, commit without pushing, report.
+It refuses to run when the story's test file is untracked or has uncommitted
+changes, since `git diff` cannot detect edits to a file git isn't watching —
+the human commits the reviewed tests first. It deliberately does not include
+the human review step.
+
+---
+
+## Current status
+
+Groups A–G are complete; this epic has no further stories. Work continues
+in the builder-UI epic (`docs/epics/02-builder-ui/EPIC.md`,
+`docs/epics/02-builder-ui/HANDOFF.md`). A play/solve epic — reusing this
+engine's `(grid, cursor, ...)` cursor functions per decision 7 — hasn't
+started.
+
+---
+
+## Things worth knowing that cost time to learn
+
+- `vitest.config.ts` gets loaded as CommonJS when `package.json` has no
+  `"type": "module"`, warning on every run. Hence `.mts`. Do not set
+  `"type": "module"` instead — that changes resolution for the whole Next.js
+  project.
+- `tsc --noEmit` typechecks the entire project regardless of Vitest's include
+  glob. A stray test file anywhere under the repo will fail the gate.
+- `src/app/` is Next.js route space. The engine belongs at `src/engine/`, and the
+  lint boundary rule targets that exact path — a file in the wrong directory is
+  silently unprotected.
+- Claude Code writes its own "don't ask again" approvals to
+  `.claude/settings.local.json`, which is gitignored. That is expected. The point
+  of committing `settings.json` is that a change to the actual policy shows up in
+  `git status` rather than taking effect silently.
+- Permission rules merge across scopes and a deny rule can never be cancelled by
+  an allow rule, which is what makes the deny list meaningful.

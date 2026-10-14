@@ -22,7 +22,8 @@ touches any of:
 - `src/app/puzzles/actions.ts` — Server Actions: the write path
 - `prisma/**` — schema and migrations
 
-`/story` checks this twice. First, against the story doc's stated "Repo
+The story skill (`/story` in Claude, `$story` in Codex) checks this twice.
+First, against the story doc's stated "Repo
 paths," before implementation starts — so a story already known to be
 risky begins on a branch rather than partway through on `main`. Second,
 against the actual `git diff`, after implementation and before anything is
@@ -72,9 +73,8 @@ Noise is what kills review adoption. Do not raise:
 
 - Style, formatting, or naming preferences. Lint owns those.
 - Suggestions to add abstraction, configurability, or error handling the
-  story didn't ask for. `AGENTS.md` rule 2 says write the minimum that
-  solves the stated problem; "you could generalize this" is against
-  convention here, not for it.
+  story didn't ask for. Review is scoped to the requested behavior;
+  unsolicited generalization is not a review finding.
 - Missing tests for behaviour outside the story's scope.
 - Anything already recorded as a deliberate decision in the story doc, the
   epic, or `docs/LEARNINGS.md`. Read those first.
@@ -89,3 +89,20 @@ valid result and better than a padded one.
 A short list of findings, each with a file:line reference and a sentence on
 why it matters. Order by significance. Separate anything that blocks merge
 from anything that's merely worth knowing.
+
+## Merge after review
+
+The independent reviewer merges a ready PR once no blocking findings remain
+and the reviewed commit passes `npm run verify`, the story's required E2E
+checks, and any configured CI checks. The implementing agent opens the PR;
+it does not review and merge its own work. Invoking the review workflow
+authorizes this merge without another confirmation, unless the user requests
+a report-only review.
+
+Use a normal merge commit (`gh pr merge <number> --merge`), matching budget-app.
+Verify that the PR head is still the commit reviewed and checked. If it changes,
+review the new changes and confirm their checks before merging. Honor branch
+protection and merge requirements. Where no CI checks are configured, record
+that fact and provide the required local verification for the reviewed commit.
+If findings, failed/pending checks, conflicts, or repository requirements block
+the merge, report the blocker; do not bypass it.

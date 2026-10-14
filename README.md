@@ -1,8 +1,10 @@
 # Crossward
 
 Crossward is a web app for building and playing NYT-style crossword puzzles.
-The grid engine — the pure logic core that owns words, numbering, hints, and
-phase rules — is complete; the builder UI has not been started yet.
+The grid engine and builder UI are implemented, including clue authoring,
+publishing, and a puzzle library. Accounts are in progress; ownership and
+solver play are planned next. See the [epic index](docs/epics/README.md) for
+the current handoffs and development workflow.
 
 ## Getting started
 
@@ -37,16 +39,15 @@ in.
 - Dev: `npm run dev`
 - Build: `npm run build`
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
-- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Standing home for browser-driven builder tests once UI work begins. Prepares its own local test database automatically (migrated and wiped) before each run — see `AGENTS.md` for the details.
+- E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Prepares its own local test database automatically (migrated and wiped) before each run — see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the details.
 
 ## More context
 
-`AGENTS.md` is the source of truth for how this repo is worked in — project
-overview, tech stack, commands, and behavioral rules for anyone (human or
-agent) making changes here. `docs/` holds the grid engine epic, story-by-story
-specs, and handoff notes on decisions made along the way that aren't written
-down anywhere else. Read both before touching the engine or the phase-lock
-flow.
+`AGENTS.md` holds the core rules and points to task-specific references.
+Each named directory under `docs/epics/` holds its `EPIC.md`, `stories/`, and
+one maintained `HANDOFF.md`. Start with the target handoff's `Read first`
+list; [docs/epics/README.md](docs/epics/README.md) describes the layout,
+story skills, handoff format, and independent audit at epic closeout.
 
 ## Learn More
 

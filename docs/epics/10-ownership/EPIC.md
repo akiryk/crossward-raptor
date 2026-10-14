@@ -1,0 +1,105 @@
+# Epic: Ownership
+
+Epic 09 establishes who a user is. This one establishes what is theirs.
+
+Every puzzle in the database today belongs to nobody. Anyone signed in
+can edit anything. Before puzzles can be played by people who didn't
+build them, the app has to know who built what — and the library has to
+show the difference.
+
+---
+
+## Decisions
+
+**`Puzzle.builderId` is a required foreign key**, and the puzzles that
+exist today are deleted rather than backfilled.
+
+A nullable owner would put "or no builder" into every query and
+permission check forever, for the sake of a handful of rows in a
+personal dev database. The test database is wiped on every run, so the
+only real casualty is local dev data — "Sparky Pluggy" and friends.
+Required from the start keeps epic 11's permission logic to a single
+comparison with no null branch.
+
+**The display name is asked for when it is first needed.** A user who
+only ever plays never has one. The first time someone without a name
+clicks New Puzzle, they're asked; it's stored, and they're never asked
+again. This makes having a name a precondition of creating a puzzle,
+which the new-puzzle flow has to handle — one more state in a dialog
+that already has several.
+
+**Only the builder edits.** Enforced in the Server Actions, not only in
+the UI. `saveGrid`, `saveHints`, `saveTitle`, `enterHints`,
+`publishPuzzle`, `unpublishPuzzle` and `deletePuzzle` all already guard
+against editing a published puzzle; ownership is a second guard of the
+same kind, in the same place.
+
+**The check is a comparison, not a system.** "Is this puzzle's
+`builderId` the signed-in user's id?" No permission tables, no role
+checks, no general authorization layer. When moderators or an admin
+role genuinely exist, the shape of that check will follow from what they
+need to do — guessing now would be the speculative abstraction
+AGENTS.md rule 2 prohibits.
+
+**A non-builder reaching an editor URL is refused, not redirected to a
+read-only view.** There is no read-only editor, and inventing one here
+would duplicate what play mode is about to become. Refusal can soften
+once epic 11 gives them somewhere better to land.
+
+## Non-goals
+
+- **No play access rules.** Who can *play* what is epic 11. This epic is
+  only about who can *edit*.
+- **No roles doing anything.** `role` still exists and is still unread.
+- **No profile page.** The display name is captured, not editable yet.
+- **No transfer of ownership**, no co-builders, no sharing.
+- **No author attribution in the UI beyond the library list.** Showing
+  "by <name>" on a puzzle itself is part of play.
+
+---
+
+## Stories
+
+### O1 — Puzzles have builders
+
+`builderId` as a required FK to the user, existing puzzles deleted,
+`createPuzzle` recording the signed-in user. `listPuzzles` returns it so
+the list can tell yours from everyone else's.
+
+*Prisma, and deletes data — high blast radius.* Worth confirming the
+local dev puzzles are genuinely disposable before this runs.
+
+### O2 — Display names
+
+`displayName` captured the first time a user without one creates a
+puzzle. The prompt lives in the new-puzzle flow, which already uses
+`Modal`, and once stored the flow is exactly as it is today.
+
+Decides what happens if someone dismisses the prompt — my
+recommendation is that the puzzle simply isn't created, since a name is
+a precondition rather than an afterthought, but the story should state
+it either way.
+
+### O3 — Only the builder edits
+
+Ownership guards in the Server Actions, mirroring the published-lock
+pattern. The editor route refuses a non-builder. The library
+distinguishes puzzles you built from puzzles you didn't — which, until
+epic 11, means a puzzle someone else published shows no action at all.
+
+---
+
+## Suggested order
+
+O1, O2, O3. O1 is the migration everything else needs; O2 and O3 are
+independent of each other and could swap.
+
+## Definition of done (epic-level)
+
+Per story: acceptance examples encoded as tests and passing,
+`npm run verify` exits 0, and `npm run test:e2e` exits 0.
+
+A signed-in user can create a puzzle, is asked for a display name the
+first time and never again, sees their own puzzles distinguished from
+others' in the library, and cannot edit a puzzle they didn't build —
+including by URL.
