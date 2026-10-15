@@ -3,23 +3,29 @@
 ## Read first
 
 1. `AGENTS.md` — core rules, if not already loaded.
-2. This handoff's `Current state` and `Next action` — the resume point;
-   the older committed checkpoint below is historical.
-3. `docs/epics/09-accounts/EPIC.md` → session-renewal Decision;
-   `src/lib/auth.ts` and `src/app/api/auth/[...all]/route.ts` — the remaining
-   renewal finding and integration boundary. Read A1's session requirements
-   if specifying its follow-up; A3 itself is merged.
-4. `src/middleware.ts`, `src/lib/require-session.ts`,
-   `src/app/puzzles/actions.ts`, and `src/app/style-guide/layout.tsx` —
-   optimistic middleware versus actual server-side session validation.
-5. `e2e/route-protection.spec.ts` (frozen), `e2e/session-validation.spec.ts`,
-   `src/app/puzzles/actions.session.test.ts`, `playwright.config.ts`,
-   `e2e/auth.setup.ts`, and `e2e/helpers/seed-session.ts` — acceptance,
-   supplemental regressions, and auth setup.
+2. This handoff's `Current state`, `Next action`, and `Accounts closeout
+   blocker — session renewal` — the resume point. The A3 investigation and
+   September checkpoint below are evidence/history, not unfinished A3 work.
+3. `docs/epics/09-accounts/EPIC.md` → Decisions and Non-goals;
+   `docs/epics/09-accounts/stories/09-A1-magic-links.md` → session policy —
+   the existing renewal requirement. No numbered follow-up story exists yet.
+4. `src/lib/auth.ts`, `src/app/api/auth/[...all]/route.ts`,
+   `src/app/page.tsx`, `src/components/layout/Header.tsx`, and
+   `src/lib/require-session.ts` — configuration and actual session-read paths.
+   Then inspect the installed Better Auth
+   `node_modules/better-auth/dist/api/routes/session.mjs` and
+   `node_modules/better-auth/dist/integrations/next-js.mjs` for refresh and
+   cookie-write behavior; do not assume adding a plugin alone solves it.
+5. `playwright.config.ts`, `e2e/auth.setup.ts`, `e2e/helpers/seed-session.ts`,
+   and `e2e/helpers/auth.ts` — existing real-session test plumbing to reuse
+   for a focused renewal reproduction.
 
 Read `docs/DEVELOPMENT.md` before running browser tests and `docs/CODE-REVIEW.md`
-before deciding delivery. Read A1/A2 stories or older handoffs only if their
-auth behavior is implicated; they are not prerequisites for every A3 session.
+before deciding delivery. Read `docs/process/STORY.md` before establishing a
+follow-up baseline and `docs/LEARNINGS.md` if browser stalls recur. Read A3's
+story and regression specs only if protection is implicated. Other historical
+handoffs are unnecessary by default. After Accounts closes, switch to
+`docs/epics/10-ownership/HANDOFF.md` for O1.
 
 ## Current state (2026-10-15)
 
@@ -27,7 +33,66 @@ auth behavior is implicated; they are not prerequisites for every A3 session.
 The reviewed head was `3f02dcda8fa3b1d2f4b871b1cfa1686869895789`; the independent
 reviewer merged it as `96ce0ec9352c7f51bd71e6dea31dbd00fed18200`. Local `main`
 was fast-forwarded to that merge. Accounts remains open for the separate
-renewal finding below.
+renewal finding below. A1, A2, and A3 are delivered; the next work is the
+session-renewal follow-up, not resuming A3.
+
+The starting checkpoint for this handoff was local `main` and `origin/main` at
+`5dbb66d` (`Record local puzzle deletion decision for Ownership O1`). The
+working tree was clean before this handoff update. No implementation or test
+process is active and no approval or user answer is pending. The only new
+change for this handoff is this file. No application checks were rerun just
+to write it.
+
+Latest code verification is for reviewed A3 head `3f02dcd`: two consecutive
+ordinary `npm run test:e2e` passes (296/296 each, four workers, normal reset),
+then `npm run verify` exit 0 (24 files / 319 tests, one existing lint warning).
+Subsequent commits through `5dbb66d`, and this handoff update, change
+documentation only.
+
+## Next action
+
+Reproduce the renewal finding with a real browser session in the isolated test
+database. Reuse existing sign-in plumbing, make that test session eligible for
+refresh, visit a normal authenticated route, and check both database expiry
+and the browser cookie's expiry. Distinguish API refresh from ordinary app
+activity. This browser regression has not yet been run; source inspection is
+the current evidence. Do not weaken the existing invalid/expired/revoked-session
+guards or revive an already expired session to make renewal work.
+
+Use the result to specify a focused follow-up under the existing 30-day
+renewing-session Decision, establish its baseline under `docs/process/STORY.md`,
+then implement, verify, and deliver it. No new numbered story or renewal fix
+exists yet. A missing follow-up story is work to prepare, not by itself a
+reason to stop for routine confirmation. Recheck the independent audit finding
+before closing Accounts. Then specify and proceed through Ownership O1, O2,
+and O3 under their own specifications and review gates.
+
+The user authorized the orchestrator to continue through implementation,
+verification/E2E, commits, PRs, independent review/merge, and subsequent stories.
+Use separate implementation and verification agents for substantial work;
+keep review independent and serialize suites sharing the test database. Do
+not ask again for routine steps already authorized. Ask only for a substantive
+unresolved decision or blocker. The earlier stop after A3 was an orchestration
+choice, not a technical limit or missing permission for normal follow-up work.
+The user has now explicitly requested this new-session handoff.
+
+On October 15, the user explicitly authorized deleting existing
+local-development puzzles for Ownership O1. This is also recorded in the
+Ownership epic and handoff. Do not ask again. Deletion belongs to O1's migration
+and has not run; it does not cover deployed data or account records.
+
+Resume prompt:
+
+> Read `AGENTS.md`, then `docs/epics/09-accounts/HANDOFF.md`, following its
+> focused Read first list. A3 is merged. Continue from Next action: reproduce,
+> specify, and fix session renewal, independently recheck the Accounts audit,
+> then proceed to Ownership. Orchestrate separate implementation and testing
+> agents, keep review independent, and carry each story through authorized
+> verification and delivery without routine permission questions. Deleting
+> existing local-development puzzles during O1 is already authorized. Preserve
+> frozen tests and existing work; read historical handoffs only when needed.
+
+## A3 delivery and investigation record
 
 The current session explicitly uses
 `auto_review`; the approval-setup pause is over. Separate implementation and
@@ -91,10 +156,9 @@ exited 0: 296/296 tests passed in 4.0 minutes, then 296/296 in 3.2 minutes,
 on unchanged implementation/config/test contents. Final `npm run verify`
 also exited 0 after the browsers exited: 24 files, 319 tests; only the existing
 `request-logger/render.ts:802` unused-variable lint warning. If failures recur,
-compare against a
-controlled pre-A3 baseline before attributing the stall to authentication.
-No remedy, timeout increase, or worker cap was applied. Temporary instrumentation is out of the
-repo. All 37 original browser specs were rechecked against intake hashes and
+compare against a controlled pre-A3 baseline before attributing the stall to
+authentication. No remedy, timeout increase, or worker cap was applied.
+Temporary instrumentation is out of the repo. All 37 original browser specs were rechecked against intake hashes and
 remain unchanged. Final logs: `/private/tmp/a3-resumed-full-1.log`,
 `/private/tmp/a3-resumed-full-2.log`, and
 `/private/tmp/a3-resumed-final-verify.log`. The verifier's 164-file
@@ -105,7 +169,9 @@ Logs and traces remain under `/private/tmp/a3-e2e-full-1.log`,
 `/private/tmp/a3-populated-probe-results`,
 `/private/tmp/a3-populated-four-worker.log`, and
 `/private/tmp/a3-populated-four-worker-results`. These temporary artifacts may
-need recreating in a later session.
+need recreating in a later session. The final three logs, the verified-tree
+manifest, and `/private/tmp/crossward-a3-intake.json` were confirmed present
+while writing this handoff.
 
 Docker Desktop was started for the isolated test database. A generated ignored
 `.next/dev/types/validator.ts` was malformed after the red-baseline server run;
@@ -126,8 +192,10 @@ the epic's sliding 30-day-session policy. `src/lib/auth.ts` configures renewal
 but only the magic-link plugin; the ordinary server-side `getSession` calls in
 the front door, Header, and session guard discard response headers. Installed
 Better Auth's session route updates database expiry and emits `Set-Cookie`,
-but its Next cookie propagation integration is absent. The browser therefore
-retains its original cookie expiry even when the database session renews.
+but its Next cookie propagation integration is absent. The audit's conclusion
+is that the browser can retain its original cookie expiry even when the
+database session renews; a focused browser regression must confirm the exact
+behavior before selecting a fix.
 
 Evidence is source inspection, including installed Better Auth's
 `dist/api/routes/session.mjs` and `dist/integrations/next-js.mjs`; a time-shift
@@ -141,20 +209,6 @@ tests/helpers/config, and installed refresh implementation. No other substantive
 drift was found. External email/domain setup and A1's historical cold-start
 migration evidence were not independently reproduced. No general historical
 audit or decision pruning was performed.
-
-## Next action
-
-Specify and reproduce the separate Accounts renewal finding, then implement
-its focused fix and independent verification before epic closure. This is
-follow-up work after merged A3; no renewal fix or new story baseline exists yet.
-Preserve frozen specs. On October 15, the user explicitly authorized deleting
-existing local-development puzzles for Ownership O1. That data decision is
-settled; deletion belongs to O1's migration, which has not run. This permission
-does not cover deleting deployed data or account records.
-
-Resume prompt: "Read `AGENTS.md` and
-`docs/epics/09-accounts/HANDOFF.md`, follow its Read first list, and continue
-from Next action."
 
 Current state of the crossword-builder project's ninth epic, for an agent
 or collaborator picking it up fresh. Read alongside
@@ -241,4 +295,5 @@ its discovery.
 
 A1, A2, and A3 are delivered. After resolving and independently rechecking
 the Accounts closeout blocker, continue with
-`docs/epics/10-ownership/HANDOFF.md` and its outstanding data decision.
+`docs/epics/10-ownership/HANDOFF.md`. Its local-development puzzle deletion
+decision is settled and authorized.
