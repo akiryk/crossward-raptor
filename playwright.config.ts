@@ -3,6 +3,18 @@ import { config } from 'dotenv';
 
 config({ path: '.env.local' });
 
+// Story A3: specs that must run signed out (they exercise sign-in itself,
+// or only assert layout that renders on the public front door). Everything
+// else needs a session, since every other route now redirects without one.
+const PUBLIC_SPECS = [
+  '**/magic-link.spec.ts',
+  '**/front-door.spec.ts',
+  '**/route-protection.spec.ts',
+  '**/session-validation.spec.ts',
+  '**/smoke.spec.ts',
+  '**/shell.spec.ts',
+];
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -12,8 +24,23 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'public',
+      testMatch: PUBLIC_SPECS,
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'setup',
+      testMatch: '**/auth.setup.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'authenticated',
+      testIgnore: PUBLIC_SPECS,
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json',
+      },
     },
   ],
   webServer: {

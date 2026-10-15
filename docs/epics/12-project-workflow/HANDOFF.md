@@ -20,7 +20,8 @@ audit on 2026-10-13. Story 02's installation and final validation completed on
 is retained in `docs/process/`. Its independent closeout review found no
 blockers; the epic is complete locally. The cleanup was committed on `main`
 in the standalone `Complete project workflow stories 01 and 02` commit,
-separate from preserved pre-existing A3 work. Remote delivery is pending.
+`829bb95`, separate from preserved pre-existing A3 work. It was pushed to
+`origin/main` before A3 implementation resumed on its review branch.
 The user settled merge behavior on 2026-10-14: the independent reviewer merges
 after no blockers remain and required verification/configured CI pass,
 matching budget-app. Crossward's review docs and the installed shared review

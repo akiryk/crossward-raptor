@@ -10,6 +10,13 @@ Crossward is a web app for building and playing NYT-style crossword puzzles. The
 - A code change is not done until `npm run verify` exits 0.
 - `src/engine/**` is pure logic. It must not depend on React, the DOM, or database clients, and engine functions should not mutate their inputs or retain hidden state.
 
+## Execution preferences
+
+- For authorized story work, continue through implementation, verification/E2E, commits, PR, independent review/merge, and the next specified story. Ask when an unresolved decision, obstacle, or substantive issue requires the user; do not ask again for routine steps already covered by the task.
+- Orchestrate separate implementation and testing agents when useful; keep review independent of both. Serialize E2E runs because they share the test database.
+- Use direct commands and narrowly reusable approval prefixes for routine checks, especially `npm run test:e2e`. Avoid shell wrappers or log redirection that turn the same check into a new one-off approval. These preferences do not override the execution sandbox; when it requires approval, explain the boundary and request a reusable rule where supported.
+- Make waiting for approval explicit in progress updates so the user knows work is paused.
+
 ## Read when relevant
 
 - Epic layout, story skills, focused handoffs, grilling, or epic closeout → `docs/epics/README.md`
