@@ -138,13 +138,23 @@ a full inventory of which specs navigate where.
 Also decides what a signed-in user's sign-out affordance is, since
 without one there is no way to test the redirect in A2.
 
+### A4 — Session renewal follow-up
+
+The Accounts closeout audit identified an A1 gap: ordinary server-rendered
+activity can advance database expiry while leaving the browser cookie at its
+original expiry. A real-browser reproduction confirmed it on 2026-10-15.
+[A4](stories/09-A4-session-renewal.md) completes the existing renewing-session
+Decision for entry, navigation, and visible activity in an already-open page.
+Resolve and independently recheck this finding before closing Accounts and
+starting Ownership.
+
 ---
 
 ## Suggested order
 
-A1, A2, A3. A1 and A2 are additive and break nothing. A3 changes the
-precondition of the entire suite and should land last, when the thing it
-protects already works.
+A1, A2, A3, then the audit follow-up A4. A1 and A2 are additive and break
+nothing. A3 changes the precondition of the entire suite and follows them.
+A4 completes the session policy before the epic closes.
 
 ## Definition of done (epic-level)
 
