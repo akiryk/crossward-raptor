@@ -147,9 +147,10 @@ audit or decision pruning was performed.
 Specify and reproduce the separate Accounts renewal finding, then implement
 its focused fix and independent verification before epic closure. This is
 follow-up work after merged A3; no renewal fix or new story baseline exists yet.
-Preserve frozen specs. Ownership O1 also awaits the user's answer about
-disposing of existing local-development puzzles; that question was asked
-while A3 verification ran, with no data deletion authorized by silence.
+Preserve frozen specs. On October 15, the user explicitly authorized deleting
+existing local-development puzzles for Ownership O1. That data decision is
+settled; deletion belongs to O1's migration, which has not run. This permission
+does not cover deleting deployed data or account records.
 
 Resume prompt: "Read `AGENTS.md` and
 `docs/epics/09-accounts/HANDOFF.md`, follow its Read first list, and continue

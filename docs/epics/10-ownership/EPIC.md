@@ -18,6 +18,9 @@ A nullable owner would put "or no builder" into every query and
 permission check forever, for the sake of a handful of rows in a
 personal dev database. The test database is wiped on every run, so the
 only real casualty is local dev data — "Sparky Pluggy" and friends.
+The user explicitly confirmed on 2026-10-15 that existing local-development
+puzzles may be deleted for this migration. This does not cover deployed data
+or account records.
 Required from the start keeps epic 11's permission logic to a single
 comparison with no null branch.
 
@@ -66,8 +69,8 @@ once epic 11 gives them somewhere better to land.
 `createPuzzle` recording the signed-in user. `listPuzzles` returns it so
 the list can tell yours from everyone else's.
 
-*Prisma, and deletes data — high blast radius.* Worth confirming the
-local dev puzzles are genuinely disposable before this runs.
+*Prisma, and deletes data — high blast radius.* The user confirmed on
+2026-10-15 that existing local-development puzzles are disposable.
 
 ### O2 — Display names
 
