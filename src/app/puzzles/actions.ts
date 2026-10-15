@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { requireSession } from '@/lib/require-session';
 import {
   createBlankPuzzle,
   deserializePuzzle,
@@ -29,6 +30,7 @@ export async function createPuzzle(input: {
   title: string;
   size: PuzzleSize;
 }): Promise<{ id: string }> {
+  await requireSession();
   const title = requireTitle(input.title);
   const stored = serializePuzzle(createBlankPuzzle(input.size));
   const record = await prisma.puzzle.create({
@@ -57,6 +59,7 @@ export async function listPuzzles(): Promise<
     black: boolean[][];
   }[]
 > {
+  await requireSession();
   const records = await prisma.puzzle.findMany({
     orderBy: { updatedAt: 'desc' },
     select: {
@@ -109,18 +112,21 @@ async function updateUnlessPublished(
 }
 
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
+  await requireSession();
   await updateUnlessPublished(id, 'saveGrid', {
     grid: grid as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
+  await requireSession();
   await updateUnlessPublished(id, 'saveHints', {
     hints: hints as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveTitle(id: string, title: string): Promise<void> {
+  await requireSession();
   await updateUnlessPublished(id, 'saveTitle', { title: normalizeTitle(title) });
 }
 
@@ -131,6 +137,7 @@ export async function saveTitle(id: string, title: string): Promise<void> {
 export async function enterHints(
   id: string
 ): Promise<{ phase: Phase; hints: Record<string, string>; grid: SerializedGrid }> {
+  await requireSession();
   const puzzle = await loadPuzzle(id);
   if (!puzzle) {
     throw new Error(`enterHints: puzzle ${id} not found`);
@@ -167,6 +174,7 @@ export async function publishPuzzle(
   id: string,
   visibility: Visibility
 ): Promise<{ publishedAt: Date; visibility: Visibility }> {
+  await requireSession();
   if (visibility !== 'private' && visibility !== 'public') {
     throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
   }
@@ -186,6 +194,7 @@ export async function publishPuzzle(
 /** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
  *  for if it's published again. */
 export async function unpublishPuzzle(id: string): Promise<void> {
+  await requireSession();
   await prisma.puzzle.update({
     where: { id },
     data: { publishedAt: null },
@@ -194,11 +203,13 @@ export async function unpublishPuzzle(id: string): Promise<void> {
 
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
+  await requireSession();
   await prisma.puzzle.delete({ where: { id } });
   revalidatePath('/puzzles');
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
+  await requireSession();
   const record = await prisma.puzzle.findUnique({ where: { id } });
   if (!record) return null;
 

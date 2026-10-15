@@ -48,6 +48,18 @@ const client = new PrismaClient({ adapter });
 try {
   const { count } = await client.puzzle.deleteMany();
   console.log(`reset-test-db: deleted ${count} row(s) from Puzzle.`);
+
+  // Story A3: also clear the auth tables, so the seeded session user
+  // (e2e/auth.setup.ts) doesn't accumulate across runs. Session and Account
+  // reference User, so they're cleared first.
+  const { count: sessionCount } = await client.session.deleteMany();
+  const { count: accountCount } = await client.account.deleteMany();
+  const { count: verificationCount } = await client.verification.deleteMany();
+  const { count: userCount } = await client.user.deleteMany();
+  console.log(
+    `reset-test-db: deleted ${sessionCount} session(s), ${accountCount} account(s), ` +
+      `${verificationCount} verification(s), ${userCount} user(s).`
+  );
 } finally {
   await client.$disconnect();
 }
