@@ -5,9 +5,10 @@
 1. `AGENTS.md` — core rules, if not already loaded.
 2. This handoff's `Current state` and `Next action` — the resume point;
    the older committed checkpoint below is historical.
-3. `docs/epics/09-accounts/EPIC.md` → Decisions and A3;
-   `docs/epics/09-accounts/stories/09-A3-route-protection.md` — scope and
-   required verification, including two consecutive E2E runs.
+3. `docs/epics/09-accounts/EPIC.md` → session-renewal Decision;
+   `src/lib/auth.ts` and `src/app/api/auth/[...all]/route.ts` — the remaining
+   renewal finding and integration boundary. Read A1's session requirements
+   if specifying its follow-up; A3 itself is merged.
 4. `src/middleware.ts`, `src/lib/require-session.ts`,
    `src/app/puzzles/actions.ts`, and `src/app/style-guide/layout.tsx` —
    optimistic middleware versus actual server-side session validation.
@@ -22,7 +23,13 @@ auth behavior is implicated; they are not prerequisites for every A3 session.
 
 ## Current state (2026-10-15)
 
-**A3 implemented and locally verified; PR/review/merge pending.** The current session explicitly uses
+**A3 complete and merged through [PR #13](https://github.com/akiryk/crossward-raptor/pull/13).**
+The reviewed head was `3f02dcda8fa3b1d2f4b871b1cfa1686869895789`; the independent
+reviewer merged it as `96ce0ec9352c7f51bd71e6dea31dbd00fed18200`. Local `main`
+was fast-forwarded to that merge. Accounts remains open for the separate
+renewal finding below.
+
+The current session explicitly uses
 `auto_review`; the approval-setup pause is over. Separate implementation and
 verification agents completed the source work and required checks. User-wide
 working preferences and direct npm E2E/Playwright allow rules are installed
@@ -32,8 +39,8 @@ stored thread-origin metadata must not be treated as the current interface.
 
 A1 and A2 are committed. Workflow cleanup is independently verified and
 committed separately as `829bb95`; the corrected A3 specification baseline is
-`7400d27`. Both are pushed to `origin/main`. A3 implementation is on
-`story/09-A3-route-protection`, preserving its pre-existing middleware,
+`7400d27`. Both are pushed to `origin/main`. A3 was implemented on
+`story/09-A3-route-protection` and is now on `main`, preserving its pre-existing middleware,
 sign-out button, Header session lookup, Playwright project split,
 once-per-run auth setup, and auth-table reset. Existing acceptance specs stay
 frozen. The user authorized separate implementation and verification agents,
@@ -77,16 +84,16 @@ then passed 27 tests and failed two navigation cases at four workers. It was
 reverted byte-for-byte; no speculative fix remains. Trace-on and trace-off
 failure counts are not a controlled comparison.
 
-On October 15, the user requested continuation. The independent verifier is
+On October 15, the user requested continuation. The independent verifier
 ran two consecutive ordinary `npm run test:e2e` commands, using the normal
 database reset and unmodified worker configuration (four workers). Both
 exited 0: 296/296 tests passed in 4.0 minutes, then 296/296 in 3.2 minutes,
 on unchanged implementation/config/test contents. Final `npm run verify`
 also exited 0 after the browsers exited: 24 files, 319 tests; only the existing
-`request-logger/render.ts:802` unused-variable lint warning. If failures recur, compare against a
+`request-logger/render.ts:802` unused-variable lint warning. If failures recur,
+compare against a
 controlled pre-A3 baseline before attributing the stall to authentication.
-No remedy, timeout
-increase, or worker cap was applied. Temporary instrumentation is out of the
+No remedy, timeout increase, or worker cap was applied. Temporary instrumentation is out of the
 repo. All 37 original browser specs were rechecked against intake hashes and
 remain unchanged. Final logs: `/private/tmp/a3-resumed-full-1.log`,
 `/private/tmp/a3-resumed-full-2.log`, and
@@ -98,16 +105,18 @@ Logs and traces remain under `/private/tmp/a3-e2e-full-1.log`,
 `/private/tmp/a3-populated-probe-results`,
 `/private/tmp/a3-populated-four-worker.log`, and
 `/private/tmp/a3-populated-four-worker-results`. These temporary artifacts may
-need recreating in a later session. Implementation is still uncommitted;
-no A3 PR or merge has occurred.
+need recreating in a later session.
 
 Docker Desktop was started for the isolated test database. A generated ignored
 `.next/dev/types/validator.ts` was malformed after the red-baseline server run;
 regenerating types and removing that generated file restored verification.
 No tracked source/config workaround or acceptance-spec change was needed.
 
-Independent working-tree review found no A3 code blocker. Final PR/head/check
-review and merge remain pending. Independent Accounts closeout audit identified
+Independent final PR review found no A3 blocker and verified the actual
+committed blobs against all 164 manifest entries, with zero mismatches.
+`gh pr checks 13` reported no checks; GitHub has no Actions workflows configured.
+The reviewer confirmed the two E2E passes and final verification, rechecked
+the head, and merged. Independent Accounts closeout audit identified
 the separate renewal issue below; the epic cannot close while it remains open.
 
 ## Accounts closeout blocker — session renewal
@@ -135,15 +144,15 @@ audit or decision pruning was performed.
 
 ## Next action
 
-Commit the verified A3 implementation and deliver through a PR and independent
-review/merge under `docs/CODE-REVIEW.md`, followed
-by resolving the separate Accounts renewal blocker before epic closure.
+Specify and reproduce the separate Accounts renewal finding, then implement
+its focused fix and independent verification before epic closure. This is
+follow-up work after merged A3; no renewal fix or new story baseline exists yet.
 Preserve frozen specs. Ownership O1 also awaits the user's answer about
 disposing of existing local-development puzzles; that question was asked
 while A3 verification ran, with no data deletion authorized by silence.
 
 Resume prompt: "Read `AGENTS.md` and
-`docs/epics/09-accounts/HANDOFF.md`, follow its Read first list, and continue A3
+`docs/epics/09-accounts/HANDOFF.md`, follow its Read first list, and continue
 from Next action."
 
 Current state of the crossword-builder project's ninth epic, for an agent
@@ -229,7 +238,6 @@ its discovery.
 
 ## Next steps
 
-Finish A3 as described in `Current state` above. A1 and A2 are already
-committed. After A3's Definition of Done and resolution of the independent
-Accounts closeout blocker, continue with
+A1, A2, and A3 are delivered. After resolving and independently rechecking
+the Accounts closeout blocker, continue with
 `docs/epics/10-ownership/HANDOFF.md` and its outstanding data decision.
