@@ -16,11 +16,13 @@
 The user authorized A5 and explicitly approved isolated test-data resets.
 Specification baseline: `22a301b`, clarified by `b2fdc91`. Initial implementation
 `e7391cb` is pushed in [PR #14](https://github.com/akiryk/crossward-raptor/pull/14).
-Its required local checks passed, but Vercel's fresh install lacked a generated
-Prisma client and failed TypeScript. The revised build prerequisite fix is now
-verified locally, ready to commit/push to that PR and obtain final CI/review.
-Branch: `story/09-A5-production-build-e2e`. A4/application and earlier handoff
-edits remain excluded from A5 delivery.
+Its first Vercel preview lacked a generated Prisma client and failed
+TypeScript; the build prerequisite fix is committed as `56113b2`. Independent
+review found no issues, confirmed the final tested-file manifest, and merged
+PR #14 normally after both Vercel checks passed. Merge:
+`7b3e2ec034c50d692753b7f2308061ffbab6e95e` (2026-10-16).
+The checkout is back on `main` with that merge. A5 is delivered. A4/application
+and earlier handoff edits remain local and excluded from A5 delivery.
 
 The harness generates Prisma Client explicitly before preparation imports it
 and before compiling through the ordinary `npm run build` path. It serves the
@@ -58,9 +60,11 @@ Final independent verification of the revised harness:
   the passing local pair before the fresh-install generation fix; the final
   pair above supersedes them for the revised harness.
 
-The independent reviewer found no code issues on the initial or revised local
-source. Final committed-head review and the new Vercel result remain pending;
-the old failed CI result is not waived. Docker Desktop needed starting before
+The independent reviewer found no code or handoff issues and checked exact
+head `56113b230a8a5b853d104adf88666f6f586fa404` immediately before merge.
+All 164 non-A4 runtime/configuration/test manifest blobs matched that commit;
+Vercel and Preview Comments both passed. The earlier failed CI head was fixed,
+not waived. Docker Desktop needed starting before
 the first actual suite. Only the isolated test database was reset, with explicit
 user authorization; all browser suites ran sequentially. Docker remains up.
 
@@ -73,17 +77,18 @@ do not restart the hydration instrumentation investigation to recreate it.
 
 ## Next action — A5
 
-Commit/push only the revised A5 files to PR #14, then let the independent
-reviewer confirm the final tested-file manifest, exact head, and Vercel check
-before normal merge. Preserve unfinished A4/application and earlier handoff
-edits outside A5 commits. Do not continue to another story automatically.
+A5 is complete. Wait for the user's next story instruction: unfinished A4
+still needs its scoped delivery/review and Accounts closeout audit; usable
+manual login needs a separate specification. Preserve all unfinished work.
+Do not begin Ownership, deliver A4, or restart hydration investigation as part
+of A5. The historical handoff changes remain uncommitted by design.
 
 Copyable resume prompt:
 
 > Read AGENTS.md and the A5 sections at the top of
-> docs/epics/09-accounts/HANDOFF.md. Finish the scoped A5 CI/review/delivery gate
-> while preserving frozen tests and unfinished A4. Keep manual login separate
-> and do not begin Ownership or restart the hydration investigation.
+> docs/epics/09-accounts/HANDOFF.md. A5 is delivered. Preserve frozen tests and
+> unfinished A4. Help scope the next authorized Accounts story, keeping manual
+> login separate; do not begin Ownership or restart the hydration investigation.
 
 ---
 
