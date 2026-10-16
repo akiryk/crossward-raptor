@@ -15,13 +15,15 @@ Docker defines separate databases:
 - development: port `5432`
 - test: port `5433`
 
-A root `.env.local` must define:
+A root `.env.local` must define the development configuration:
 
 - `DATABASE_URL`
 - `DATABASE_URL_UNPOOLED`
-- `TEST_DATABASE_URL`
 
 These should point to the Docker databases defined by `docker-compose.yml`.
+The E2E command supplies its own test configuration; it does not require an
+environment file. An optional `TEST_DATABASE_URL` shell variable can override
+the default test credentials within the isolated target described below.
 
 Environment files are intentionally protected by the agent permission configuration. Do not attempt to read, write, or edit `.env*` files. If required environment configuration is missing, report what is missing rather than trying to inspect the file.
 
@@ -52,6 +54,10 @@ The underlying commands are:
 - Verification gate: `npm run verify`
 - E2E tests: `npm run test:e2e`
 
+`npm run build` generates Prisma Client before running `next build`. Client
+generation is an explicit build prerequisite so fresh installs do not depend
+on dependency installation scripts having run.
+
 ## Verification
 
 `npm run verify` is the normal completion gate for code changes.
@@ -70,30 +76,56 @@ E2E tests are deliberately separate because they are slower. Run `npm run test:e
 
 `npm run test:e2e` prepares its own database and server environment through `pretest:e2e`; no manual test-database reset should normally be necessary.
 
-Before Playwright starts, it:
+Before Playwright starts, `scripts/prepare-e2e.mjs`:
 
-1. brings up the Docker containers and waits for their health checks;
-2. migrates the test database;
-3. removes every row from the test database using `scripts/reset-test-db.mjs`;
-4. clears stale dev-server state that would prevent Playwright from starting.
+1. generates Prisma Client, which the reset script imports;
+2. brings up the Docker containers and waits for their health checks;
+3. migrates the test database;
+4. removes every row from the test database using `scripts/reset-test-db.mjs`;
+5. clears this project's dev lock and anything listening on port `3100`.
 
-`scripts/reset-test-db.mjs` refuses to operate against anything except localhost.
+Preparation, the build, the server, and test helpers all use the environment
+from `scripts/e2e-env.mjs`. It defaults to the public Docker Compose test URL
+`postgresql://crossward:crossward@localhost:5433/crossward_test`. An explicit
+`TEST_DATABASE_URL` must resolve, using the pg driver's effective settings, to
+`localhost` or `127.0.0.1`, port `5433`, database `crossward_test`. Unsafe
+overrides are rejected before migration or reset. The validated URL is
+normalized before use so query options cannot redirect another database
+client. Both application database URLs are overridden with that same URL.
+
+The build and server use `NODE_ENV=production`, the local pg adapter,
+`http://localhost:3100` as the auth origin, and a fixed test-only signing
+secret. `RESEND_API_KEY`, `BETTER_AUTH_SECRETS`, and `VERCEL` are explicitly
+empty, including when an inherited or Next-loaded environment file supplies
+other values. No email is sent. These settings belong to the harness;
+manual local login and real email delivery are a separate follow-up story.
 
 The test database is wiped once per E2E run, not once per test. Playwright's parallel workers share that database during the run.
+This deletes all existing puzzle and authentication rows in the isolated test
+database. Agents must obtain explicit authorization before running it when
+existing-data deletion has not already been authorized.
 
 The Docker containers are intentionally left running afterward so subsequent test runs start quickly.
 
-## Playwright server and Next.js lock
+## Playwright production server and Next.js build
 
-Playwright's web server runs on port `3100`, separate from the normal Next.js development server on port `3000`.
+Playwright runs `scripts/e2e-server.mjs`: `npm run build` generates Prisma
+Client and creates a fresh Next.js build, followed by `next start -p 3100`.
+A failed generation or build never starts a server. Startup has a
+three-minute budget for the build and server; browser and assertion timeouts,
+workers, project selection, and retries retain their normal settings. An
+existing server is never reused. Playwright owns the launcher, which forwards
+termination signals to its build/server process group and propagates failures.
+Playwright allows fifteen seconds for graceful launcher shutdown; the launcher
+force-stops a remaining child group after ten seconds.
 
-A different port is not sufficient to allow two `next dev` processes for this repository. Next.js also creates the project-scoped lock:
+The production build replaces the ordinary `.next` output. Preparation may
+stop the normal local development server: sharing that build directory during
+a build is unsafe. Next.js records the dev process in the project-scoped lock:
 
 `.next/dev/lock`
 
-A manually running `next dev` can therefore prevent the Playwright server from starting even when port `3100` itself is free.
-
-The E2E preparation script handles both sources of conflict:
+The preparation script handles both sources of conflict:
 
 - the process holding this project's Next.js dev lock;
 - anything already bound to port `3100`.

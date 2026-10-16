@@ -148,6 +148,21 @@ Decision for entry, navigation, and visible activity in an already-open page.
 Resolve and independently recheck this finding before closing Accounts and
 starting Ownership.
 
+### A5 — Production-build E2E harness
+
+[A5](stories/09-A5-production-build-e2e.md) runs the unchanged browser suite
+against a fresh production build with explicit isolated database/auth settings
+and email disabled. It follows the bounded library investigation and does not
+deliver A4 or claim to fix development hydration or unbounded library growth.
+
+### Separate follow-up — Usable manual login
+
+Specify a separate story for completing local sign-in in a person's own
+browser, including usable link delivery and confirmation that the library opens.
+Automated database-token sign-in is not evidence of working manual login.
+The delivery mechanism and acceptance specification remain to be settled;
+manual login is not part of A5.
+
 ---
 
 ## Suggested order
@@ -155,6 +170,9 @@ starting Ownership.
 A1, A2, A3, then the audit follow-up A4. A1 and A2 are additive and break
 nothing. A3 changes the precondition of the entire suite and follows them.
 A4 completes the session policy before the epic closes.
+Complete A5's harness gate while preserving unfinished A4, then resume A4 only
+when authorized. Manual login remains its separate follow-up; this harness
+story does not authorize Ownership or Accounts closeout.
 
 ## Definition of done (epic-level)
 
