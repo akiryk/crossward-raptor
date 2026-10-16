@@ -24,6 +24,10 @@ production, with explicit local test configuration.
 - Preserve project selection, auth setup, worker counts, retries, browser test
   timeouts, assertion timeouts, navigation behavior, and all frozen specs.
   Production auth behavior remains enabled; do not bypass authentication.
+- Preserve Better Auth's production rate limits. The editable auth helper
+  assigns a stable simulated client IP to each fresh visitor context, including
+  browser and API requests, so unrelated test users do not consume one shared
+  magic-link rate-limit bucket. Do not change application auth configuration.
 - Keep the existing once-per-run isolated reset and process cleanup. Existing
   data deletion still requires the user's explicit authorization. Document
   that preparation can stop the normal local dev server and replace `.next`.
@@ -45,6 +49,7 @@ development rendering issue and unbounded library growth concern visible.
 - `scripts/e2e-env.mjs` — shared isolated configuration and validation.
 - `scripts/prepare-e2e.mjs` — prepare with validated child environment.
 - `scripts/e2e-server.mjs` — build, then start; propagate failures/signals.
+- `e2e/helpers/auth.ts` — separate simulated visitors for production IP limits.
 - Existing migration/reset/port scripts — reuse, changing only if necessary.
 - `docs/DEVELOPMENT.md` — actual E2E command, configuration, and lifecycle.
 - Accounts `EPIC.md` and `HANDOFF.md` — story order and observed delivery state.
