@@ -52,6 +52,9 @@ export default defineConfig({
     url: 'http://localhost:3100',
     // Includes a fresh production build; browser/assertion budgets stay intact.
     timeout: 180_000,
+    // Let the launcher stop its npm/build/server group before Playwright's
+    // fallback kill. The launcher bounds its own cleanup at ten seconds.
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 15_000 },
     // Still false, unlike the usual !process.env.CI pattern: this
     // webServer always needs the explicit test environment below, so reusing
     // an already-running server (started with the real DATABASE_URL)

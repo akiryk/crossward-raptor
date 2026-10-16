@@ -12,6 +12,11 @@ production, with explicit local test configuration.
   `next build`, then serves it with `next start` on port 3100. Fail the run if
   preparation, build, or startup fails; never reuse an existing server or a
   stale build. Allow build time in the server-startup budget only.
+- Generate the Prisma client explicitly before the production build and before
+  E2E preparation imports it. The launcher uses the ordinary `npm run build`
+  path, so a fresh install does not depend on a developer's generated client
+  or package-install scripts being permitted. Generation changes no schema
+  and makes no database connection.
 - Give preparation, build, server, and test helpers the same validated
   `TEST_DATABASE_URL`: only `localhost` or `127.0.0.1`, port `5433`, database
   `crossward_test`, using the driver's effective connection settings. Default
@@ -45,7 +50,7 @@ development rendering issue and unbounded library growth concern visible.
 ## Repo paths
 
 - `playwright.config.ts` — production server launch and explicit helper config.
-- `package.json` — ordinary E2E preparation entry point.
+- `package.json` — ordinary E2E preparation and production-build entry points.
 - `scripts/e2e-env.mjs` — shared isolated configuration and validation.
 - `scripts/prepare-e2e.mjs` — prepare with validated child environment.
 - `scripts/e2e-server.mjs` — build, then start; propagate failures/signals.
@@ -79,3 +84,12 @@ development rendering issue and unbounded library growth concern visible.
 These harness examples are concrete inspection/process checks; the existing
 browser suite remains the behavioral acceptance specification. No acceptance
 tests are authored or changed in this implementation session.
+
+## Fresh-install build evidence
+
+The first A5 head passed two local full suites and verification, but its Vercel
+preview failed TypeScript because `@prisma/client` exported no `PrismaClient`.
+The deployment log showed install scripts skipped and no `prisma generate`
+before `next build`. This exposed a missing generation prerequisite masked by
+the local generated client. Explicit generation is part of the production-build
+boundary; dependencies, schema, migrations, and frozen tests remain unchanged.

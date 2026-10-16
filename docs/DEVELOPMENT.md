@@ -54,6 +54,10 @@ The underlying commands are:
 - Verification gate: `npm run verify`
 - E2E tests: `npm run test:e2e`
 
+`npm run build` generates Prisma Client before running `next build`. Client
+generation is an explicit build prerequisite so fresh installs do not depend
+on dependency installation scripts having run.
+
 ## Verification
 
 `npm run verify` is the normal completion gate for code changes.
@@ -74,10 +78,11 @@ E2E tests are deliberately separate because they are slower. Run `npm run test:e
 
 Before Playwright starts, `scripts/prepare-e2e.mjs`:
 
-1. brings up the Docker containers and waits for their health checks;
-2. migrates the test database;
-3. removes every row from the test database using `scripts/reset-test-db.mjs`;
-4. clears this project's dev lock and anything listening on port `3100`.
+1. generates Prisma Client, which the reset script imports;
+2. brings up the Docker containers and waits for their health checks;
+3. migrates the test database;
+4. removes every row from the test database using `scripts/reset-test-db.mjs`;
+5. clears this project's dev lock and anything listening on port `3100`.
 
 Preparation, the build, the server, and test helpers all use the environment
 from `scripts/e2e-env.mjs`. It defaults to the public Docker Compose test URL
@@ -104,12 +109,15 @@ The Docker containers are intentionally left running afterward so subsequent tes
 
 ## Playwright production server and Next.js build
 
-Playwright runs `scripts/e2e-server.mjs`: a fresh `next build` followed by
-`next start -p 3100`. A failed build never starts a server. Startup has a
+Playwright runs `scripts/e2e-server.mjs`: `npm run build` generates Prisma
+Client and creates a fresh Next.js build, followed by `next start -p 3100`.
+A failed generation or build never starts a server. Startup has a
 three-minute budget for the build and server; browser and assertion timeouts,
 workers, project selection, and retries retain their normal settings. An
 existing server is never reused. Playwright owns the launcher, which forwards
-termination signals to its build/server child and propagates failures.
+termination signals to its build/server process group and propagates failures.
+Playwright allows fifteen seconds for graceful launcher shutdown; the launcher
+force-stops a remaining child group after ten seconds.
 
 The production build replaces the ordinary `.next` output. Preparation may
 stop the normal local development server: sharing that build directory during

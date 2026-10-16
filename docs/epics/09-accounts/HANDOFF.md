@@ -3,7 +3,7 @@
 ## Read first — production-build E2E story A5
 
 1. `AGENTS.md`, then **Current state — A5** and **Next action — A5** below.
-   These supersede the older investigation and manual-testing instructions.
+   These supersede older investigation and manual-testing instructions.
 2. [A5 specification](stories/09-A5-production-build-e2e.md),
    `playwright.config.ts`, `scripts/e2e-env.mjs`, `scripts/prepare-e2e.mjs`,
    `scripts/e2e-server.mjs`, and `docs/DEVELOPMENT.md` for the harness boundary.
@@ -13,87 +13,77 @@
 
 ## Current state — A5 (2026-10-16)
 
-The user authorized scoping and implementing the recommended production-build
-E2E story while preserving frozen acceptance tests and unfinished A4 changes.
-A5's specification baseline is committed (`22a301b`, clarified by `b2fdc91`);
-implementation is verified locally on `story/09-A5-production-build-e2e`.
-The scoped implementation commit/PR and independent merge are next; the
-pre-existing A4/application and historical handoff edits remain excluded.
+The user authorized A5 and explicitly approved isolated test-data resets.
+Specification baseline: `22a301b`, clarified by `b2fdc91`. Initial implementation
+`e7391cb` is pushed in [PR #14](https://github.com/akiryk/crossward-raptor/pull/14).
+Its required local checks passed, but Vercel's fresh install lacked a generated
+Prisma client and failed TypeScript. The revised build prerequisite fix is now
+verified locally, ready to commit/push to that PR and obtain final CI/review.
+Branch: `story/09-A5-production-build-e2e`. A4/application and earlier handoff
+edits remain excluded from A5 delivery.
 
-The harness builds fresh, starts production on port 3100, and shares validated
-local database/auth settings across preparation/build/server/helpers. Email is
-forced off. Production auth limits stay enabled; editable auth plumbing assigns
-stable distinct simulated visitor IPs. No frozen assertions or browser test
-budgets changed. No A4/app changes are included in A5 scope or its commits;
-the pre-existing handoff edits are also preserved.
+The harness generates Prisma Client explicitly before preparation imports it
+and before compiling through the ordinary `npm run build` path. It serves the
+fresh production build on port 3100 with shared validated local database/auth
+settings and email forcibly disabled. Production auth limits remain enabled;
+editable auth plumbing gives independent visitors stable distinct IPs. Browser
+settings/assertions stay frozen. Launcher process groups and Playwright's
+shutdown grace cover npm's shell/build descendants. No schema/dependency,
+application/session-policy, or engine changes were made.
 
-Independent verification:
+Final independent verification of the revised harness:
 
-- `npm run verify` exited 0: 24 files / 319 tests; only the existing
-  request-logger lint warning.
-- Test discovery: 303 tests / 40 files, with existing project split/settings.
-- Pure configuration checks: 15 unsafe targets rejected, 8 effective-safe
-  targets canonicalized, 4 credential round-trip cases passed; hostile
-  inherited configuration replaced. Verification found a percent-escape
-  credential normalization bug; the implementation now encodes credentials
-  before constructing the canonical URL.
-- Controlled lifecycle checks passed: failed build prevents start, failed
-  start propagates, build/start SIGTERM forwards and prevents transition,
-  invalid configuration rejects before any preparation child starts.
-- Real build initially failed because the restricted network could not fetch
-  Google Fonts; launcher exited 1 before start. Approved network retry passed:
-  production build/TypeScript succeeded, `next start` became ready, an
-  unauthenticated GET `/` returned 200 with the sign-in fields, and SIGTERM
-  cleanup left no listener on port 3100. No authentication or data writes ran.
-  Evidence: `/private/tmp/crossward-a5-independent-verification.md`.
-- Two consecutive ordinary `npm run test:e2e` runs exited 0, each with the
-  normal four workers: **303/303 in 1.1 minutes**, then **303/303 in 51.9 seconds**.
-  No library navigation timeout or production rate-limit failure occurred.
-  Captured output: `/private/tmp/crossward-a5-e2e-full-1.log` and
-  `/private/tmp/crossward-a5-e2e-full-2.log`.
-- Independent code review has no remaining code findings after the credential
-  fix. Final scoped-commit/PR review and merge are pending.
-- Final `npm run verify` after both production builds exited 0: 24 files /
-  319 tests, with only the existing request-logger lint warning. Output:
-  `/private/tmp/crossward-a5-final-verify.log`. The 170-file SHA256 manifest is
-  `/private/tmp/crossward-a5-verified-tree-sha256.json`; it identifies unfinished
-  A4/keyboard source files as combined-checkout context, excluded from delivery.
-  Port 3100 has no remaining listener. All 40 frozen E2E spec/setup files and
-  all pre-existing app/A4 changes match their intake hashes; the original
-  handoff body is intact.
+- Two consecutive ordinary full `npm run test:e2e` runs exited 0, with the
+  normal four workers: **303/303 in 2.0 minutes**, then **303/303 in 1.2 minutes**.
+  No library navigation timeouts or production rate-limit failures occurred.
+  Logs: `/private/tmp/crossward-a5-e2e-full-3.log` and `-full-4.log`.
+- Final `npm run verify` exited 0: 24 files / 319 tests; only the existing
+  request-logger lint warning. Log: `/private/tmp/crossward-a5-final-verify-2.log`.
+- Configuration checks rejected unsafe targets, canonicalized effective-safe
+  targets, round-tripped percent-escaped credentials, and overrode hostile
+  inherited database/auth/email settings. The first credential-normalization
+  bug was fixed before the original full runs.
+- Failure/signal controls passed, including a real npm leader exiting while a
+  descendant ignored SIGTERM: the launcher force-stopped it after 10,074 ms
+  without starting the server. Both full runs left no launcher/server process
+  and no listener on port 3100.
+- Final 170-file manifest:
+  `/private/tmp/crossward-a5-verified-tree-sha256-final.json`. All 40 frozen
+  E2E spec/setup files and six unfinished A4/keyboard source files retain
+  their hashes. The original pre-existing handoff body and A4 story edits
+  are intact. Six source files are tested combined-checkout context only,
+  excluded from A5 delivery; this is not a clean scoped-commit application pass.
+- Evidence summary: `/private/tmp/crossward-a5-independent-verification.md`.
+  Earlier logs `-full-1.log` / `-full-2.log` and the original manifest preserve
+  the passing local pair before the fresh-install generation fix; the final
+  pair above supersedes them for the revised harness.
 
-The user explicitly authorized isolated test-database resets and the two full
-E2E runs in the follow-up message: “Okay, go ahead with reseting the test and
-running the new tests.” The separate verification agent ran the two
-ordinary commands sequentially; both full runs passed as recorded above.
-Docker Desktop needed starting; initial preparation attempts exited before
-migration/reset while its daemon was down. Only the isolated test database
-was reset. A4 delivery and Accounts closeout have not occurred.
+The independent reviewer found no code issues on the initial or revised local
+source. Final committed-head review and the new Vercel result remain pending;
+the old failed CI result is not waived. Docker Desktop needed starting before
+the first actual suite. Only the isolated test database was reset, with explicit
+user authorization; all browser suites ran sequentially. Docker remains up.
 
-The saved `/private/tmp/crossward-bounded-20261016/comparison.json` is no longer
-present. The earlier recorded investigation results are historical evidence;
-this story does not restart the old instrumentation investigation.
-
-Keep these unresolved concerns visible: streamed development library rendering
-can stall; the library renders every puzzle and cell thumbnail, so DOM/document
-size grows without bounds. A production E2E pass will not establish a fix for
-those concerns. Working manual login and real email delivery remain unverified
-and need a separate story. Accounts remains open; A4 remains undelivered.
+Unresolved: streamed development library rendering can stall, and the library
+renders every puzzle and cell thumbnail without bounds. Production E2E passes
+do not establish a fix for those concerns. Manual login and real email delivery
+remain unverified and need their separate follow-up story. Accounts stays open;
+A4 stays undelivered. The old temporary bounded comparison artifact is missing;
+do not restart the hydration instrumentation investigation to recreate it.
 
 ## Next action — A5
 
-Commit only A5, open its PR, and obtain independent final review/merge using
-its tested-file manifest and captured check results. The full suite checks
-the combined local application with unfinished A4, not a clean scoped-commit application;
-record that distinction. Preserve all pre-existing app/A4 and handoff changes
-outside the A5 commit. Do not continue to another story automatically.
+Commit/push only the revised A5 files to PR #14, then let the independent
+reviewer confirm the final tested-file manifest, exact head, and Vercel check
+before normal merge. Preserve unfinished A4/application and earlier handoff
+edits outside A5 commits. Do not continue to another story automatically.
 
 Copyable resume prompt:
 
 > Read AGENTS.md and the A5 sections at the top of
-> docs/epics/09-accounts/HANDOFF.md. Complete the production-build E2E story's
-> outstanding checks/review while preserving frozen tests and unfinished A4.
-> Keep manual login separate and do not begin Ownership.
+> docs/epics/09-accounts/HANDOFF.md. Finish the scoped A5 CI/review/delivery gate
+> while preserving frozen tests and unfinished A4. Keep manual login separate
+> and do not begin Ownership or restart the hydration investigation.
 
 ---
 

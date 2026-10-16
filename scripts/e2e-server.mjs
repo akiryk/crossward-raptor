@@ -7,30 +7,69 @@ const env = e2eEnvironment();
 const next = createRequire(import.meta.url).resolve('next/dist/bin/next');
 let child;
 let stopping = false;
-let shutdownTimer;
+let shutdownComplete;
+
+function signalChild(signal) {
+  if (!child?.pid) return;
+  try {
+    // npm adds a shell and build descendants. Signal their entire group so
+    // stopping Playwright cannot leave generation or a build running behind.
+    if (process.platform !== 'win32') process.kill(-child.pid, signal);
+    else child.kill(signal);
+  } catch {
+    // The child may already have exited.
+  }
+}
+
+function childGroupExists() {
+  if (!child?.pid) return false;
+  if (process.platform === 'win32') return child.exitCode === null && child.signalCode === null;
+  try {
+    process.kill(-child.pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
     stopping = true;
-    child?.kill(signal);
-    // Bound cleanup if a build/server ignores its graceful shutdown signal.
-    shutdownTimer ??= setTimeout(() => child?.kill('SIGKILL'), 10_000);
-    shutdownTimer.unref();
+    signalChild(signal);
+    // Keep the fallback alive even if npm exits before a build descendant.
+    shutdownComplete ??= new Promise((resolve) => {
+      const finish = () => {
+        clearInterval(poll);
+        clearTimeout(force);
+        resolve();
+      };
+      const poll = setInterval(() => {
+        if (!childGroupExists()) finish();
+      }, 100);
+      const force = setTimeout(() => {
+        signalChild('SIGKILL');
+        finish();
+      }, 10_000);
+    });
   });
 }
 
-function run(args) {
+function run(command, args) {
   return new Promise((resolve) => {
-    child = spawn(process.execPath, [next, ...args], { env, stdio: 'inherit' });
+    child = spawn(command, args, {
+      env,
+      stdio: 'inherit',
+      detached: process.platform !== 'win32',
+    });
     child.on('error', (error) => {
-      console.error(`E2E Next.js process could not start: ${error.message}`);
+      console.error(`E2E build/server process could not start: ${error.message}`);
       resolve(1);
     });
     child.on('exit', (code) => resolve(code ?? 1));
   });
 }
 
-const buildCode = await run(['build']);
+const buildCode = await run('npm', ['run', 'build']);
 if (buildCode !== 0 || stopping) process.exitCode = buildCode || 1;
-else process.exitCode = await run(['start', '-p', '3100']);
-clearTimeout(shutdownTimer);
+else process.exitCode = await run(process.execPath, [next, 'start', '-p', '3100']);
+await shutdownComplete;
