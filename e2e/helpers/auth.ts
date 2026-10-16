@@ -1,6 +1,25 @@
-import type { Page } from '@playwright/test';
+import { randomInt } from 'node:crypto';
+import type { BrowserContext, Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+const visitorHeaders = new WeakMap<BrowserContext, { 'x-forwarded-for': string }>();
+
+async function clientHeaders(page: Page): Promise<{ 'x-forwarded-for': string }> {
+  const context = page.context();
+  let headers = visitorHeaders.get(context);
+  if (!headers) {
+    // Production Better Auth limits by IP. Fresh test visitors should not
+    // share the localhost bucket; retain the real limiter and a stable IP
+    // across this visitor's browser navigation and API requests.
+    headers = {
+      'x-forwarded-for': `10.${randomInt(256)}.${randomInt(256)}.${randomInt(1, 255)}`,
+    };
+    visitorHeaders.set(context, headers);
+    await context.setExtraHTTPHeaders(headers);
+  }
+  return headers;
+}
 
 /**
  * Plumbing for the A1 magic-link spec (`e2e/magic-link.spec.ts`).
@@ -33,6 +52,7 @@ function testDbClient(): PrismaClient {
 export async function requestMagicLink(page: Page, email: string): Promise<void> {
   const res = await page.request.post('/api/auth/sign-in/magic-link', {
     data: { email, callbackURL: '/puzzles' },
+    headers: await clientHeaders(page),
   });
   if (!res.ok()) {
     throw new Error(
@@ -82,7 +102,9 @@ export async function readMagicLinkUrl(email: string): Promise<string> {
 export async function getSession(
   page: Page
 ): Promise<{ user?: { email?: string } } | null> {
-  const res = await page.request.get('/api/auth/get-session');
+  const res = await page.request.get('/api/auth/get-session', {
+    headers: await clientHeaders(page),
+  });
   if (!res.ok()) {
     throw new Error(`getSession failed: ${res.status()} ${await res.text()}`);
   }
@@ -104,7 +126,7 @@ export async function signOut(page: Page): Promise<void> {
   // is rejected 403 MISSING_OR_NULL_ORIGIN.
   const res = await page.request.post('/api/auth/sign-out', {
     data: {},
-    headers: { origin: new URL(page.url()).origin },
+    headers: { ...await clientHeaders(page), origin: new URL(page.url()).origin },
   });
   if (!res.ok()) {
     throw new Error(`signOut failed: ${res.status()} ${await res.text()}`);

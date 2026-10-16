@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
-import { config } from 'dotenv';
+import { e2eEnvironment } from './scripts/e2e-env.mjs';
 
-config({ path: '.env.local' });
+// Helpers and every preparation/build/server child use the same isolated URL.
+// Set it before helpers can load dotenv, which never overrides explicit values.
+const e2eEnv = e2eEnvironment();
+Object.assign(process.env, e2eEnv);
 
 // Story A3: specs that must run signed out (they exercise sign-in itself,
 // or only assert layout that renders on the public front door). Everything
@@ -44,20 +47,19 @@ export default defineConfig({
     },
   ],
   webServer: {
-    // A dedicated port, distinct from npm run dev's default 3000, so this
-    // suite's own server never collides with a manually-run dev server.
-    command: 'next dev -p 3100',
+    // A dedicated port, distinct from npm run dev's default 3000.
+    command: 'node scripts/e2e-server.mjs',
     url: 'http://localhost:3100',
+    // Includes a fresh production build; browser/assertion budgets stay intact.
+    timeout: 180_000,
     // Still false, unlike the usual !process.env.CI pattern: this
-    // webServer always needs the DATABASE_URL override below, so reusing
-    // an already-running dev server (started with the real DATABASE_URL)
+    // webServer always needs the explicit test environment below, so reusing
+    // an already-running server (started with the real DATABASE_URL)
     // is never correct here. The dedicated port above stops accidental
     // collisions with a manual dev server; this stops a stale leftover
     // Playwright-spawned server (e.g. from a killed previous run) from
     // being silently reused with the wrong database.
     reuseExistingServer: false,
-    env: {
-      DATABASE_URL: process.env.TEST_DATABASE_URL ?? '',
-    },
+    env: e2eEnv,
   },
 });

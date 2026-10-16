@@ -11,7 +11,7 @@
     "db:up": "docker compose up -d --wait",
     "db:migrate": "prisma migrate deploy",
     "db:setup": "npm run db:up && npm run db:migrate",
-    "pretest:e2e": "npm run db:up && node scripts/migrate-test-db.mjs && node scripts/reset-test-db.mjs && node scripts/free-e2e-port.mjs",
+    "pretest:e2e": "node scripts/prepare-e2e.mjs",
     "test:e2e": "playwright test",
     "verify": "tsc --noEmit && npm run lint && vitest run",
     "request-logger": "tsx request-logger/proxy.ts"
