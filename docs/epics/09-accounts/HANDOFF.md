@@ -1,10 +1,18 @@
 # Accounts — Handoff
 
-## Read first — Accounts closed after independent audit
+## Read first — Accounts closed; production personal sign-in setup
 
 1. `AGENTS.md`, this current-state/audit section, and Accounts `EPIC.md` Decisions/Non-goals for the closeout boundary.
 2. **A6 delivery and verification checkpoint** below for the delivered-link/retry evidence, frozen-test exception, and separate user confirmation. Read the A4/A5 historical evidence only when rechecking those findings.
-3. Before inviting other users, `README.md` authentication setup, `docs/DEVELOPMENT.md` local-inbox instructions, and `src/lib/email.ts` for a separately scoped real Resend/domain delivery check. Do not inspect or edit `.env*` files.
+3. For the current personal sign-in follow-up, `README.md`, `docs/DEVELOPMENT.md` → Deployment, and `src/lib/email.ts` explain the production URL, Vercel settings, and sender override. Do not inspect or edit `.env*` files.
+
+## Production personal sign-in follow-up — 2026-10-17
+
+The user wants to use the hosted app themselves, without inviting others or buying a domain. The production URL is **https://crossward-raptor.vercel.app/**, confirmed through the linked Vercel project and its aliases. A read-only request returned HTTP 500; runtime logs identified Better Auth rejecting its default secret. Listing production variable names (not values) showed the auth settings and Resend key absent. The user subsequently configured the auth settings, redeployed, and **reported the login screen now loads**. They created a Resend account and **reported saving `RESEND_API_KEY` in Vercel Production**; no key was shared or inspected.
+
+Scoped sender follow-up: `src/lib/email.ts` now reads optional `RESEND_FROM_EMAIL` only in the existing Resend delivery branch, trimming it and retaining `Crossward <login@crossward.app>` as the unset/blank default. Mailpit, keyless production, unit-test isolation, authentication, and frozen acceptance files are unchanged. Set Production `RESEND_FROM_EMAIL` to **`Crossward <onboarding@resend.dev>`** to use Resend's testing sender; request links only for the email associated with that Resend account. This does not establish a verified custom sending domain or authorize other recipients. README/development docs now record these settings and the confirmed deployment URL. This is a small operational follow-up after the audited A1–A6 baseline, with no high-blast-radius path or new story implementation.
+
+Verification on the sender change: `npm run verify` exited 0 (**25 files / 328 tests**, existing request-logger lint warning only); ordinary `npm run test:e2e` exited 0 (**307/307 in 1.8 minutes**, normal four workers and fresh production build). A controlled no-network check of the actual transpiled email function confirmed the configured sender, original default, and blank-value fallback with synthetic environment values and a mocked provider. Checks ran serially with E2E email disabled and only the authorized isolated test-database reset. Frozen acceptance files remain unchanged. The scoped change is delivered directly on `main` under the low-blast-radius review rule; no PR is required for these paths. Real Resend delivery and hosted authenticated-library access remain **unverified**. No `.env*` file was inspected/edited, no existing development data or inbox messages were deleted, and no Ownership/hydration work began.
 
 ## Current state — Accounts closed (2026-10-17)
 
@@ -48,13 +56,13 @@ Retained local evidence: `/private/tmp/crossward-a4-independent-verification.md`
 
 **Disposition:** all required Accounts gates and audit findings are accounted for. A4's blocker is resolved; A5/A6 requirements are satisfied by inspected evidence; remaining documentation drift/pruning and coverage limitations are explicitly nonblocking. The independent auditor recommended closeout, and Accounts is closed on that basis.
 
-## Next action — separately scope real delivery verification
+## Next action — finish production personal sign-in
 
-Before inviting another user, scope a real Resend/domain delivery check with explicit authorization and prerequisites; preserve existing data/messages and do not inspect/edit `.env*` files. A small documentation-only correction to the epic's stale progress paragraph, plus optional focused handoff pruning with the retained reasoning above, is proposed follow-up work rather than an automatic continuation. Ownership and hydration investigation remain out of scope.
+Guide the user to set Production `RESEND_FROM_EMAIL=Crossward <onboarding@resend.dev>` in Vercel and redeploy. Have the user request a link for their Resend account email and follow it from their real mailbox in the same browser; confirm identity and usable library before recording hosted sign-in success. Preserve existing data/messages and do not inspect/edit `.env*` files. Real custom-domain delivery before inviting others, the stale epic progress paragraph, and optional handoff pruning remain separate follow-ups. Ownership and hydration investigation remain out of scope.
 
 Copyable resume prompt:
 
-> Read AGENTS.md and the top closeout sections of docs/epics/09-accounts/HANDOFF.md. Accounts closed after an independent report-only A1–A6 audit on 2026-10-17, with no implementation blocker. A4 renewal, A5 isolation, and A6 real Mailpit delivery/retry evidence were independently checked; the user separately confirmed local sign-in and puzzle creation. Help scope real Resend/domain delivery verification before inviting others. Preserve frozen tests, development data, and inbox messages; do not inspect/edit .env* files or begin Ownership/hydration work. The stale epic progress paragraph and optional handoff pruning are recorded documentation follow-ups.
+> Read AGENTS.md and the top production-personal-sign-in section of docs/epics/09-accounts/HANDOFF.md. Accounts A1–A6 closed after its independent audit. The hosted login screen now loads per user report; the user created a Resend account and saved its key in Vercel Production. The sender override supports RESEND_FROM_EMAIL=Crossward <onboarding@resend.dev>; inspect the recorded verification/delivery state before proceeding. Help finish hosted sign-in through the user's actual mailbox, using their Resend account email. Do not claim delivery/authentication until confirmed. Preserve frozen tests, development data, and inbox messages; do not inspect/edit .env* files or begin Ownership/hydration work.
 
 ---
 

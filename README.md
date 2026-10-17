@@ -22,11 +22,19 @@ local Mailpit inbox before starting Next. Development captures sign-in mail
 there even if a `RESEND_API_KEY` was inherited; it never falls back to real
 delivery when the inbox is unavailable.
 
-Production delivery uses `RESEND_API_KEY` and **one verified domain in
-Resend**. Until a domain is verified, Resend only sends to the account
-owner's address. Check real email delivery separately before inviting others.
+Production delivery uses `RESEND_API_KEY`. Set `RESEND_FROM_EMAIL` to choose
+the sender; it defaults to `Crossward <login@crossward.app>`, which requires
+verifying `crossward.app` in Resend. For personal sign-in without a verified
+domain, set `RESEND_FROM_EMAIL=Crossward <onboarding@resend.dev>` and request
+links only for the email address associated with your Resend account.
+Sending to other people requires a verified sending domain. Check real
+email delivery separately before inviting others.
 Production without a key does not deliver; tests never send email or use
 the local inbox.
+
+The production app is [crossward-raptor.vercel.app](https://crossward-raptor.vercel.app/),
+hosted on Vercel with Neon Postgres. Configure production auth/email settings
+in Vercel, then redeploy; see [deployment setup](docs/DEVELOPMENT.md#deployment).
 
 1. `npm install`
 2. `npm run db:setup` — starts the containers and applies migrations

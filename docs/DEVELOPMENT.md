@@ -192,4 +192,29 @@ This permission does not override safeguards on destructive operations or remote
 
 ## Deployment
 
-Do not infer a deployment provider from this document. Inspect the current repository configuration or relevant deployment documentation when deployment behavior matters.
+Production runs at [https://crossward-raptor.vercel.app/](https://crossward-raptor.vercel.app/)
+on Vercel, using Neon Postgres. The local `.vercel/project.json` links this
+checkout to that project. Local Docker databases and Mailpit are separate.
+
+In the Vercel project's Settings → Environment Variables, configure Production:
+
+- `BETTER_AUTH_SECRET` — a stable random signing secret, stored as Secret.
+- `BETTER_AUTH_URL` — `https://crossward-raptor.vercel.app`.
+- `RESEND_API_KEY` — your Resend API key, stored as Secret.
+- `RESEND_FROM_EMAIL` — `Crossward <onboarding@resend.dev>` for personal
+  sign-in using Resend's testing sender. It can deliver only to the address
+  associated with your Resend account. For other recipients, verify a sending
+  domain and use a sender on that domain. Without this variable the app uses
+  `Crossward <login@crossward.app>`, requiring verification of `crossward.app`.
+
+Redeploy after changing these settings; existing deployments retain their
+previous settings. Local `.env.local` edits do not configure Vercel, and local
+development needs no Resend key or sender override: Mailpit still captures
+messages with its existing local sender. Tests remain email-free.
+
+If the deployed homepage returns HTTP 500, check runtime logs. The observed
+2026-10-17 failure was Better Auth rejecting its default signing secret;
+adding the production auth settings and redeploying restored the login screen.
+Reaching that screen does not prove email delivery. Request a link for your
+Resend account email, check the real mailbox, and follow it in the same browser
+to confirm the session and usable library. Never publish live links or secrets.

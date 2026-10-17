@@ -1,8 +1,7 @@
 import { Resend } from 'resend';
 
-// The verified sender. Resend requires this address to live on a domain
-// verified in the Resend dashboard (see README) before it can deliver to
-// anyone but the account owner.
+// Default for a verified domain. RESEND_FROM_EMAIL can select Resend's testing
+// sender for personal sign-in, or another verified sender (see README).
 const FROM = 'Crossward <login@crossward.app>';
 
 // Local development always captures mail, even with an inherited Resend key.
@@ -40,7 +39,8 @@ export async function sendMagicLink(email: string, url: string): Promise<void> {
 
   try {
     const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({ from: FROM, to: email, subject, text });
+    const from = process.env.RESEND_FROM_EMAIL?.trim() || FROM;
+    const { error } = await resend.emails.send({ from, to: email, subject, text });
     if (error) throw new Error('Provider rejected delivery');
   } catch {
     throw new Error('Could not deliver the sign-in link. Please try again.');
