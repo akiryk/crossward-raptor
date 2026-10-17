@@ -212,6 +212,15 @@ previous settings. Local `.env.local` edits do not configure Vercel, and local
 development needs no Resend key or sender override: Mailpit still captures
 messages with its existing local sender. Tests remain email-free.
 
+Production database migrations are a separate deployment step. `npm run build`
+generates Prisma Client but does not apply migration SQL. Apply reviewed pending
+migrations with `prisma migrate deploy` against the explicitly selected production
+database, with authorization for the live schema change and before/after checks
+that preserve existing puzzle data. Local `db:setup` and E2E reset scripts are
+not production migration commands. On 2026-10-17, the deployed sign-in request
+failed because `public.verification` was absent while three committed migrations
+were still pending; rebuilding alone could not create those tables.
+
 If the deployed homepage returns HTTP 500, check runtime logs. The observed
 2026-10-17 failure was Better Auth rejecting its default signing secret;
 adding the production auth settings and redeploying restored the login screen.
