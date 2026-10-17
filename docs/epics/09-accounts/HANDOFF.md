@@ -1,5 +1,48 @@
 # Accounts — Handoff
 
+## Read first — A6 specification ready for a fresh implementation session
+
+1. `AGENTS.md`, then **Current state — A6 specification** and **Next action — implement A6 in a fresh session** below.
+2. [A6 story](stories/09-A6-local-inbox-login.md), `src/lib/email.test.ts`, `e2e/manual-login.spec.ts`, and editable helper `e2e/helpers/sign-in-ui.ts`: the story, frozen acceptance contracts, required real-inbox walkthrough, and exact session boundary.
+3. Accounts epic Decisions/A6, `docs/DEVELOPMENT.md`, `README.md`, `src/lib/email.ts`, `src/components/auth/SignInForm.tsx`, `src/components/ui/Button.tsx`, `docker-compose.yml`, and `package.json` for actual delivery/startup and preserved keyboard work. Inspect no `.env*` files.
+4. For testing/delivery: `docs/process/STORY.md`, `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`, `docs/LEARNINGS.md`, `scripts/e2e-env.mjs`, and `playwright.config.ts`. The ordinary browser suite stays production-build and email-free.
+
+## Current state — A6 specification (2026-10-16)
+
+A1–A5 are delivered; A4's final state/evidence are preserved below. The user asked about preparing the story/specs here and using a fresh session to orchestrate implementation/testing. This session created **A6 specifications and test plumbing only**. No A6 application, inbox service, package-script, configuration, or dependency implementation has begun.
+
+The specification uses a separate **Mailpit inbox**, loopback-only, started as part of local development, to provide the user's chosen local-inbox experience. Local capture uses Mailpit's documented HTTP API, overrides ambient real-email keys in development, and remains disabled in tests/production/hosted execution. Production Resend behavior is preserved. Any change to the story's delivery choice must be settled before implementation rather than silently changing frozen tests.
+
+New acceptance files:
+
+- `src/lib/email.test.ts`: nine frozen transport-selection/delivery-isolation examples, mocking network/provider boundaries only.
+- `e2e/manual-login.spec.ts`: four frozen UI examples covering three submission methods, exactly one request, real session identity/usable library, and retryable delivery failure. These explicitly do not prove inbox delivery.
+- `e2e/helpers/sign-in-ui.ts`: editable starting plumbing for readiness and independent simulated visitor IPs; no app behavior is mocked there.
+
+A6 also requires a real Mailpit UI → delivered link → authenticated usable library walkthrough, with a stopped-inbox error/retry control. This is mandatory and separate from automated database-token sign-in. The next session must give the user ordinary local instructions and distinguish agent walkthrough from the user's own confirmed sign-in.
+
+Specification validation, before implementation:
+
+- `npx tsc --noEmit`: exit 0.
+- `npx eslint src/lib/email.test.ts e2e/manual-login.spec.ts e2e/helpers/sign-in-ui.ts`: exit 0.
+- `npx playwright test e2e/manual-login.spec.ts --list`: exit 0, discovers four A6 cases plus the existing setup dependency; no browser/server/database preparation ran.
+- `npx vitest run src/lib/email.test.ts`: **exit 1, 5 failed / 4 passed**, as expected on the unimplemented delivery function. Failures cover missing local capture, capture failure propagation, and test-mode delivery isolation. All transport calls were mocked; no real email, inbox contact, or database operations occurred.
+- Full `npm run verify`, full E2E, real-inbox walkthrough, independent specification review, and A6 implementation review were **not run** in this specification session. The new baseline intentionally fails its unimplemented unit criteria; no current green A6 release gate is claimed.
+
+Existing `SignInForm.tsx`/`Button.tsx` keyboard changes remain byte-for-byte unchanged and uncommitted, excluded from the spec-only baseline. Existing acceptance files remain unchanged. Freeze the two new acceptance files at the specification commit; the next implementer must not edit them. A6 requires a PR and independent final review/merge despite its otherwise low blast radius.
+
+## Next action — implement A6 in a fresh session
+
+Read the story and committed acceptance baseline, inspect/preserve the two unfinished keyboard source files, and use separate implementation and verification agents. Run the required automated gates and real-inbox walkthrough sequentially, then obtain independent final PR review/merge. Do not try to make the production E2E server deliver to the local inbox. No existing development database or inbox-message deletion is authorized by A6 startup/checks; isolated E2E reset authorization remains recorded in the A5/A4 history.
+
+This session stops after specification delivery. Keep Accounts open until A6's actual manual-login status and the eventual independent closeout audit are accounted for. Do not start Ownership or restart hydration instrumentation.
+
+Copyable next-session prompt:
+
+> Use the story skill to implement docs/epics/09-accounts/stories/09-A6-local-inbox-login.md. First read AGENTS.md and the A6 sections at the top of docs/epics/09-accounts/HANDOFF.md. The specification-only baseline is committed; preserve its frozen unit/browser tests and the unfinished SignInForm/Button keyboard work. Orchestrate separate implementation and verification agents and independent final PR review/merge. Complete both ordinary automated gates and the real local-inbox walkthrough; do not substitute database-token login for inbox evidence. Preserve A5 production-test isolation and all existing data. Keep Accounts open pending its closeout audit, and do not begin Ownership.
+
+---
+
 ## Read first — A4 delivered; manual login next
 
 1. `AGENTS.md`, then **Current state — A4 delivered** and **Next action — manual-login specification** below. These supersede the older A4 pause, usage-limit, and A5 next-action instructions.

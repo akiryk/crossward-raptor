@@ -155,15 +155,17 @@ against a fresh production build with explicit isolated database/auth settings
 and email disabled. It follows the bounded library investigation and does not
 deliver A4 or claim to fix development hydration or unbounded library growth.
 
-### Separate follow-up — Usable manual login
+### A6 — Usable manual login through a local inbox
 
 Specify a separate story for completing local sign-in in a person's own
 browser, including usable link delivery and confirmation that the library opens.
 Automated database-token sign-in is not evidence of working manual login.
 The user chose a local inbox for local development; check real email delivery
-separately before inviting other users. Specify the inbox flow and acceptance
-examples in its own story before implementation. Manual login is separate
-from A4 session renewal and the delivered A5 harness.
+separately before inviting other users. [A6](stories/09-A6-local-inbox-login.md)
+specifies a separate Mailpit inbox, usable keyboard submission and retry, and
+the required real-inbox walkthrough. Its unit/UI contracts complement rather
+than replace that walkthrough; ordinary production E2E remains email-free.
+Implementation belongs to a fresh session after the specification baseline.
 
 ---
 
@@ -171,10 +173,10 @@ from A4 session renewal and the delivered A5 harness.
 
 A1, A2, A3, then the audit follow-up A4. A1 and A2 are additive and break
 nothing. A3 changes the precondition of the entire suite and follows them.
-A4 completes the session policy before the epic closes.
-Complete A5's harness gate while preserving unfinished A4, then resume A4 only
-when authorized. Manual login remains its separate follow-up; this harness
-story does not authorize Ownership or Accounts closeout.
+A4 completes the session policy before the epic closes. A1–A5 are delivered.
+Next implement A6 from its specification baseline, then account for the
+required independent Accounts closeout audit. Neither the A5 harness nor the
+A6 specification authorizes starting Ownership.
 
 ## Definition of done (epic-level)
 
