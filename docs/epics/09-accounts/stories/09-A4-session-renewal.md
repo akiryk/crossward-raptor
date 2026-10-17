@@ -26,6 +26,17 @@ or ownership behavior.
 - Use the installed Better Auth protocol. Deferred GET/POST refresh is
   permitted; a GET alone is not required to mutate a session.
 
+### Implementation evidence
+
+The installed client's deferred-refresh POST omits its JSON body and content
+type; the real browser received 415 after GET reported `needsRefresh: true`.
+The client request hook supplies JSON `{}` only for that empty session POST.
+Server GET reads remain deferred, and the browser observer uses the library's
+session atom for mount, visible-tab return, and reconnect. Visible input and
+navigation checks share a one-minute request throttle; no idle timer renews
+an abandoned tab. The 30-day lifetime and one-day renewal threshold remain
+unchanged.
+
 ## Repo paths
 
 - `src/lib/auth.ts` — session refresh configuration as needed.

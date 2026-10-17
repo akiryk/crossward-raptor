@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { SignOutButton } from '@/components/auth/SignOutButton';
+import { SessionRenewal } from '@/components/auth/SessionRenewal';
 
 export async function Header() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -14,7 +15,12 @@ export async function Header() {
       <Link href="/" data-testid="home-link">
         Crossward
       </Link>
-      {session && <SignOutButton />}
+      {session && (
+        <>
+          <SessionRenewal />
+          <SignOutButton />
+        </>
+      )}
     </header>
   );
 }
