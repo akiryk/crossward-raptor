@@ -11,16 +11,26 @@ show the difference.
 
 ## Decisions
 
-**`Puzzle.builderId` is a required foreign key**, and the puzzles that
-exist today are deleted rather than backfilled.
+**`Puzzle.builderId` is a required foreign key.** Existing local-development
+puzzles are deleted; the four production puzzles are preserved and assigned
+to the user's existing successful-sign-in account.
 
 A nullable owner would put "or no builder" into every query and
 permission check forever, for the sake of a handful of rows in a
-personal dev database. The test database is wiped on every run, so the
-only real casualty is local dev data — "Sparky Pluggy" and friends.
+personal dev database. The test database is wiped on every run; disposable
+local dev data includes "Sparky Pluggy" and friends.
 The user explicitly confirmed on 2026-10-15 that existing local-development
 puzzles may be deleted for this migration. This does not cover deployed data
-or account records.
+or account records. On 2026-10-17 the user explicitly confirmed preserving
+all four production puzzles and assigning them to the existing account used
+for successful production sign-in. Preserve every pre-existing puzzle column,
+including IDs, contents, publication fields, and timestamps. Identify that
+account and the exact four puzzle IDs explicitly before production application;
+do not infer an owner from the first/only user or silently adopt extra rows.
+The migration must fail without data changes if its nonempty-table backfill
+inputs do not match. Account records and development inbox messages are
+preserved everywhere. A builder with puzzles cannot be deleted through the
+foreign key; use `ON DELETE RESTRICT`, not cascading puzzle deletion.
 Required from the start keeps epic 11's permission logic to a single
 comparison with no null branch.
 
@@ -65,12 +75,14 @@ once epic 11 gives them somewhere better to land.
 
 ### O1 — Puzzles have builders
 
-`builderId` as a required FK to the user, existing puzzles deleted,
+`builderId` as a required FK to the user, local-development puzzles deleted
+and the four production puzzles preserved/backfilled as decided above,
 `createPuzzle` recording the signed-in user. `listPuzzles` returns it so
 the list can tell yours from everyone else's.
 
-*Prisma, and deletes data — high blast radius.* The user confirmed on
-2026-10-15 that existing local-development puzzles are disposable.
+*Prisma and Server Actions — high blast radius.* The user confirmed on
+2026-10-15 that existing local-development puzzles are disposable, and on
+2026-10-17 approved the production-preservation/assignment policy above.
 
 ### O2 — Display names
 

@@ -9,6 +9,8 @@ datasource db {
 
 model Puzzle {
   id              String    @id @default(cuid())
+  builderId       String
+  builder         User      @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   title           String    @default("Untitled Puzzle")
   grid            Json
   gridBeforeHints Json?
@@ -30,6 +32,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  puzzles       Puzzle[]
 
   // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
   // prompts for one when it is first needed.

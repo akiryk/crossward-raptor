@@ -101,7 +101,7 @@ export async function readMagicLinkUrl(email: string): Promise<string> {
 /** Better Auth's current session for this browser context, or null. */
 export async function getSession(
   page: Page
-): Promise<{ user?: { email?: string } } | null> {
+): Promise<{ user?: { id?: string; email?: string } } | null> {
   const res = await page.request.get('/api/auth/get-session', {
     headers: await clientHeaders(page),
   });
@@ -110,7 +110,7 @@ export async function getSession(
   }
   const text = await res.text();
   if (!text) return null;
-  const body = JSON.parse(text) as { user?: { email?: string } } | null;
+  const body = JSON.parse(text) as { user?: { id?: string; email?: string } } | null;
   return body && body.user ? body : null;
 }
 

@@ -1,14 +1,16 @@
-import type { Page } from '@playwright/test';
+import { test, type Page } from '@playwright/test';
 import { requestMagicLink, readMagicLinkUrl } from './auth';
+import { ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './ownership';
 
 /**
- * Leave `page`'s browser context signed in as a fresh user.
+ * Leave `page` signed in. Auth setup uses the deterministic fixture builder;
+ * all other callers get a fresh user so session invalidation stays isolated.
  *
  * NOT a frozen acceptance file — editable plumbing, the sibling of
  * seed-puzzle.ts. Used only by the few tests that must start signed out and
  * then authenticate mid-test (route protection). The suite-wide signed-in
- * state for the ~250 builder specs is NOT this helper: that is the
- * storageState seeded once per run by `e2e/auth.setup.ts` (see the story).
+ * state is seeded once by `e2e/auth.setup.ts`, which calls this helper in
+ * the setup project and saves its storageState.
  *
  * The implementation reuses A1's proven magic-link helpers and reads the token
  * from the database, so it works whether or not Better Auth signs its session
@@ -21,7 +23,18 @@ import { requestMagicLink, readMagicLinkUrl } from './auth';
  * the frozen spec doesn't care which you use. The story explains the tradeoff.
  */
 export async function signInSeededUser(page: Page): Promise<{ email: string }> {
-  const email = `a3-seed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`;
+  const setup = test.info().project.name === 'setup';
+  if (setup) {
+    const client = ownershipTestClient();
+    try {
+      await ensureSuiteBuilder(client);
+    } finally {
+      await client.$disconnect();
+    }
+  }
+  const email = setup
+    ? SUITE_BUILDER_EMAIL
+    : `a3-seed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`;
   await requestMagicLink(page, email);
   // Visiting the verify URL sets a real session cookie on this context.
   await page.goto(await readMagicLinkUrl(email));
