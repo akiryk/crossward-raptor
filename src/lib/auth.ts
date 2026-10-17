@@ -21,6 +21,9 @@ export const auth = betterAuth({
     // device expires within a month (epic 09 decision).
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,
+    // Server-component reads cannot write browser cookies. Let the browser
+    // session observer perform renewal through Better Auth's POST response.
+    deferSessionRefresh: true,
   },
   plugins: [
     magicLink({

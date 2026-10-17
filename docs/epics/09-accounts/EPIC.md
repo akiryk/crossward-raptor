@@ -160,8 +160,10 @@ deliver A4 or claim to fix development hydration or unbounded library growth.
 Specify a separate story for completing local sign-in in a person's own
 browser, including usable link delivery and confirmation that the library opens.
 Automated database-token sign-in is not evidence of working manual login.
-The delivery mechanism and acceptance specification remain to be settled;
-manual login is not part of A5.
+The user chose a local inbox for local development; check real email delivery
+separately before inviting other users. Specify the inbox flow and acceptance
+examples in its own story before implementation. Manual login is separate
+from A4 session renewal and the delivered A5 harness.
 
 ---
 
