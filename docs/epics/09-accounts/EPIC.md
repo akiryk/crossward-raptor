@@ -157,15 +157,16 @@ deliver A4 or claim to fix development hydration or unbounded library growth.
 
 ### A6 — Usable manual login through a local inbox
 
-Specify a separate story for completing local sign-in in a person's own
-browser, including usable link delivery and confirmation that the library opens.
+Complete local sign-in in a person's own browser, including usable link
+delivery and confirmation that the library opens.
 Automated database-token sign-in is not evidence of working manual login.
 The user chose a local inbox for local development; check real email delivery
 separately before inviting other users. [A6](stories/09-A6-local-inbox-login.md)
 specifies a separate Mailpit inbox, usable keyboard submission and retry, and
 the required real-inbox walkthrough. Its unit/UI contracts complement rather
 than replace that walkthrough; ordinary production E2E remains email-free.
-Implementation belongs to a fresh session after the specification baseline.
+See the handoff for implementation, verification, delivery, and the separate
+agent/user walkthrough status.
 
 ---
 
@@ -174,9 +175,9 @@ Implementation belongs to a fresh session after the specification baseline.
 A1, A2, A3, then the audit follow-up A4. A1 and A2 are additive and break
 nothing. A3 changes the precondition of the entire suite and follows them.
 A4 completes the session policy before the epic closes. A1–A5 are delivered.
-Next implement A6 from its specification baseline, then account for the
-required independent Accounts closeout audit. Neither the A5 harness nor the
-A6 specification authorizes starting Ownership.
+Complete A6's delivery and walkthrough gates, then account for the required
+independent Accounts closeout audit. Accounts remains open until that audit;
+do not start Ownership automatically.
 
 ## Definition of done (epic-level)
 

@@ -67,8 +67,8 @@ test.describe('A6 — usable sign-in submission', () => {
     await page.getByTestId('sign-in-email').fill(email);
     await page.getByTestId('sign-in-submit').click();
 
-    await expect(page.getByRole('alert')).toBeVisible();
-    await expect(page.getByRole('alert')).not.toHaveText('');
+    await expect(page.getByTestId('sign-in-form').getByRole('alert')).toBeVisible();
+    await expect(page.getByTestId('sign-in-form').getByRole('alert')).not.toHaveText('');
     await expect(page.getByTestId('sign-in-sent')).not.toBeVisible();
     await expect(page.getByTestId('sign-in-email')).toHaveValue(email);
     await expect(page.getByTestId('sign-in-submit')).toBeEnabled();
@@ -76,7 +76,7 @@ test.describe('A6 — usable sign-in submission', () => {
 
     await page.getByTestId('sign-in-email').press('Enter');
     await expect(page.getByTestId('sign-in-sent')).toBeVisible();
-    await expect(page.getByRole('alert')).not.toBeVisible();
+    await expect(page.getByTestId('sign-in-form').getByRole('alert')).not.toBeVisible();
     expect(submissions).toBe(2);
   });
 });

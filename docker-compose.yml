@@ -33,6 +33,24 @@ services:
       timeout: 5s
       retries: 20
 
+  mailpit:
+    image: axllent/mailpit:v1.31.6
+    profiles: ['development']
+    restart: unless-stopped
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: '0'
+    ports:
+      - '127.0.0.1:8025:8025'
+    volumes:
+      - crossward-mailpit-data:/data
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
 volumes:
   crossward-db-data:
   crossward-test-db-data:
+  crossward-mailpit-data:

@@ -21,12 +21,14 @@ const VARIANT_HOVER: Record<ButtonVariant, string> = {
 
 export function Button({
   variant = 'primary',
+  type = 'button',
   disabled = false,
   onClick,
   children,
   'data-testid': dataTestId,
 }: {
   variant?: ButtonVariant;
+  type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   onClick?: () => void;
   children: ReactNode;
@@ -34,7 +36,7 @@ export function Button({
 }) {
   return (
     <button
-      type="button"
+      type={type}
       data-testid={dataTestId}
       onClick={onClick}
       disabled={disabled}

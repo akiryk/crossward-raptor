@@ -19,8 +19,12 @@ A root `.env.local` must define the development configuration:
 
 - `DATABASE_URL`
 - `DATABASE_URL_UNPOOLED`
+- `BETTER_AUTH_SECRET` — a private signing secret
+- `BETTER_AUTH_URL=http://localhost:3000`
 
-These should point to the Docker databases defined by `docker-compose.yml`.
+Both database URLs should point to the development database on port `5432`
+defined by `docker-compose.yml`. Leave `VERCEL` unset so local development
+uses the local Postgres adapter and inbox. A Resend key is unnecessary.
 The E2E command supplies its own test configuration; it does not require an
 environment file. An optional `TEST_DATABASE_URL` shell variable can override
 the default test credentials within the isolated target described below.
@@ -47,6 +51,7 @@ The underlying commands are:
 ## Common commands
 
 - Dev server: `npm run dev`
+- Local inbox: `npm run inbox:up`
 - Build: `npm run build`
 - Unit tests: `npm test`
 - Unit tests directly: `npx vitest run`
@@ -57,6 +62,49 @@ The underlying commands are:
 `npm run build` generates Prisma Client before running `next build`. Client
 generation is an explicit build prerequisite so fresh installs do not depend
 on dependency installation scripts having run.
+
+## Local inbox sign-in
+
+`npm run dev` first runs `npm run inbox:up`, starting and waiting for the
+development-profile Mailpit service before Next starts on port `3000`.
+Docker must be running. `inbox:up` starts only Mailpit; database setup remains
+`npm run db:setup`. The pinned Mailpit image exposes only its HTTP inbox/API
+on `127.0.0.1:8025`, with no SMTP host port or forwarding/relay configuration.
+It uses its own persistent `crossward-mailpit-data` volume and database;
+automatic message deletion is disabled. Stopping/restarting it preserves
+messages and does not reset either Postgres database.
+
+To sign in using your normal development database:
+
+1. Run `npm run dev`, then open `http://localhost:3000` in your browser.
+2. Enter a unique address such as `builder@example.test` and press Enter,
+   click Send sign-in link, or Tab to the button and press Enter.
+3. After the confirmation, open `http://127.0.0.1:8025` in another tab of
+   that same browser. Find the sign-in message for your requested address.
+4. Follow the delivered link, or copy it into the original app tab. Expect
+   the link to use `http://localhost:3000`; check `BETTER_AUTH_URL` if it does
+   not. Links expire in 15 minutes and can be used once.
+5. Confirm `/puzzles` has Sign out and that New Puzzle opens and cancels.
+   Revisit `/` to confirm the signed-in redirect, then sign out to return
+   to the public form.
+
+Local capture uses Mailpit's
+[JSON send API](https://mailpit.axllent.org/docs/usage/sending-messages/)
+at the fixed address `http://127.0.0.1:8025/api/v1/send`, only when
+`NODE_ENV=development` and `VERCEL` is unset/empty. An inherited
+`RESEND_API_KEY` cannot enable real email delivery in that mode. Test mode
+contacts neither service. Production/hosted execution never contacts the
+local inbox; it uses Resend when a key exists, otherwise delivery is a no-op.
+Real Resend/domain delivery must be checked separately before inviting users.
+
+If the inbox cannot start, check Docker and whether another process owns
+port `8025`. If delivery fails after the app starts, the form shows an error,
+retains the address, and permits retry without claiming a link was sent.
+Run `npm run inbox:up`, then retry. You can check this failure path by running
+`docker compose --profile development stop mailpit`, requesting a link, then
+restarting with `npm run inbox:up` and retrying. Stop preserves messages;
+do not remove volumes or clear messages to troubleshoot startup. Never share
+live sign-in URLs, tokens, or signing secrets in logs or bug reports.
 
 ## Verification
 
@@ -97,8 +145,12 @@ The build and server use `NODE_ENV=production`, the local pg adapter,
 `http://localhost:3100` as the auth origin, and a fixed test-only signing
 secret. `RESEND_API_KEY`, `BETTER_AUTH_SECRETS`, and `VERCEL` are explicitly
 empty, including when an inherited or Next-loaded environment file supplies
-other values. No email is sent. These settings belong to the harness;
-manual local login and real email delivery are a separate follow-up story.
+other values. No email is sent and Mailpit is not required or started by
+ordinary E2E preparation. These settings belong to the harness; the local
+inbox walkthrough above runs separately in development after E2E finishes.
+Serialize those browser checks because they share the database/build output.
+Automated database-token sign-in proves auth behavior, not inbox delivery or
+a person's successful manual login.
 
 The test database is wiped once per E2E run, not once per test. Playwright's parallel workers share that database during the run.
 This deletes all existing puzzle and authentication rows in the isolated test

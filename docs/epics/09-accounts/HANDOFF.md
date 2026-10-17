@@ -1,5 +1,49 @@
 # Accounts — Handoff
 
+## Read first — A6 verified; PR delivery in progress
+
+1. `AGENTS.md`, this current-state section, and Accounts `EPIC.md` Decisions/A6.
+2. [A6 story](stories/09-A6-local-inbox-login.md), `src/lib/email.ts`, `src/components/auth/SignInForm.tsx`, `src/components/ui/Button.tsx`, and its `src/lib/email.test.ts` / `e2e/manual-login.spec.ts` contracts.
+3. `README.md` and `docs/DEVELOPMENT.md` for ordinary port-3000 sign-in through the separate Mailpit inbox; `docker-compose.yml` and `package.json` define startup/persistence.
+4. For delivery review, `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`, and `docs/LEARNINGS.md`. Do not inspect or edit `.env*` files.
+
+## Current state — A6 independently verified (2026-10-16)
+
+A1–A5 are delivered. A6 is implemented and independently verified on `story/09-A6-local-inbox-login`, based on pushed specification baseline `fe4a78a`. This handoff accompanies implementation PR delivery; final PR review/merge remains pending. Accounts remains **open pending its independent closeout audit**. Do not begin Ownership or restart hydration investigation.
+
+The implementation captures local-development mail through the fixed loopback Mailpit HTTP API, overrides ambient Resend keys, and preserves production Resend/keyless behavior and A5 test isolation. The unfinished native-form/Button keyboard edits are adopted in A6; original intake copies remain at `/private/tmp/crossward-a6-intake/`. Sign-in adds accessible retry errors, thrown-request pending cleanup, and duplicate-submission protection. Mailpit uses pinned `v1.31.6`, a development-only profile, loopback-only HTTP publication, and its own persistent volume with automatic message deletion disabled. `npm run dev` starts/waits for it; ordinary production E2E remains email-free.
+
+### Frozen-test exception and prior failure
+
+The previous independent E2E run passed 306/307; its sole failure was a global alert locator also matching Next's normal empty route announcer. The user explicitly authorized **only scoping the three A6 retry-test alert assertions to the sign-in form, preserving every behavior assertion**. That exact three-selector correction is committed separately as `7bf12e3`. There is no application workaround. The email acceptance file and every other acceptance test/harness setting remain unchanged from baseline. Earlier evidence is retained at `/private/tmp/crossward-a6-independent-verification.md` and `/private/tmp/crossward-a6-verified-tree-sha256.json` as historical failed-gate evidence.
+
+### Current independent verification
+
+A separate verification agent, with no source/test edits, observed:
+
+- `npm run verify`: exit 0, **25 files / 328 tests**; only the existing `request-logger/render.ts:802` unused `reqJson` lint warning.
+- Ordinary `npm run test:e2e`: exit 0, **307/307 in 52.8 seconds**, standard four workers and fresh production build. It used the unchanged A5 email-free harness and authorized isolated `localhost:5433/crossward_test` reset. This includes all three submission/session/library cases and the corrected retry case.
+- Separate real development walkthrough after E2E: start Mailpit with `npm run inbox:up`; launch `node /private/tmp/crossward-a6-dev-server.mjs`, which spawns `npm run dev -- -p 3100` using the validated `e2eEnvironment` with `NODE_ENV=development`, explicit local auth origin, empty `RESEND_API_KEY`/`VERCEL`, and isolated test database. No `.env*` file was inspected or edited. Rendered Compose settings confirmed loopback-only HTTP, no SMTP host port, no relay/forwarding, persistent storage, and no automatic message pruning.
+- Real **Mailpit UI → delivered message link → same-context authentication** passed: unique `.test` recipient, exactly one matching message, correct app origin, requested session email, `/puzzles` and Sign out, New Puzzle open/cancel without writes (224 library rows unchanged), signed-in `/` redirect, and UI sign-out. Links came from the delivered message DOM, never an auth-database token query.
+- Stopping only Mailpit caused a real auth HTTP 500 with a readable form alert, retained email, enabled retry, and no false sent state. Restart/retry delivered exactly one matching message in the real inbox UI; its link authenticated the requested identity into a usable library. Earlier messages survived stop/restart.
+- Supplemental delayed-request control disabled both inputs and rejected duplicate native submissions with one request; aborted-request control released pending state and permitted retry.
+- Temporary verifier probes needed readiness-locator corrections; these were probe-only changes, with no application or acceptance edits and no claimed hydration fix. All required walkthrough milestones subsequently passed.
+- Cleanup closed the task browser/dev process; no Crossward listener remained on 3000/3100. Mailpit remained healthy with all four walkthrough messages preserved. The unrelated budget-app process, development database, and both existing database volumes were untouched. Docker/browser sandbox escalations were approved; they did not authorize data deletion.
+
+Final evidence: `/private/tmp/crossward-a6-final-verification.md`; exact tested runtime/config/test manifest: `/private/tmp/crossward-a6-final-verified-tree-sha256.json`. Temporary artifacts may not survive cleanup. Browser/build checks were serialized. The final reviewer must match the committed head to this independently verified manifest and check configured CI before merging.
+
+The agent's real-inbox walkthrough is complete. **The user's own sign-in is unconfirmed**, and real Resend/domain delivery remains unverified. Ordinary user steps are documented in `README.md` / `docs/DEVELOPMENT.md`: run `npm run dev`, open `http://localhost:3000`, submit a `.test` address, open `http://127.0.0.1:8025` in the same browser, and follow the delivered link. This uses the normal development database; no token lookup is needed.
+
+## Next action — finish independent PR review/merge
+
+Commit/push the verified A6 implementation and open its PR. A separate final reviewer must check the exact head, independent evidence, scope, and CI, then merge normally when ready. Record the actual merge afterward. Keep Accounts open pending a separately authorized independent closeout audit; do not begin Ownership. No further application fix or hydration investigation is authorized by this checkpoint.
+
+Copyable resume prompt:
+
+> Read AGENTS.md and the top A6 sections of docs/epics/09-accounts/HANDOFF.md. Finish A6's authorized PR delivery and independent final review/merge using the recorded verification manifest and real Mailpit UI walkthrough evidence. The only frozen-test exception is the three selector scopes in 7bf12e3. Preserve A5 isolation, existing data/inbox messages, and all remaining acceptance content. Keep Accounts open pending closeout audit; do not begin Ownership or restart hydration work.
+
+---
+
 ## Read first — A6 specification ready for a fresh implementation session
 
 1. `AGENTS.md`, then **Current state — A6 specification** and **Next action — implement A6 in a fresh session** below.

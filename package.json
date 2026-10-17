@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run inbox:up && next dev",
+    "inbox:up": "docker compose --profile development up -d --wait mailpit",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
