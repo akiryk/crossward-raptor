@@ -128,7 +128,8 @@ Before Playwright starts, `scripts/prepare-e2e.mjs`:
 
 1. generates Prisma Client, which the reset script imports;
 2. brings up the Docker containers and waits for their health checks;
-3. migrates the test database;
+3. removes only legacy `Puzzle` rows if the isolated test database still has
+   the pre-Ownership schema, then migrates it;
 4. removes every row from the test database using `scripts/reset-test-db.mjs`;
 5. clears this project's dev lock and anything listening on port `3100`.
 
@@ -158,6 +159,12 @@ database. Agents must obtain explicit authorization before running it when
 existing-data deletion has not already been authorized.
 
 The Docker containers are intentionally left running afterward so subsequent test runs start quickly.
+
+Ownership fixtures use one deterministic test-only builder email shared by
+`seedPuzzle` and the setup project's real magic-link sign-in. Both upsert that
+user before using it, so public specs can seed before setup finishes. Sign-ins
+inside individual public specs still create distinct users. An explicit third
+argument to `seedPuzzle(puzzle, title, builderId)` uses that existing builder.
 
 ## Playwright production server and Next.js build
 
@@ -220,6 +227,90 @@ that preserve existing puzzle data. Local `db:setup` and E2E reset scripts are
 not production migration commands. On 2026-10-17, the deployed sign-in request
 failed because `public.verification` was absent while three committed migrations
 were still pending; rebuilding alone could not create those tables.
+
+### Ownership O1 migration and coordinated release
+
+The required `Puzzle.builderId` migration is
+`20261017220000_add_puzzle_builders`. It never deletes existing data. An empty
+table needs no assignment; a populated table requires an explicit existing
+builder ID and the exact existing puzzle-ID set. Missing or mismatched inputs
+abort its transaction, including its column addition. Its exclusive puzzle
+table lock keeps that set stable until the backfill and constraints finish.
+SQL writes only `builderId`, preserving all original fields and timestamps.
+The foreign key prevents deleting a builder who still has puzzles.
+
+Reproduce the safety checks against synthetic schemas in the validated local
+test database, separately from any browser suite:
+
+```
+node scripts/check-ownership-migration.mjs
+node scripts/prove-ownership-deploy.mjs
+```
+
+The second command uses the installed Prisma `migrate deploy`, first applying
+historical migrations in a random schema, then adding four synthetic puzzles
+and a user, then deploying O1 with both inputs on the migrator's own connection.
+It checks preserved original rows and user, assigned builder, and completed
+migration ledger. Both commands remove only their own synthetic schemas; the
+proof also removes its own temporary configuration/migration copies. Neither
+loads dotenv, changes public tables, or contacts development/production.
+
+Production application is a separate reviewed operation. Do not merge O1 into
+automatically deployed `main` while production still lacks `builderId`. Prepare
+and review the operation before requesting live-change authorization:
+
+1. Identify the direct production database target without reading `.env*`
+   files. Match the exact existing user to the user's confirmed sign-in
+   identity, and record the exact four existing puzzle IDs. No first-user,
+   newest-user, or sole-user inference is permitted. The preservation policy
+   does not itself identify those IDs or authorize an unreviewed live change.
+2. Verify the applied migration names/checksums, with only O1 pending. Capture
+   reproducible hashes of every original puzzle column, including timestamps,
+   and every auth table before application. Retain a target fingerprint and
+   sanitized evidence; do not print credentials, live tokens, or puzzle content.
+   Confirm the committed implementation/review and coordinate deployment so
+   no new code reaches the old schema.
+3. Supply the explicit account and exact puzzle set through PostgreSQL startup
+   options in the direct URL passed to Prisma's temporary, dotenv-free config.
+   A `SET` or `set_config` on a separate client connection cannot configure the
+   migrator. The proven construction is:
+
+   ```js
+   const migrationURL = new URL(directURL); // held only in memory
+   if (![builderId, ...puzzleIds].every((id) => /^[A-Za-z0-9_-]+$/.test(id))) {
+     throw new Error('Stop and review transport for IDs needing startup-option escaping');
+   }
+   migrationURL.searchParams.set('options',
+     `-c crossward.legacy_builder_id=${builderId} ` +
+     `-c crossward.legacy_puzzle_ids=${JSON.stringify(puzzleIds)}`);
+   ```
+
+   This uses compact JSON without whitespace. The safety check is part of
+   this transport choice; do not substitute arbitrary strings or hand-encoded
+   query parameters. Reject any pre-existing URL `options` rather than silently
+   discarding operational settings. The temporary Prisma config must point to
+   the reviewed committed schema/migration paths and read its URL only from
+   the child process environment. Run the installed Prisma CLI with
+   `migrate deploy --config <temporary-config>` from an empty temporary working
+   directory. Do not write the URL or inputs into a file. The isolated proof
+   shows this exact mechanism with synthetic values and copied migrations.
+4. After the concrete operation is reviewed and live authorization is obtained,
+   refresh the target/account/set and preservation snapshots immediately before
+   applying. The SQL validates and locks the exact puzzle set itself. Stop on
+   a failure; do not resolve a failed migration as successful or rerun blindly.
+5. Independently verify all four assigned owners, all original puzzle hashes,
+   unchanged auth rows, required column/no default, FK behavior, and the finished
+   migration checksum before releasing O1. Then merge/deploy the reviewed code
+   and check the hosted sign-in/library with the user's session. Keep schema
+   application, deployed-code status, and user-reported success separate.
+
+The prior app can run during the brief schema transition, but its old puzzle
+insert lacks `builderId` and will fail after migration. Coordinate a quiet
+creation window through deployment; do not add a nullable owner or fallback
+default. No production reset/deletion or inbox operation is part of this plan.
+Any authorized local-development cleanup deletes only local `Puzzle` rows on
+the explicitly verified development target, preserving accounts and inbox
+messages, before applying the migration to its then-empty puzzle table.
 
 If the deployed homepage returns HTTP 500, check runtime logs. The observed
 2026-10-17 failure was Better Auth rejecting its default signing secret;

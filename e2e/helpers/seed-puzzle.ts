@@ -1,7 +1,7 @@
-import { PrismaClient, type Prisma } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import type { Prisma } from '@prisma/client';
 import type { Puzzle } from '../../src/engine/puzzle';
 import { serializePuzzle } from '../../src/lib/puzzle-storage';
+import { ensureSuiteBuilder, ownershipTestClient } from './ownership';
 
 /**
  * Writes a puzzle directly to the local Postgres test database (Story L1),
@@ -11,7 +11,8 @@ import { serializePuzzle } from '../../src/lib/puzzle-storage';
  */
 export async function seedPuzzle(
   puzzle: Puzzle,
-  title = 'Seeded Test Puzzle'
+  title = 'Seeded Test Puzzle',
+  builderId?: string
 ): Promise<{ id: string }> {
   const url = process.env.TEST_DATABASE_URL;
   if (!url) {
@@ -21,12 +22,13 @@ export async function seedPuzzle(
     );
   }
 
-  const adapter = new PrismaPg({ connectionString: url });
-  const client = new PrismaClient({ adapter });
+  const client = ownershipTestClient();
   try {
+    const owner = builderId ?? await ensureSuiteBuilder(client);
     const stored = serializePuzzle(puzzle);
     const row = await client.puzzle.create({
       data: {
+        builderId: owner,
         title,
         grid: stored.grid as unknown as Prisma.InputJsonValue,
         hints: stored.hints as unknown as Prisma.InputJsonValue,

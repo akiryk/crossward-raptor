@@ -30,11 +30,12 @@ export async function createPuzzle(input: {
   title: string;
   size: PuzzleSize;
 }): Promise<{ id: string }> {
-  await requireSession();
+  const session = await requireSession();
   const title = requireTitle(input.title);
   const stored = serializePuzzle(createBlankPuzzle(input.size));
   const record = await prisma.puzzle.create({
     data: {
+      builderId: session.user.id,
       title,
       grid: stored.grid as unknown as Prisma.InputJsonValue,
       hints: stored.hints as unknown as Prisma.InputJsonValue,
@@ -48,6 +49,7 @@ export async function createPuzzle(input: {
 export async function listPuzzles(): Promise<
   {
     id: string;
+    builderId: string;
     title: string;
     updatedAt: Date;
     phase: Phase;
@@ -64,6 +66,7 @@ export async function listPuzzles(): Promise<
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,
+      builderId: true,
       title: true,
       updatedAt: true,
       grid: true,
@@ -83,6 +86,7 @@ export async function listPuzzles(): Promise<
     });
     return {
       id: record.id,
+      builderId: record.builderId,
       title: record.title,
       updatedAt: record.updatedAt,
       phase: summary.phase,
