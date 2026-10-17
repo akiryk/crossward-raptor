@@ -20,11 +20,15 @@ or old migration replay is needed.
 
 ## Current state (2026-10-17)
 
-**O1 specified, implemented locally, and independently verified; final PR review
-and production release remain pending.** Starting checkout was clean `main` at `fc6f66e`,
+**O1 specified, implemented, independently verified and reviewed; production
+assignment and merge/deployment await the exact sign-in account.** Starting
+checkout was clean `main` at `fc6f66e`,
 tracking `origin/main`. Specification-only commit **`bfa68b4`** is on local
-`main`; implementation is on **`story/10-O1-puzzle-builders`**. No delivery or
-production ownership application is claimed at this checkpoint.
+`main`; implementation **`2e9013086d633770c83313fa772aaff5740bec33`** is committed
+and pushed on **`story/10-O1-puzzle-builders`** in
+[PR #17](https://github.com/akiryk/crossward-raptor/pull/17). It has not been
+merged; production ownership has not been applied. This handoff's delivery-state
+refresh is a documentation-only follow-up; runtime bytes remain those verified.
 
 The user explicitly commissioned drafting O1 and freezing its acceptance tests
 in this session, overriding STORY step 0a's relocation-only default. A separate
@@ -107,7 +111,9 @@ Independent report: `/private/tmp/crossward-o1-independent-verification.md`.
 Its final **177-file SHA256 manifest** at
 `/private/tmp/crossward-o1-verified-tree-sha256.json` covers runtime, configuration,
 migrations, helpers, and acceptance files; all hashes matched after the full
-suite. The final reviewer must bind the delivered commit blobs to this manifest.
+suite. The independent reviewer bound all 177 blobs of `2e90130` to this manifest
+with zero mismatches and no uncovered non-documentation changes. Subsequent
+documentation-only heads must be rechecked before release.
 Mutable documentation and operational production verification are separate.
 
 The first ordinary run had **307 passes / 3 failures**: two existing final
@@ -145,16 +151,27 @@ No deployment or DB operation resulted from these inert checks.
 
 ## Release gate and next action
 
-Commit/push the verified implementation/handoff and obtain final independent
-PR review from an agent who authored neither implementation nor verification.
-Bind the reviewed commit to the independent 177-file verification manifest.
-The reviewer's working-tree inspection found no blockers, including the prepared
-`/private/tmp/crossward-o1-production-operation.cjs`; final committed-head review
-and gate evidence remain required. That driver has only been syntax checked and
-reviewed, not executed. It pins the Accounts-verified production target, exact
+**Await the requested production sign-in email**, then complete the coordinated
+release below under the existing authorization. Independent final code review
+of PR #17 at `2e90130` found no blocking or nonblocking findings. The reviewer
+authored neither implementation nor verification and confirmed the exact
+177-file commit manifest and frozen baseline. Vercel Preview Comments passed;
+Vercel deployment was still pending at that checkpoint. Recheck the latest PR
+head and configured checks after this documentation-only update and before
+merge. No merge has run.
+
+The prepared `/private/tmp/crossward-o1-production-operation.cjs` has only been
+syntax checked and independently reviewed, not executed. It pins the
+Accounts-verified production target, exact
 email/account and four-row set, old puzzle/auth hashes, migration checksums,
 reviewed HEAD, and matching fresh preflight before applying only O1. Inputs and
 credentials stay in memory; snapshots contain hashes/IDs, not tokens or content.
+Before starting Prisma, it also tests the exact startup settings on the selected
+production proxy/server in a read-only transaction; the local proof already
+established installed-Prisma forwarding. Invocation requires the current
+reviewed commit (`O1_REVIEWED_COMMIT`) and user-supplied `O1_CONFIRMED_EMAIL`;
+apply also requires `O1_PRODUCTION_APPLY_APPROVED=yes`, justified by the recorded
+O1 plus explicit assignment authorization, and a matching saved/fresh preflight.
 
 **Before merge:** main automatically deploys; the new queries require
 `builderId`. Prepare/review the concrete live operation, identify the exact
