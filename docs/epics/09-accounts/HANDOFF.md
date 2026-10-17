@@ -1,6 +1,68 @@
 # Accounts — Handoff
 
-## Read first — A6 delivered; Accounts closeout audit pending
+## Read first — Accounts closed after independent audit
+
+1. `AGENTS.md`, this current-state/audit section, and Accounts `EPIC.md` Decisions/Non-goals for the closeout boundary.
+2. **A6 delivery and verification checkpoint** below for the delivered-link/retry evidence, frozen-test exception, and separate user confirmation. Read the A4/A5 historical evidence only when rechecking those findings.
+3. Before inviting other users, `README.md` authentication setup, `docs/DEVELOPMENT.md` local-inbox instructions, and `src/lib/email.ts` for a separately scoped real Resend/domain delivery check. Do not inspect or edit `.env*` files.
+
+## Current state — Accounts closed (2026-10-17)
+
+A1–A6 are delivered and **Accounts is closed** after the independent report-only closeout audit below. The auditor did not author the implementation, changed no files, and found no blocking implementation issue. Required story checks and the original renewal finding are accounted for through inspected verification evidence on hash-matched delivered code; this closeout does not claim newly run suites or unobserved manual checks.
+
+Audit baseline: clean `main` at `b2c4620` (one existing user-confirmation documentation commit ahead of `origin/main`). This closeout changes only this handoff and is committed separately under the documentation-only delivery rule. The retained checkpoints below are historical evidence, not current assignments or authorization. Do not begin Ownership or restart hydration investigation.
+
+### Independent closeout audit — findings and disposition
+
+Scope: all Accounts A1–A6 specifications and their affected code, tests, configuration, documentation, and delivery evidence. References in the findings below describe the audited `b2c4620` tree; handoff line numbers moved with this update.
+
+- **Wrong:** no substantive wrong behavior or contradicted current implementation claim found. A3's flow-based session seeding is a documented deviation (`stories/09-A3-route-protection.md:109–129`). A6 deliberately supersedes A1's local keyless no-op and A2's original no-error-UI scope; these are historical story decisions, not implementation defects.
+- **Stale, nonblocking:** `EPIC.md:177–179` still directs completion of the delivered A6 gates. **Disposition:** record and propose a scoped documentation-only correction to the progress paragraph; it is not implemented by this handoff task and does not change the specification or block closeout.
+- **Stale, nonblocking:** older handoff blocks still looked actionable, including implementing A6 (old lines 78–86), specifying manual login (118–128), calling A4 undelivered (200–220), and continuing into Ownership (894–899). **Disposition:** resolved here by one authoritative current state/next action and an explicit historical boundary before all older checkpoints. Preserve their unique reasoning and evidence.
+- **Unenforced:** no new actionable Accounts-specific guardrail gap found. The production harness validates effective database targets before access (`scripts/e2e-env.mjs:8–38`) and pins database/auth/mail settings (`:41–64`). All exported puzzle actions and the style-guide server boundary validate sessions; frozen protection/validation tests cover signed-out, invalid, expired, and revoked sessions.
+- **Prunable, nonblocking:** historical A1 schema/auth and A2/A3 front-door/protection summaries duplicate source and frozen tests; A4 renewal, A5 isolation/lifecycle, and A6 form/delivery summaries also repeat tested behavior. **Disposition:** optional scoped pruning is proposed, not performed. Retain the unused-role/display-name rationale, authoritative-validation discovery, signed-cookie seeding rationale, original renewal mismatch and empty-POST/415 discovery, fresh-install Prisma generation discovery, harness threat cases, local-inbox choice, token-test/inbox distinction, selector exception, actual walkthrough records, and historical permission/data-preservation/hydration/external-delivery boundaries.
+- All eight `docs/LEARNINGS.md` entries were reviewed. **No deletion candidate within this scope:** entries 1–6 retain measurement/repetition/specification/diagnosis/delivery/test-quality judgment; 7–8 retain render/Strict-Mode reasoning beyond individual fixed examples. No broader historical-code pruning audit was performed.
+
+### Audit coverage and verification
+
+The independent auditor read `AGENTS.md`, `CLAUDE.md` (`@AGENTS.md`), this full handoff, Accounts epic and all six stories, relevant audit/story/handoff/review workflows, epic workflow, all LEARNINGS entries, README/development instructions, and relevant Claude permissions/hook. Inspection covered auth/email/UI, middleware/routes/Server Actions, schema/migration, browser specifications/helpers, production harness, Compose/package scripts, installed Better Auth renewal/cookie/plugin code, and git state/history.
+
+- Independently recomputed committed-blob hashes: **183/183 A4 entries matched `eb0ec19`; 170/170 A5 entries matched `56113b2`; 185/185 A6 entries matched `279dda6`**, with zero mismatches. The current runtime/config/test tree matched all 185 final A6 hashes.
+- Compared all **42 tracked acceptance spec/setup/email-test files**: 40 pre-A6 files matched `5140c2d`; against `fe4a78a`, only `e2e/manual-login.spec.ts` differed, with exactly the three authorized form-scoped alert selectors and no changed behavior assertion.
+- Ran a **no-I/O controlled check** of actual `e2eEnvironment`: hostile synthetic ambient database/auth/mail/hosted settings were overridden without mutating input, and eight unsafe effective database-target forms were rejected. No connection, reset, build, or environment-file inspection occurred.
+- Inspected A5's retained final logs: two ordinary full E2E passes, **303/303 in 2.0 minutes**, then **303/303 in 1.2 minutes**, and final verify **24 files / 319 tests**.
+- Inspected A4's independently endorsed verification report, seven passing supplemental records, probe source, and manifest. **Renewal finding resolved:** deferred server GET reads preserve expiry; browser cookie-writing POST renews both expiries. Source review found no session revival, weakened guard, or idle polling. Visibility evidence is synthetic and idle evidence uses advanced browser time. All seven frozen A4 cases also passed in the later A6 suite.
+- Inspected A6's final independent report, exact real-inbox probe, timestamped results, manifest, and library/error screenshots. **A5 isolation preserved; A6 local delivery/retry satisfied:** real Mailpit rendered-message link → same-context authentication → requested session email → usable library/New Puzzle open-cancel → home redirect/sign-out. Stopped Mailpit produced actual HTTP 500, retained address, enabled retry, and no false confirmation; restart/retry delivered one matching message and authenticated its recipient. Earlier inbox messages survived restart.
+- A6's inspected final gates were **`npm run verify`: 25 files / 328 tests, exit 0**, and **ordinary `npm run test:e2e`: 307/307 in 52.8 seconds, exit 0**, followed by the serialized separate development walkthrough. These are historical results on hash-matched bytes, not new suite runs by the closeout auditor.
+
+Retained local evidence: `/private/tmp/crossward-a4-independent-verification.md`, `/private/tmp/crossward-a4-verified-tree-sha256.json`, `/private/tmp/crossward-a4-supplement-results.json`, `/private/tmp/crossward-a4-supplement.cjs`, `/private/tmp/crossward-a5-independent-verification.md`, `/private/tmp/crossward-a5-verified-tree-sha256-final.json`, `/private/tmp/crossward-a6-final-verification.md`, and `/private/tmp/crossward-a6-final-verified-tree-sha256.json`. The auditor inspected these artifacts in this session; they remain temporary and may not survive cleanup. This maintained summary records their findings durably without live tokens or secrets.
+
+### Audit limitations and closeout judgment
+
+- **A1 cold-start:** [PR #12, Verification](https://github.com/akiryk/crossward-raptor/pull/12) contains historical author-reported `npm run db:setup` evidence from dropped volumes, with correct schema defaults/nullability. The auditor retrieved the PR body/review/merge metadata and inspected the schema/migration. That destructive historical check was not reproduced; no deletion is authorized by this closeout.
+- **Browser restart/30 days (`EPIC.md:187–189`):** no literal browser close/relaunch or 30 elapsed days was located or performed. Persistent cookie configuration is supported by installed `better-auth/dist/cookies/index.mjs:49,167–175`, real database/cookie expiry regressions, and saved-state authentication in fresh contexts. The auditor classified this as a disclosed coverage limit, not a demonstrated failure or blocker. Do not claim literal restart or elapsed-duration reproduction.
+- **User confirmation:** on **2026-10-17**, the user confirmed successful local sign-in and new-puzzle creation. This is separate user-reported evidence; the agent's isolated walkthrough only opened/cancelled New Puzzle.
+- **Real Resend/domain delivery remains unverified.** A6 explicitly separates it from local-inbox completion. Verify it in a separately scoped task before inviting other users; this closeout does not assert production delivery readiness.
+- No new verify/build/browser suite ran during this audit or documentation update. No `.env*` inspection/edit, acceptance-test change, database reset, inbox operation, or application change occurred. Documentation validation uses `git diff --check` and review of the scoped diff.
+- Development hydration/library growth remains a separately recorded unresolved concern. No investigation, claimed fix, or Ownership work occurred.
+
+**Disposition:** all required Accounts gates and audit findings are accounted for. A4's blocker is resolved; A5/A6 requirements are satisfied by inspected evidence; remaining documentation drift/pruning and coverage limitations are explicitly nonblocking. The independent auditor recommended closeout, and Accounts is closed on that basis.
+
+## Next action — separately scope real delivery verification
+
+Before inviting another user, scope a real Resend/domain delivery check with explicit authorization and prerequisites; preserve existing data/messages and do not inspect/edit `.env*` files. A small documentation-only correction to the epic's stale progress paragraph, plus optional focused handoff pruning with the retained reasoning above, is proposed follow-up work rather than an automatic continuation. Ownership and hydration investigation remain out of scope.
+
+Copyable resume prompt:
+
+> Read AGENTS.md and the top closeout sections of docs/epics/09-accounts/HANDOFF.md. Accounts closed after an independent report-only A1–A6 audit on 2026-10-17, with no implementation blocker. A4 renewal, A5 isolation, and A6 real Mailpit delivery/retry evidence were independently checked; the user separately confirmed local sign-in and puzzle creation. Help scope real Resend/domain delivery verification before inviting others. Preserve frozen tests, development data, and inbox messages; do not inspect/edit .env* files or begin Ownership/hydration work. The stale epic progress paragraph and optional handoff pruning are recorded documentation follow-ups.
+
+---
+
+## Historical delivery and investigation record — superseded
+
+Everything below records earlier checkpoints, decisions, checks, and permissions. Its `Read first`, `Current state`, `Next action`, resume prompts, branch/worktree descriptions, and pause/continuation instructions are **historical**, superseded by the closeout sections above. They do not authorize new work. Preserve unique evidence and reasoning; use the top section for current status and next action.
+
+## A6 delivery and verification checkpoint (recorded 2026-10-16/17)
 
 1. `AGENTS.md`, this current-state section, and Accounts `EPIC.md` Decisions/A6.
 2. [A6 story](stories/09-A6-local-inbox-login.md), `src/lib/email.ts`, `src/components/auth/SignInForm.tsx`, `src/components/ui/Button.tsx`, and its `src/lib/email.test.ts` / `e2e/manual-login.spec.ts` contracts.
