@@ -1,15 +1,15 @@
 # Accounts — Handoff
 
-## Read first — A6 verified; PR delivery in progress
+## Read first — A6 delivered; Accounts closeout audit pending
 
 1. `AGENTS.md`, this current-state section, and Accounts `EPIC.md` Decisions/A6.
 2. [A6 story](stories/09-A6-local-inbox-login.md), `src/lib/email.ts`, `src/components/auth/SignInForm.tsx`, `src/components/ui/Button.tsx`, and its `src/lib/email.test.ts` / `e2e/manual-login.spec.ts` contracts.
 3. `README.md` and `docs/DEVELOPMENT.md` for ordinary port-3000 sign-in through the separate Mailpit inbox; `docker-compose.yml` and `package.json` define startup/persistence.
 4. For delivery review, `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`, and `docs/LEARNINGS.md`. Do not inspect or edit `.env*` files.
 
-## Current state — A6 independently verified (2026-10-16)
+## Current state — A6 delivered (2026-10-16)
 
-A1–A5 are delivered. A6 is implemented and independently verified on `story/09-A6-local-inbox-login`, based on pushed specification baseline `fe4a78a`. This handoff accompanies implementation PR delivery; final PR review/merge remains pending. Accounts remains **open pending its independent closeout audit**. Do not begin Ownership or restart hydration investigation.
+A1–A6 are delivered. [PR #16](https://github.com/akiryk/crossward-raptor/pull/16) was independently reviewed with no findings and normally merged as `a07d77139f0ba173c88b91804eff947e3075077e` at `2026-10-17T03:46:03Z` (October 16 locally). Reviewed implementation head: `279dda6cf668bbaf47c37590447ae31b3fa34b35`; specification baseline: `fe4a78a`; authorized selector correction: `7bf12e3`. Local `main` has been fast-forwarded to the merge; this documentation-only followup records delivery. Accounts remains **open pending its independent closeout audit**. Do not begin Ownership or restart hydration investigation.
 
 The implementation captures local-development mail through the fixed loopback Mailpit HTTP API, overrides ambient Resend keys, and preserves production Resend/keyless behavior and A5 test isolation. The unfinished native-form/Button keyboard edits are adopted in A6; original intake copies remain at `/private/tmp/crossward-a6-intake/`. Sign-in adds accessible retry errors, thrown-request pending cleanup, and duplicate-submission protection. Mailpit uses pinned `v1.31.6`, a development-only profile, loopback-only HTTP publication, and its own persistent volume with automatic message deletion disabled. `npm run dev` starts/waits for it; ordinary production E2E remains email-free.
 
@@ -30,17 +30,17 @@ A separate verification agent, with no source/test edits, observed:
 - Temporary verifier probes needed readiness-locator corrections; these were probe-only changes, with no application or acceptance edits and no claimed hydration fix. All required walkthrough milestones subsequently passed.
 - Cleanup closed the task browser/dev process; no Crossward listener remained on 3000/3100. Mailpit remained healthy with all four walkthrough messages preserved. The unrelated budget-app process, development database, and both existing database volumes were untouched. Docker/browser sandbox escalations were approved; they did not authorize data deletion.
 
-Final evidence: `/private/tmp/crossward-a6-final-verification.md`; exact tested runtime/config/test manifest: `/private/tmp/crossward-a6-final-verified-tree-sha256.json`. Temporary artifacts may not survive cleanup. Browser/build checks were serialized. The final reviewer must match the committed head to this independently verified manifest and check configured CI before merging.
+Final evidence: `/private/tmp/crossward-a6-final-verification.md`; exact tested runtime/config/test manifest: `/private/tmp/crossward-a6-final-verified-tree-sha256.json`. Temporary artifacts may not survive cleanup. Browser/build checks were serialized. The independent final reviewer compared all **185 committed runtime/config/test blobs** with zero manifest mismatches and all **42 frozen acceptance spec/setup/email files** against baseline, confirming only the three authorized selector scopes differ. Both configured checks, Vercel deployment and Vercel Preview Comments, passed. The reviewer rechecked the unchanged head and used a normal merge with `--match-head-commit`; PR state was confirmed MERGED. No additional source/test changes or browser/build runs occurred during review.
 
 The agent's real-inbox walkthrough is complete. **The user's own sign-in is unconfirmed**, and real Resend/domain delivery remains unverified. Ordinary user steps are documented in `README.md` / `docs/DEVELOPMENT.md`: run `npm run dev`, open `http://localhost:3000`, submit a `.test` address, open `http://127.0.0.1:8025` in the same browser, and follow the delivered link. This uses the normal development database; no token lookup is needed.
 
-## Next action — finish independent PR review/merge
+## Next action — independent Accounts closeout audit (pending)
 
-Commit/push the verified A6 implementation and open its PR. A separate final reviewer must check the exact head, independent evidence, scope, and CI, then merge normally when ready. Record the actual merge afterward. Keep Accounts open pending a separately authorized independent closeout audit; do not begin Ownership. No further application fix or hydration investigation is authorized by this checkpoint.
+A6 verification, real-inbox walkthrough, PR delivery, and independent merge are complete. The next separate task is the independent Accounts closeout audit; it must account for the earlier renewal finding's A4 resolution and the actual A6 manual-login evidence. Keep Accounts open until that audit is recorded and its blockers resolved. The user may repeat the ordinary port-3000 inbox flow above; do not claim their sign-in without confirmation. No Ownership or hydration work is authorized by this checkpoint.
 
 Copyable resume prompt:
 
-> Read AGENTS.md and the top A6 sections of docs/epics/09-accounts/HANDOFF.md. Finish A6's authorized PR delivery and independent final review/merge using the recorded verification manifest and real Mailpit UI walkthrough evidence. The only frozen-test exception is the three selector scopes in 7bf12e3. Preserve A5 isolation, existing data/inbox messages, and all remaining acceptance content. Keep Accounts open pending closeout audit; do not begin Ownership or restart hydration work.
+> Read AGENTS.md and the top A6 sections of docs/epics/09-accounts/HANDOFF.md. A6 merged independently in PR #16 as a07d771 after verify, production E2E, and the real Mailpit UI delivered-link/retry walkthrough passed. The next separate task is an independent Accounts closeout audit, including A4 renewal resolution and A6 evidence; Accounts remains open until it is recorded. Preserve A5 isolation, existing data/messages, and frozen acceptance content except the three authorized selector scopes in 7bf12e3. User sign-in is unconfirmed. Do not begin Ownership or restart hydration work.
 
 ---
 
