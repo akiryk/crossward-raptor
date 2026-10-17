@@ -10,33 +10,49 @@ the current handoffs and development workflow.
 
 Local development runs against Postgres in Docker, not a hosted database.
 You'll need [Docker](https://www.docker.com/) running locally, and a
-`.env.local` at the repo root defining three variables: `DATABASE_URL`
-and `DATABASE_URL_UNPOOLED` (the dev database) and `TEST_DATABASE_URL`
-(the e2e suite's own database — wiped on every run, never your working
-data). All three should point at the containers `docker-compose.yml`
-defines.
+`.env.local` at the repo root defining `DATABASE_URL` and
+`DATABASE_URL_UNPOOLED` for the development database on port `5432`.
+The E2E suite supplies its own isolated database configuration on port `5433`;
+it does not require environment-file setup and wipes only that test database.
 
-Accounts (magic-link sign-in via Better Auth and Resend) add three more
-`.env.local` variables: `BETTER_AUTH_SECRET` (a signing secret),
-`BETTER_AUTH_URL` (the app's base URL), and `RESEND_API_KEY` (the Resend
-API key used to deliver sign-in links). Leave `RESEND_API_KEY` unset
-locally and in the test environment — with no key, no email is sent (the
-link is still issued and, in tests, read from the database), which is how
-the suite avoids sending mail. Set it only where real delivery is wanted.
-Real delivery also requires **one verified domain in Resend**: until a
-domain is verified, Resend will only send to the account owner's own
-address, which is enough for building but blocks a second person signing
-in.
+Accounts also require `BETTER_AUTH_SECRET` (a private signing secret) and
+`BETTER_AUTH_URL=http://localhost:3000`. Leave `VERCEL` unset for local
+development. No Resend key is needed: `npm run dev` starts and waits for the
+local Mailpit inbox before starting Next. Development captures sign-in mail
+there even if a `RESEND_API_KEY` was inherited; it never falls back to real
+delivery when the inbox is unavailable.
+
+Production delivery uses `RESEND_API_KEY` and **one verified domain in
+Resend**. Until a domain is verified, Resend only sends to the account
+owner's address. Check real email delivery separately before inviting others.
+Production without a key does not deliver; tests never send email or use
+the local inbox.
 
 1. `npm install`
 2. `npm run db:setup` — starts the containers and applies migrations
 3. `npm run dev`
+
+Open `http://localhost:3000` and request a link with an address such as
+`builder@example.test` using Enter or the submit button. Open
+`http://127.0.0.1:8025` in another tab of the same browser, find the message
+addressed to that email, and follow its sign-in link (or copy it into the app
+tab). It expires in 15 minutes and works once. The link opens your signed-in
+library at `/puzzles`; try opening and cancelling New Puzzle, then sign out
+to return to the public form. No database-token lookup is needed.
+
+Mailpit stores messages in its own persistent Docker volume. Restarting the
+inbox preserves them; startup never resets a database or prunes messages.
+Its HTTP inbox/API is published only on host loopback, with no published
+SMTP port and no forwarding or relay. See
+[development troubleshooting](docs/DEVELOPMENT.md#local-inbox-sign-in) if a
+request fails.
 
 ## Commands
 
 - Install: `npm install`
 - Database: `npm run db:setup` (first run / after a schema change)
 - Dev: `npm run dev`
+- Local inbox: `npm run inbox:up` — start/wait for Mailpit independently
 - Build: `npm run build`
 - **Verify (the gate): `npm run verify`** → runs `tsc --noEmit`, lint, and tests. A change is not done until this exits 0.
 - E2E: `npm run test:e2e` (Playwright) — separate, slower gate; not part of `verify`. Prepares its own local test database automatically (migrated and wiped) before each run — see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the details.
