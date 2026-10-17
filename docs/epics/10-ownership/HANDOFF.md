@@ -3,15 +3,15 @@
 ## Read first
 
 1. `AGENTS.md` — repository and preservation rules.
-2. This handoff's Current state and Release gate — frozen specification,
-   verification, and production application are separate checkpoints.
-3. `docs/epics/10-ownership/EPIC.md` → Decisions/Non-goals and
-   `stories/10-O1-puzzle-builders.md` — confirmed data policy and O1 contract.
-4. `docs/DEVELOPMENT.md` → Ownership O1 migration and coordinated release —
-   migration inputs, installed-Prisma proof, and release order.
-5. `prisma/migrations/20261017220000_add_puzzle_builders/migration.sql`,
-   `prisma/schema.prisma`, `src/app/puzzles/actions.ts`, and
-   `e2e/helpers/ownership.ts` — implementation and shared fixture identity.
+2. This handoff's Current state, O1 production release, and Next action —
+   delivered ownership and the remaining epic boundary.
+3. `docs/epics/10-ownership/EPIC.md` → Decisions/Non-goals and O2 — the next
+   planned story, which still needs specification when authorized.
+4. For O1 evidence, `stories/10-O1-puzzle-builders.md` and
+   `docs/DEVELOPMENT.md` → Ownership O1 migration and coordinated release.
+5. When specifying O2: `src/app/puzzles/NewPuzzleButton.tsx`,
+   `prisma/schema.prisma`, and `src/app/puzzles/actions.ts` — inspect the
+   actual creation flow, nullable displayName, and session-derived builder.
 
 For review/delivery, read `docs/CODE-REVIEW.md` and `docs/process/REVIEW.md`.
 For E2E configuration, read `docs/DEVELOPMENT.md`. Accounts' top production and
@@ -20,15 +20,22 @@ or old migration replay is needed.
 
 ## Current state (2026-10-17)
 
-**O1 specified, implemented, independently verified and reviewed; production
-assignment and merge/deployment await the exact sign-in account.** Starting
-checkout was clean `main` at `fc6f66e`,
-tracking `origin/main`. Specification-only commit **`bfa68b4`** is on local
-`main`; implementation **`2e9013086d633770c83313fa772aaff5740bec33`** is committed
-and pushed on **`story/10-O1-puzzle-builders`** in
-[PR #17](https://github.com/akiryk/crossward-raptor/pull/17). It has not been
-merged; production ownership has not been applied. This handoff's delivery-state
-refresh is a documentation-only follow-up; runtime bytes remain those verified.
+**O1 is delivered: specified, implemented, independently verified/reviewed,
+merged, and deployed to production.** All four production puzzles now belong
+to the existing account identified by the user's explicitly supplied sign-in
+email. Every pre-existing puzzle field and timestamp and all auth hashes are
+unchanged. The production ownership migration and release are complete; do not
+reapply them. Ownership remains open because O2/O3 are not yet specified or
+implemented, and its closeout audit is not due until all stories are delivered.
+
+Starting checkout was clean `main` at `fc6f66e`. Specification-only baseline
+**`bfa68b4`** preceded implementation **`2e90130`** and documentation **`eb796ba`**.
+The independent reviewer merged [PR #17](https://github.com/akiryk/crossward-raptor/pull/17)
+as **`f6976751cb054879675984635433187a1cf58c9d`** at
+`2026-10-17T22:48:53Z`. Local `main` was fast-forwarded to that merge before this
+documentation-only rollout record; runtime bytes remain the independently
+verified/reviewed implementation. No application or acceptance change accompanies
+this handoff update.
 
 The user explicitly commissioned drafting O1 and freezing its acceptance tests
 in this session, overriding STORY step 0a's relocation-only default. A separate
@@ -60,7 +67,9 @@ On **2026-10-17**, the user confirmed preserving all four production puzzles
 and assigning all four to their existing successful-sign-in account, keeping
 every prior field and timestamp. The authoritative policy is in the epic/story.
 Keep the final builder required. Never infer the owner from first/newest/sole
-user. The exact sign-in email was requested and remains pending. The independent
+user. The user supplied the exact sign-in email, and read-only production checks
+matched it to one existing verified user before application. Raw email/user and
+puzzle IDs are not embedded in committed source or this handoff. The independent
 reviewer confirmed that the original O1 instruction plus explicit production
 assignment confirmation authorizes the necessary reviewed schema/backfill within
 this exact preservation scope; another routine confirmation is not required.
@@ -140,8 +149,7 @@ the installed Prisma migrator and checks preservation/finished migration state.
 The frozen SQL runner separately checks every original puzzle/auth field,
 invalid-input rollback, and required/no-default/FK behavior.
 
-No production DB operation, inbox operation, or environment-file inspection/edit
-has run. An inert production-settings check passed with Vercel
+Before the live operation below, an inert production-settings check passed with Vercel
 CLI 64.5.0, `VERCEL_CLI_USE_NATIVE_BINARY=0`, the explicit actual Node executable,
 linked project/team IDs, and an empty temporary cwd. Settings stayed in memory;
 credentials were not printed. The globally installed old CLI lacks `env run`;
@@ -149,55 +157,86 @@ the newer CLI rejected `--disable-binary`, so use the environment opt-out.
 Four Secret values are unavailable to env run; the direct DB URL is available.
 No deployment or DB operation resulted from these inert checks.
 
-## Release gate and next action
+## O1 production release — complete
 
-**Await the requested production sign-in email**, then complete the coordinated
-release below under the existing authorization. Independent final code review
-of PR #17 at `2e90130` found no blocking or nonblocking findings. The reviewer
-authored neither implementation nor verification and confirmed the exact
-177-file commit manifest and frozen baseline. Vercel Preview Comments passed;
-Vercel deployment was still pending at that checkpoint. Recheck the latest PR
-head and configured checks after this documentation-only update and before
-merge. No merge has run.
+The original O1 instruction, explicit four-puzzle preservation/assignment
+confirmation, and later supplied sign-in identity authorized this reviewed
+operation. No extra routine confirmation was required. The independent reviewer
+approved the concrete driver before application and retained merge independence.
 
-The prepared `/private/tmp/crossward-o1-production-operation.cjs` has only been
-syntax checked and independently reviewed, not executed. It pins the
-Accounts-verified production target, exact
-email/account and four-row set, old puzzle/auth hashes, migration checksums,
-reviewed HEAD, and matching fresh preflight before applying only O1. Inputs and
-credentials stay in memory; snapshots contain hashes/IDs, not tokens or content.
-Before starting Prisma, it also tests the exact startup settings on the selected
-production proxy/server in a read-only transaction; the local proof already
-established installed-Prisma forwarding. Invocation requires the current
-reviewed commit (`O1_REVIEWED_COMMIT`) and user-supplied `O1_CONFIRMED_EMAIL`;
-apply also requires `O1_PRODUCTION_APPLY_APPROVED=yes`, justified by the recorded
-O1 plus explicit assignment authorization, and a matching saved/fresh preflight.
+Read-only preflight pinned the Accounts-verified Neon target, matched the
+explicit email to one existing verified user, captured the exact four puzzle
+IDs and canonical SHA256 hashes of all ten original columns, and captured
+DB-side auth-row digests without retrieving raw tokens. It confirmed the four
+historical migration checksums and only O1 pending. Fresh preflight matched that
+snapshot immediately before application. A read-only connection proved the exact
+startup settings reached the selected production proxy/server; the separate
+local proof had already established installed-Prisma forwarding.
 
-**Before merge:** main automatically deploys; the new queries require
-`builderId`. Prepare/review the concrete live operation, identify the exact
-existing user against the confirmed sign-in email, snapshot the exact four
-puzzle IDs and original-column/auth hashes, and record the existing task plus
-explicit assignment confirmation as authorization. Refresh the read-only
-preflight, apply only reviewed O1 SQL with
-explicit migration-session inputs, independently verify preservation/schema/
-ledger, then coordinate reviewer merge and deployment. The old app's create
-insert lacks builderId during the short schema/code transition; coordinate a
-quiet creation window. Do not merge incompatible code while rollout is pending.
+Installed `prisma migrate deploy` applied exactly
+`20261017220000_add_puzzle_builders`, exit 0, at
+**`2026-10-17T22:48:00.904Z–22:48:03.784Z`**, using the reviewed `eb796ba` schema/SQL
+and temporary dotenv-free config. Credentials and migration-session inputs
+stayed in memory. SQL changed only the new builder column. No production reset,
+puzzle deletion, account change, email request, or inbox operation occurred.
 
-No live migration/main deployment is authorized merely by local passing tests.
-If identity or live readiness remains pending, leave a concrete reviewed PR
-ready for release instead of claiming production assignment. Routine isolated
-testing, branch/PR, and independent review need no repeated confirmation.
+**Independent production verification passed at `2026-10-17T22:48:22.420Z`:**
+repeatable-read READ ONLY transaction on the pinned target; exact four IDs and
+all ten original-column/timestamp hashes match; all owners equal the explicit
+confirmed account; every auth-row digest matches (1 user, 1 session, 0 accounts,
+0 verifications). All five migrations are finished, not rolled back, with matching
+reviewed checksums and one applied step. Required text builderId/no default and
+validated user.id FK with DELETE RESTRICT/UPDATE CASCADE match the specification.
+
+The independent reviewer inspected that evidence, rechecked all 177 reviewed
+commit hashes and unchanged frozen tests, confirmed both PR Vercel checks passed,
+and merged PR #17 using a normal merge commit. The canonical production alias
+was verified **READY** on `f697675` at `2026-10-17T22:50:03.111Z`, deployment
+`dpl_LVaCUdXoUotvz3jknYz17aMnH4ws`. Commit evidence maps GitHub's successful
+merge-commit Vercel status to that deployment ID and the canonical alias.
+Public HTTP checks returned homepage **200** and signed-out `/puzzles` **307 → /**.
+These establish deployed code and signed-out health; the user's authenticated
+production library/sign-in was not repeated and no new production puzzle was
+created. Prior production sign-in success is user-confirmed Accounts evidence.
+
+Retained sanitized operational evidence:
+
+- `/private/tmp/crossward-o1-production-read/preflight.json` and `operation.json`
+- `/private/tmp/crossward-o1-production-operation.cjs` — reviewed driver; do not rerun
+- `/private/tmp/crossward-o1-production-independent-verification.json` and
+  `/private/tmp/crossward-o1-production-independent-verify.cjs`
+- `/private/tmp/crossward-o1-production-deployment.json`
+- `/private/tmp/crossward-o1-independent-review.md` — final reviewed head, checks,
+  inspected independent production verification, and merge evidence
+
+These artifacts may disappear during temporary-file cleanup; this maintained
+record preserves their findings without credentials, live tokens, raw puzzle
+content, or committed production identity/IDs. No `.env*` file was inspected or
+edited. Development inbox messages were not accessed or changed. The short
+schema/code creation pause ended once O1 reached the production alias.
+
+## Next action — O1 complete; await the next authorized task
+
+No O1 implementation, migration, PR merge, or rollout remains pending. Do not
+replay the operation merely because its temporary evidence exists. If the user
+reports a hosted issue, inspect the concrete report and deployed revision before
+changing code or production data; do not restart hydration or email setup work.
+
+The next planned story is **O2 — Display names**, currently without a story or
+acceptance baseline. When authorized, inspect the actual new-puzzle flow and
+settle dismissal behavior, then specify/freeze O2 before implementation. O3,
+invitations/custom-domain email, Play, and Ownership closeout remain later work.
+No further story is authorized by this O1 completion record.
 
 Copyable resume prompt:
 
-> Continue Ownership O1 from docs/epics/10-ownership/HANDOFF.md, following Read
-> first. Preserve bfa68b4's frozen baseline and all earlier acceptance tests.
-> Finish the recorded independent gates/review and coordinated release.
-> Production's four puzzles must remain intact and belong only to the user's
-> explicitly confirmed existing sign-in account; inspect the exact current set
-> before reviewed SQL application. Preserve accounts/inbox messages, avoid
-> .env* files, and do not start O2/O3, invitations, Play, or hydration work.
+> Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
+> O1 is complete and production's four puzzles are assigned to the explicitly
+> confirmed existing account, with independent preservation/schema/checksum
+> verification. PR #17 merged and deployed. Do not replay migrations. Preserve
+> frozen tests, production/auth data and inbox messages; avoid .env* files.
+> Await my next task, or if I explicitly request O2, settle its remaining UX
+> decision and specify/freeze acceptance before implementation.
 
 ## Historical intake context
 
