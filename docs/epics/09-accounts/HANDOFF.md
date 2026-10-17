@@ -1,43 +1,44 @@
 # Accounts — Handoff
 
-## Read first — finishing A4
+## Read first — A4 delivered; manual login next
 
-1. `AGENTS.md`, then **Current state — A4 delivery** and **Next action — A4 delivery** below. These supersede earlier pause and A5 next-action instructions.
-2. [A4 specification](stories/09-A4-session-renewal.md), `src/lib/auth.ts`, `src/lib/auth-client.ts`, `src/components/auth/SessionRenewal.tsx`, and `src/components/layout/Header.tsx` for session renewal. Acceptance tests remain frozen at specification baseline `5140c2d`.
-3. For the separate manual-login follow-up only: the epic's manual-login section, `docs/DEVELOPMENT.md`, and the local-inbox decision below. Do not begin Ownership or restart hydration instrumentation.
+1. `AGENTS.md`, then **Current state — A4 delivered** and **Next action — manual-login specification** below. These supersede the older A4 pause, usage-limit, and A5 next-action instructions.
+2. `docs/epics/09-accounts/EPIC.md` Decisions and its separate manual-login follow-up, plus `docs/DEVELOPMENT.md`, `README.md` authentication setup, `src/components/auth/SignInForm.tsx`, `src/components/ui/Button.tsx`, and `src/lib/email.ts` to scope local inbox delivery. Do not inspect or edit `.env*`.
+3. Only to recheck renewal: [A4 specification](stories/09-A4-session-renewal.md), `src/lib/auth.ts`, `src/lib/auth-client.ts`, `src/components/auth/SessionRenewal.tsx`, `src/components/layout/Header.tsx`, and the frozen renewal/validation/protection specs. Do not begin Ownership or restart hydration instrumentation.
 
-## Current state — A4 delivery (2026-10-16)
+## Current state — A4 delivered (2026-10-16)
 
-The user authorized finishing A4 through verification and independent review/delivery. A5 is delivered. A4 is being finalized on `story/09-A4-session-renewal` in `/private/tmp/crossward-a4-delivery`, based on `4c097dc`. The original checkout's unfinished sign-in keyboard changes (`SignInForm.tsx` and `Button.tsx`) are excluded from this worktree and delivery. Its pre-existing A4/handoff work was copied without discarding history.
+A1–A5 are delivered. A4's existing implementation was finalized without source changes in an isolated checkout that excluded the unfinished sign-in keyboard edits. [PR #15](https://github.com/akiryk/crossward-raptor/pull/15) was independently reviewed with no findings and normally merged as `3c95e91a088619f9343820d82d0de29a9ade8d8c` at `2026-10-17T01:00:48Z` (October 16 locally). Reviewed implementation head: `eb0ec19da072d420f91244dff94dc8fb73c966bb`. Both Vercel and Vercel Preview Comments passed before merge. Main has been fast-forwarded to that merge; this delivery record is a documentation follow-up.
 
-The existing A4 implementation is unchanged: server reads defer renewal, and the browser observer performs cookie-writing renewal through the installed Better Auth GET/POST protocol. No schema, engine, dependency, ownership, or frozen acceptance-test changes are included.
+A4 defers renewal during server reads and performs database/cookie renewal through the browser's cookie-capable Better Auth GET/POST flow. Entry, tab return/reconnect, navigation, and throttled visible input permit renewal; no idle polling was added. The original Accounts renewal audit finding was independently rechecked and resolved. No schema, engine, dependency, ownership, or frozen acceptance-test changes were made.
 
-Independent verification on the scoped A4 checkout:
+Independent verification of the scoped A4 implementation:
 
-- `npm run verify` exited 0: 24 files / 319 tests; only the existing `request-logger/render.ts:802` lint warning.
-- `env COMPOSE_PROJECT_NAME=crossward-raptor npm run test:e2e` exited 0: **303/303 in 59.0 seconds**, with the normal four workers, fresh production build, all seven frozen A4 cases, and existing invalid/expired/revoked-session/sign-out guards. The explicit Compose identity reuses the canonical containers from this temporary worktree; no browser settings or assertions changed.
-- The first unqualified attempt stopped before tests/reset because the worktree directory implied a second Compose project and port 5433 was already allocated. A sandbox-limited retry also stopped before tests/reset. The successful run used the canonical isolated test database with the user's existing reset authorization.
-- All 40 frozen browser specs/setup files still match `5140c2d`. Both the Next-bundled React DOM development source and the separately installed React DOM package were checked for integrity; the historical handoff hash refers to the former. No dependency instrumentation or edits remain.
+- `npm run verify`: exit 0, **24 files / 319 tests**; only the existing `request-logger/render.ts:802` lint warning.
+- `env COMPOSE_PROJECT_NAME=crossward-raptor npm run test:e2e`: exit 0, **303/303 in 59.0 seconds**, with the normal four workers, fresh production build, all seven frozen A4 cases, and existing invalid/expired/revoked-session/sign-out guards. The explicit Compose identity reused canonical containers from the temporary worktree; browser settings and assertions stayed frozen.
+- Seven supplemental checks passed: eligible server/auth GET reads preserve expiry; two simulated browser minutes idle cause no reads/renewal; hidden input causes no reads; a visible-tab event drives GET/POST and renews both expiries; repeated input is throttled; expired/revoked refresh POSTs cannot revive sessions. Visibility was a synthetic document event, not real headful tab switching; idle time used the browser clock.
+- Independent final review matched all **183 committed runtime/config/test blobs** to the tested manifest and all **40 frozen browser specs/setup files** to baseline `5140c2d`, with zero mismatches. The earlier exact-spec red run remains recorded under **A4 renewal evidence**: five ordinary-activity failures on old code, with protocol/fresh-session controls passing.
+- Evidence: `/private/tmp/crossward-a4-independent-verification.md` (independently endorsed), `/private/tmp/crossward-a4-verified-tree-sha256.json`, `/private/tmp/crossward-a4-supplement-results.json`, and exact supplemental probe `/private/tmp/crossward-a4-supplement.cjs`. These local temporary artifacts may not survive cleanup.
 
-Independent preliminary source review found no blocker and rechecked the original Accounts renewal finding: deferred server GET reads return before database expiry writes; the browser's GET/POST flow renews database and cookie together through a cookie-capable response. Authoritative invalid-session guards remain unchanged. Seven supplemental checks also passed: eligible server/auth GET reads do not write expiry, two simulated browser minutes idle trigger no reads/renewal, hidden input does not trigger reads, a visible-tab event renews both expiries through GET/POST, repeated input is throttled, and expired/revoked refresh POSTs cannot revive sessions. The visibility event was synthetic, not real headful tab switching; idle time used the browser clock.
+The first worktree-default Compose attempt stopped before tests/reset because a second project collided with port 5433; a sandbox-limited retry also stopped before tests/reset. The successful run used the canonical isolated test database with the user's existing reset authorization. Only newly created, never-started containers and their empty task network were removed afterward; all volumes and canonical healthy database containers were preserved. Port 3100 has no listener. Dependency integrity checks confirmed the historical React DOM hash refers to Next's bundled source, which matches; the separately installed package also matched its integrity-addressed cache. No instrumentation remains.
 
-Evidence: `/private/tmp/crossward-a4-verified-tree-sha256.json` (183 runtime/config/test files), `/private/tmp/crossward-a4-supplement-results.json`, and `/private/tmp/crossward-a4-supplement.cjs`. The primary agent consolidated independent agents' reported results and completed artifacts into `/private/tmp/crossward-a4-independent-verification.md`; all manifest hashes still match. Port 3100 has no listener after checks.
+Both independent agents briefly stopped at an account usage limit after the checks. Their resumed turns completed evidence endorsement, exact-head final review, CI checks, and merge; that limit no longer blocks A4.
 
-Both independent agents stopped at an account usage limit after these checks and preliminary review. Final committed-head/PR/CI review and merge remain required; do not treat the preliminary source review as final delivery approval. Accounts remains open.
-
-The earlier frozen-spec red run remains documented under **A4 renewal evidence**: five ordinary-activity cases failed on the old code, with API and fresh-session controls passing. This historical evidence is not a current passing gate.
+Preserved local work: `src/components/auth/SignInForm.tsx` and `src/components/ui/Button.tsx` still contain the uncommitted Enter-key/native-form fix, byte-for-byte unchanged from intake. They were excluded from A4 verification/delivery. The original A4 files and entire pre-existing handoff body are preserved in the merged implementation/history and in `/private/tmp/crossward-a4-original-preserved/`; a safety stash named `Preserve original A4 work before updating to independently merged PR 15` also remains. Do not reapply its old handoff over this newer record.
 
 ### Settled manual-login direction
 
-The user chose a **local inbox for local development**, with real email delivery checked separately before inviting other users. This is a separate follow-up story, not part of A4. Specify a usable request-link → local-inbox → signed-in-library flow before implementing it; preserve the unfinished keyboard fix for that story. Automated database-token retrieval does not establish working manual login.
+The user chose a **local inbox for local development**, with real email delivery checked separately before inviting other users. This follow-up needs its own story and acceptance examples for request-link → local-inbox → signed-in-library behavior. Preserve the keyboard fix for that story. Automated database-token retrieval is not evidence of usable manual login; real email and successful manual sign-in remain unverified.
 
-## Next action — A4 delivery
+Accounts remains **open** for usable manual login and its eventual independent closeout audit. A4's targeted finding recheck is not a full Accounts closeout audit. Streamed development library rendering can still stall, and the library still renders every puzzle/cell thumbnail without bounds; production E2E success does not establish a fix for either concern.
 
-The required verification gates have passed. Commit/open the scoped A4 PR if not yet done, then obtain independent final review of its exact head and configured CI before merge. If the account usage limit still blocks the reviewer, preserve the ready PR and report that blocker; do not self-merge. Keep Accounts open: the independent closeout audit must recheck the renewal finding, and usable manual login still needs its own specification and delivery. Do not begin Ownership or the local-inbox implementation automatically.
+## Next action — manual-login specification
+
+Discuss and specify the separate local-inbox manual-login story before implementation, including how a developer finds and opens the link, configuration isolation from tests/production, and a person's successful arrival at `/puzzles`. A4 is complete; no more A4 investigation or delivery is pending. Keep Accounts open and do not begin Ownership or local-inbox implementation automatically.
 
 Copyable resume prompt:
 
-> Read AGENTS.md and the A4 delivery sections at the top of docs/epics/09-accounts/HANDOFF.md. Finish the scoped A4 verification/review/delivery if still pending. Preserve frozen tests and the separate keyboard changes. The user chose a local inbox for the manual-login follow-up; specify that separately. Keep Accounts open and do not begin Ownership or restart hydration instrumentation.
+> Read AGENTS.md and the current A4-delivered sections at the top of docs/epics/09-accounts/HANDOFF.md. A4 merged in PR #15; preserve the unfinished keyboard fix. Help specify the separate manual-login story using the user's chosen local inbox for development. Keep Accounts open; do not begin Ownership or restart hydration instrumentation.
 
 ---
 
