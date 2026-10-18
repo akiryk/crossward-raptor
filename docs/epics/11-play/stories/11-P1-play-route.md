@@ -8,6 +8,13 @@ loading or prefetching its server response does not.
 the specification-only commit containing this revision. Implementation pending.
 **Blast radius: high:** Prisma schema/migration and puzzle Server Actions.
 
+Acceptance correction authorized on 2026-10-18: the isolation unit case now
+awaits its second session start before reading that session for its expected
+view. The original assertion evaluated its expected value before async
+authentication/creation finished. This changes only assertion ordering, with
+no product or assertion scope change; independently review and refreeze this
+specification-only correction before continuing implementation verification.
+
 ## Decisions
 
 Inspected on 2026-10-18: `PuzzleGrid` and its cell/appearance helpers;
@@ -217,6 +224,9 @@ Expected implementation paths:
   acceptance; validates the isolated test target. It is not frozen acceptance.
 - `scripts/reset-test-db.mjs` — only if the additive relations require fixture
   cleanup changes; cascade should preserve the current puzzle-first order.
+- `scripts/check-play-migration.mjs` — isolated synthetic-schema proof of the
+  committed additive migration's preservation and database constraints; does
+  not replay historical migrations or modify existing test/public rows.
 - This story, parent epic and `HANDOFF.md` — specification/delivery evidence.
 
 Reference existing `src/engine/{grid,numbering,slots,cursor}.ts`,

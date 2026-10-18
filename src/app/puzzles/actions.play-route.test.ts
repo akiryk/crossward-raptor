@@ -339,7 +339,8 @@ describe('Play P1 authoritative reads and session creation', () => {
     const ownTarget = sessions.find((session) => session.userId === 'player-a' && session.puzzleId === 'target')!;
     expect(first).toEqual(view(puzzles[0], ownTarget));
     expect(other).toEqual(beforeOther);
-    await expect(startPlaySession('second')).resolves.toEqual(view(puzzles[1], sessions.find((session) => session.puzzleId === 'second')));
+    const second = await startPlaySession('second');
+    expect(second).toEqual(view(puzzles[1], sessions.find((session) => session.puzzleId === 'second')));
     authenticate('player-b');
     await expect(loadPlayPuzzle('target')).resolves.toEqual(view(puzzles[0], other));
     await expect(startPlaySession('target')).resolves.toEqual(view(puzzles[0], other));
