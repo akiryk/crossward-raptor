@@ -1,6 +1,114 @@
 # Ownership — Handoff
 
-## Read first — O2 delivered
+## Read first — O3 independently verified; delivery pending
+
+1. `AGENTS.md`, then this O3 current-state/next-action section: preserve
+   existing data and frozen tests; O1/O2 are delivered and never replayed.
+2. `docs/epics/10-ownership/EPIC.md` Decisions/Non-goals and
+   `stories/10-O3-builder-edits.md`: trusted builder write predicates,
+   owner-only editor loading, unfiltered library, and ownership labels.
+3. Frozen O3 acceptance: `src/app/puzzles/actions.builder-edits.test.ts`
+   and `e2e/builder-edits.spec.ts`. `e2e/helpers/builder-edits.ts` is editable
+   isolated fixture plumbing, not a frozen acceptance file.
+4. Runtime: `src/app/puzzles/actions.ts`, `src/app/puzzles/page.tsx`,
+   `src/app/puzzles/[id]/page.tsx`; fixture ownership:
+   `e2e/helpers/seed-session.ts`, `e2e/helpers/seed-puzzle.ts`.
+5. Verification/delivery: `docs/DEVELOPMENT.md`, `docs/LEARNINGS.md`,
+   `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`; closeout:
+   `docs/process/AUDIT.md`.
+
+## Current state — O3 implemented and independently verified (2026-10-18)
+
+O1/O2 remain fully delivered. The user authorized O3 specification, new
+acceptance, implementation, independent verification, PR/review/merge, and
+the repository's required epic closeout process. Starting checkout was clean
+`main` at `c17d897` (also `origin/main`). No substantive product decision
+remained after inspection; the orchestrator and separate implementer reviewed
+the specification and verifier-authored acceptance together before runtime
+changes.
+
+Specification-only baseline **`db36fa0`** is committed on main. Implementation
+branch: **`story/10-O3-builder-edits`**. New acceptance has **51 unit cases and
+7 browser cases**. Against unchanged runtime the new unit suite had **21
+expected failures / 30 passes** for missing owner predicates, foreign loading,
+and enterHints publication/race checks. Pre-freeze TypeScript and new-file
+ESLint exited 0.
+
+All **71** pre-existing acceptance files match their captured hashes at
+`/private/tmp/crossward-o3-preexisting-acceptance-sha256.json`. Both new tests
+are frozen at `db36fa0`. A separate implementation agent completed the scoped
+runtime and test-scoped fixture identity plumbing. Every mutation constrains
+the write to the session builder; content mutations also constrain publication.
+The editor loader refuses foreign rows before deserialization, allowing the
+unchanged route's existing not-found page to respond. The library labels
+ownership and shows Edit only for the builder. No engine, serializer, schema,
+or migration file changed. Focused implementer checks passed **85/85**, plus
+TypeScript and touched-file lint.
+
+**Independent gates passed on the first complete runs, with no fixes:**
+`npm run verify` exited 0 (**28 files / 402 tests**, TypeScript/lint passed;
+existing request-logger unused-variable warning only). Ordinary
+`npm run test:e2e` exited 0 (**325/325 in 53.6 seconds**, four workers, fresh
+production build), including all seven new O3 browser cases and A4's fresh-user
+editor renewal. Preparation validated `localhost:5433/crossward_test`, found
+no pending migrations, and ran only the authorized normal isolated reset.
+
+Evidence: `/private/tmp/crossward-o3-independent-verification.md` and
+`/private/tmp/crossward-o3-independent-runtime-sha256.json`. The manifest binds
+**202** runtime/config/helper/acceptance/script/asset files on `db36fa0` plus
+the stable worktree: zero mismatches across both gates and no uncovered runtime
+path. Mutable documentation is excluded so delivery records can be updated.
+All 71 prior acceptance files and both new frozen O3 files remain byte-identical.
+The final reviewer must compare the committed head against that manifest.
+
+Atomic mutation predicates and simulated owner/publication changes between
+read/write are covered by a stateful Prisma-shaped unit store. Browsers use
+real isolated PostgreSQL/auth/library/editor and compare foreign-row snapshots.
+No real two-tab ownership race, direct cross-account forged HTTP action replay,
+authenticated production mutation, or mailbox sign-in was repeated.
+
+A final reviewer independent of implementation and verification has inspected
+the stable runtime with no preliminary blockers and awaits the concrete PR/head.
+Commit, merge, rollout, and epic closeout are still pending at this checkpoint.
+
+Important inspected constraints: frozen O1 requires the unfiltered library,
+including foreign drafts/private rows. O3 labels ownership and removes every
+foreign row action; it does not introduce Play/visibility-access rules.
+Owner published load/unpublish/delete remain available. Content writes also
+need the publication guard; `enterHints` previously lacked it. Frozen A4
+renewal tests sign in a fresh user before an implicit puzzle fixture: editable
+helpers must bind that test's default fixture to its authenticated builder,
+without leaking identity across tests or weakening runtime guards.
+
+Preserve all existing puzzle/account data and inbox messages; only ordinary
+isolated E2E resets and synthetic test fixtures are authorized. Do not inspect
+or edit `.env*` files. No schema/data operation in production, O1 replay,
+invitations, Play, or hydration investigation is authorized.
+
+## Next action — finish O3 and independent closeout
+
+Commit/push the verified story branch, open a PR, and have the independent
+reviewer match all 202 committed files to the verification manifest, review,
+and normally merge once
+all required local/configured checks pass on the same head. Record actual
+production rollout separately. Run the independent report-only Ownership
+closeout audit and account for findings before marking the epic closed.
+Do not start Play afterward without a new task.
+
+Resume prompt:
+
+> Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
+> Continue authorized O3 delivery on story/10-O3-builder-edits, frozen baseline
+> db36fa0. Independent verify 402 tests and E2E 325/325 passed; bind the PR head
+> to the 202-file manifest, obtain independent review/merge, verify rollout,
+> and finish independent Ownership closeout. Preserve tests/data; avoid .env*.
+> Never replay O1 or start Play.
+
+---
+
+## Historical O2 delivered record — superseded by O3 above
+
+### O2 Read first
 
 1. `AGENTS.md`, then this O2 current-state/next-action section for preservation
    rules and the active boundary. O1 is complete; never replay its migration.

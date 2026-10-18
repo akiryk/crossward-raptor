@@ -2,8 +2,8 @@
 
 Epic 09 establishes who a user is. This one establishes what is theirs.
 
-Every puzzle in the database today belongs to nobody. Anyone signed in
-can edit anything. Before puzzles can be played by people who didn't
+Before this epic, puzzles had no recorded builder and anyone signed in
+could edit anything. Before puzzles can be played by people who didn't
 build them, the app has to know who built what — and the library has to
 show the difference.
 
@@ -45,9 +45,11 @@ itself is authenticated and targets only the session user.
 
 **Only the builder edits.** Enforced in the Server Actions, not only in
 the UI. `saveGrid`, `saveHints`, `saveTitle`, `enterHints`,
-`publishPuzzle`, `unpublishPuzzle` and `deletePuzzle` all already guard
-against editing a published puzzle; ownership is a second guard of the
-same kind, in the same place.
+`publishPuzzle`, `unpublishPuzzle` and `deletePuzzle` constrain writes to
+the signed-in builder. Content writes also require an unpublished puzzle;
+publishing retains its hints-phase/unpublished checks. Builders can still
+unpublish or delete their own published puzzles. Inspection for O3 found
+that `enterHints` also needs its published guard at write time.
 
 **The check is a comparison, not a system.** "Is this puzzle's
 `builderId` the signed-in user's id?" No permission tables, no role
@@ -105,6 +107,12 @@ Ownership guards in the Server Actions, mirroring the published-lock
 pattern. The editor route refuses a non-builder. The library
 distinguishes puzzles you built from puzzles you didn't — which, until
 epic 11, means a puzzle someone else published shows no action at all.
+
+Specified in [O3 — Only the builder edits](stories/10-O3-builder-edits.md).
+Retain the unfiltered library required by O1, including other builders'
+drafts. Label each row as yours or another builder's and show Edit only
+on your own rows. The existing not-found page refuses foreign editor URLs.
+No play or visibility-access policy is introduced here.
 
 ---
 

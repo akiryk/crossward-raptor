@@ -4,6 +4,7 @@ import { NewPuzzleButton } from './NewPuzzleButton';
 import { puzzleStatus, type StatusKind } from '@/lib/puzzle-status';
 import { groupPuzzles } from '@/lib/puzzle-groups';
 import { GridThumbnail } from '@/components/puzzle/GridThumbnail';
+import { requireSession } from '@/lib/require-session';
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -16,7 +17,9 @@ const BADGE_CLASS: Record<StatusKind, string> = {
 };
 
 export default async function PuzzlesPage() {
-  const [puzzles, displayName] = await Promise.all([listPuzzles(), getDisplayName()]);
+  const [puzzles, displayName, session] = await Promise.all([
+    listPuzzles(), getDisplayName(), requireSession(),
+  ]);
   const groups = groupPuzzles(puzzles);
 
   return (
@@ -50,6 +53,7 @@ export default async function PuzzlesPage() {
               <ul>
                 {group.puzzles.map((puzzle) => {
                   const isPublished = puzzle.publishedAt !== null;
+                  const isBuilder = puzzle.builderId === session.user.id;
                   const status = puzzleStatus(puzzle);
                   return (
                     <li
@@ -77,6 +81,9 @@ export default async function PuzzlesPage() {
                         >
                           Updated {formatDate(puzzle.updatedAt)}
                         </p>
+                        <p className="text-help text-ink-2">
+                          {isBuilder ? 'Your puzzle' : "Another builder's puzzle"}
+                        </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <span
@@ -86,13 +93,15 @@ export default async function PuzzlesPage() {
                         >
                           {status.label}
                         </span>
-                        <Link
-                          href={`/puzzles/${puzzle.id}`}
-                          data-testid="puzzle-edit-link"
-                          className="cursor-pointer rounded-btn border border-rule-strong bg-background px-3 py-1 text-body text-accent hover:bg-hover-tint"
-                        >
-                          Edit
-                        </Link>
+                        {isBuilder && (
+                          <Link
+                            href={`/puzzles/${puzzle.id}`}
+                            data-testid="puzzle-edit-link"
+                            className="cursor-pointer rounded-btn border border-rule-strong bg-background px-3 py-1 text-body text-accent hover:bg-hover-tint"
+                          >
+                            Edit
+                          </Link>
+                        )}
                       </div>
                     </li>
                   );

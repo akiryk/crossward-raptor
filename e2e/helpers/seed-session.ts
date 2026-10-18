@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { test, type Page } from '@playwright/test';
-import { requestMagicLink, readMagicLinkUrl } from './auth';
+import { requestMagicLink, readMagicLinkUrl, getSession } from './auth';
 import { ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './ownership';
+import { registerFixtureBuilder } from './fixture-builder';
 
 /**
  * Leave `page` signed in. Auth setup uses the deterministic fixture builder;
@@ -29,14 +30,16 @@ export async function signInSeededUser(page: Page): Promise<{ email: string }> {
     ? SUITE_BUILDER_EMAIL
     : `a3-seed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`;
   const client = ownershipTestClient();
+  let builderId: string;
   try {
     if (setup) {
-      await ensureSuiteBuilder(client);
+      builderId = await ensureSuiteBuilder(client);
     } else {
       // Seed before verification redirects to the library, so its initial
       // creation flow sees this fixture's persisted builder name.
+      builderId = randomUUID();
       await client.user.create({ data: {
-        id: randomUUID(), email, name: 'E2E Session Builder', displayName: 'E2E Session Builder',
+        id: builderId, email, name: 'E2E Session Builder', displayName: 'E2E Session Builder',
       } });
     }
   } finally {
@@ -45,5 +48,10 @@ export async function signInSeededUser(page: Page): Promise<{ email: string }> {
   await requestMagicLink(page, email);
   // Visiting the verify URL sets a real session cookie on this context.
   await page.goto(await readMagicLinkUrl(email));
+  const session = await getSession(page);
+  if (session?.user?.id !== builderId || session.user.email !== email) {
+    throw new Error('Seeded sign-in did not establish the requested builder session.');
+  }
+  registerFixtureBuilder(builderId);
   return { email };
 }
