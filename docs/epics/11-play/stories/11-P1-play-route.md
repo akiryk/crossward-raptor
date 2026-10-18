@@ -4,9 +4,11 @@ Give a signed-in player a read-only view of a published puzzle, with their own
 entries and numbered clues. Actually opening the screen starts their session;
 loading or prefetching its server response does not.
 
-**Status:** implemented and locally verified; independent PR review/merge
-pending. Acceptance is frozen at `6520aaf` after the user-authorized corrections
-below (original specification baseline `b6f357a`).
+**Status:** complete; implemented, verified and independently reviewed/merged
+in [PR #20](https://github.com/akiryk/crossward-raptor/pull/20) at `cea9ea0`.
+Acceptance is frozen at `6520aaf` after the user-authorized corrections below
+(original specification baseline `b6f357a`). Development/production migration
+application remains a separate authorized operation.
 **Blast radius: high:** Prisma schema/migration and puzzle Server Actions.
 
 Acceptance correction authorized on 2026-10-18: the isolation unit case now

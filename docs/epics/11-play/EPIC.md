@@ -109,6 +109,10 @@ published-versus-in-progress.
 
 ### P1 — A play route
 
+Implemented, verified and independently reviewed/merged in
+[PR #20](https://github.com/akiryk/crossward-raptor/pull/20). See the handoff
+for gate evidence and the separate development/production migration boundary.
+
 `PlaySession` and `/puzzles/{id}/play`, rendering a published puzzle with
 the player's entries grid and static numbered clues, read-only to begin
 with. Reuses `PuzzleGrid` with fixed geometry/numbering independent of

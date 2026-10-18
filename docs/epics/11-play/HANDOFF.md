@@ -20,11 +20,14 @@ handoff is prerequisite history, not work to replay.
 
 ## Current state (2026-10-18)
 
-**P1 is implemented and locally verified. Runtime commit, PR review and merge
-remain pending at this writing.** Branch:
-`story/11-P1-play-route`, based on corrected frozen specification commit
-`6520aaf` on main. The starting checkout was clean. Working-tree changes all
-belong to P1; no unrelated changes were present. P2 is not authorized.
+**P1 is complete: implemented, verified, independently reviewed and merged.**
+[PR #20](https://github.com/akiryk/crossward-raptor/pull/20) merged normally on
+2026-10-18 at `cea9ea05c81513fdd7aa86dc8fd0b76b85da4679`. The reviewed runtime
+head is `0988b5287494604d1c321fb89500e654fa1f8471`; corrected frozen acceptance
+is `6520aaf`. Local main was fast-forwarded to the merge before this
+documentation-only closeout. No runtime changes followed independent review.
+The original checkout was clean; no unrelated work was included. P2 is not
+authorized and has not started. The Play epic remains open for P2–P5.
 
 The user authorized implementation, then explicitly authorized the minimal
 frozen-test await-order correction and isolated test-database resets. The
@@ -36,32 +39,40 @@ All acceptance is immutable from that corrected baseline onward.
 Runtime adds the additive `PlaySession` migration, authenticated passive loader
 and conflict-safe start, play route/client lifecycle, static numbered clues,
 and fixed-geometry play rendering. Separate implementation and verification
-agents worked on this story; a third reviewer has found no static blockers,
-including in the additional declared prefetch paths. Final PR/head review and
-its verification/CI gates are still required.
+agents worked on this story; a third agent reviewed the actual PR/head and
+reported no findings. That reviewer independently reran verification, ordinary
+full E2E and the synthetic migration proof on the exact reviewed head,
+confirmed unchanged acceptance and a clean worktree, checked both Vercel and
+Vercel Preview Comments were successful, then merged with a normal merge commit.
+GitHub's merged state, head and merge commit were independently read back.
 
 The migration was applied **only to the validated isolated test database** by
 the authorized E2E harness. The synthetic migration proof preserves all
 original seeded puzzle/auth columns and timestamps, verifies no backfill,
 required identity/entries, defaults, pair uniqueness, foreign keys and both
 cascades, retaining an unrelated puzzle/session. No historical migrations
-were replayed for that proof. No development or production migration,
-production data, inbox operation or environment-file inspection/edit occurred.
+were replayed for that proof. No development/production schema or data changes,
+inbox operations, or environment-file inspections/edits were performed.
 
 ## Verification at the final runtime checkpoint
 
 - `npm run verify`: **exit 0**, **427/427 tests**, 29 files; TypeScript and
   lint pass. One pre-existing unused-variable warning remains in
-  `request-logger/render.ts:802`, no lint errors.
+  `request-logger/render.ts:802`, no lint errors. The independent reviewer
+  repeated this gate on `0988b52`: **exit 0**, same 427/29 counts.
 - Ordinary `npm run test:e2e`: **exit 0**, **343/343 pass** (1.3 minutes),
   including all 18 P1 browser cases, existing auth/ownership and builder cases.
   The final run includes the independently reviewed fixture race repair.
+  Independent review repeated ordinary full E2E on runtime commit `0988b52`:
+  **exit 0, 343/343 pass** (1.7 minutes). Thus the final runtime passed two
+  consecutive complete browser runs, with separate fresh isolated resets.
 - `npm run test:e2e -- e2e/play-route.spec.ts --grep "answer strings" --repeat-each=5`:
   **exit 0**, five consecutive exact frozen redaction cases plus setup pass.
 - `npm run test:e2e -- e2e/play-route.spec.ts --grep "HTTP GET and prefetch" --repeat-each=5`:
   **exit 0**, five consecutive prefetch cases plus setup pass.
 - `node scripts/check-play-migration.mjs`: **exit 0**, all three preservation,
   constraint/default and cascade proof groups pass on synthetic schemas only.
+  Independent review repeated the proof on `0988b52`: **exit 0**.
 - Temporary browser checkpoint driver
   `node /private/tmp/crossward-p1-checkpoint.mjs`: **exit 0**. A deliberately
   aborted start showed the visible error and Retry without creating a session;
@@ -76,32 +87,31 @@ production data, inbox operation or environment-file inspection/edit occurred.
   in 10 ms versus a repeatable 3-second aborted probe before the fix.
 - All 73 tracked acceptance files match `6520aaf`; the 71 pre-existing files
   also match `/private/tmp/crossward-p1-preexisting-acceptance-sha256.json`.
-  Refresh this comparison immediately before delivery. `git diff --check`
-  passes. Both acceptance corrections were explicitly authorized and separately
-  refrozen; neither belongs to the runtime PR diff.
+  Both author and independent reviewer refreshed this comparison before
+  delivery; `git diff --check` passes. Both acceptance corrections were explicitly
+  authorized and separately refrozen; neither belongs to the runtime PR diff.
 
 ## Next action
 
-Commit the verified scoped P1 implementation and handoff, open its PR, and
-complete independent review of that exact PR/head with required verification
-and configured CI before normal merge. Record the actual PR and merge result
-here afterward. All local gates are green; no product decision or permission
-remains unresolved for P1 delivery.
+P1 has no remaining implementation/delivery work. Await authorization for the
+next slice. P2 is currently an epic outline, not a supplied frozen story;
+specify, independently review and freeze its story/acceptance before coding it.
+Do not infer P2 authorization from completion of P1.
 
-Production migration application is a separate reviewed, explicitly authorized
-operation. No development/production schema application is part of this
-delivery. P2 has no frozen story in this task and is not authorized; do not
-begin it automatically.
+The additive migration has been applied only to the isolated test database.
+Development/production application remains a separate reviewed, explicitly
+authorized operation. No existing development/production data deletion,
+inbox operation, environment-file edit or live migration is authorized by this
+completed implementation task.
 
 Resume prompt:
 
-> Read AGENTS.md and docs/epics/11-play/HANDOFF.md, following Read first.
-> P1 runtime is on story/11-P1-play-route with frozen corrected acceptance at
-> 6520aaf. Both user-approved acceptance corrections have been independently
-> reviewed and refrozen, and local verification/browser gates pass. Inspect
-> git/PR state and finish outstanding independent review/merge only. Isolated local test resets are
-> authorized; no live migration, inbox, environment-file edits, production
-> operation or P2 implementation is authorized.
+> Read AGENTS.md and docs/epics/11-play/HANDOFF.md, following Read first. P1 is
+> complete and merged through independently reviewed PR #20 at cea9ea0, with
+> frozen corrected acceptance at 6520aaf. All required local gates and configured
+> CI passed. Follow only the newly authorized task; P2 needs its own frozen
+> story/acceptance, and development/production migration application needs a
+> separate reviewed and explicitly authorized operation.
 
 ## Implementation findings and resolved blockers
 
