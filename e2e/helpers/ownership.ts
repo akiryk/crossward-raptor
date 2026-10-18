@@ -16,17 +16,19 @@ export function ownershipTestClient(): PrismaClient {
 
 /** Public specs can seed before auth.setup runs; both converge on this user. */
 export async function ensureSuiteBuilder(client: PrismaClient): Promise<string> {
-  const user = await client.user.upsert({
-    where: { email: SUITE_BUILDER_EMAIL },
-    create: {
+  // Concurrent fixture creation can conflict on either the fixed ID or email.
+  await client.user.createMany({
+    data: {
       id: 'crossward-e2e-suite-builder',
       email: SUITE_BUILDER_EMAIL,
       name: 'E2E Suite Builder',
       displayName: 'E2E Suite Builder',
     },
-    // A nonempty, identity-preserving update keeps this a native ON CONFLICT
-    // upsert when public fixture creation and auth setup run concurrently.
-    update: { email: SUITE_BUILDER_EMAIL, displayName: 'E2E Suite Builder' },
+    skipDuplicates: true,
+  });
+  const user = await client.user.update({
+    where: { email: SUITE_BUILDER_EMAIL },
+    data: { email: SUITE_BUILDER_EMAIL, displayName: 'E2E Suite Builder' },
   });
   return user.id;
 }

@@ -48,12 +48,13 @@ export function PuzzleGrid({
   isEditingGrid?: boolean;
   onCellClick?: (coord: Coord) => void;
 }) {
-  // Numbers reflect the puzzle as it will actually be, not the raw grid --
-  // otherwise every empty cell looks like a word start (Story D3). Same
-  // numbers in both modes -- preview doesn't change the effective geometry.
-  const numbers = buildCellNumberLookup(convertEmptyCellsToBlack(grid));
-  const hints = symmetricHintKeys(grid);
-  const recommended = new Set(recommendedCells(intendedGeometry(grid)).map(cellNumberKey));
+  // Builder empties are undecided geometry; player empties are fixed active
+  // cells. A player's guesses must never change the published numbering.
+  const numbers = buildCellNumberLookup(mode === 'play' ? grid : convertEmptyCellsToBlack(grid));
+  const hints = mode === 'play' ? new Set<string>() : symmetricHintKeys(grid);
+  const recommended = new Set(
+    mode === 'play' ? [] : recommendedCells(intendedGeometry(grid)).map(cellNumberKey)
+  );
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
@@ -92,12 +93,9 @@ export function PuzzleGrid({
     }
   }
 
-  // Widened from plain `mode` (Story H4): the container's data-grid-mode
-  // also distinguishes the two hints-phase states, which cellAppearance
-  // sees as separate flags rather than as a third GridMode value. Preview
-  // keeps precedence over both -- see cell-appearance.ts's own comment.
+  // Preview and play take precedence over the builder's hints-phase flags.
   const gridMode =
-    mode === 'preview' ? 'preview' : isHintsPhase ? (isEditingGrid ? 'hints-editing' : 'hints') : 'build';
+    mode !== 'build' ? mode : isHintsPhase ? (isEditingGrid ? 'hints-editing' : 'hints') : 'build';
 
   return (
     <div

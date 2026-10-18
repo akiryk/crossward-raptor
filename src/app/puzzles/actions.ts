@@ -1,11 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { Prisma } from '@prisma/client';
+import type { PlaySession, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireSession } from '@/lib/require-session';
 import {
   createBlankPuzzle,
+  deserializeGrid,
   deserializePuzzle,
   serializeGrid,
   serializePuzzle,
@@ -17,6 +18,7 @@ import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 import { displayNameValidationMessage } from '@/lib/display-name';
+import { clearLetters } from '@/engine/grid';
 
 export type Visibility = 'private' | 'public';
 
@@ -26,6 +28,79 @@ export type PuzzleWithMeta = Puzzle & {
   publishedAt: Date | null;
   visibility: Visibility;
 };
+
+export interface PlayPuzzleView {
+  id: string;
+  title: string;
+  entries: SerializedGrid;
+  hints: Record<string, string>;
+  session: {
+    id: string;
+    startedAt: Date;
+    completedAt: Date | null;
+  } | null;
+}
+
+const playPuzzleSelect = { id: true, title: true, grid: true, hints: true } as const;
+const playSessionSelect = { id: true, entries: true, startedAt: true, completedAt: true } as const;
+
+function playView(
+  puzzle: { id: string; title: string; grid: Prisma.JsonValue; hints: Prisma.JsonValue },
+  session: Pick<PlaySession, 'id' | 'entries' | 'startedAt' | 'completedAt'> | null
+): PlayPuzzleView {
+  return {
+    id: puzzle.id,
+    title: puzzle.title,
+    entries: session
+      ? session.entries as unknown as SerializedGrid
+      : serializeGrid(clearLetters(deserializeGrid(puzzle.grid as unknown as SerializedGrid))),
+    hints: puzzle.hints as Record<string, string>,
+    session: session
+      ? { id: session.id, startedAt: session.startedAt, completedAt: session.completedAt }
+      : null,
+  };
+}
+
+/** Reads and prefetches are passive; only a mounted player starts a session. */
+export async function loadPlayPuzzle(id: string): Promise<PlayPuzzleView | null> {
+  const authSession = await requireSession();
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: playPuzzleSelect,
+  });
+  if (!puzzle) return null;
+
+  const session = await prisma.playSession.findUnique({
+    where: { userId_puzzleId: { userId: authSession.user.id, puzzleId: id } },
+    select: playSessionSelect,
+  });
+  return playView(puzzle, session);
+}
+
+export async function startPlaySession(id: string): Promise<PlayPuzzleView> {
+  const authSession = await requireSession();
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: playPuzzleSelect,
+  });
+  if (!puzzle) throw new Error('This puzzle is not available to play.');
+
+  // PostgreSQL INSERT ... ON CONFLICT DO NOTHING preserves the winner,
+  // including entries and timestamps, when first opens race or retry.
+  await prisma.playSession.createMany({
+    data: {
+      userId: authSession.user.id,
+      puzzleId: id,
+      entries: playView(puzzle, null).entries as unknown as Prisma.InputJsonValue,
+    },
+    skipDuplicates: true,
+  });
+  const session = await prisma.playSession.findUniqueOrThrow({
+    where: { userId_puzzleId: { userId: authSession.user.id, puzzleId: id } },
+    select: playSessionSelect,
+  });
+  return playView(puzzle, session);
+}
 
 export async function getDisplayName(): Promise<string | null> {
   const session = await requireSession();

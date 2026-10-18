@@ -16,7 +16,7 @@ export type CellAppearance =
   | 'slot-required'
   | 'selected';
 
-export type GridMode = 'build' | 'preview';
+export type GridMode = 'build' | 'preview' | 'play';
 
 /**
  * The single visual state a cell should render in.
@@ -57,6 +57,9 @@ export function cellAppearance(args: {
   } = args;
 
   if (cell.kind === 'black') return 'black';
+
+  // Player entries have fixed active geometry, regardless of their contents.
+  if (mode === 'play') return 'letter';
 
   if (mode === 'preview') {
     if (isRecommended) return 'recommended';
