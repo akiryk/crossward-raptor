@@ -1,9 +1,9 @@
 # Ownership — Handoff
 
-## Read first — O3 independently verified; delivery pending
+## Read first — Ownership closed; O1/O2/O3 delivered
 
-1. `AGENTS.md`, then this O3 current-state/next-action section: preserve
-   existing data and frozen tests; O1/O2 are delivered and never replayed.
+1. `AGENTS.md`, then this current-state/closeout/next-action section: all
+   Ownership work is delivered. Preserve data/tests; never replay migrations.
 2. `docs/epics/10-ownership/EPIC.md` Decisions/Non-goals and
    `stories/10-O3-builder-edits.md`: trusted builder write predicates,
    owner-only editor loading, unfiltered library, and ownership labels.
@@ -17,7 +17,11 @@
    `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`; closeout:
    `docs/process/AUDIT.md`.
 
-## Current state — O3 implemented and independently verified (2026-10-18)
+## Current state — O3 delivered; Ownership closed (2026-10-18)
+
+**O1, O2, and O3 are specified, implemented, independently verified/reviewed,
+merged, and deployed. Ownership is closed following its independent closeout
+audit and the documentation dispositions below. No Ownership work is pending.**
 
 O1/O2 remain fully delivered. The user authorized O3 specification, new
 acceptance, implementation, independent verification, PR/review/merge, and
@@ -59,7 +63,8 @@ Evidence: `/private/tmp/crossward-o3-independent-verification.md` and
 the stable worktree: zero mismatches across both gates and no uncovered runtime
 path. Mutable documentation is excluded so delivery records can be updated.
 All 71 prior acceptance files and both new frozen O3 files remain byte-identical.
-The final reviewer must compare the committed head against that manifest.
+The final reviewer independently matched every committed manifest blob and
+confirmed no uncovered runtime path. Root repeated the check on merged main.
 
 Atomic mutation predicates and simulated owner/publication changes between
 read/write are covered by a stateful Prisma-shaped unit store. Browsers use
@@ -67,9 +72,28 @@ real isolated PostgreSQL/auth/library/editor and compare foreign-row snapshots.
 No real two-tab ownership race, direct cross-account forged HTTP action replay,
 authenticated production mutation, or mailbox sign-in was repeated.
 
-A final reviewer independent of implementation and verification has inspected
-the stable runtime with no preliminary blockers and awaits the concrete PR/head.
-Commit, merge, rollout, and epic closeout are still pending at this checkpoint.
+Implementation commit **`2d89ca34bf0896a08a906cf71056615e2fee42d7`** was
+independently reviewed with **no blocking findings**. Both configured checks
+passed: Vercel and Vercel Preview Comments. The reviewer rechecked the exact
+head and performed a normal match-head merge of
+[PR #19](https://github.com/akiryk/crossward-raptor/pull/19) at
+**`2026-10-18T14:48:51Z`**, merge
+**`a6a012ecbb2c725c4437f5f53ab6e7de9c6376a8`**. Reviewed and merged Git trees
+are identical. Review evidence: `/private/tmp/crossward-o3-independent-review.md`.
+Root fast-forwarded local main to this merge and confirmed all 202 verified
+runtime hashes match. Git's ORIG_HEAD update needed a sandbox escalation;
+the approved fast-forward completed without changing reviewed content.
+
+**Production rollout confirmed at `2026-10-18T14:50Z`:** merge-commit Vercel
+status is successful and identifies **`dpl_4buwpUDenDuUDMwCq2uX59ooEWkJ`**.
+Read-only `vercel inspect` confirms that same deployment is **Ready**, target
+**production**, with canonical `https://crossward-raptor.vercel.app` alias.
+Public checks returned homepage **200** and signed-out `/puzzles` **307 → /**.
+Vercel inspection/public HTTP checks needed approved network sandbox
+escalations. No authenticated production mutation or data/schema operation
+occurred. Deployment identity and signed-out health are live evidence;
+authenticated behavior is proven by the independent isolated browser suite.
+Final documentation-only records preserve every verified runtime byte.
 
 Important inspected constraints: frozen O1 requires the unfiltered library,
 including foreign drafts/private rows. O3 labels ownership and removes every
@@ -77,7 +101,7 @@ foreign row action; it does not introduce Play/visibility-access rules.
 Owner published load/unpublish/delete remain available. Content writes also
 need the publication guard; `enterHints` previously lacked it. Frozen A4
 renewal tests sign in a fresh user before an implicit puzzle fixture: editable
-helpers must bind that test's default fixture to its authenticated builder,
+helpers bind that test's default fixture to its authenticated builder,
 without leaking identity across tests or weakening runtime guards.
 
 Preserve all existing puzzle/account data and inbox messages; only ordinary
@@ -85,24 +109,62 @@ isolated E2E resets and synthetic test fixtures are authorized. Do not inspect
 or edit `.env*` files. No schema/data operation in production, O1 replay,
 invitations, Play, or hydration investigation is authorized.
 
-## Next action — finish O3 and independent closeout
+## Independent Ownership closeout — complete (2026-10-18)
 
-Commit/push the verified story branch, open a PR, and have the independent
-reviewer match all 202 committed files to the verification manifest, review,
-and normally merge once
-all required local/configured checks pass on the same head. Record actual
-production rollout separately. Run the independent report-only Ownership
-closeout audit and account for findings before marking the epic closed.
-Do not start Play afterward without a new task.
+A separate reviewer/auditor who authored no runtime, tests, or repository docs
+performed a report-only audit on merged **`a6a012e`**. Scope: Ownership epic,
+all O1/O2/O3 stories and handoff, affected schema/migration/actions/name flow/
+editor/library/fixtures/acceptance, relevant Accounts release prerequisites,
+verification/delivery workflows, target guards, and LEARNINGS. The auditor
+inspected retained independent O1/O2 verification/review/live-release evidence,
+and bound current O3 gate results to all 202 merged blobs. No duplicate test,
+build, migration, or live data operation was run merely for closeout.
+Report: `/private/tmp/crossward-o3-independent-closeout-audit.md`.
+
+**No blocking implementation/specification issue or new actionable enforcement
+gap was found.** Two nonblocking current-document findings are resolved in the
+final documentation-only record:
+
+- `docs/DEVELOPMENT.md` now explains explicit builder → same-test validated
+  fixture builder → shared suite fallback precedence and attempt isolation.
+- This handoff replaces the pre-merge next action with actual review, merge,
+  rollout, closeout, and awaiting-task state.
+
+Earlier epic drift (present-tense pre-O1 ownership claims and the inaccurate
+published-lock summary) was corrected before merge. Optional trim candidates
+are repeated behavioral summaries already enforced by O1/O2/O3 frozen tests;
+no pruning is needed for correctness and none was performed. Preserve the
+load-bearing migration/assignment authorization, production preservation and
+release provenance, raw-creation/UI boundary rationale, A4 fixture binding,
+enterHints lock discovery, and uncertainty about the first O1 suite failure.
+All eight LEARNINGS entries retain diagnostic/judgment value; no deletion was
+recommended. These dispositions account for every audit finding.
+The independent auditor rechecked the final documentation-only diff and
+confirmed both findings resolved, with no remaining closeout blocker.
+
+Limits: no new authenticated production/mailbox check, real two-tab race,
+cross-account forged HTTP action replay, live backfill/preservation recheck,
+or unrelated project-wide audit. Protected environment files and existing
+development/production data were not accessed; inbox messages were preserved.
+Historical O1/O2 results remain
+their recorded checkpoints, not newly repeated checks.
+
+## Next action — Ownership complete; await another authorized task
+
+No implementation, verification, review, merge, rollout, or closeout remains
+pending for Ownership. Await the user's next task. Play P1 is the next planned
+product story but remains unspecified and unauthorized; when requested, start
+with `docs/epics/11-play/HANDOFF.md`. Do not start Play, invitations, hydration,
+or any migration/data replay merely because Ownership is closed.
 
 Resume prompt:
 
 > Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
-> Continue authorized O3 delivery on story/10-O3-builder-edits, frozen baseline
-> db36fa0. Independent verify 402 tests and E2E 325/325 passed; bind the PR head
-> to the 202-file manifest, obtain independent review/merge, verify rollout,
-> and finish independent Ownership closeout. Preserve tests/data; avoid .env*.
-> Never replay O1 or start Play.
+> Ownership is closed: O1/O2/O3 delivered. O3 baseline db36fa0, implementation
+> 2d89ca3, independent verify 402 tests/E2E 325/325, PR #19 merged as a6a012e,
+> production Ready, independent closeout complete with doc findings resolved.
+> Preserve tests/data/inbox; avoid .env*. Never replay migrations or start
+> Play/invitations/hydration without authorization. Await my next task.
 
 ---
 

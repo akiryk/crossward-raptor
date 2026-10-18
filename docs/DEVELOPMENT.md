@@ -160,11 +160,15 @@ existing-data deletion has not already been authorized.
 
 The Docker containers are intentionally left running afterward so subsequent test runs start quickly.
 
-Ownership fixtures use one deterministic test-only builder email shared by
+Ownership fixtures normally use one deterministic test-only builder shared by
 `seedPuzzle` and the setup project's real magic-link sign-in. Both upsert that
 user before using it, so public specs can seed before setup finishes. Sign-ins
-inside individual public specs still create distinct users. An explicit third
-argument to `seedPuzzle(puzzle, title, builderId)` uses that existing builder.
+inside individual public specs still create distinct users. After
+`signInSeededUser` validates a sign-in in the same test attempt, implicit
+`seedPuzzle` calls use that authenticated fixture builder instead. This binding
+does not carry across tests or retries. An explicit third argument to
+`seedPuzzle(puzzle, title, builderId)` always takes precedence; otherwise the
+shared suite builder remains the fallback.
 
 ## Playwright production server and Next.js build
 
