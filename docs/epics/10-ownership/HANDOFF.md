@@ -1,6 +1,6 @@
 # Ownership — Handoff
 
-## Read first — O2 display names
+## Read first — O2 delivered
 
 1. `AGENTS.md`, then this O2 current-state/next-action section for preservation
    rules and the active boundary. O1 is complete; never replay its migration.
@@ -10,13 +10,17 @@
    `e2e/display-name.spec.ts`, frozen before implementation; helper
    `e2e/helpers/display-name.ts` is editable test plumbing.
 4. Relevant runtime: `src/app/puzzles/NewPuzzleButton.tsx`,
+   `src/components/puzzle/DisplayNameDialog.tsx`, `src/lib/display-name.ts`,
    `src/components/puzzle/NewPuzzleDialog.tsx`, `src/app/puzzles/page.tsx`,
    `src/app/puzzles/actions.ts`, and existing `User.displayName` in
    `prisma/schema.prisma`. No O2 schema migration is needed.
 5. For verification/delivery, `docs/DEVELOPMENT.md`, `docs/LEARNINGS.md`,
    `docs/CODE-REVIEW.md`, and `docs/process/REVIEW.md`.
 
-## Current state — O2 independently verified; PR/review pending (2026-10-17)
+## Current state — O2 delivered (2026-10-17)
+
+**O2 is specified, implemented, independently verified/reviewed, merged, and
+deployed.** No O2 work remains pending. Ownership remains open for O3.
 
 The user authorized O2 through specification/freeze, implementation, independent
 verification, ordinary E2E, PR, and independent final review/merge. Starting
@@ -34,17 +38,18 @@ Root committed the specification-only freeze on main as **`bf65285`**, then
 created **`story/10-O2-display-names`**. The separate implementation agent
 finished the scoped runtime and named legacy fixtures. New actions read/write
 only the session user; conditional capture preserves a concurrent winner.
-The raw creation action and all prior acceptance contracts remain unchanged. All 69 existing acceptance files still match their
-recorded hashes at `/private/tmp/crossward-o2-preexisting-acceptance-sha256.json`.
+The raw creation action and all prior acceptance contracts remain unchanged.
+All 69 existing acceptance files still match their recorded hashes at `/private/tmp/crossward-o2-preexisting-acceptance-sha256.json`.
 
 Pre-implementation `npm test -- src/app/puzzles/actions.display-name.test.ts`
-exited 1: all 20 new cases fail because the two new actions do not exist.
-`npx tsc --noEmit` reports only their two missing exports. New-file ESLint
+exited 1: all 20 new cases failed because the two new actions did not exist.
+`npx tsc --noEmit` reported only their two missing exports. New-file ESLint
 exited 0; its two unused-variable warnings were corrected before freeze.
 No runtime, database, inbox, production, or migration operation occurred
 during specification. After implementation, independent `npm run verify`
 passed: **27 files / 351 tests**, TypeScript/lint exit 0; only the existing
-request-logger warning. Focused implementer checks passed 34/34. Independent ordinary `npm run test:e2e` passed **318/318 in 1.7 minutes**,
+request-logger warning. Focused implementer checks passed 34/34. Independent
+ordinary `npm run test:e2e` passed **318/318 in 1.7 minutes**,
 including all eight O2 cases, with four workers and a fresh production build.
 Both full gates passed on their first complete run with no verification fixes.
 Preparation used the validated isolated test database, reported no pending
@@ -55,36 +60,53 @@ Independent evidence: `/private/tmp/crossward-o2-independent-verification.md`
 and `/private/tmp/crossward-o2-independent-runtime-sha256.json`. The latter
 binds **198 runtime/config/helper/test/asset files**, including new runtime
 files, on `bf65285` plus the tested worktree. Documentation is excluded so
-delivery evidence can be recorded; the final reviewer must match all hashes
-to the committed PR head. Concurrent capture is covered by a write-time
-conditional unit store; no real two-tab DB race was added. Hosted deployment
-and real mailbox sign-in have not been repeated for O2.
+delivery evidence can be recorded. The final reviewer independently matched
+all 198 committed head blobs with zero mismatches and no uncovered changed
+runtime path. Concurrent capture is covered by a write-time conditional unit
+store; no real two-tab DB race or real mailbox sign-in was repeated for O2.
 
-Implementation is complete and verified locally; root is preparing the
-implementation commit/PR. Independent final review, configured CI, merge,
-and production deployment status remain pending.
+Implementation commit **`d8f7bedbc4b1d6af105ad0a24830fbf113ec395a`** was
+independently reviewed with **no findings**. Both configured checks passed:
+Vercel deployment and Vercel Preview Comments. The reviewer rechecked the
+unchanged head and performed a normal match-head merge of
+[PR #18](https://github.com/akiryk/crossward-raptor/pull/18) at
+**`2026-10-18T03:11:47Z`**, merge
+**`f79cec834e890e00a9218af075d5825b4c732df5`**. Review record:
+`/private/tmp/crossward-o2-independent-review.md`. Root fast-forwarded local
+main to that merge and confirmed all 198 verified runtime hashes still match.
+
+**Production rollout confirmed at `2026-10-18T03:12:59Z`:** the merge-commit
+Vercel status is successful and identifies deployment
+**`dpl_5TvxBvCddvfGG6WZCKjzS3TaozDJ`**. Read-only `vercel inspect` confirms
+that same deployment is **Ready**, target **production**, with the canonical
+`https://crossward-raptor.vercel.app` alias. Public health checks returned
+homepage **200** and signed-out `/puzzles` **307 → /**. No authenticated
+production name/puzzle was created and no database operation was needed.
+This proves deployed code and signed-out health; fresh-user capture and
+persistence are proven by the independent isolated browser suite. The final
+handoff update is documentation-only, retaining the verified runtime bytes.
 
 Preserve existing puzzle/account data and inbox messages; only normal isolated
 E2E resets are authorized. Do not inspect/edit `.env*` files. No production
 schema/data operation, O1 migration replay, O3, invitations, Play, or hydration
 investigation. Ownership remains open, and no epic closeout audit is due yet.
 
-## Next action — O2 PR and independent final review/merge
+## Next action — O2 complete; await another authorized task
 
-Commit/push the verified `story/10-O2-display-names` implementation and open its
-PR. A third agent independent of specification-test authoring/verification and
-implementation must review the final head, match the 198-file verified tree,
-confirm frozen tests and configured CI, and perform the normal merge if clear.
-Record merge/deployment status separately. O3 and Ownership closeout remain
-outside this task; do not begin them.
+No O2 implementation, verification, review, merge, or rollout is pending.
+Await a new task. O3 is the next planned story, still unspecified and not
+started; invitations, Play, hydration investigation, and Ownership closeout
+remain outside this authorization. Do not replay any completed migration.
 
 Copyable resume prompt:
 
 > Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
-> Continue O2 only from its recorded checkpoint. Preserve all frozen tests,
-> existing puzzle/account data and inbox messages; avoid .env* files. Only
-> isolated E2E resets are authorized. Do not replay O1 or begin O3/invitations/
-> Play/hydration. Complete the current O2 verification and delivery gates.
+> O2 is complete: frozen baseline bf65285, implementation d8f7bed, independent
+> verify 351 tests and ordinary E2E 318/318, independently reviewed/merged
+> PR #18 as f79cec8 and production deployment Ready. Preserve frozen tests,
+> existing puzzle/account data and inbox messages; avoid .env* files. O1 is
+> also fully delivered; do not replay migrations. Await my next task. Do not
+> begin O3/invitations/Play/hydration or Ownership closeout without authorization.
 
 ---
 
@@ -108,7 +130,7 @@ For E2E configuration, read `docs/DEVELOPMENT.md`. Accounts' top production and
 current-state sections are prerequisite evidence; no sign-in reconfiguration
 or old migration replay is needed.
 
-## Current state (2026-10-17)
+### O1 historical current state (2026-10-17)
 
 **O1 is delivered: specified, implemented, independently verified/reviewed,
 merged, and deployed to production.** All four production puzzles now belong
