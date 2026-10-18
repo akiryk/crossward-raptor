@@ -34,6 +34,24 @@ preview mode, no special-cased session, no second code path. They know
 the answers, which makes their completion meaningless — and that is
 what reset is for.
 
+**Opening the play screen starts the session.** On browser mount, create
+or load the one row for the signed-in user and puzzle, even before any
+letter is entered. Server GETs and background prefetches create nothing.
+Repeated/concurrent opens preserve the existing row and progress. P1
+includes static numbered Across and Down clues beside the player grid.
+
+**Published puzzles are playable by URL at `/puzzles/{id}/play`.** Any
+signed-in user may open public or private published puzzles, including
+their own. PB3's private means unlisted, not owner-only. Drafts and missing
+IDs show not-found; the separate editor remains owner-only. P1 does not
+change the existing library.
+
+**Deleting a puzzle cascades to its play sessions.** Preserve the builder's
+existing ability to delete published puzzles; having players does not
+introduce a deletion block. The session's user relation also cascades.
+These P1 product choices were confirmed by the user on 2026-10-18; the
+[P1 story](stories/11-P1-play-route.md) defines the detailed contract.
+
 **Reset deletes the session row**, so "never played" and "reset" are
 indistinguishable. Available to every player behind an unobtrusive
 control, and additionally as a quiet visible button when the player is
@@ -91,13 +109,15 @@ published-versus-in-progress.
 
 ### P1 — A play route
 
-`PlaySession` and a route that renders a published puzzle with the
-player's entries grid, read-only to begin with. Reuses `PuzzleGrid` and
-the engine's existing cursor functions.
+`PlaySession` and `/puzzles/{id}/play`, rendering a published puzzle with
+the player's entries grid and static numbered clues, read-only to begin
+with. Reuses `PuzzleGrid` with fixed geometry/numbering independent of
+entries; the existing cursor functions are wired in P2.
 
-Decides the route shape — `/puzzles/{id}/play` alongside the editor is
-the obvious candidate — and who may reach it: any signed-in user, for
-any published puzzle, including their own.
+Any signed-in user may reach any published puzzle, including their own
+and private puzzles opened by URL. Browser mount creates or loads the
+session; server GET/prefetch does not. See the
+[P1 specification](stories/11-P1-play-route.md).
 
 *Prisma — high blast radius.*
 
