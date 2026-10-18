@@ -16,6 +16,7 @@ import { enterHintsPhase } from '@/engine/phase';
 import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
+import { displayNameValidationMessage } from '@/lib/display-name';
 
 export type Visibility = 'private' | 'public';
 
@@ -25,6 +26,38 @@ export type PuzzleWithMeta = Puzzle & {
   publishedAt: Date | null;
   visibility: Visibility;
 };
+
+export async function getDisplayName(): Promise<string | null> {
+  const session = await requireSession();
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: session.user.id },
+    select: { displayName: true },
+  });
+  return user.displayName?.trim() ? user.displayName : null;
+}
+
+export async function saveDisplayName(input: {
+  displayName: string;
+}): Promise<{ displayName: string }> {
+  const session = await requireSession();
+  const validationMessage = displayNameValidationMessage(input?.displayName);
+  if (validationMessage) throw new Error(validationMessage);
+  const displayName = input.displayName.trim();
+  const where = { id: session.user.id };
+  const user = await prisma.user.findUniqueOrThrow({ where, select: { displayName: true } });
+  if (user.displayName?.trim()) return { displayName: user.displayName };
+
+  // Compare against the exact missing value read above, including legacy
+  // whitespace. Only one concurrent prompt can replace that value.
+  const { count } = await prisma.user.updateMany({
+    where: { ...where, displayName: user.displayName },
+    data: { displayName },
+  });
+  const saved = await prisma.user.findUniqueOrThrow({ where, select: { displayName: true } });
+  if (!saved.displayName?.trim()) throw new Error('Could not save your builder name.');
+  if (count > 0) revalidatePath('/puzzles');
+  return { displayName: saved.displayName };
+}
 
 export async function createPuzzle(input: {
   title: string;

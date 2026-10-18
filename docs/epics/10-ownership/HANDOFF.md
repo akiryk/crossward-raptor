@@ -16,7 +16,7 @@
 5. For verification/delivery, `docs/DEVELOPMENT.md`, `docs/LEARNINGS.md`,
    `docs/CODE-REVIEW.md`, and `docs/process/REVIEW.md`.
 
-## Current state — O2 specification reviewed; freeze before implementation (2026-10-17)
+## Current state — O2 independently verified; PR/review pending (2026-10-17)
 
 The user authorized O2 through specification/freeze, implementation, independent
 verification, ordinary E2E, PR, and independent final review/merge. Starting
@@ -30,28 +30,53 @@ for pending/failure/concurrent-save details.
 Story/epic and new acceptance were independently drafted and reviewed together
 by root and the prepared implementation agent before any runtime edits. The
 verification agent authored the new tests and guarded fresh-user plumbing.
-Root is committing this specification-only freeze on main, then will create
-the implementation branch. All 69 existing acceptance files still match their
+Root committed the specification-only freeze on main as **`bf65285`**, then
+created **`story/10-O2-display-names`**. The separate implementation agent
+finished the scoped runtime and named legacy fixtures. New actions read/write
+only the session user; conditional capture preserves a concurrent winner.
+The raw creation action and all prior acceptance contracts remain unchanged. All 69 existing acceptance files still match their
 recorded hashes at `/private/tmp/crossward-o2-preexisting-acceptance-sha256.json`.
 
 Pre-implementation `npm test -- src/app/puzzles/actions.display-name.test.ts`
 exited 1: all 20 new cases fail because the two new actions do not exist.
 `npx tsc --noEmit` reports only their two missing exports. New-file ESLint
 exited 0; its two unused-variable warnings were corrected before freeze.
-Required full verify/E2E have not yet run for O2. No runtime, database, inbox,
-production, or migration operation occurred during specification.
+No runtime, database, inbox, production, or migration operation occurred
+during specification. After implementation, independent `npm run verify`
+passed: **27 files / 351 tests**, TypeScript/lint exit 0; only the existing
+request-logger warning. Focused implementer checks passed 34/34. Independent ordinary `npm run test:e2e` passed **318/318 in 1.7 minutes**,
+including all eight O2 cases, with four workers and a fresh production build.
+Both full gates passed on their first complete run with no verification fixes.
+Preparation used the validated isolated test database, reported no pending
+migrations, and ran only its authorized test reset. All 69 pre-existing
+acceptance files and both new O2 tests remain byte-identical to the baseline.
+
+Independent evidence: `/private/tmp/crossward-o2-independent-verification.md`
+and `/private/tmp/crossward-o2-independent-runtime-sha256.json`. The latter
+binds **198 runtime/config/helper/test/asset files**, including new runtime
+files, on `bf65285` plus the tested worktree. Documentation is excluded so
+delivery evidence can be recorded; the final reviewer must match all hashes
+to the committed PR head. Concurrent capture is covered by a write-time
+conditional unit store; no real two-tab DB race was added. Hosted deployment
+and real mailbox sign-in have not been repeated for O2.
+
+Implementation is complete and verified locally; root is preparing the
+implementation commit/PR. Independent final review, configured CI, merge,
+and production deployment status remain pending.
 
 Preserve existing puzzle/account data and inbox messages; only normal isolated
 E2E resets are authorized. Do not inspect/edit `.env*` files. No production
 schema/data operation, O1 migration replay, O3, invitations, Play, or hydration
 investigation. Ownership remains open, and no epic closeout audit is due yet.
 
-## Next action — finish and freeze O2 acceptance, then implement
+## Next action — O2 PR and independent final review/merge
 
-Review the new O2 tests against the story, demonstrate meaningful expected
-pre-implementation failures, and commit the specification-only baseline on
-main. Create `story/10-O2-display-names`, then authorize the prepared implementer.
-Verification and final review remain independent; serialize browser suites.
+Commit/push the verified `story/10-O2-display-names` implementation and open its
+PR. A third agent independent of specification-test authoring/verification and
+implementation must review the final head, match the 198-file verified tree,
+confirm frozen tests and configured CI, and perform the normal merge if clear.
+Record merge/deployment status separately. O3 and Ownership closeout remain
+outside this task; do not begin them.
 
 Copyable resume prompt:
 
