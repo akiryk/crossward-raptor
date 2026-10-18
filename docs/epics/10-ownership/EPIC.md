@@ -39,7 +39,9 @@ only ever plays never has one. The first time someone without a name
 clicks New Puzzle, they're asked; it's stored, and they're never asked
 again. This makes having a name a precondition of creating a puzzle,
 which the new-puzzle flow has to handle — one more state in a dialog
-that already has several.
+that already has several. For O2 this is a UI prerequisite: the existing
+authenticated raw creation action retains its frozen contract. Name saving
+itself is authenticated and targets only the session user.
 
 **Only the builder edits.** Enforced in the Server Actions, not only in
 the UI. `saveGrid`, `saveHints`, `saveTitle`, `enterHints`,
@@ -90,10 +92,12 @@ the list can tell yours from everyone else's.
 puzzle. The prompt lives in the new-puzzle flow, which already uses
 `Modal`, and once stored the flow is exactly as it is today.
 
-Decides what happens if someone dismisses the prompt — my
-recommendation is that the puzzle simply isn't created, since a name is
-a precondition rather than an afterthought, but the story should state
-it either way.
+Specified in [O2 — Display names](stories/10-O2-display-names.md). The user
+confirmed on 2026-10-17: idle dismissal cancels without saving or creating;
+the separate name step saves immediately before title/size; names are trimmed
+1–80 Unicode code points and need not be unique; the UI prerequisite preserves
+the raw creation contract. Canceling after a successful name save retains it.
+There is no profile editor or schema migration.
 
 ### O3 — Only the builder edits
 

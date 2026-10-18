@@ -1,6 +1,71 @@
 # Ownership — Handoff
 
-## Read first
+## Read first — O2 display names
+
+1. `AGENTS.md`, then this O2 current-state/next-action section for preservation
+   rules and the active boundary. O1 is complete; never replay its migration.
+2. `docs/epics/10-ownership/EPIC.md` Decisions/Non-goals and
+   `stories/10-O2-display-names.md` for the user-confirmed O2 UX and scope.
+3. O2 acceptance: `src/app/puzzles/actions.display-name.test.ts` and
+   `e2e/display-name.spec.ts`, frozen before implementation; helper
+   `e2e/helpers/display-name.ts` is editable test plumbing.
+4. Relevant runtime: `src/app/puzzles/NewPuzzleButton.tsx`,
+   `src/components/puzzle/NewPuzzleDialog.tsx`, `src/app/puzzles/page.tsx`,
+   `src/app/puzzles/actions.ts`, and existing `User.displayName` in
+   `prisma/schema.prisma`. No O2 schema migration is needed.
+5. For verification/delivery, `docs/DEVELOPMENT.md`, `docs/LEARNINGS.md`,
+   `docs/CODE-REVIEW.md`, and `docs/process/REVIEW.md`.
+
+## Current state — O2 specification reviewed; freeze before implementation (2026-10-17)
+
+The user authorized O2 through specification/freeze, implementation, independent
+verification, ordinary E2E, PR, and independent final review/merge. Starting
+checkout was clean `main` at `c7ea9bb` (also `origin/main`). User confirmed the
+four proposed UX decisions: all idle dismissals cancel without a write/puzzle;
+separate first name step saves immediately before title/size; trimmed names
+of 1–80 Unicode code points, allowing duplicate names; name prerequisite in
+the UI while preserving raw `createPuzzle`'s frozen contract. See O2 story
+for pending/failure/concurrent-save details.
+
+Story/epic and new acceptance were independently drafted and reviewed together
+by root and the prepared implementation agent before any runtime edits. The
+verification agent authored the new tests and guarded fresh-user plumbing.
+Root is committing this specification-only freeze on main, then will create
+the implementation branch. All 69 existing acceptance files still match their
+recorded hashes at `/private/tmp/crossward-o2-preexisting-acceptance-sha256.json`.
+
+Pre-implementation `npm test -- src/app/puzzles/actions.display-name.test.ts`
+exited 1: all 20 new cases fail because the two new actions do not exist.
+`npx tsc --noEmit` reports only their two missing exports. New-file ESLint
+exited 0; its two unused-variable warnings were corrected before freeze.
+Required full verify/E2E have not yet run for O2. No runtime, database, inbox,
+production, or migration operation occurred during specification.
+
+Preserve existing puzzle/account data and inbox messages; only normal isolated
+E2E resets are authorized. Do not inspect/edit `.env*` files. No production
+schema/data operation, O1 migration replay, O3, invitations, Play, or hydration
+investigation. Ownership remains open, and no epic closeout audit is due yet.
+
+## Next action — finish and freeze O2 acceptance, then implement
+
+Review the new O2 tests against the story, demonstrate meaningful expected
+pre-implementation failures, and commit the specification-only baseline on
+main. Create `story/10-O2-display-names`, then authorize the prepared implementer.
+Verification and final review remain independent; serialize browser suites.
+
+Copyable resume prompt:
+
+> Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
+> Continue O2 only from its recorded checkpoint. Preserve all frozen tests,
+> existing puzzle/account data and inbox messages; avoid .env* files. Only
+> isolated E2E resets are authorized. Do not replay O1 or begin O3/invitations/
+> Play/hydration. Complete the current O2 verification and delivery gates.
+
+---
+
+## O1 completed release record
+
+### O1 historical Read first
 
 1. `AGENTS.md` — repository and preservation rules.
 2. This handoff's Current state, O1 production release, and Next action —
@@ -215,7 +280,7 @@ content, or committed production identity/IDs. No `.env*` file was inspected or
 edited. Development inbox messages were not accessed or changed. The short
 schema/code creation pause ended once O1 reached the production alias.
 
-## Next action — O1 complete; await the next authorized task
+## Historical O1 next action — superseded by authorized O2 above
 
 No O1 implementation, migration, PR merge, or rollout remains pending. Do not
 replay the operation merely because its temporary evidence exists. If the user
