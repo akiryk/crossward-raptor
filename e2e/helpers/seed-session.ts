@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { test, type Page } from '@playwright/test';
 import { requestMagicLink, readMagicLinkUrl } from './auth';
 import { ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './ownership';
@@ -24,17 +25,23 @@ import { ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './
  */
 export async function signInSeededUser(page: Page): Promise<{ email: string }> {
   const setup = test.info().project.name === 'setup';
-  if (setup) {
-    const client = ownershipTestClient();
-    try {
-      await ensureSuiteBuilder(client);
-    } finally {
-      await client.$disconnect();
-    }
-  }
   const email = setup
     ? SUITE_BUILDER_EMAIL
     : `a3-seed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.test`;
+  const client = ownershipTestClient();
+  try {
+    if (setup) {
+      await ensureSuiteBuilder(client);
+    } else {
+      // Seed before verification redirects to the library, so its initial
+      // creation flow sees this fixture's persisted builder name.
+      await client.user.create({ data: {
+        id: randomUUID(), email, name: 'E2E Session Builder', displayName: 'E2E Session Builder',
+      } });
+    }
+  } finally {
+    await client.$disconnect();
+  }
   await requestMagicLink(page, email);
   // Visiting the verify URL sets a real session cookie on this context.
   await page.goto(await readMagicLinkUrl(email));

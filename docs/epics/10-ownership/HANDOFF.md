@@ -1,6 +1,96 @@
 # Ownership — Handoff
 
-## Read first
+## Read first — O2 display names
+
+1. `AGENTS.md`, then this O2 current-state/next-action section for preservation
+   rules and the active boundary. O1 is complete; never replay its migration.
+2. `docs/epics/10-ownership/EPIC.md` Decisions/Non-goals and
+   `stories/10-O2-display-names.md` for the user-confirmed O2 UX and scope.
+3. O2 acceptance: `src/app/puzzles/actions.display-name.test.ts` and
+   `e2e/display-name.spec.ts`, frozen before implementation; helper
+   `e2e/helpers/display-name.ts` is editable test plumbing.
+4. Relevant runtime: `src/app/puzzles/NewPuzzleButton.tsx`,
+   `src/components/puzzle/NewPuzzleDialog.tsx`, `src/app/puzzles/page.tsx`,
+   `src/app/puzzles/actions.ts`, and existing `User.displayName` in
+   `prisma/schema.prisma`. No O2 schema migration is needed.
+5. For verification/delivery, `docs/DEVELOPMENT.md`, `docs/LEARNINGS.md`,
+   `docs/CODE-REVIEW.md`, and `docs/process/REVIEW.md`.
+
+## Current state — O2 independently verified; PR/review pending (2026-10-17)
+
+The user authorized O2 through specification/freeze, implementation, independent
+verification, ordinary E2E, PR, and independent final review/merge. Starting
+checkout was clean `main` at `c7ea9bb` (also `origin/main`). User confirmed the
+four proposed UX decisions: all idle dismissals cancel without a write/puzzle;
+separate first name step saves immediately before title/size; trimmed names
+of 1–80 Unicode code points, allowing duplicate names; name prerequisite in
+the UI while preserving raw `createPuzzle`'s frozen contract. See O2 story
+for pending/failure/concurrent-save details.
+
+Story/epic and new acceptance were independently drafted and reviewed together
+by root and the prepared implementation agent before any runtime edits. The
+verification agent authored the new tests and guarded fresh-user plumbing.
+Root committed the specification-only freeze on main as **`bf65285`**, then
+created **`story/10-O2-display-names`**. The separate implementation agent
+finished the scoped runtime and named legacy fixtures. New actions read/write
+only the session user; conditional capture preserves a concurrent winner.
+The raw creation action and all prior acceptance contracts remain unchanged. All 69 existing acceptance files still match their
+recorded hashes at `/private/tmp/crossward-o2-preexisting-acceptance-sha256.json`.
+
+Pre-implementation `npm test -- src/app/puzzles/actions.display-name.test.ts`
+exited 1: all 20 new cases fail because the two new actions do not exist.
+`npx tsc --noEmit` reports only their two missing exports. New-file ESLint
+exited 0; its two unused-variable warnings were corrected before freeze.
+No runtime, database, inbox, production, or migration operation occurred
+during specification. After implementation, independent `npm run verify`
+passed: **27 files / 351 tests**, TypeScript/lint exit 0; only the existing
+request-logger warning. Focused implementer checks passed 34/34. Independent ordinary `npm run test:e2e` passed **318/318 in 1.7 minutes**,
+including all eight O2 cases, with four workers and a fresh production build.
+Both full gates passed on their first complete run with no verification fixes.
+Preparation used the validated isolated test database, reported no pending
+migrations, and ran only its authorized test reset. All 69 pre-existing
+acceptance files and both new O2 tests remain byte-identical to the baseline.
+
+Independent evidence: `/private/tmp/crossward-o2-independent-verification.md`
+and `/private/tmp/crossward-o2-independent-runtime-sha256.json`. The latter
+binds **198 runtime/config/helper/test/asset files**, including new runtime
+files, on `bf65285` plus the tested worktree. Documentation is excluded so
+delivery evidence can be recorded; the final reviewer must match all hashes
+to the committed PR head. Concurrent capture is covered by a write-time
+conditional unit store; no real two-tab DB race was added. Hosted deployment
+and real mailbox sign-in have not been repeated for O2.
+
+Implementation is complete and verified locally; root is preparing the
+implementation commit/PR. Independent final review, configured CI, merge,
+and production deployment status remain pending.
+
+Preserve existing puzzle/account data and inbox messages; only normal isolated
+E2E resets are authorized. Do not inspect/edit `.env*` files. No production
+schema/data operation, O1 migration replay, O3, invitations, Play, or hydration
+investigation. Ownership remains open, and no epic closeout audit is due yet.
+
+## Next action — O2 PR and independent final review/merge
+
+Commit/push the verified `story/10-O2-display-names` implementation and open its
+PR. A third agent independent of specification-test authoring/verification and
+implementation must review the final head, match the 198-file verified tree,
+confirm frozen tests and configured CI, and perform the normal merge if clear.
+Record merge/deployment status separately. O3 and Ownership closeout remain
+outside this task; do not begin them.
+
+Copyable resume prompt:
+
+> Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
+> Continue O2 only from its recorded checkpoint. Preserve all frozen tests,
+> existing puzzle/account data and inbox messages; avoid .env* files. Only
+> isolated E2E resets are authorized. Do not replay O1 or begin O3/invitations/
+> Play/hydration. Complete the current O2 verification and delivery gates.
+
+---
+
+## O1 completed release record
+
+### O1 historical Read first
 
 1. `AGENTS.md` — repository and preservation rules.
 2. This handoff's Current state, O1 production release, and Next action —
@@ -215,7 +305,7 @@ content, or committed production identity/IDs. No `.env*` file was inspected or
 edited. Development inbox messages were not accessed or changed. The short
 schema/code creation pause ended once O1 reached the production alias.
 
-## Next action — O1 complete; await the next authorized task
+## Historical O1 next action — superseded by authorized O2 above
 
 No O1 implementation, migration, PR merge, or rollout remains pending. Do not
 replay the operation merely because its temporary evidence exists. If the user

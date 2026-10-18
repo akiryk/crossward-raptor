@@ -24,6 +24,7 @@ export function Modal({
   footer,
   children,
   testId,
+  dismissalDisabled = false,
 }: {
   open: boolean;
   title: string;
@@ -31,6 +32,7 @@ export function Modal({
   footer?: ReactNode;
   children: ReactNode;
   testId?: string;
+  dismissalDisabled?: boolean;
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ export function Modal({
     if (!open) return;
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        onClose();
+        if (!dismissalDisabled) onClose();
         return;
       }
       if (event.key !== 'Tab') return;
@@ -87,7 +89,7 @@ export function Modal({
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, dismissalDisabled]);
 
   // Initial focus: a child opts in with data-modal-initial-focus on an
   // ancestor of its intended target; otherwise focus the panel itself so
@@ -136,7 +138,7 @@ export function Modal({
     <div data-testid="modal" className="fixed inset-0 z-50">
       <div
         data-testid="modal-backdrop"
-        onClick={onClose}
+        onClick={() => { if (!dismissalDisabled) onClose(); }}
         className="absolute inset-0 bg-foreground/50"
       />
       <div className="pointer-events-none relative flex h-full items-center justify-center p-4">
@@ -154,6 +156,7 @@ export function Modal({
             data-testid="modal-close"
             aria-label="Close"
             onClick={onClose}
+            disabled={dismissalDisabled}
             className="absolute top-3 right-3 cursor-pointer text-ink-2 hover:text-foreground"
           >
             ✕

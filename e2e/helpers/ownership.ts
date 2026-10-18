@@ -22,10 +22,11 @@ export async function ensureSuiteBuilder(client: PrismaClient): Promise<string> 
       id: 'crossward-e2e-suite-builder',
       email: SUITE_BUILDER_EMAIL,
       name: 'E2E Suite Builder',
+      displayName: 'E2E Suite Builder',
     },
     // A nonempty, identity-preserving update keeps this a native ON CONFLICT
     // upsert when public fixture creation and auth setup run concurrently.
-    update: { email: SUITE_BUILDER_EMAIL },
+    update: { email: SUITE_BUILDER_EMAIL, displayName: 'E2E Suite Builder' },
   });
   return user.id;
 }
