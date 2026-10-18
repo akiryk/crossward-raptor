@@ -4,6 +4,8 @@
 
 1. `AGENTS.md`, then this current-state/closeout/next-action section: all
    Ownership work is delivered. Preserve data/tests; never replay migrations.
+   For the next task, follow `docs/epics/11-play/HANDOFF.md` and its Read first
+   list; the remaining Ownership references below support release review.
 2. `docs/epics/10-ownership/EPIC.md` Decisions/Non-goals and
    `stories/10-O3-builder-edits.md`: trusted builder write predicates,
    owner-only editor loading, unfiltered library, and ownership labels.
@@ -107,7 +109,8 @@ without leaking identity across tests or weakening runtime guards.
 Preserve all existing puzzle/account data and inbox messages; only ordinary
 isolated E2E resets and synthetic test fixtures are authorized. Do not inspect
 or edit `.env*` files. No schema/data operation in production, O1 replay,
-invitations, Play, or hydration investigation is authorized.
+invitations, Play implementation, or hydration investigation was part of O3.
+The next-session task below is Play P1 specification.
 
 ## Independent Ownership closeout — complete (2026-10-18)
 
@@ -128,7 +131,8 @@ final documentation-only record:
 - `docs/DEVELOPMENT.md` now explains explicit builder → same-test validated
   fixture builder → shared suite fallback precedence and attempt isolation.
 - This handoff replaces the pre-merge next action with actual review, merge,
-  rollout, closeout, and awaiting-task state.
+  rollout, and closeout. The subsequent handoff revision names P1 specification
+  as the next starting task.
 
 Earlier epic drift (present-tense pre-O1 ownership claims and the inaccurate
 published-lock summary) was corrected before merge. Optional trim candidates
@@ -149,22 +153,37 @@ development/production data were not accessed; inbox messages were preserved.
 Historical O1/O2 results remain
 their recorded checkpoints, not newly repeated checks.
 
-## Next action — Ownership complete; await another authorized task
+## Next action — specify Play P1: A play route
 
 No implementation, verification, review, merge, rollout, or closeout remains
-pending for Ownership. Await the user's next task. Play P1 is the next planned
-product story but remains unspecified and unauthorized; when requested, start
-with `docs/epics/11-play/HANDOFF.md`. Do not start Play, invitations, hydration,
-or any migration/data replay merely because Ownership is closed.
+pending for Ownership. Start the next session with
+`docs/epics/11-play/HANDOFF.md`, following Read first, and specify **P1 — A play
+route** from the actual repository:
+
+1. Inspect `PuzzleGrid`, engine grid/cursor functions, Prisma schema, and
+   current puzzle read/auth paths. Account for O3's owner-only editor loader;
+   playing another builder's published puzzle needs its own scoped read path.
+2. Resolve the route/access contract, when opening creates a `PlaySession`,
+   and how fixed puzzle geometry/numbering stays separate from player entries.
+   Bring substantive unresolved product decisions to the user.
+3. Draft the P1 story and acceptance tests, review them together, and freeze
+   the specification before runtime implementation. Keep P1's read-only scope
+   distinct from P2 typing/resuming and later completion/reset/library work.
+
+This next task is specification work. Preserve existing data and acceptance;
+no migration application, production operation, invitations, or hydration
+investigation follows from preparing the P1 specification.
 
 Resume prompt:
 
-> Read AGENTS.md and docs/epics/10-ownership/HANDOFF.md, following Read first.
-> Ownership is closed: O1/O2/O3 delivered. O3 baseline db36fa0, implementation
-> 2d89ca3, independent verify 402 tests/E2E 325/325, PR #19 merged as a6a012e,
-> production Ready, independent closeout complete with doc findings resolved.
-> Preserve tests/data/inbox; avoid .env*. Never replay migrations or start
-> Play/invitations/hydration without authorization. Await my next task.
+> Read AGENTS.md, the current-state section of docs/epics/10-ownership/HANDOFF.md,
+> and docs/epics/11-play/HANDOFF.md, following its Read first list. Ownership is
+> closed. Begin specifying P1 — A play route: inspect the current renderer,
+> engine, schema, and puzzle read/auth paths; resolve route access, session
+> creation timing, and fixed numbering versus player entries. Draft the P1
+> story and acceptance tests, review and freeze them before implementation.
+> Raise substantive product decisions with me. Preserve existing data/tests
+> and inbox messages; avoid .env* files and migration replay.
 
 ---
 
