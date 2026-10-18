@@ -270,11 +270,14 @@ test.describe('P1 — a play route', () => {
     });
     const htmlBodies: Array<Promise<string>> = [];
     const actionBodies: Array<Promise<string>> = [];
-    page.on('response', (response) => {
-      if (new URL(response.url()).pathname !== `/puzzles/${fixture.id}/play`) return;
-      const request = response.request();
+    // Chromium can discard fully read no-store fetch bodies from DevTools
+    // (issue 568852319). Inspect the original server payload before forwarding.
+    await page.route(`**/puzzles/${fixture.id}/play`, async (route) => {
+      const response = await route.fetch();
+      const request = route.request();
       if (request.method() === 'GET' && request.resourceType() === 'document') htmlBodies.push(response.text());
       if (request.headers()['next-action']) actionBodies.push(response.text());
+      await route.fulfill({ response });
     });
 
     await openPlay(page, fixture.id);

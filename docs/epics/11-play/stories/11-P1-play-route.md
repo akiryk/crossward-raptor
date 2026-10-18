@@ -15,6 +15,13 @@ authentication/creation finished. This changes only assertion ordering, with
 no product or assertion scope change; independently review and refreeze this
 specification-only correction before continuing implementation verification.
 
+A second acceptance correction was authorized on 2026-10-18: the redaction
+browser case captures original server bodies through `route.fetch()` before
+forwarding those responses to the page. Chromium issue 568852319 can otherwise
+discard fully consumed no-store action bodies from DevTools. All body-count,
+answer-redaction and client assertions remain unchanged. Independently review
+and refreeze this capture-only correction before resuming the delivery gate.
+
 ## Decisions
 
 Inspected on 2026-10-18: `PuzzleGrid` and its cell/appearance helpers;
@@ -217,6 +224,12 @@ Expected implementation paths:
 - `prisma/schema.prisma` and one additive `prisma/migrations/**/migration.sql`.
 - `src/app/puzzles/actions.ts` — scoped play read/start exports and view type.
 - `src/app/puzzles/[id]/play/page.tsx` — new authenticated server route.
+- `src/middleware.ts` — normalize the router-prefetch hint only on non-RSC
+  HTML GET requests to the play route. Next 16 otherwise skips the page subtree
+  and stalls this response; preserve real RSC prefetch and existing auth guards.
+- `next.config.ts` — enable `skipProxyUrlNormalize` so middleware receives
+  the actual flight headers and can forward that scoped correction. Without
+  it Next strips those headers before middleware and restores them afterward.
 - `src/components/play/**` — new play view/mount lifecycle/static clues.
 - `src/components/grid/PuzzleGrid.tsx`, `src/lib/cell-appearance.ts` — shared
   play rendering mode; existing modes retain their contracts.
