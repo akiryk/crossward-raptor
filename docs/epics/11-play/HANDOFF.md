@@ -20,74 +20,179 @@ handoff is prerequisite history, not work to replay.
 
 ## Current state (2026-10-18)
 
-**P1 specification is independently reviewed and frozen by the specification-only
-commit containing this revision. Runtime implementation has not started.**
-Starting checkout was clean `main` at `f446509702e77d1b3b2b7024c514e6de0915e50c`.
-This task authorized inspection, product decisions, drafting/review and freeze.
-No runtime, engine, auth, schema, migration, existing acceptance or environment
-file changed. No database, inbox, deployment or production operation occurred.
+**P1 is implemented and locally verified. Runtime commit, PR review and merge
+remain pending at this writing.** Branch:
+`story/11-P1-play-route`, based on corrected frozen specification commit
+`6520aaf` on main. The starting checkout was clean. Working-tree changes all
+belong to P1; no unrelated changes were present. P2 is not authorized.
 
-The baseline contains the story, epic Decisions, this handoff, **25 unit cases**,
-**18 browser cases**, and editable browser fixture plumbing. Identify its commit
-with `git log -1 -- src/app/puzzles/actions.play-route.test.ts`. The two named
-acceptance files are immutable from that commit forward.
+The user authorized implementation, then explicitly authorized the minimal
+frozen-test await-order correction and isolated test-database resets. The
+unit correction passed independent review and was refrozen in specification-only
+commit `936422c`. The later user-authorized browser capture-only correction
+passed separate independent review and was refrozen on main in `6520aaf`.
+All acceptance is immutable from that corrected baseline onward.
 
-The user confirmed all three proposed product choices: browser opening counts
-as started even if empty (GET/prefetch does not); static numbered Across/Down
-clues belong in P1; puzzle deletion cascades to sessions. The story resolves
-route/auth/access, per-player creation, fixed numbering and answer redaction.
-No product decision remains open for this slice. Unpublish/edit/republish
-lifecycle remains explicitly deferred by the epic.
+Runtime adds the additive `PlaySession` migration, authenticated passive loader
+and conflict-safe start, play route/client lifecycle, static numbered clues,
+and fixed-geometry play rendering. Separate implementation and verification
+agents worked on this story; a third reviewer has found no static blockers,
+including in the additional declared prefetch paths. Final PR/head review and
+its verification/CI gates are still required.
 
-Separate agents inspected renderer/engine and persistence/auth, then authored
-new acceptance. A third independent agent statically reviewed the story,
-epic and acceptance/helper: **no blocking findings remain**. Before freeze,
-review strengthened real database duplicate-pair rejection, HTML/Server Action
-answer redaction, visible headings, black-cell paint, both cascade relations
-and database-error propagation. Review did not run browsers or change files.
+The migration was applied **only to the validated isolated test database** by
+the authorized E2E harness. The synthetic migration proof preserves all
+original seeded puzzle/auth columns and timestamps, verifies no backfill,
+required identity/entries, defaults, pair uniqueness, foreign keys and both
+cascades, retaining an unrelated puzzle/session. No historical migrations
+were replayed for that proof. No development or production migration,
+production data, inbox operation or environment-file inspection/edit occurred.
 
-## Verification at the pre-implementation baseline
+## Verification at the final runtime checkpoint
 
-- `npm test -- src/app/puzzles/actions.play-route.test.ts`: exit 1,
-  **25/25 expected failures**, all missing `loadPlayPuzzle`/`startPlaySession`.
-- `npx tsc --noEmit`: exit 2, exactly two expected TS2339 missing-export
-  errors in the new unit file at line 32; no unrelated errors.
-- `npx eslint src/app/puzzles/actions.play-route.test.ts e2e/play-route.spec.ts e2e/helpers/play-route.ts`:
-  exit 0.
-- `npx playwright test e2e/play-route.spec.ts --list`: exit 0, **18 P1 cases
-  plus setup**; listing executed no setup/browser/server/database work.
-- `git diff --check`: exit 0. All **71** existing acceptance files match
-  `/private/tmp/crossward-p1-preexisting-acceptance-sha256.json`.
-- Full `npm run verify`, browser execution and migration proofs: **not run**.
-  The new baseline is intentionally red, including its missing-export type
-  errors. P1 is specified, not implemented or runtime-verified.
-
-Ordinary E2E wipes the isolated test database. Obtain explicit authorization
-for that deletion if not granted for implementation. No reset was authorized
-or attempted during this specification task.
+- `npm run verify`: **exit 0**, **427/427 tests**, 29 files; TypeScript and
+  lint pass. One pre-existing unused-variable warning remains in
+  `request-logger/render.ts:802`, no lint errors.
+- Ordinary `npm run test:e2e`: **exit 0**, **343/343 pass** (1.3 minutes),
+  including all 18 P1 browser cases, existing auth/ownership and builder cases.
+  The final run includes the independently reviewed fixture race repair.
+- `npm run test:e2e -- e2e/play-route.spec.ts --grep "answer strings" --repeat-each=5`:
+  **exit 0**, five consecutive exact frozen redaction cases plus setup pass.
+- `npm run test:e2e -- e2e/play-route.spec.ts --grep "HTTP GET and prefetch" --repeat-each=5`:
+  **exit 0**, five consecutive prefetch cases plus setup pass.
+- `node scripts/check-play-migration.mjs`: **exit 0**, all three preservation,
+  constraint/default and cascade proof groups pass on synthetic schemas only.
+- Temporary browser checkpoint driver
+  `node /private/tmp/crossward-p1-checkpoint.mjs`: **exit 0**. A deliberately
+  aborted start showed the visible error and Retry without creating a session;
+  Retry reached ready with one session. Cell clicks, letter typing,
+  Backspace/Delete and all arrows left rendered grid, stored entries, session
+  timestamps and puzzle fields unchanged. This is a P1 checkpoint, not a
+  permanent assertion forbidding later P2 input. Both error/ready screenshots
+  were visually inspected at `/private/tmp/crossward-p1-{error,ready}.png`.
+- Temporary header probe: plain HTML, Purpose-only HTML, router-hint-only
+  HTML and both hints all complete, while real RSC prefetch remains RSC.
+  All return 200 and create no session. Corrected both-hint HTML completed
+  in 10 ms versus a repeatable 3-second aborted probe before the fix.
+- All 73 tracked acceptance files match `6520aaf`; the 71 pre-existing files
+  also match `/private/tmp/crossward-p1-preexisting-acceptance-sha256.json`.
+  Refresh this comparison immediately before delivery. `git diff --check`
+  passes. Both acceptance corrections were explicitly authorized and separately
+  refrozen; neither belongs to the runtime PR diff.
 
 ## Next action
 
-Await authorization to implement the frozen P1 story. Then follow the story
-workflow and create `story/11-P1-play-route` from main before runtime changes.
-Keep implementation, verification and final review independent as useful;
-serialize browser suites. Preserve existing and newly frozen acceptance.
+Commit the verified scoped P1 implementation and handoff, open its PR, and
+complete independent review of that exact PR/head with required verification
+and configured CI before normal merge. Record the actual PR and merge result
+here afterward. All local gates are green; no product decision or permission
+remains unresolved for P1 delivery.
 
-Manually demonstrate P1-only input inactivity and start-failure/retry at its
-implementation checkpoint. Frozen tests avoid permanently forbidding P2 typing
-or P3/P4 completion/reset UI. Verify uniqueness/cascades against actual
-PostgreSQL. The additive migration must preserve existing rows/timestamps;
-live application requires a separate reviewed, authorized operation.
+Production migration application is a separate reviewed, explicitly authorized
+operation. No development/production schema application is part of this
+delivery. P2 has no frozen story in this task and is not authorized; do not
+begin it automatically.
 
 Resume prompt:
 
-> Read AGENTS.md and docs/epics/11-play/HANDOFF.md, following Read first. P1's
-> story and 25 unit/18 browser cases are reviewed and frozen; runtime is
-> unchanged and the baseline is intentionally red for missing action exports.
-> Implement docs/epics/11-play/stories/11-P1-play-route.md only when authorized.
-> Preserve frozen tests and existing data. Do not replay old migrations,
-> inspect .env files, or operate on production/inbox data. Obtain explicit
-> isolated test-reset authorization before ordinary E2E if needed.
+> Read AGENTS.md and docs/epics/11-play/HANDOFF.md, following Read first.
+> P1 runtime is on story/11-P1-play-route with frozen corrected acceptance at
+> 6520aaf. Both user-approved acceptance corrections have been independently
+> reviewed and refrozen, and local verification/browser gates pass. Inspect
+> git/PR state and finish outstanding independent review/merge only. Isolated local test resets are
+> authorized; no live migration, inbox, environment-file edits, production
+> operation or P2 implementation is authorized.
+
+## Implementation findings and resolved blockers
+
+The original isolation assertion at unit line 342 constructed its expected
+session before asynchronous authentication/creation finished. The user
+approved the two-statement await-order correction; an independent agent
+confirmed unchanged assertion and product scope before refreeze in `936422c`.
+The earlier **426 pass / 1 fail** verification result is historical, superseded
+by the successful gate above.
+
+The first browser run found missing literal whitespace between clue spans;
+that markup is corrected. It also found header-only HTML prefetch stalled.
+A focused retained trace and header-variant probe reproduced the latter:
+Next 16 reads the router-prefetch hint independently of RSC and omits the
+page subtree, leaving the HTML response pending. Next's middleware adapter
+normally strips Flight headers before invoking middleware and restores them
+afterward, so header normalization alone was ineffective.
+
+The declared `next.config.ts` flag `skipProxyUrlNormalize: true` exposes the
+actual headers. The declared `src/middleware.ts` handler, after the unchanged
+cookie guard, drops only the router-prefetch hint for HTML GETs to the play
+route with no RSC header. It preserves real RSC prefetch and existing trusted
+loader/start authentication. The app has no Pages Router data routes,
+basePath or locales affected by the flag; full auth/ownership E2E remains
+part of the gate. No auth redesign or timeout relaxation was introduced.
+
+The initial full browser run had **329 pass / 14 fail** (the two P1 issues
+and 12 existing library/auth navigation timeouts). After the clue correction,
+a traced P1 run had **18 pass / 1 fail**, isolating header-only prefetch. A
+later ordinary full run had **342 pass / 1 fail**, with all prior library/auth
+navigation cases passing and only prefetch still blocked. The latest run above
+includes the supported flag and resolves prefetch. An initial
+verify/E2E overlap also hit an ESLint directory-scan race while E2E recreated
+`test-results`; the successful verify was rerun with preparation serialized.
+
+### Chromium response-capture blocker
+
+Primary upstream evidence: Chromium issue
+https://issues.chromium.org/issues/568852319 and merged change
+https://chromium-review.googlesource.com/c/chromium/src/+/8508456 describe
+fully read no-store fetch bodies reported to DevTools as canceled. Its fix
+landed in Chromium 157.0.8090.0; the installed Playwright 1.62.1 browser is
+151.0.7922.34. Independent read-only research confirmed even stable Playwright
+1.64.1 and its current prerelease bundle Chromium 156 without the fix; no
+dependency update or permanent machine-specific Chrome channel was made.
+
+Temporary probes reached ready/persisted sessions while CDP body reads failed
+in all 12 direct visits; a separate Chrome 155 probe reproduced it. Native
+response-clone reads completed, and uncompressed responses still sometimes
+failed in CDP, ruling out a justified compression/runtime workaround.
+
+Before application, the proposed upstream-body capture passed **12/12 browser visits**, asserting
+nonempty original HTML and action bodies, absence of a unique solution sentinel
+in both bodies and client HTML, and successful ready state. One of those
+visits still failed the parallel diagnostic CDP read, demonstrating why the
+upstream capture is needed. These temporary probes changed no acceptance or
+application files. A third reviewer approved the precise capture proposal;
+the user then explicitly authorized it. The actual frozen-test diff passed
+independent review and was committed separately on main in `6520aaf`.
+All original assertions remain unchanged.
+
+The subsequent full gate passed every P1 case but exposed a shared-user
+fixture race: an upsert targeting email could lose on the fixed primary key
+when several public tests first seeded together. The declared editable
+`e2e/helpers/ownership.ts` fix uses `createMany(skipDuplicates)` then the
+original update-by-email, preserving fields and identity. Independent review
+found no blockers; no frozen acceptance changed for this fixture repair. The subsequent ordinary full run passed all 343 cases.
+
+## Specification history
+
+The P1 specification and **25 unit/18 browser cases** were independently
+reviewed and frozen in `b6f357a`. Before implementation, all 25 unit cases
+failed for the missing action exports and TypeScript had exactly two expected
+missing-export errors. Existing **71** acceptance files matched
+`/private/tmp/crossward-p1-preexisting-acceptance-sha256.json`. Browser listing
+succeeded without executing setup, server or database work. No reset was
+authorized or performed during specification.
+
+The user confirmed browser opening counts as started even if empty (GET and
+prefetch do not), static numbered Across/Down clues belong in P1, and puzzle
+deletion cascades to sessions. Route/auth/access, player isolation, numbering
+and answer redaction are frozen in the story. Unpublish/edit/republish lifecycle
+remains explicitly deferred. Ownership is closed and is prerequisite history,
+not work to replay.
+
+Separate agents inspected renderer/engine and persistence/auth, then authored
+acceptance. A third agent statically reviewed the specification and acceptance
+before freeze, with no blockers reported then. That review strengthened actual
+database uniqueness, response redaction, visible headings, black-cell paint,
+both cascade relations and database-error propagation. The await-order defect
+above was discovered only when implementation made runtime execution possible.
 
 ## Inspection history
 

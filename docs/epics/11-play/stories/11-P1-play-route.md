@@ -4,8 +4,9 @@ Give a signed-in player a read-only view of a published puzzle, with their own
 entries and numbered clues. Actually opening the screen starts their session;
 loading or prefetching its server response does not.
 
-**Status:** independently reviewed; frozen with the acceptance baseline in
-the specification-only commit containing this revision. Implementation pending.
+**Status:** implemented and locally verified; independent PR review/merge
+pending. Acceptance is frozen at `6520aaf` after the user-authorized corrections
+below (original specification baseline `b6f357a`).
 **Blast radius: high:** Prisma schema/migration and puzzle Server Actions.
 
 Acceptance correction authorized on 2026-10-18: the isolation unit case now
@@ -235,6 +236,9 @@ Expected implementation paths:
   play rendering mode; existing modes retain their contracts.
 - `e2e/helpers/play-route.ts` — **editable fixture plumbing**, supplied with
   acceptance; validates the isolated test target. It is not frozen acceptance.
+- `e2e/helpers/ownership.ts` — make shared suite-user creation conflict-safe
+  across both unique ID and email constraints; an observed parallel fixture
+  race blocks the full browser gate. Preserve fixture identity and fields.
 - `scripts/reset-test-db.mjs` — only if the additive relations require fixture
   cleanup changes; cascade should preserve the current puzzle-first order.
 - `scripts/check-play-migration.mjs` — isolated synthetic-schema proof of the

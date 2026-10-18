@@ -14,6 +14,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
+  // Next 16 skips the page subtree for router prefetches even on HTML
+  // requests, leaving its HTML stream waiting on the omitted children.
+  // Render these HTML reads normally; real RSC prefetches keep their hint.
+  if (
+    request.method === 'GET' &&
+    /^\/puzzles\/[^/]+\/play\/?$/.test(pathname) &&
+    request.headers.get('next-router-prefetch') === '1' &&
+    !request.headers.has('rsc')
+  ) {
+    const headers = new Headers(request.headers);
+    headers.delete('next-router-prefetch');
+    return NextResponse.next({ request: { headers } });
+  }
+
   return NextResponse.next();
 }
 
