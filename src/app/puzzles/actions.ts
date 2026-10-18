@@ -133,38 +133,37 @@ export async function listPuzzles(): Promise<
   });
 }
 
-/** Defense in depth for a path the UI shouldn't allow (PB4): the
- *  published-not-null check lives in the same update's WHERE clause as the
- *  write, not a separate check beforehand, so it can't race a concurrent
- *  publish. The UI is what actually prevents this in normal use. */
+/** Ownership and the published lock are checked by the write itself, so
+ *  neither can change between a preliminary read and this mutation. */
 async function updateUnlessPublished(
   id: string,
+  builderId: string,
   action: string,
   data: Prisma.PuzzleUpdateManyMutationInput
 ): Promise<void> {
-  const { count } = await prisma.puzzle.updateMany({ where: { id, publishedAt: null }, data });
+  const { count } = await prisma.puzzle.updateMany({ where: { id, builderId, publishedAt: null }, data });
   if (count === 0) {
-    throw new Error(`${action}: puzzle ${id} is published and cannot be edited`);
+    throw new Error(`${action}: puzzle ${id} cannot be edited`);
   }
 }
 
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
-  await requireSession();
-  await updateUnlessPublished(id, 'saveGrid', {
+  const session = await requireSession();
+  await updateUnlessPublished(id, session.user.id, 'saveGrid', {
     grid: grid as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
-  await requireSession();
-  await updateUnlessPublished(id, 'saveHints', {
+  const session = await requireSession();
+  await updateUnlessPublished(id, session.user.id, 'saveHints', {
     hints: hints as unknown as Prisma.InputJsonValue,
   });
 }
 
 export async function saveTitle(id: string, title: string): Promise<void> {
-  await requireSession();
-  await updateUnlessPublished(id, 'saveTitle', { title: normalizeTitle(title) });
+  const session = await requireSession();
+  await updateUnlessPublished(id, session.user.id, 'saveTitle', { title: normalizeTitle(title) });
 }
 
 /** Loads the puzzle, transitions it to 'hints' phase via the engine's
@@ -174,7 +173,7 @@ export async function saveTitle(id: string, title: string): Promise<void> {
 export async function enterHints(
   id: string
 ): Promise<{ phase: Phase; hints: Record<string, string>; grid: SerializedGrid }> {
-  await requireSession();
+  const session = await requireSession();
   const puzzle = await loadPuzzle(id);
   if (!puzzle) {
     throw new Error(`enterHints: puzzle ${id} not found`);
@@ -183,20 +182,17 @@ export async function enterHints(
   const updated = enterHintsPhase(puzzle);
   const stored = serializePuzzle(updated);
 
-  await prisma.puzzle.update({
-    where: { id },
-    data: {
-      grid: stored.grid as unknown as Prisma.InputJsonValue,
-      hints: stored.hints as unknown as Prisma.InputJsonValue,
-      phase: stored.phase,
-      // Only written on the actual grid->hints crossing (Story H2) -- a
-      // second call on an already-hints puzzle (enterHintsPhase is a
-      // no-op then) must not overwrite the one snapshot of the original,
-      // pre-conversion grid with the already-converted one.
-      ...(puzzle.phase === 'grid'
-        ? { gridBeforeHints: serializeGrid(puzzle.grid) as unknown as Prisma.InputJsonValue }
-        : {}),
-    },
+  await updateUnlessPublished(id, session.user.id, 'enterHints', {
+    grid: stored.grid as unknown as Prisma.InputJsonValue,
+    hints: stored.hints as unknown as Prisma.InputJsonValue,
+    phase: stored.phase,
+    // Only written on the actual grid->hints crossing (Story H2) -- a
+    // second call on an already-hints puzzle (enterHintsPhase is a
+    // no-op then) must not overwrite the one snapshot of the original,
+    // pre-conversion grid with the already-converted one.
+    ...(puzzle.phase === 'grid'
+      ? { gridBeforeHints: serializeGrid(puzzle.grid) as unknown as Prisma.InputJsonValue }
+      : {}),
   });
 
   return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
@@ -211,14 +207,14 @@ export async function publishPuzzle(
   id: string,
   visibility: Visibility
 ): Promise<{ publishedAt: Date; visibility: Visibility }> {
-  await requireSession();
+  const session = await requireSession();
   if (visibility !== 'private' && visibility !== 'public') {
     throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
   }
 
   const publishedAt = new Date();
   const { count } = await prisma.puzzle.updateMany({
-    where: { id, phase: 'hints', publishedAt: null },
+    where: { id, builderId: session.user.id, phase: 'hints', publishedAt: null },
     data: { publishedAt, visibility },
   });
   if (count === 0) {
@@ -231,23 +227,23 @@ export async function publishPuzzle(
 /** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
  *  for if it's published again. */
 export async function unpublishPuzzle(id: string): Promise<void> {
-  await requireSession();
+  const session = await requireSession();
   await prisma.puzzle.update({
-    where: { id },
+    where: { id, builderId: session.user.id },
     data: { publishedAt: null },
   });
 }
 
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
-  await requireSession();
-  await prisma.puzzle.delete({ where: { id } });
+  const session = await requireSession();
+  await prisma.puzzle.delete({ where: { id, builderId: session.user.id } });
   revalidatePath('/puzzles');
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
-  await requireSession();
-  const record = await prisma.puzzle.findUnique({ where: { id } });
+  const session = await requireSession();
+  const record = await prisma.puzzle.findUnique({ where: { id, builderId: session.user.id } });
   if (!record) return null;
 
   const puzzle = deserializePuzzle({

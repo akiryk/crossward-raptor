@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 import type { Puzzle } from '../../src/engine/puzzle';
 import { serializePuzzle } from '../../src/lib/puzzle-storage';
 import { ensureSuiteBuilder, ownershipTestClient } from './ownership';
+import { currentFixtureBuilderId } from './fixture-builder';
 
 /**
  * Writes a puzzle directly to the local Postgres test database (Story L1),
@@ -24,7 +25,7 @@ export async function seedPuzzle(
 
   const client = ownershipTestClient();
   try {
-    const owner = builderId ?? await ensureSuiteBuilder(client);
+    const owner = builderId ?? currentFixtureBuilderId() ?? await ensureSuiteBuilder(client);
     const stored = serializePuzzle(puzzle);
     const row = await client.puzzle.create({
       data: {

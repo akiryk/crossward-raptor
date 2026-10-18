@@ -2,8 +2,8 @@
 
 Epic 09 establishes who a user is. This one establishes what is theirs.
 
-Every puzzle in the database today belongs to nobody. Anyone signed in
-can edit anything. Before puzzles can be played by people who didn't
+Before this epic, puzzles had no recorded builder and anyone signed in
+could edit anything. Before puzzles can be played by people who didn't
 build them, the app has to know who built what — and the library has to
 show the difference.
 
