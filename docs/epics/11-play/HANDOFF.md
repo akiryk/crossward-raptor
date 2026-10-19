@@ -11,54 +11,110 @@
    acceptance paths, scope and manual checks.
 5. `src/app/puzzles/actions.play-route.test.ts` and `e2e/play-route.spec.ts`
    — immutable acceptance; `e2e/helpers/play-route.ts` is editable plumbing.
-6. For implementation: `src/app/puzzles/actions.ts`,
-   `src/components/grid/PuzzleGrid.tsx`, `src/lib/cell-appearance.ts`,
-   `src/engine/grid.ts`, `src/engine/numbering.ts`, `prisma/schema.prisma`,
-   and `src/lib/require-session.ts` — inspected runtime seams.
+6. `src/components/play/PlayPuzzle.tsx`,
+   `src/components/play/play-autosave.ts`, `src/lib/play-entries.ts`,
+   `src/app/puzzles/actions.ts` and `src/components/grid/PuzzleGrid.tsx`
+   — P2 runtime input, recovery, validation and rendering seams.
 
 Conditionally read `docs/process/STORY.md` and `docs/CODE-REVIEW.md` before
 implementation/delivery; `docs/DEVELOPMENT.md` before schema/E2E operations;
 `docs/LEARNINGS.md` for timing/fixture failures. Ownership is closed; its
 handoff is prerequisite history, not work to replay.
 
-## Current state (2026-10-18)
+## Current state (2026-10-19)
 
-**P2 specification and acceptance passed final independent review; runtime
-implementation has not begun at this specification-only checkpoint.**
-The user explicitly requested a new detailed story/acceptance, independent
-review/freeze on main before runtime, then implementation/verify/full E2E/PR
-and independent merge. P3 is excluded. Isolated harness-validated local test
-DB resets are authorized; development/production migrations/data deletion,
-environment-file inspection/edits and inbox operations are prohibited.
+**P2 is implemented and locally verified; runtime commit, PR and independent
+review/merge are the next delivery steps.**
 
-The original checkout was clean on main at `5f35a50` (also origin/main).
-This specification-only main baseline adds P2's detailed story and 40 unit/27
-browser acceptance cases, plus the Play epic/handoff updates. No runtime edits
-or database/environment/inbox operations occurred before freeze.
+Specification-only main baseline `29a63aa` was independently reviewed, committed
+and pushed before runtime edits. The user explicitly authorized the one-line
+locator correction on 2026-10-19; it passed independent review of the proposal
+and actual applied diff, then was committed/pushed alone on main in `4e53740`.
+A clean temporary main worktree preserved the local runtime; it was removed
+after fast-forwarding the corrected baseline into the implementation branch.
 
-The user confirmed both decisions: open/reopen unselected with no cursor,
-and retain pending edits in the same browser so immediate closing does not
-lose them, retrying the server save on return without a close warning.
-The story records session-scoped localStorage, validation, acknowledgement
-cleanup, storage-failure feedback and ordinary last-write-wins scope.
-The user explicitly authorized authoring acceptance, overriding the story
-workflow's normal supplied-tests-only assumption.
+Current branch is `story/11-P2-typing-and-resuming`, based on main/origin/main
+`4e53740`. Current uncommitted work is only P2's declared runtime/helper/docs
+paths. All 75 acceptance files match corrected baseline `4e53740`; no acceptance
+change belongs to the runtime diff. Hashes are in
+`/private/tmp/crossward-p2-refrozen-acceptance-sha256.json`.
 
-Two independent inspection agents examined merged P1 runtime/frozen acceptance
-before drafting. Separate agents authored the unit/browser acceptance, and a
-third independently reviewed the final actual files. That reviewer reported
-no blocking findings after the user decisions and recovery additions. Review
-caught premature saved waits, required painted selection/word indicators,
-moved P3-incompatible completion assertions to a manual P2 checkpoint, and
-covered stale local drafts after a newer storage write fails.
+User decisions: open/reopen unselected with no cursor, and retain pending edits
+in the same browser so immediate closing does not lose them, retrying server
+saves on return without a close warning. Input uses the existing engine; saves
+validate geometry and update only the authenticated pair's existing entries.
+Session-scoped local recovery waits for successful authenticated start, clears
+only an acknowledged matching snapshot, and reports storage/save failures.
 
-Observed pre-implementation checks: all 40 new server cases fail explicitly
-for the absent `savePlayEntries` export; TypeScript and new-file ESLint pass.
-Browser listing passes: 27 P2 cases plus setup. The independent reviewer
-repeated nonincremental TypeScript, browser listing and diff checks, all exit 0.
-Browser execution/full verify are pending implementation. All 73 prior
-acceptance hashes match `/private/tmp/crossward-p2-preexisting-acceptance-sha256.json`.
-Freeze the current reviewed acceptance unchanged and preserve that baseline.
+Separate agents implemented and verified runtime. A third independently
+reviewed specification/acceptance before freeze, the actual approved locator
+correction, and preliminarily all runtime/fixture changes with no findings.
+Final exact-PR-head review, verification, CI and normal merge remain pending.
+No P3, schema/migration, environment-file inspection/edit, inbox operation,
+development/production data change or migration was performed. Only validated
+isolated test DB resets and synthetic test fixture operations were used.
+
+### P2 final local verification
+
+- Independent `npm run verify`: exit 0, **467/467 tests in 30 files**, TypeScript
+  and lint pass. Only the pre-existing request-logger/render.ts:802 unused
+  variable warning remains. Focused P1+P2 server acceptance also passed 65/65.
+- **`npm run test:e2e -- --workers=2`: exit 0, 370/370 pass (1.2 minutes).**
+  All cases run through the normal reset/build/server harness: no filters,
+  skips, retries, timeout, source or permanent configuration changes. Includes
+  all 27 P2, 18 P1, 7 A4 and explicit concurrent-open cases. This is a two-worker
+  pass, not a default-concurrency plain pass. Independent review confirmed
+  worker count is not frozen and the cap satisfies the full-suite gate.
+- Full diagnostic `npm run test:e2e -- --trace on`: exit 0, **370/370 pass**
+  with default four workers (2.8 minutes). Traces retained at
+  `/private/tmp/crossward-p2-full-pass-traces` and sanitized A4 timings at
+  `/private/tmp/crossward-p2-full-pass-a4-trace-summary.json`.
+- Temporary `node /private/tmp/crossward-p2-checkpoint.mjs`: exit 0 following
+  narrow sandbox escalation for isolated DB access. Verified pending-successful-
+  start input read-only, then accepted click selects/focuses without blur; full
+  correct/incorrect grids remain editable without P3 dialog/timestamp; overtype
+  and Backspace persist; complete puzzle/session metadata preserved. Only its
+  two synthetic fixtures were created/cleaned; no reset/migration in the driver.
+- Four screenshots visually inspected: current-cell/word outlines preserve
+  white backgrounds; blur removes indicators; Saving/Saved status is legible.
+  Files: `/private/tmp/crossward-p2-{unfocused,focused-saving,focused-saved,
+  blurred-saved}.png`.
+- All 75 acceptance hashes match `4e53740`; `git diff --check` passes.
+
+### P2 verification history and diagnosed boundaries
+
+The first ordinary full run was **368 pass / 2 fail**: all 343 prior cases
+passed; new Retry acceptance had an unscoped alert locator, and editable
+same-browser sign-in plumbing omitted Origin. The fixture fix preserves
+forwarded-IP headers and derives trusted Origin from the isolated harness URL,
+leaving application auth/CSRF untouched. Its path was declared before editing;
+independent review found no issue. Five repeated same-browser isolation cases
+plus setup passed after that repair.
+
+The user-approved correction preserves the role/visibility assertion, scoped
+to the existing player root so Next's hidden route announcer cannot collide:
+
+```diff
+-    await expect(page.getByRole('alert')).toBeVisible();
++    await expect(page.getByTestId('play-puzzle').getByRole('alert')).toBeVisible();
+```
+
+After refreeze, plain default-worker runs had **365 pass / 5 existing A4
+navigation/auth-setup timeouts**, then **366 pass / 4 existing A6/modal wait
+timeouts**. All P2/P1 cases passed in both. No renewal assertion failed in the
+A4 run. Unchanged targeted A4 with tracing passed all 35 executions plus setup;
+the later full traced run passed all 370. No application/test/timeout workaround
+was made for these stalls.
+
+Read-only host measurements during the plain failures: 8 CPUs, 8 GB RAM,
+load averages 52–81, under 1% CPU idle, 156–169 MB unused memory, roughly 3 GB
+compressed memory and active swap-ins. These establish resource pressure,
+not a definitive cause for each timeout. Two workers reduced our test footprint
+without closing user applications or changing the test contract; every case
+then passed in 1.2 minutes. Preserve this distinction when reporting results.
+Failure contexts and sanitized diagnostic traces remain under
+`/private/tmp/crossward-p2-{refrozen-full-failures,plain-repeat-failures,
+a4-repeat-traces}`. No tokens or fixture contents were published.
 
 ### P1 completed checkpoint
 
@@ -136,23 +192,23 @@ inbox operations, or environment-file inspections/edits were performed.
 
 ## Next action
 
-Create `story/11-P2-typing-and-resuming` from the specification-only main
-baseline and implement the frozen P2 contract. Keep verification separate,
-serialize browser suites, pass `npm run verify` and full `npm run test:e2e`,
-record P2 manual/visual checks and unchanged acceptance, then update handoff,
-commit/open PR and obtain independent review/merge. Do not start P3 or operate
-on development/production/inbox/environment files.
+Commit/push the verified P2 implementation and open its PR. The independent
+reviewer must inspect the actual committed head, repeat verify and all 370 E2E
+cases (the documented two-worker resource cap is valid), check configured CI,
+and merge normally when all gates pass. Then record actual merge/delivery
+state here. P3 needs separate authorization and detailed specification/freeze;
+do not begin it as part of this task. No live migrations/env/inbox work.
 
 Resume prompt:
 
-> Resume authorized Play P2 implementation. Read AGENTS.md and this handoff
-> beginning with Read first. P1 is merged through PR #20; P2 story and 40 unit/
-> 27 browser cases passed independent review and are frozen on main before
-> runtime work. User decisions: open/reopen unselected, and same-browser local
-> pending-edit recovery without a close warning. Continue implementation and
-> verification through independent PR merge. Validated isolated local test DB
-> resets are authorized. Do not inspect/edit environment files, touch inbox,
-> migrate development/production or begin P3.
+> Resume Play P2 delivery on story/11-P2-typing-and-resuming. Read AGENTS.md and
+> this handoff's Current state/Next action. P2 is implemented and locally
+> verified:467 unit,370 full E2E with --workers=2,370 full traced, manual/visual
+> checkpoint. Acceptance is separately corrected/frozen on main at4e53740.
+> Preserve acceptance and local work. Finish commit/PR, independent exact-head
+> review/verification/CI and normal merge, then update handoff. Isolated test
+> DB resets are authorized. No P3, environment-file access, inbox or development/
+> production migrations/data changes.
 
 ## Implementation findings and resolved blockers
 

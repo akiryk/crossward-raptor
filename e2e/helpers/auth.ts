@@ -52,7 +52,12 @@ function testDbClient(): PrismaClient {
 export async function requestMagicLink(page: Page, email: string): Promise<void> {
   const res = await page.request.post('/api/auth/sign-in/magic-link', {
     data: { email, callbackURL: '/puzzles' },
-    headers: await clientHeaders(page),
+    // Request contexts omit the browser's Origin header. Use the isolated
+    // harness origin, including during setup when page.url() is about:blank.
+    headers: {
+      ...await clientHeaders(page),
+      origin: new URL(process.env.BETTER_AUTH_URL ?? 'http://localhost:3100').origin,
+    },
   });
   if (!res.ok()) {
     throw new Error(

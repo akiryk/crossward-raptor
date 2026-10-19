@@ -131,9 +131,10 @@ Authorized on 2026-10-18. The [detailed P2 story](stories/11-P2-typing-and-resum
 and 40 unit/27 browser acceptance cases passed independent specification
 review and are frozen by the specification-only main baseline.
 The user confirmed same-browser local recovery of pending edits without a
-close warning, and an unselected puzzle on opening/reopening. Runtime begins
-only after final independent specification/acceptance review and freeze; P3
-is not authorized.
+close warning, and an unselected puzzle on opening/reopening. Implementation is locally verified (467 unit cases and all 370 browser cases
+with a two-worker resource cap); independent PR review/merge is pending. The
+user-authorized locator-only correction is separately refrozen on main in
+`4e53740`. P3 is not authorized.
 
 Letters go into the entries grid; the cursor behaves as it does in the
 editor, since it is the same code. Saved debounced, as everything else

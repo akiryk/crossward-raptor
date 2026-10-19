@@ -19,6 +19,7 @@ import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 import { displayNameValidationMessage } from '@/lib/display-name';
 import { clearLetters } from '@/engine/grid';
+import { isCompatiblePlayEntries } from '@/lib/play-entries';
 
 export type Visibility = 'private' | 'public';
 
@@ -100,6 +101,26 @@ export async function startPlaySession(id: string): Promise<PlayPuzzleView> {
     select: playSessionSelect,
   });
   return playView(puzzle, session);
+}
+
+export async function savePlayEntries(id: string, entries: SerializedGrid): Promise<void> {
+  const authSession = await requireSession();
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: { grid: true },
+  });
+  if (!puzzle) throw new Error('This puzzle is not available to play.');
+  if (!isCompatiblePlayEntries(entries, puzzle.grid as unknown as SerializedGrid)) {
+    throw new Error('The entries must match the published puzzle grid.');
+  }
+
+  // The mutation independently guards publication and the authenticated pair.
+  // Saving never creates a session or changes the answer puzzle or timestamps.
+  const { count } = await prisma.playSession.updateMany({
+    where: { userId: authSession.user.id, puzzleId: id, puzzle: { publishedAt: { not: null } } },
+    data: { entries: serializeGrid(deserializeGrid(entries)) as unknown as Prisma.InputJsonValue },
+  });
+  if (count === 0) throw new Error('Your play session is not available to save.');
 }
 
 export async function getDisplayName(): Promise<string | null> {
