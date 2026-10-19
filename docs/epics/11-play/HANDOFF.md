@@ -2,73 +2,86 @@
 
 ## Read first
 
-1. This handoff's Current state and Next action; use AGENTS if not already supplied.
-2. Local P3 draft `stories/11-P3-finishing.md`, especially the pending input/failure
-   decision, Scope discipline and Definition of done. This is proposed, not frozen.
-3. For finalizing/reviewing that decision, the new candidates
-   `src/engine/play.test.ts`, `src/app/puzzles/actions.play-completion.test.ts`
-   and `e2e/play-completion.spec.ts`; [STORY](../../process/STORY.md), phases 1–2.
+1. This handoff's Current state and Next action; use AGENTS if not supplied.
+2. [Frozen P3 specification](stories/11-P3-finishing.md), particularly recovery,
+   Scope discipline and Definition of done.
+3. DEVELOPMENT's [E2E environment](../../DEVELOPMENT.md#e2e-environment) before
+   browser preparation; [REVIEW](../../process/REVIEW.md) before PR review/merge.
 
-**Only if needed:** EPIC Decisions/Non-goals; affected P2 save/input code in
-`src/components/play/{PlayPuzzle.tsx,play-autosave.ts}` and
-`src/app/puzzles/actions.ts`; frozen P1/P2 acceptance when a specific inherited
-contract matters; DEVELOPMENT's E2E environment before any browser run.
-[History](HISTORY.md) preserves prior decisions, failure analysis and gate evidence;
-do not load it for ordinary startup.
+**Only if needed:** affected play runtime and frozen P3/P2 acceptance;
+[STORY](../../process/STORY.md) for implementation or verification issues.
+[History](HISTORY.md) retains earlier P1/P2 and drafting evidence; do not load
+archived history for ordinary startup.
 
 ## Current state (2026-10-19)
 
-P2 is complete. Local git history contains PR #21's merge `a67ff61` and its
-closeout `6034299`. The workflow task started on main at `6034299`; its docs-only
-commit `d82a786` was subsequently pushed to origin/main, with this handoff
-closeout following. No remote P2/P3 PR or CI readback was needed/performed.
+P2 is complete. This session began on `main` at `075b36c`, matching local
+`origin/main`, with the existing P3 EPIC changes and four untracked drafts.
+The user authorized resuming P3, then approved its concrete specification /
+acceptance and delegated freeze, implementation and delivery through required
+PR/review gates. The separate explicit test-data deletion request remains
+unanswered; do not treat the specification approval as that grant.
 
-The user authorized starting P3, but runtime has not started. The uncommitted
-P3 draft and **28 engine / 39 server / 17 browser** acceptance candidates remain
-unfrozen and local-only in the originating checkout, excluded from workflow
-delivery. Another checkout needs those actual draft files before resuming;
-do not recreate missing acceptance. Prior independent review was conditional,
-with no blocking defects in the candidate tests but no freeze approval. The workflow-documentation task does
-not approve P3, change its tests, or authorize P4/P5.
+Independent read-only agent `p3_spec_review` reviewed the specification,
+acceptance and targeted P2 contracts. Specification-only main baseline
+**`d1570e0`**, pushed to origin/main, freezes the P3 story/EPIC and
+**28 engine / 39 server / 23 browser** cases. All 75 original acceptance files
+were preserved; all 78 files are now frozen against that baseline.
 
-Pending P3 decisions/permissions:
+Runtime is implemented on **`story/11-P3-finishing`**: root authored the pure
+engine and authenticated server guards; `p3_ui` authored initial inspection,
+serialized save/check/recovery, dialogs, locking and CSS confetti. Independent
+read-only full-code review by `p3_spec_review` has no remaining blockers after
+fixing one reconciliation edge: a noncomplete Retry must write latest entries
+even if they equal the stale previous acknowledgement. No frozen tests changed.
 
-- Full-grid pending input/failure behavior: briefly pause while saving/checking
-  (proposed), or allow typing. Review identified that correct saved entries
-  already lock on the server, so a failed subsequent inspection cannot safely
-  promise unrestricted resumed editing. The proposed distinction is resumed
-  editing on save failure, Retry verification after save success. No answer or
-  final specification approval/delegation is recorded; dependent acceptance
-  still needs completion and independent review before human approval/freeze.
-- Isolated test DB resets for P3 (`localhost:5433/crossward_test`) are **not
-  authorized**. P2's prior grant was scoped to P2. No standing grant exists.
-  No P3 reset/browser run occurred; no live migration/env/inbox work is in scope.
+The implementation is ready for a draft PR. Browser/visual gates and final-head
+independent review/merge remain pending; P3 is **not complete**. No PR/CI/merge
+success is claimed here. Read live git/PR state before relying on delivery state.
+
+**Permission boundary:** explicit authorization to delete all rows in
+`localhost:5433/crossward_test` for necessary P3 E2E harness runs remains
+pending. No browser/reset has run. No env-file access, live migration,
+development/production database, inbox, P4 or P5 work is authorized.
 
 ## Verification
 
-These are prior **draft-worktree** results, not new implementation evidence:
-TypeScript/focused lint and browser listing passed; new unit acceptance was red
-(**64 failed / 3 passed of 67**) against missing runtime. The 17 browser cases
-were listed only. No P3 `npm run verify` or browser suite has run. Exact commands
-and earlier P1/P2 evidence remain in HISTORY; no rerun is needed merely to resume.
-
-All 75 original acceptance files remain frozen. Their pre-drafting hashes are
-`/private/tmp/crossward-p3-preexisting-acceptance-sha256.json`; if unavailable,
-compare tracked tests against the frozen git baselines recorded in the stories.
+- Root: pre-freeze TypeScript, focused candidate ESLint, browser listing,
+  staged diff checks and original acceptance hash preservation passed; focused
+  runtime engine/P3-server/P2-server run passed all 107 tests.
+- Separate `p3_verification` agent: final **`npm run verify` exit 0**, 32 files /
+  **534 tests**, TypeScript clean; lint has only the existing
+  `request-logger/render.ts:802` unused `reqJson` warning. This run follows the
+  final autosave recovery fix.
+- Verifier's disposable no-DB probe passed via
+  `node --import tsx /private/tmp/crossward-p3-recovery-probe.ts`: full wrong
+  save commits but loses response; edits return to old partial; Retry inspects,
+  then writes partial before clearing draft.
+- Verifier confirmed all 78 frozen files byte-identical to `d1570e0`, with no
+  replacement acceptance. Six exact tested runtime hashes are in
+  `/private/tmp/crossward-p3-verification-runtime.json` (manifest SHA256
+  `81a09d1c7c268b1273dfc0f8a21fd653aecd621ac78501da6012ecbc19b51bb2`).
+  Confirm delivered runtime matches these hashes to bind precommit evidence.
+- Full browser suite, visual/focus/reduced-motion demonstration and final-head
+  CI/review/merge are **not run/pending**. Disposable visual runner/config is
+  prepared at `/private/tmp/crossward-p3-visual`; it reuses the built E2E server
+  without a second reset. If unavailable, recreate the demonstration, not frozen
+  acceptance. Serialize all browser use of the shared test database.
 
 ## Next action
 
-When the user resumes P3, resolve the pending product decision, complete/review
-its proposed acceptance and obtain human approval or explicit freeze delegation.
-Then freeze only specification/acceptance on main before creating the runtime
-branch. Obtain reset authorization before E2E; continue unaffected work without
-inventing data permissions. Until then, preserve the draft and await direction.
+Obtain explicit reset permission, then have the separate verifier run the
+complete `npm run test:e2e -- --workers=2` suite and required visual/focus /
+reduced-motion demonstrations. Fix runtime issues without altering frozen
+acceptance; repeat only affected checks and required final gate after changes.
+Bind final evidence to the delivered head, update this handoff, then obtain
+independent PR review and merge under REVIEW. Do not begin P4/P5.
 
 **Next-session prompt:**
 
-> Read docs/epics/11-play/HANDOFF.md's operational sections and the P3 draft's
-> pending decision/scope. P3 is authorized but unimplemented and unfrozen.
-> Finalize its pending input/failure behavior and dependent acceptance, obtain
-> approval and required independent review, then freeze under STORY phases 1–2.
-> Do not infer test DB reset permission or begin P4/P5. Expand reading only for
-> the specific contract being resolved.
+> Read docs/epics/11-play/HANDOFF.md and the frozen P3 specification. Check live
+> story/11-P3-finishing git/PR state. Obtain explicit authorization to delete all
+> rows in localhost:5433/crossward_test for P3 before running the serialized full
+> browser suite and visual/focus/reduced-motion checks. Preserve all acceptance
+> against d1570e0; use existing exact-content verify evidence when applicable.
+> Finish P3 through independent final-head PR review/merge. Do not begin P4/P5.

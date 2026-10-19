@@ -1,16 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { savePlayEntries, startPlaySession, type PlayPuzzleView } from '@/app/puzzles/actions';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { inspectPlayCompletion, savePlayEntries, startPlaySession, type PlayPuzzleView } from '@/app/puzzles/actions';
 import { PuzzleGrid } from '@/components/grid/PuzzleGrid';
+import { Modal } from '@/components/ui/Modal';
 import { arrowKey, deleteAt, moveTo, place, toggleOrientation, type CursorState } from '@/engine/cursor';
 import type { Coord, Grid } from '@/engine/grid';
 import { slotsWithNumbers } from '@/engine/numbering';
+import { isFull } from '@/engine/play';
 import { cellNumberKey } from '@/lib/cell-number-lookup';
 import { activeHintKey, buildSlotLookup } from '@/lib/hint-lookup';
 import { keyToIntent } from '@/lib/keyboard-intent';
 import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
 import { createPlayAutosave, type PlaySaveState } from './play-autosave';
+import { PlayConfetti } from './PlayConfetti';
 
 export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView }) {
   const [puzzle, setPuzzle] = useState(initialPuzzle);
@@ -20,37 +23,73 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   const [isFocused, setIsFocused] = useState(false);
   const [saveState, setSaveState] = useState<PlaySaveState>('saved');
   const [localWarning, setLocalWarning] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [completionError, setCompletionError] = useState(false);
+  const [dialog, setDialog] = useState<'incorrect' | 'complete' | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
   const gridRegion = useRef<HTMLDivElement>(null);
   const autosave = useRef<ReturnType<typeof createPlayAutosave> | null>(null);
+  const finishCelebration = useCallback(() => setCelebrating(false), []);
 
   useEffect(() => {
     let active = true;
     startPlaySession(initialPuzzle.id).then(
-      (started) => {
+      async (started) => {
         if (!active) return;
         if (!started.session) {
           setSessionState('error');
           return;
         }
+        // Inspect the authenticated saved grid before touching local recovery:
+        // a canonical solved grid must always win over a stale device draft.
+        const initialCompletion = isFull(deserializeGrid(started.entries))
+          ? await inspectPlayCompletion(started.id) : null;
+        if (!active) return;
+        const initiallyComplete = initialCompletion?.status === 'complete';
+        const serverEntries = initiallyComplete ? initialCompletion.entries : started.entries;
         setSaveState('saved');
         setLocalWarning(false);
+        setLocked(initiallyComplete);
+        setChecking(false);
+        setCompletionError(false);
+        setDialog(null);
+        setCelebrating(false);
         const saver = createPlayAutosave({
           sessionId: started.session.id,
-          serverEntries: started.entries,
+          serverEntries,
+          initiallyComplete,
           save: (entries) => savePlayEntries(started.id, entries),
           onState: setSaveState,
           onLocalWarning: () => setLocalWarning(true),
+          completion: {
+            inspect: () => inspectPlayCompletion(started.id),
+            onPending: setChecking,
+            onInspectionError: setCompletionError,
+            onIncorrect: () => setDialog('incorrect'),
+            onComplete: (result) => {
+              setPuzzle((previous) => ({
+                ...previous,
+                entries: result.entries,
+                session: previous.session ? { ...previous.session, completedAt: result.completedAt } : null,
+              }));
+              setLocked(true);
+              setCursor(null);
+              setIsFocused(false);
+              setCelebrating(true);
+              setDialog('complete');
+            },
+          },
         });
         autosave.current = saver;
         setPuzzle({ ...started, entries: saver.entries });
         setCursor(null);
         setIsFocused(false);
         setSessionState('ready');
-      },
-      () => {
-        if (active) setSessionState('error');
       }
-    );
+    ).catch(() => {
+      if (active) setSessionState('error');
+    });
     return () => {
       active = false;
       autosave.current?.stop();
@@ -61,10 +100,11 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   const view = puzzle.id === initialPuzzle.id ? puzzle : initialPuzzle;
   const displayedSessionState = puzzle.id === initialPuzzle.id ? sessionState : 'starting';
   const ready = displayedSessionState === 'ready';
+  const editable = ready && !locked && !checking;
   const grid = deserializeGrid(view.entries);
   const slots = slotsWithNumbers(grid);
   const highlights = new Map<string, 'selected' | 'slot'>();
-  if (ready && isFocused && cursor) {
+  if (ready && !locked && isFocused && cursor) {
     const lookup = buildSlotLookup(grid);
     const key = activeHintKey(lookup, cursor);
     if (key) {
@@ -75,12 +115,11 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
 
   function changeEntries(next: Grid) {
     const entries = serializeGrid(next);
-    autosave.current?.change(entries);
-    setPuzzle({ ...puzzle, entries });
+    if (autosave.current?.change(entries)) setPuzzle({ ...puzzle, entries });
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (!ready || !isFocused || !cursor || event.ctrlKey || event.metaKey || event.altKey
+    if (!editable || !isFocused || !cursor || event.ctrlKey || event.metaKey || event.altKey
       || event.nativeEvent.isComposing) return;
     const intent = keyToIntent(event.key);
     if (!intent || intent.type === 'toggleBlack') return;
@@ -98,7 +137,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   }
 
   function handleCellClick(coord: Coord) {
-    if (!ready || grid.at(coord.col, coord.row).kind !== 'active') return;
+    if (!editable || grid.at(coord.col, coord.row).kind !== 'active') return;
     gridRegion.current?.focus();
     setIsFocused(true);
     setCursor(cursor ? moveTo(grid, cursor, coord) : { current: coord, orientation: 'across' });
@@ -137,7 +176,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             {saveState === 'saving' && 'Saving…'}
             {saveState === 'error' && (
               <>
-                We couldn’t save your entries.{' '}
+                {completionError ? 'We couldn’t verify your entries.' : 'We couldn’t save your entries.'}{' '}
                 <button
                   type="button"
                   className="underline"
@@ -148,11 +187,22 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
               </>
             )}
           </div>
+          {completionError && (
+            <p data-testid="play-completion-error" role="alert" className="mt-2">
+              Completion verification failed. Retry to check your saved entries before continuing.
+            </p>
+          )}
           {localWarning && (
             <p data-testid="play-local-save-warning" className="mt-2">
               Pending edits can’t be kept on this device. They may be lost if you leave before saving finishes.
             </p>
           )}
+        </div>
+      )}
+      {ready && locked && (
+        <div className="mb-4 flex items-center gap-3">
+          <span data-testid="play-completed-mark" role="img" aria-label="Completed" className="text-2xl text-accent">✓</span>
+          <p data-testid="play-lock-message" className="text-ink-2">This puzzle is complete. Your entries are read-only.</p>
         </div>
       )}
       <div className="flex items-start gap-8">
@@ -162,6 +212,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           data-ready={ready}
           tabIndex={0}
           aria-label="Puzzle entries"
+          aria-busy={checking || undefined}
           className="w-full max-w-xl shrink-0 outline-none"
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
@@ -190,6 +241,23 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           ))}
         </div>
       </div>
+      <Modal
+        open={dialog === 'incorrect'}
+        title="You're so close"
+        testId="play-incorrect-dialog"
+        onClose={() => setDialog(null)}
+      >
+        <p>At least one entry is incorrect. Keep going!</p>
+      </Modal>
+      <Modal
+        open={dialog === 'complete'}
+        title="Congratulations!"
+        testId="play-completion-dialog"
+        onClose={() => setDialog(null)}
+      >
+        <p>You completed the puzzle!</p>
+      </Modal>
+      {celebrating && <PlayConfetti onFinished={finishCelebration} />}
     </div>
   );
 }
