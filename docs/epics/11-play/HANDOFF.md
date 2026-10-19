@@ -23,8 +23,17 @@ handoff is prerequisite history, not work to replay.
 
 ## Current state (2026-10-19)
 
-**P2 is implemented and locally verified; runtime commit, PR and independent
-review/merge are the next delivery steps.**
+**P2 is complete: implemented, verified, committed, independently reviewed and
+merged in [PR #21](https://github.com/akiryk/crossward-raptor/pull/21).**
+
+The independently reviewed runtime head is
+`c2c964d73fc9356bd691d4ae5275286a78730fb6`. Normal merge completed on
+2026-10-19 at 14:10:15 UTC as `a67ff61bacf23c9a1cb0ec37cf1004ff058c03fd`.
+The reviewer confirmed unchanged head before merging and read back GitHub's
+merged state; the parent independently read it back and fast-forwarded local
+main to that merge. This documentation-only closeout follows. There are no
+remaining P2 gates/blockers, and no runtime edits followed independent review.
+The Play epic remains open for P3–P5; P3 is not authorized or started.
 
 Specification-only main baseline `29a63aa` was independently reviewed, committed
 and pushed before runtime edits. The user explicitly authorized the one-line
@@ -33,10 +42,11 @@ and actual applied diff, then was committed/pushed alone on main in `4e53740`.
 A clean temporary main worktree preserved the local runtime; it was removed
 after fast-forwarding the corrected baseline into the implementation branch.
 
-Current branch is `story/11-P2-typing-and-resuming`, based on main/origin/main
-`4e53740`. Current uncommitted work is only P2's declared runtime/helper/docs
-paths. All 75 acceptance files match corrected baseline `4e53740`; no acceptance
-change belongs to the runtime diff. Hashes are in
+The runtime branch was `story/11-P2-typing-and-resuming`; current checkout is
+main at the verified merge before this closeout. The runtime PR touched only
+its nine declared runtime/fixture/docs paths. All 75 acceptance files match
+corrected baseline `4e53740`; no acceptance change belonged to the runtime PR.
+Hashes are in
 `/private/tmp/crossward-p2-refrozen-acceptance-sha256.json`.
 
 User decisions: open/reopen unselected with no cursor, and retain pending edits
@@ -48,23 +58,31 @@ only an acknowledged matching snapshot, and reports storage/save failures.
 
 Separate agents implemented and verified runtime. A third independently
 reviewed specification/acceptance before freeze, the actual approved locator
-correction, and preliminarily all runtime/fixture changes with no findings.
-Final exact-PR-head review, verification, CI and normal merge remain pending.
+correction, and the final actual PR diff/head, with no findings. That reviewer
+repeated verify and the entire two-worker browser suite on the exact committed
+head, confirmed all 75 acceptance hashes and a clean worktree, visually checked
+focused/blurred screenshots, checked Vercel and Vercel Preview Comments were
+successful, then merged normally. The parent authored no independent review.
 No P3, schema/migration, environment-file inspection/edit, inbox operation,
 development/production data change or migration was performed. Only validated
 isolated test DB resets and synthetic test fixture operations were used.
 
-### P2 final local verification
+### P2 verification at the final runtime checkpoint
 
 - Independent `npm run verify`: exit 0, **467/467 tests in 30 files**, TypeScript
   and lint pass. Only the pre-existing request-logger/render.ts:802 unused
   variable warning remains. Focused P1+P2 server acceptance also passed 65/65.
+  The independent final reviewer repeated this gate on `c2c964d`: exit 0,
+  the same 467/467 in 30 files.
 - **`npm run test:e2e -- --workers=2`: exit 0, 370/370 pass (1.2 minutes).**
   All cases run through the normal reset/build/server harness: no filters,
   skips, retries, timeout, source or permanent configuration changes. Includes
   all 27 P2, 18 P1, 7 A4 and explicit concurrent-open cases. This is a two-worker
   pass, not a default-concurrency plain pass. Independent review confirmed
   worker count is not frozen and the cap satisfies the full-suite gate.
+  The independent final reviewer repeated it on `c2c964d`: exit 0, **370/370**
+  (1.1 minutes). Thus the final runtime passed two consecutive complete suites
+  with the same resource cap and separate validated isolated resets.
 - Full diagnostic `npm run test:e2e -- --trace on`: exit 0, **370/370 pass**
   with default four workers (2.8 minutes). Traces retained at
   `/private/tmp/crossward-p2-full-pass-traces` and sanitized A4 timings at
@@ -79,7 +97,10 @@ isolated test DB resets and synthetic test fixture operations were used.
   white backgrounds; blur removes indicators; Saving/Saved status is legible.
   Files: `/private/tmp/crossward-p2-{unfocused,focused-saving,focused-saved,
   blurred-saved}.png`.
-- All 75 acceptance hashes match `4e53740`; `git diff --check` passes.
+- Both configured PR checks passed on the reviewed head: Vercel deployment
+  and Vercel Preview Comments. No CI/protection bypass was used.
+- All 75 acceptance hashes match `4e53740`; `git diff --check` passes. The
+  independent reviewer repeated these checks before/after merge.
 
 ### P2 verification history and diagnosed boundaries
 
@@ -192,23 +213,24 @@ inbox operations, or environment-file inspections/edits were performed.
 
 ## Next action
 
-Commit/push the verified P2 implementation and open its PR. The independent
-reviewer must inspect the actual committed head, repeat verify and all 370 E2E
-cases (the documented two-worker resource cap is valid), check configured CI,
-and merge normally when all gates pass. Then record actual merge/delivery
-state here. P3 needs separate authorization and detailed specification/freeze;
-do not begin it as part of this task. No live migrations/env/inbox work.
+P2 has no remaining implementation/delivery work. Await explicit authorization
+for the next task. P3 is only an epic outline: before runtime work, inspect
+current P2/frozen acceptance, create its detailed specification/acceptance,
+resolve substantive questions, independently review and freeze on main. Do
+not infer P3 authorization from P2 completion. No live migrations/env/inbox
+operation is authorized by this completed task.
 
 Resume prompt:
 
-> Resume Play P2 delivery on story/11-P2-typing-and-resuming. Read AGENTS.md and
-> this handoff's Current state/Next action. P2 is implemented and locally
-> verified:467 unit,370 full E2E with --workers=2,370 full traced, manual/visual
-> checkpoint. Acceptance is separately corrected/frozen on main at4e53740.
-> Preserve acceptance and local work. Finish commit/PR, independent exact-head
-> review/verification/CI and normal merge, then update handoff. Isolated test
-> DB resets are authorized. No P3, environment-file access, inbox or development/
-> production migrations/data changes.
+> Read AGENTS.md and docs/epics/11-play/HANDOFF.md beginning with Read first.
+> P2 is complete and independently merged through PR #21 at a67ff61, with
+> reviewed runtime head c2c964d and corrected frozen acceptance at 4e53740.
+> Verification 467/467, full E2E 370/370 with --workers=2 (independently repeated),
+> and configured CI passed. Follow only the newly authorized task. P3 needs its
+> own detailed specification/acceptance and independent main freeze before
+> implementation; development/production migrations require separate reviewed
+> explicit authorization. Preserve frozen tests and existing data; do not
+> inspect/edit environment files or operate on inbox data without new scope.
 
 ## Implementation findings and resolved blockers
 

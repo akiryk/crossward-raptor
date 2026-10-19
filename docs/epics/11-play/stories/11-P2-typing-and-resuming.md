@@ -3,10 +3,12 @@
 Let a signed-in player type and erase guesses in the fixed published grid,
 autosave their own entries, and resume them later.
 
-**Status:** implemented and locally verified on
-`story/11-P2-typing-and-resuming`; independent PR review/merge pending. Specification and 40 unit/27 browser cases
-were independently reviewed and frozen on main in `29a63aa`. The user-approved
-locator-only correction was independently reviewed and refrozen in `4e53740`.
+**Status:** complete; implemented, verified and independently reviewed/merged
+in [PR #21](https://github.com/akiryk/crossward-raptor/pull/21) at `a67ff61` on
+2026-10-19. Reviewed runtime head: `c2c964d`. Specification and 40 unit/27 browser
+cases were independently reviewed and frozen on main in `29a63aa`. The
+user-approved locator-only correction was independently reviewed and refrozen
+in `4e53740`. Acceptance remains immutable from that corrected baseline.
 
 Acceptance correction authorized on 2026-10-19: scope the save-failure alert
 role/visibility lookup to `play-puzzle` so Next's unrelated hidden route
