@@ -3,8 +3,10 @@
 Tell the player when a full grid is wrong, celebrate a correct finish, and
 reopen a solved puzzle locked without repeating the celebration.
 
-**Status:** specification and acceptance approved on 2026-10-19 after independent
-review; ready for specification-only main freeze, then runtime implementation.
+**Status:** implemented in [PR #22](https://github.com/akiryk/crossward-raptor/pull/22);
+verification passed; independent review/merge pending. Specification and
+acceptance were approved and frozen in `d1570e0`; the separately approved
+one-line recovery-clock correction is refrozen on main in `dbc3ee8`.
 P1/P2 acceptance remains immutable.
 **Blast radius: high:** server write actions and pure engine comparisons.
 
@@ -169,9 +171,10 @@ change. Declare any additional path before editing it.
 Only P3 completion/feedback/locking. No P4 reset or P5 library work, checking
 tools, per-cell clues, timer, rebus input, mobile redesign, unpublish/edit/
 republish protection or migrations. Do not inspect/edit environment files,
-operate on inbox data, or alter development/production schema/data. Isolated
-test-database reset authorization is pending; do not run the reset/browser
-harness until granted. Do not begin P4 without new authorization.
+operate on inbox data, or alter development/production schema/data. The user
+authorized necessary guarded local test resets and requested the standing grant
+now recorded in [DEVELOPMENT](../../../DEVELOPMENT.md#e2e-environment).
+Do not begin P4 without new authorization.
 
 ## Specification review and approval
 
@@ -179,7 +182,8 @@ On 2026-10-19 the user authorized resuming P3, then answered “Yes you may” t
 the concrete request to approve the proposed specification/acceptance, delegate
 freeze after independent review, and implement/deliver P3 through its required
 PR/review gates. This approves the input/failure and Retry recovery decisions
-above. The separate explicit test-database deletion grant remains pending.
+above. The user subsequently explicitly authorized test-row deletion for test
+runs and the lasting guarded local test-reset policy; see DEVELOPMENT above.
 
 Independent read-only agent `p3_spec_review` reviewed the story, all three
 candidate acceptance files, affected runtime and targeted P2 contracts. Its
@@ -190,12 +194,19 @@ whose response was lost, limiting that recovery to failed full snapshots to
 preserve P2 partial Retry, and dismissing any permitted congratulations modal
 before the lost-response locked-input assertion.
 
-Approved acceptance: 28 engine, 39 server and 23 browser cases. Parent
-checks passed TypeScript, focused candidate ESLint and browser listing; the
-browser cases have not executed. Runtime, visual/accessibility demonstrations
-and full verification remain pending. All 75 existing acceptance files must
-remain unchanged; resume hashes are recorded at
+Approved acceptance: 28 engine, 39 server and 23 browser cases. At initial
+freeze, parent TypeScript, focused candidate ESLint and browser listing passed;
+runtime and browser execution were still pending. All 75 original acceptance
+files remain immutable; resume hashes are recorded at
 `/private/tmp/crossward-p3-resume-frozen-sha256.json`.
+
+The initial full browser run exposed a test-clock omission in the two pending
+full-draft recovery cases. Independent review confirmed the new page inherits
+the paused context clock and must advance the specified 500 ms debounce. The
+user explicitly approved adding only `await returned.clock.runFor(500);` before
+checking Saved. Test-only main commit `dbc3ee8` refreezes that correction;
+assertions, timeouts, Decisions and runtime behavior are unchanged. See the
+[handoff](../HANDOFF.md) for current verification and delivery evidence.
 
 ## Definition of done
 

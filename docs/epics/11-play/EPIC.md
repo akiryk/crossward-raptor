@@ -152,7 +152,12 @@ inconsistent by an empty cell.
 Authorized on 2026-10-19. The [detailed P3 story](stories/11-P3-finishing.md)
 and 28 engine / 39 server / 23 browser acceptance cases passed independent
 specification review and received human approval/freeze delegation on 2026-10-19.
-The specification-only main freeze precedes runtime implementation.
+Initial baseline `d1570e0` preceded runtime; the independently reviewed,
+human-approved one-line recovery-clock correction is refrozen in `dbc3ee8`.
+P3 is implemented in [PR #22](https://github.com/akiryk/crossward-raptor/pull/22),
+with 534 verification tests and all 393 browser cases passing, plus the required
+visual/focus/reduced-motion demonstrations. Independent final-head review/merge
+is pending. See the handoff.
 
 Completion detected by comparing entries to answers. The "so close"
 modal on the full-but-wrong transition. Confetti and congratulations on
