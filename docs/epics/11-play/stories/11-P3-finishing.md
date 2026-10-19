@@ -3,8 +3,9 @@
 Tell the player when a full grid is wrong, celebrate a correct finish, and
 reopen a solved puzzle locked without repeating the celebration.
 
-**Status:** implemented in [PR #22](https://github.com/akiryk/crossward-raptor/pull/22);
-verification passed; independent review/merge pending. Specification and
+**Status:** complete, independently reviewed and merged in
+[PR #22](https://github.com/akiryk/crossward-raptor/pull/22) at `4cfa4d7` on
+2026-10-19. Specification and
 acceptance were approved and frozen in `d1570e0`; the separately approved
 one-line recovery-clock correction is refrozen on main in `dbc3ee8`.
 P1/P2 acceptance remains immutable.

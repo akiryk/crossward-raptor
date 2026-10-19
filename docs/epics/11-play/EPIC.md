@@ -154,10 +154,11 @@ and 28 engine / 39 server / 23 browser acceptance cases passed independent
 specification review and received human approval/freeze delegation on 2026-10-19.
 Initial baseline `d1570e0` preceded runtime; the independently reviewed,
 human-approved one-line recovery-clock correction is refrozen in `dbc3ee8`.
-P3 is implemented in [PR #22](https://github.com/akiryk/crossward-raptor/pull/22),
-with 534 verification tests and all 393 browser cases passing, plus the required
-visual/focus/reduced-motion demonstrations. Independent final-head review/merge
-is pending. See the handoff.
+P3 is complete, independently reviewed and merged in
+[PR #22](https://github.com/akiryk/crossward-raptor/pull/22) at `4cfa4d7` on
+2026-10-19. The reviewed head passed 534 verification tests, all 393 browser
+cases, required visual/focus/reduced-motion demonstrations and configured CI.
+P4/P5 remain pending and require new authorization. See the handoff.
 
 Completion detected by comparing entries to answers. The "so close"
 modal on the full-but-wrong transition. Confetti and congratulations on

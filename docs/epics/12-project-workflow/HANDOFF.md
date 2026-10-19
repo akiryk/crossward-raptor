@@ -66,16 +66,18 @@ No work remains on the delivered workflow overhaul. Its separately authorized
 standing test-reset policy amendment is delivered directly on main in `976a037`;
 AGENTS, DEVELOPMENT and STORY now record that grant. P3's specification and
 acceptance were subsequently approved, frozen in `d1570e0` and pushed to main.
-Use [Play's operational handoff](../11-play/HANDOFF.md) for live P3 verification
-and delivery status; preserve frozen acceptance and reuse the standing test
-reset grant without another boilerplate permission request.
+P3 is subsequently complete and independently merged in PR #22 at `4cfa4d7`.
+Use [Play's operational handoff](../11-play/HANDOFF.md) for current status;
+await the next authorized task and reuse the standing test-reset grant within
+its scope without another boilerplate permission request.
 
 **Next-session prompt:**
 
 > Read docs/epics/12-project-workflow/HANDOFF.md; use AGENTS if not supplied.
 > The workflow overhaul is delivered. DEVELOPMENT now records the user's
-> standing authorization for guarded local test resets. For authorized P3 work,
+> standing authorization for guarded local test resets. For authorized Play work,
 > follow docs/epics/11-play/HANDOFF.md's operational sections and its frozen
-> specification; finish verification and independent PR review/merge without
-> requesting the same test-reset grant again. Do not load archived history
-> unless a specific issue needs it, or begin P4/P5 without authorization.
+> specification only when needed for a new authorized task; P3 is complete.
+> Await that task and reuse the standing test-reset grant within its scope.
+> Do not load archived history unless a specific issue needs it, or begin
+> P4/P5 without authorization.
