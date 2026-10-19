@@ -156,14 +156,20 @@ a person's successful manual login.
 
 The test database is wiped once per E2E run, not once per test. Playwright's parallel workers share that database during the run.
 This deletes all existing puzzle and authentication rows in the isolated test
-database. Agents must obtain explicit authorization before running it when
-existing-data deletion has not already been authorized.
-Record the authorized target, operation and scope in the active handoff. Reuse
-that authorization within its stated scope without asking for each routine run;
-do not infer a standing or next-story grant from isolation, a suggested policy,
-or permission for a previous story. This workflow update grants no reset
-authorization. Development/production operations require their own applicable
-explicit authorization and are never covered by test-target validation.
+database.
+
+**Standing authorization (user-approved 2026-10-19):** agents may run this
+repository's guarded E2E preparation/reset harness for necessary test runs,
+including future stories, without asking again. This covers deletion of all
+existing rows only in the validated local test target: `localhost` or
+`127.0.0.1`, port `5433`, database `crossward_test`. Keep the harness's target
+validation and other safety guards intact; serialize runs sharing this database.
+
+Reference this standing grant in the active handoff rather than requesting a
+new grant per run, session or story. Other deletion/reset targets or operations
+still require applicable explicit authorization. This grant does not authorize
+ad hoc data deletion, environment-file access, development/production database
+operations or bypassing execution permissions.
 
 The Docker containers are intentionally left running afterward so subsequent test runs start quickly.
 

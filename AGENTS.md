@@ -18,7 +18,9 @@ comes first, followed by a clean creation UX.
 - `src/engine/**` is pure: no React, DOM, database clients, input mutation or
   hidden retained state.
 - Existing-data deletion/reset requires applicable explicit authorization.
-  Isolation alone grants none. Follow [database safety](docs/DEVELOPMENT.md#e2e-environment);
+  The user-approved standing grant for the guarded local test reset is recorded
+  in [database safety](docs/DEVELOPMENT.md#e2e-environment); reuse it without
+  repeated confirmation. Isolation alone grants no additional permission;
   do not inspect/edit `.env*` files or bypass execution permissions.
 
 ## Session start and autonomy

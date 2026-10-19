@@ -74,8 +74,10 @@ do not opportunistically clean up adjacent code.
   Focused browser tests help iteration but do not replace that gate. Preserve
   frozen cases, timeouts and assertions. Disclose any permitted resource cap.
 - Before browser preparation/reset, follow [DEVELOPMENT](../DEVELOPMENT.md#e2e-environment).
-  Explicit authorization must cover the target and operation; an isolated
-  harness, a testing request or this workflow grants no deletion permission.
+  Its user-approved standing grant covers necessary guarded local test resets
+  across runs, sessions and stories; do not ask again within that scope. Other
+  deletion/reset operations require applicable explicit authorization; isolation
+  or a testing request alone grants no additional permission.
   Serialize shared-database suites and retain required manual/visual checks.
 - Documentation-only edits require checks of affected paths, links, consistency,
   diff and preservation of unrelated work. They do not require application or

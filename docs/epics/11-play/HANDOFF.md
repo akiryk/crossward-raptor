@@ -19,8 +19,9 @@ P2 is complete. This session began on `main` at `075b36c`, matching local
 `origin/main`, with the existing P3 EPIC changes and four untracked drafts.
 The user authorized resuming P3, then approved its concrete specification /
 acceptance and delegated freeze, implementation and delivery through required
-PR/review gates. The separate explicit test-data deletion request remains
-unanswered; do not treat the specification approval as that grant.
+PR/review gates. The user subsequently explicitly authorized test-row deletion
+for test runs and requested a lasting repository policy change. DEVELOPMENT
+now records the standing grant for this repository's guarded local test reset.
 
 Independent read-only agent `p3_spec_review` reviewed the specification,
 acceptance and targeted P2 contracts. Specification-only main baseline
@@ -43,9 +44,11 @@ gates and independent final-head review/merge remain pending; P3 is **not
 complete**. This documentation-only delivery closeout follows that readback.
 Check live git/PR state before relying on recorded delivery/check status.
 
-**Permission boundary:** explicit authorization to delete all rows in
-`localhost:5433/crossward_test` for necessary P3 E2E harness runs remains
-pending. No browser/reset has run. No env-file access, live migration,
+**Permission boundary:** the user-approved standing grant covers this
+repository's guarded test-harness deletion of all rows in the validated local
+`localhost`/`127.0.0.1:5433/crossward_test` target for necessary test runs,
+including future stories; do not ask again within that scope. P3's separate
+verifier is now running the serialized browser gate. No env-file access, live migration,
 development/production database, inbox, P4 or P5 work is authorized.
 
 ## Verification
@@ -66,15 +69,16 @@ development/production database, inbox, P4 or P5 work is authorized.
   `/private/tmp/crossward-p3-verification-runtime.json` (manifest SHA256
   `81a09d1c7c268b1273dfc0f8a21fd653aecd621ac78501da6012ecbc19b51bb2`).
   Confirm delivered runtime matches these hashes to bind precommit evidence.
-- Full browser suite, visual/focus/reduced-motion demonstration and final-head
-  CI/review/merge are **not run/pending**. Disposable visual runner/config is
+- Full browser suite is **actively running** under the explicit reset grant;
+  visual/focus/reduced-motion demonstration and final-head review/merge remain
+  pending. Disposable visual runner/config is
   prepared at `/private/tmp/crossward-p3-visual`; it reuses the built E2E server
   without a second reset. If unavailable, recreate the demonstration, not frozen
   acceptance. Serialize all browser use of the shared test database.
 
 ## Next action
 
-Obtain explicit reset permission, then have the separate verifier run the
+Have the separate verifier finish the authorized
 complete `npm run test:e2e -- --workers=2` suite and required visual/focus /
 reduced-motion demonstrations. Fix runtime issues without altering frozen
 acceptance; repeat only affected checks and required final gate after changes.
@@ -84,8 +88,8 @@ independent PR review and merge under REVIEW. Do not begin P4/P5.
 **Next-session prompt:**
 
 > Read docs/epics/11-play/HANDOFF.md and the frozen P3 specification. Check live
-> story/11-P3-finishing and draft PR #22. Obtain explicit authorization to delete all
-> rows in localhost:5433/crossward_test for P3 before running the serialized full
-> browser suite and visual/focus/reduced-motion checks. Preserve all acceptance
+> story/11-P3-finishing and draft PR #22. Finish the serialized full browser
+> suite and visual/focus/reduced-motion checks using DEVELOPMENT's standing
+> grant for guarded local test resets. Preserve all acceptance
 > against d1570e0; use existing exact-content verify evidence when applicable.
 > Finish P3 through independent final-head PR review/merge. Do not begin P4/P5.
