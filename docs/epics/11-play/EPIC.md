@@ -136,8 +136,8 @@ implemented, verified and independently reviewed/merged in
 [PR #21](https://github.com/akiryk/crossward-raptor/pull/21) at `a67ff61` on
 2026-10-19. The reviewed head passed 467 verification tests, all 370 browser
 cases with a two-worker resource cap, and configured CI. The user-authorized
-locator-only correction is separately refrozen on main in `4e53740`. P3 is not
-authorized; the epic remains open for P3–P5.
+locator-only correction is separately refrozen on main in `4e53740`.
+The epic remains open for P3–P5.
 
 Letters go into the entries grid; the cursor behaves as it does in the
 editor, since it is the same code. Saved debounced, as everything else
@@ -148,6 +148,11 @@ changing their mind is the normal case, and nothing is made
 inconsistent by an empty cell.
 
 ### P3 — Finishing
+
+Authorized on 2026-10-19. The [detailed P3 story](stories/11-P3-finishing.md)
+and 28 engine / 39 server / 23 browser acceptance cases passed independent
+specification review and received human approval/freeze delegation on 2026-10-19.
+The specification-only main freeze precedes runtime implementation.
 
 Completion detected by comparing entries to answers. The "so close"
 modal on the full-but-wrong transition. Confetti and congratulations on
