@@ -14,23 +14,31 @@ Those historical tasks are complete; this amendment does not redo them.
 
 ## Current state (2026-10-19)
 
-The user authorized implementing the workflow overhaul in
+The user authorized the delivered workflow overhaul in
 `~/Downloads/crossward-workflow-proposal/IMPLEMENT-IN-REPO.md` directly in the
-live repository. Current task is documentation/process implementation, not P3.
+live repository. That task was documentation/process implementation. The current
+follow-up is the user-approved standing test-reset grant, delivered with the
+authorized P3 work; use Play's handoff for application status.
 
 Observed starting checkout: `main` at `6034299`, matching local `origin/main`.
 Pre-existing work: Play EPIC/HANDOFF modifications, the untracked P3 story and
 three acceptance candidates. Preserve those candidates and the EPIC changes;
 only the Play handoff is intentionally adapted, with its entire intake version
-preserved in Play HISTORY. No P3 specification or test is approved/frozen.
+preserved in Play HISTORY. At that workflow intake, no P3 specification or test
+was approved/frozen; P3 was subsequently approved and frozen in `d1570e0`.
 
 Implemented locally: canonical rule owners and concise pointers, explicit
 specification drafting → human approval/delegation → freeze → implementation,
 incremental reading, ordinary-decision autonomy, targeted iteration and
 verifiable final-head evidence reuse, mandatory three-part completion reports,
 and concise Play/workflow handoffs with verbatim historical records.
-No application/test/shared-skill/config/database changes are in scope. Data
-reset approval remains explicit and ungranted for P3; no standing grant is made.
+The workflow overhaul did not include application, test, shared-skill,
+configuration or database changes.
+At workflow delivery, reset approval remained explicit and ungranted for P3.
+The user subsequently approved necessary P3 test resets and requested a lasting
+policy change on 2026-10-19: the standing grant for this repository's guarded
+local test harness is now recorded in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment), with AGENTS/STORY pointers.
 
 Implementation and scoped validation are complete. Commit `d82a786`
 (`Streamline repository workflow and session handoffs`) was committed on main
@@ -54,18 +62,20 @@ This is not a new epic-wide audit or runtime verification pass.
 
 ## Next action
 
-No workflow implementation or validation remains. Await the next user task;
-if returning to P3, use [Play's operational handoff](../11-play/HANDOFF.md) to
-resolve its pending specification/permissions before freeze or runtime. The
-pre-existing P3 EPIC/specification/acceptance was excluded from workflow delivery
-and remains local in the originating checkout. Another checkout needs those
-actual draft files; do not recreate or silently approve missing acceptance.
+No work remains on the delivered workflow overhaul. Its separately authorized
+standing test-reset policy amendment is being delivered directly on main;
+AGENTS, DEVELOPMENT and STORY now record that grant. P3's specification and
+acceptance were subsequently approved, frozen in `d1570e0` and pushed to main.
+Use [Play's operational handoff](../11-play/HANDOFF.md) for live P3 verification
+and delivery status; preserve frozen acceptance and reuse the standing test
+reset grant without another boilerplate permission request.
 
 **Next-session prompt:**
 
 > Read docs/epics/12-project-workflow/HANDOFF.md; use AGENTS if not supplied.
-> The workflow overhaul is implemented, independently validated and delivered
-> on main. Await the next user task. If asked to resume P3, read only the
-> operational sections of docs/epics/11-play/HANDOFF.md and its targeted draft
-> references; resolve the pending specification/permissions before freeze or
-> runtime. Do not load archived history unless a specific issue needs it.
+> The workflow overhaul is delivered. DEVELOPMENT now records the user's
+> standing authorization for guarded local test resets. For authorized P3 work,
+> follow docs/epics/11-play/HANDOFF.md's operational sections and its frozen
+> specification; finish verification and independent PR review/merge without
+> requesting the same test-reset grant again. Do not load archived history
+> unless a specific issue needs it, or begin P4/P5 without authorization.
