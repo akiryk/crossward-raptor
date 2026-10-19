@@ -32,10 +32,13 @@ and concise Play/workflow handoffs with verbatim historical records.
 No application/test/shared-skill/config/database changes are in scope. Data
 reset approval remains explicit and ungranted for P3; no standing grant is made.
 
-Implementation and scoped validation are complete; delivery is ready for a
-documentation-only main commit/push. These paths do not trigger the risky-code
-PR policy. Independent read-only documentation verification found no blocking
-defects. This is not a new epic-wide audit or runtime verification pass.
+Implementation and scoped validation are complete. Commit `d82a786`
+(`Streamline repository workflow and session handoffs`) was committed on main
+and pushed to origin; the push advanced main from `6034299` to `d82a786`.
+This documentation-only handoff closeout follows that observed delivery.
+These paths do not trigger the risky-code PR policy; no PR/merge is pending.
+Independent read-only documentation verification found no blocking defects.
+This is not a new epic-wide audit or runtime verification pass.
 
 ## Verification
 
@@ -51,14 +54,18 @@ defects. This is not a new epic-wide audit or runtime verification pass.
 
 ## Next action
 
-Commit and deliver only this workflow task's documentation files. Keep
-pre-existing P3 EPIC/specification/acceptance out of the commit. Record observed
-delivery before handing back; no implementation or validation gaps remain.
+No workflow implementation or validation remains. Await the next user task;
+if returning to P3, use [Play's operational handoff](../11-play/HANDOFF.md) to
+resolve its pending specification/permissions before freeze or runtime. The
+pre-existing P3 EPIC/specification/acceptance was excluded from workflow delivery
+and remains local in the originating checkout. Another checkout needs those
+actual draft files; do not recreate or silently approve missing acceptance.
 
 **Next-session prompt:**
 
-> Read docs/epics/12-project-workflow/HANDOFF.md and AGENTS if not supplied.
-> Finish delivery of the validated workflow-documentation overhaul if still
-> pending, otherwise use the new canonical rules for the next authorized task. Preserve
-> the unfinished P3 draft/tests and its pending permissions; do not implement or
-> freeze P3. Read Play's operational handoff only when returning to that task.
+> Read docs/epics/12-project-workflow/HANDOFF.md; use AGENTS if not supplied.
+> The workflow overhaul is implemented, independently validated and delivered
+> on main. Await the next user task. If asked to resume P3, read only the
+> operational sections of docs/epics/11-play/HANDOFF.md and its targeted draft
+> references; resolve the pending specification/permissions before freeze or
+> runtime. Do not load archived history unless a specific issue needs it.

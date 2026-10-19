@@ -3,7 +3,7 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not already supplied.
-2. [P3 draft](stories/11-P3-finishing.md), especially the pending input/failure
+2. Local P3 draft `stories/11-P3-finishing.md`, especially the pending input/failure
    decision, Scope discipline and Definition of done. This is proposed, not frozen.
 3. For finalizing/reviewing that decision, the new candidates
    `src/engine/play.test.ts`, `src/app/puzzles/actions.play-completion.test.ts`
@@ -19,14 +19,16 @@ do not load it for ordinary startup.
 ## Current state (2026-10-19)
 
 P2 is complete. Local git history contains PR #21's merge `a67ff61` and its
-closeout `6034299`. This update observed checkout `main` at `6034299` with the
-matching local `origin/main` tracking ref; no remote PR/CI readback was needed
-or performed for this documentation task.
+closeout `6034299`. The workflow task started on main at `6034299`; its docs-only
+commit `d82a786` was subsequently pushed to origin/main, with this handoff
+closeout following. No remote P2/P3 PR or CI readback was needed/performed.
 
 The user authorized starting P3, but runtime has not started. The uncommitted
 P3 draft and **28 engine / 39 server / 17 browser** acceptance candidates remain
-unfrozen. Prior independent review was conditional, with no blocking defects in
-the candidate tests but no freeze approval. The workflow-documentation task does
+unfrozen and local-only in the originating checkout, excluded from workflow
+delivery. Another checkout needs those actual draft files before resuming;
+do not recreate missing acceptance. Prior independent review was conditional,
+with no blocking defects in the candidate tests but no freeze approval. The workflow-documentation task does
 not approve P3, change its tests, or authorize P4/P5.
 
 Pending P3 decisions/permissions:
