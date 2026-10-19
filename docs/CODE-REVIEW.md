@@ -1,108 +1,68 @@
-# Code review
+# Code review policy
 
-This repo reviews the plan and the tests, not usually the implementation.
-Story docs are the spec; acceptance tests are frozen and can't be edited to
-match an implementation. That covers behaviour well.
-
-It does not cover whether the code is duplicated, dead, or doing things the
-story never asked for. `PuzzleGrid.tsx` sat orphaned for two stories while
-`PuzzleGridEditor` duplicated its layout container, and every test passed
-throughout. That's the gap this document addresses.
+Canonical risk, review and merge policy. [STORY](process/STORY.md) owns the
+lifecycle and verification requirements; [REVIEW](process/REVIEW.md) is the
+execution checklist. Frozen acceptance checks behavior; independent review also
+checks scope, unused/duplicated code and specification conflicts.
 
 ## When review applies
 
-By blast radius, not by default. A story gets a PR and a review if it
-touches any of:
+A change requires a branch, PR and independent review if it touches:
 
-- `src/engine/**` — pure logic every layer depends on
-- `src/lib/puzzle-storage.ts` — the serialization format. Every stored
-  puzzle is locked into it; changing it later means migrating real data.
-  This is the closest thing here to a database schema, and the Prisma
-  schema itself is not, since `grid` and `hints` are opaque `Json`.
-- `src/app/puzzles/actions.ts` — Server Actions: the write path
-- `prisma/**` — schema and migrations
+- `src/engine/**` — shared pure logic;
+- `src/lib/puzzle-storage.ts` — stored serialization compatibility;
+- `src/app/puzzles/actions.ts` — authenticated server write paths;
+- `prisma/**` — schema and migrations.
 
-The story skill (`/story` in Claude, `$story` in Codex) checks this twice.
-First, against the story doc's stated "Repo
-paths," before implementation starts — so a story already known to be
-risky begins on a branch rather than partway through on `main`. Second,
-against the actual `git diff`, after implementation and before anything is
-pushed — this is the check that matters. A story doc can omit a path the
-implementation legitimately needs to touch: Story D3's Repo paths named no
-`src/engine/` file, but its implementation exported a function from
-`src/engine/phase.ts`, and because only the doc-based check existed at the
-time, the story shipped straight to `main`, unreviewed. If the real diff
-touches one of the four paths above, the story goes to a PR regardless of
-what the doc said.
+Check declared Repo paths before implementation and actual changed/new paths
+before committing. The actual diff controls; an omitted risky path still needs
+review. Other changes retain direct delivery to main unless the user/task
+requires review. Specification-only main baselines follow STORY's approval and
+freeze procedure separately from runtime risk classification.
 
-Everything else merges straight to `main` as before. UI and styling work is
-recoverable and cheap to redo; adding a review gate there buys little and
-costs momentum.
+## Independence and criteria
 
-## Who reviews
+The reviewer must be a different agent/session from the implementation author
+and any agent that changed verification code for that implementation. A different
+vendor is useful when available, not a new access requirement. A reviewer may
+run checks without losing independence; reviewing does not authorize code edits.
 
-A different agent from the one that wrote the code — a different vendor if
-possible. The value is independence, not capability: an instance of the
-same model tends to share the blind spots of the one that produced the
-diff.
+Look for concrete issues tests can miss: orphaned/dead code, duplicated behavior,
+unexplained scope additions, contradictions of Decisions/Non-goals, serialization
+incompatibility, engine impurity and vacuous acceptance assertions. Cite file:line
+evidence and practical consequences; separate blocking from non-blocking findings.
 
-## What to look for
+Do not raise style/naming preferences, missing abstraction, speculative scale
+concerns, tests for out-of-scope behavior or objections to deliberate recorded
+decisions. Say briefly when no findings remain. Report coverage limits honestly.
 
-Things the tests cannot catch:
+## Verification evidence
 
-- **Orphaned or dead code.** A component, export, or file no longer
-  imported by anything. Has happened here.
-- **Duplicated logic.** The same computation implemented twice, especially
-  a layout or derivation copied rather than shared.
-- **Scope beyond the story.** Changes to files the story's "Repo paths"
-  didn't name, or behaviour it didn't ask for. Legitimate sometimes, but
-  it should be flagged and explained, never silent.
-- **Contradicting a stated decision.** Story docs have a Decisions
-  section. An implementation that quietly does the opposite of one is a
-  real finding, even with green tests.
-- **Serialization changes.** Any change to how a puzzle is written or
-  read. Ask specifically: can existing stored puzzles still be loaded?
-- **Purity violations in the engine.** Functions that mutate inputs, hold
-  state between calls, or reach for the DOM or a database client.
-- **A test that can't fail.** See `docs/LEARNINGS.md` entry 6. If an
-  assertion would pass whether or not the behaviour exists, say so.
+The reviewed head must satisfy STORY's applicable verification gates, the
+story's required demonstrations and all configured CI checks. A deployment
+success is not unit/E2E evidence unless it actually runs those gates.
 
-## What not to comment on
+Trustworthy CI artifacts or retained local tool output may be reused, including
+an implementation/testing agent's results, when the reviewer can verify the
+command, scope, exit status, provenance and exact reviewed head. Precommit runs
+need a recorded tested tree/content identity and confirmation that the resulting
+commit contains the same tested content. Older results or an unsupported
+"passed" statement do not establish a new head's success.
 
-Noise is what kills review adoption. Do not raise:
-
-- Style, formatting, or naming preferences. Lint owns those.
-- Suggestions to add abstraction, configurability, or error handling the
-  story didn't ask for. Review is scoped to the requested behavior;
-  unsolicited generalization is not a review finding.
-- Missing tests for behaviour outside the story's scope.
-- Anything already recorded as a deliberate decision in the story doc, the
-  epic, or `docs/LEARNINGS.md`. Read those first.
-- Speculative performance concerns at this scale. This app has one builder
-  and dozens of puzzles.
-
-If there is nothing worth raising, say so in one line. An empty review is a
-valid result and better than a padded one.
-
-## Output
-
-A short list of findings, each with a file:line reference and a sentence on
-why it matters. Order by significance. Separate anything that blocks merge
-from anything that's merely worth knowing.
+The reviewer remains responsible for independently inspecting the diff and
+evaluating that evidence. Run required checks when evidence is missing,
+unverifiable, invalidated by relevant edits or when a finding warrants it;
+do not repeat an identical suite just because the reviewer/session changed.
+Record absent CI as absent and obtain applicable local evidence. Pending,
+failed or missing required checks never count as passing. No test weakening,
+protection bypass or unapproved reset is permitted for speed.
 
 ## Merge after review
 
-The independent reviewer merges a ready PR once no blocking findings remain
-and the reviewed commit passes `npm run verify`, the story's required E2E
-checks, and any configured CI checks. The implementing agent opens the PR;
-it does not review and merge its own work. Invoking the review workflow
-authorizes this merge without another confirmation, unless the user requests
-a report-only review.
-
-Use a normal merge commit (`gh pr merge <number> --merge`), matching budget-app.
-Verify that the PR head is still the commit reviewed and checked. If it changes,
-review the new changes and confirm their checks before merging. Honor branch
-protection and merge requirements. Where no CI checks are configured, record
-that fact and provide the required local verification for the reviewed commit.
-If findings, failed/pending checks, conflicts, or repository requirements block
-the merge, report the blocker; do not bypass it.
+Once no blockers remain and required verification and configured CI pass, the
+independent reviewer merges the unchanged reviewed head with a normal merge
+commit (`gh pr merge <number> --merge`), then reads back the result. Invoking
+this workflow authorizes that merge without another confirmation unless the
+user requested report-only review/manual merging. The author does not merge
+their own PR. If the head changes, review new changes and their checks first.
+Honor branch protection; report a blocked merge rather than bypassing it.

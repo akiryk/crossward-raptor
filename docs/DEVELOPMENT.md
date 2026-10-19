@@ -108,17 +108,18 @@ live sign-in URLs, tokens, or signing secrets in logs or bug reports.
 
 ## Verification
 
-`npm run verify` is the normal completion gate for code changes.
+The [story lifecycle](process/STORY.md#verification) defines when checks are
+required; [code review policy](CODE-REVIEW.md#verification-evidence) defines
+when exact-head results may be reused. This section documents the commands.
 
-It runs:
+`npm run verify` runs:
 
 1. `tsc --noEmit`
 2. lint
 3. unit tests
 
-A code change is not complete until this command exits successfully.
-
-E2E tests are deliberately separate because they are slower. Run `npm run test:e2e` when the task affects browser-driven behavior or when its acceptance criteria require E2E coverage.
+`npm run test:e2e` is a separate full browser suite with the preparation below.
+Focused runs help iteration; use the lifecycle's applicable final gate.
 
 ## E2E environment
 
@@ -157,6 +158,12 @@ The test database is wiped once per E2E run, not once per test. Playwright's par
 This deletes all existing puzzle and authentication rows in the isolated test
 database. Agents must obtain explicit authorization before running it when
 existing-data deletion has not already been authorized.
+Record the authorized target, operation and scope in the active handoff. Reuse
+that authorization within its stated scope without asking for each routine run;
+do not infer a standing or next-story grant from isolation, a suggested policy,
+or permission for a previous story. This workflow update grants no reset
+authorization. Development/production operations require their own applicable
+explicit authorization and are never covered by test-target validation.
 
 The Docker containers are intentionally left running afterward so subsequent test runs start quickly.
 

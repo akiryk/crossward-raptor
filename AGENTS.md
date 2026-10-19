@@ -1,32 +1,88 @@
 # AGENTS.md
 
-Crossward is a web app for building and playing NYT-style crossword puzzles. The primary user is the puzzle builder; correctness of the pure grid engine is the highest priority, followed by a clean creation UX.
+Crossward builds and plays NYT-style crosswords. Pure grid-engine correctness
+comes first, followed by a clean creation UX.
 
 ## Core rules
 
-- Story and epic docs are the specification. Respect their Decisions, Non-goals, acceptance criteria, and stated scope.
-- Implement only what the task requires. Do not opportunistically refactor, reformat, generalize, or clean up adjacent code.
-- Acceptance tests are frozen: never change them to make an implementation pass. If a test appears wrong, stop and report the problem.
-- A code change is not done until `npm run verify` exits 0.
-- `src/engine/**` is pure logic. It must not depend on React, the DOM, or database clients, and engine functions should not mutate their inputs or retain hidden state.
+- Story/epic Decisions, Non-goals and acceptance define product scope. Prefer
+  the relevant current specification over general conventions or old history.
+- Implement only the authorized task; preserve unrelated work. Record the
+  starting worktree and keep unrelated changes out of commits and delivery.
+- Frozen acceptance must not change to fit implementation. If a frozen test
+  appears wrong, stop the affected work and report it; follow the correction
+  procedure in [STORY](docs/process/STORY.md). Proposed tests remain editable
+  only during the explicitly separate drafting phase.
+- A code change is not done until `npm run verify` exits 0. Required browser
+  coverage and documentation checks follow [STORY](docs/process/STORY.md#verification).
+- `src/engine/**` is pure: no React, DOM, database clients, input mutation or
+  hidden retained state.
+- Existing-data deletion/reset requires applicable explicit authorization.
+  Isolation alone grants none. Follow [database safety](docs/DEVELOPMENT.md#e2e-environment);
+  do not inspect/edit `.env*` files or bypass execution permissions.
 
-## Execution preferences
+## Session start and autonomy
 
-- For authorized story work, continue through implementation, verification/E2E, commits, PR, independent review/merge, and the next specified story. Ask when an unresolved decision, obstacle, or substantive issue requires the user; do not ask again for routine steps already covered by the task.
-- Orchestrate separate implementation and testing agents when useful; keep review independent of both. Serialize E2E runs because they share the test database.
-- Use direct commands and narrowly reusable approval prefixes for routine checks, especially `npm run test:e2e`. Avoid shell wrappers or log redirection that turn the same check into a new one-off approval. These preferences do not override the execution sandbox; when it requires approval, explain the boundary and request a reusable rule where supported.
-- Make waiting for approval explicit in progress updates so the user knows work is paused.
+This section is the canonical session-start/autonomy policy.
 
-## Read when relevant
+1. Use this file if already supplied; do not reread it merely to start a task.
+2. Read only the target epic handoff's operational top and the active story or
+   task instructions. Check live git state before relying on recorded status.
+3. Read the specification sections, affected code/tests and process document
+   governing the next action. Expand when a dependency or actual problem needs
+   it; do not load all past stories, handoff history or incident notes.
 
-- Epic layout, story skills, focused handoffs, grilling, or epic closeout → `docs/epics/README.md`
-- Implementing a story → `docs/process/STORY.md`
-- Writing or updating a handoff → `docs/process/HANDOFF.md`
-- Auditing docs/code or closing an epic → `docs/process/AUDIT.md`
-- Resuming an epic → its `docs/epics/<id>-<name>/HANDOFF.md`, starting with `Read first`
-- Local setup, commands, databases, E2E tests, or dev-server problems → `docs/DEVELOPMENT.md`
-- Intermittent failures, test-harness issues, visual bugs, or previously encountered failure patterns → `docs/LEARNINGS.md`
-- NYT construction, clueing, numbering, or solving conventions → `docs/NYT-CROSSWORD-REFERENCE.md`
-- Whether a change requires a PR/review, or how to review it → `docs/CODE-REVIEW.md`, `docs/process/REVIEW.md`
+Carry the authorized task through its implementation, checks and authorized
+delivery without routine confirmations. Decide ordinary reversible implementation
+and UX details using the specification; record material tradeoffs. Ask only for
+material unresolved product/architecture decisions, true blockers, irreversible
+or unsafe operations, or missing access/authorization. Continue unaffected work
+while a necessary decision is pending. Do not invoke grilling automatically;
+use it when requested or when a substantive decision needs an interview.
 
-For current product behavior, prefer the relevant story/epic Decisions over general conventions or older documentation.
+Use separate implementation/testing agents when useful and authorized; preserve
+required reviewer independence. Serialize browser suites sharing a database.
+Run ordinary commands directly, with narrowly reusable approval prefixes where
+needed; avoid shell wrappers and changing log redirection. Report explicitly
+when waiting for approval, user input or another agent. A denied operation is
+not permission to bypass the boundary.
+
+Finishing a story does not authorize the next story. Continue only when that
+next task is already explicitly within the user's authorized scope.
+
+## Rule owners and conditional reading
+
+| Need | Canonical source |
+| --- | --- |
+| Drafting, human approval/freeze, implementation, checks and delivery | [STORY](docs/process/STORY.md) |
+| Risk paths, independent review criteria, evidence and merge policy | [CODE-REVIEW](docs/CODE-REVIEW.md) |
+| Performing an independent PR review | [REVIEW](docs/process/REVIEW.md) |
+| Writing a concise operational resume point | [HANDOFF](docs/process/HANDOFF.md) |
+| Epic locations, skills and closeout routing | [Epic index](docs/epics/README.md) |
+| Local commands, E2E harness and data safety | [DEVELOPMENT](docs/DEVELOPMENT.md) |
+| Specific recurring failure patterns | Relevant [LEARNINGS](docs/LEARNINGS.md) entry |
+| NYT construction/solving conventions | Relevant [reference](docs/NYT-CROSSWORD-REFERENCE.md) section |
+| Independent audit/epic closeout | [AUDIT](docs/process/AUDIT.md) |
+
+Shared user-wide skills are wrappers around repository policy, not another
+project-specific authority. This task's user instructions take precedence over
+skill guidelines. Do not edit shared skills without separately authorized scope.
+
+## Mandatory completion report
+
+At every completed story and substantial session handoff, including a stop with
+work in progress, give these three clearly named parts:
+
+1. **Summary / status:** Changes, checks passed/failed/not run, actual delivery
+   state (local, committed, pushed, PR, merged), remaining work and handoff link.
+   Attribute other agents' results; do not present unobserved checks as your own.
+2. **Human action:** `None` if none is needed; otherwise the precise necessary
+   decision, approval, manual check or unblock. Do not turn routine steps into
+   requests or imply that a pending PR has merged.
+3. **Next-session prompt:** Copy-ready instruction naming the live epic
+   `HANDOFF.md`, exact next task and minimum reading. If review/merge remains,
+   request it rather than next-story implementation. If no task is authorized,
+   say to await one; do not invent permission to proceed.
+
+Keep the report concise. Logs and useful historical evidence belong in linked
+records, not the human-facing completion message.

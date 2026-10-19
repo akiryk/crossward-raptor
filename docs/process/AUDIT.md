@@ -39,11 +39,13 @@ hold up, including things no list anticipated.
 
 ## What to read
 
-1. Start with `AGENTS.md` and the target epic's `HANDOFF.md` `Read first` list.
+1. Use the [AGENTS](../../AGENTS.md#session-start-and-autonomy) startup policy
+   and the target handoff's operational reading list; do not reread supplied files.
 2. Read its `docs/epics/<id>-<name>/EPIC.md` and every story in its `stories/`.
-3. Read that epic's `HANDOFF.md`; expand to other epics only for relevant dependencies.
-4. `docs/LEARNINGS.md`.
-5. `AGENTS.md` (and `CLAUDE.md` if it is not the same file).
+3. Expand to linked handoff history/other epics only for relevant evidence or
+   decisions; an audit can require historical context, ordinary startup does not.
+4. Relevant `docs/LEARNINGS.md` entries.
+5. `CLAUDE.md` only if it adds instructions beyond AGENTS.
 6. Relevant `docs/process/` workflows and shared user skills,
    `docs/epics/README.md`, and `.claude/settings.json` when permissions/hooks matter.
 7. The affected source and tests. Expand beyond the epic's Repo paths where
@@ -114,3 +116,8 @@ Group findings by severity, most serious first:
 End with a short list of anything you were unable to check and why. An audit
 that reports full coverage it did not have is worse than one that names its
 gaps.
+
+For a completed audit or substantial session handoff, use the three-part
+human-facing completion report in [AGENTS](../../AGENTS.md#mandatory-completion-report).
+Place detailed findings in its Summary/status or a linked audit record; keep
+Human action and the exact next-session task explicit.
