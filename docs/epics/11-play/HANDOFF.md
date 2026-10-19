@@ -3,110 +3,82 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not supplied.
-2. [Frozen P3 specification](stories/11-P3-finishing.md), particularly recovery,
-   Scope discipline and Definition of done.
-3. DEVELOPMENT's [E2E environment](../../DEVELOPMENT.md#e2e-environment) before
-   browser preparation; [REVIEW](../../process/REVIEW.md) before PR review/merge.
+2. [P3 specification](stories/11-P3-finishing.md), Decisions and Scope discipline.
+3. [REVIEW](../../process/REVIEW.md) and [CODE-REVIEW](../../CODE-REVIEW.md) for
+   final independent PR review/merge.
 
 **Only if needed:** affected play runtime and frozen P3/P2 acceptance;
-[STORY](../../process/STORY.md) for implementation or verification issues.
-[History](HISTORY.md) retains earlier P1/P2 and drafting evidence; do not load
-archived history for ordinary startup.
+[STORY](../../process/STORY.md) for verification/correction issues;
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment) before browser preparation.
+[History](HISTORY.md) retains older evidence; do not load it for routine startup.
 
 ## Current state (2026-10-19)
 
-P2 is complete. This session began on `main` at `075b36c`, matching local
-`origin/main`, with the existing P3 EPIC changes and four untracked drafts.
-The user authorized resuming P3, then approved its concrete specification /
-acceptance and delegated freeze, implementation and delivery through required
-PR/review gates. The user subsequently explicitly authorized test-row deletion
-for test runs and requested a lasting repository policy change. DEVELOPMENT
-now records the standing grant for this repository's guarded local test reset.
+P2 is complete. P3 is implemented and verified on `story/11-P3-finishing` in
+[PR #22](https://github.com/akiryk/crossward-raptor/pull/22); independent final-head
+review/merge remains pending. This handoff is the pre-merge evidence closeout;
+check live PR/head/check status rather than assuming merge.
 
-Independent read-only agent `p3_spec_review` reviewed the specification,
-acceptance and targeted P2 contracts. Specification-only main baseline
-**`d1570e0`**, pushed to origin/main, freezes the P3 story/EPIC and
-**28 engine / 39 server / 23 browser** cases. All 75 original acceptance files
-were preserved; all 78 files are now frozen against that baseline.
+Root authored the pure engine/server guards; `p3_ui` authored the client
+save/check/recovery, dialogs, locking and CSS confetti. Independent read-only
+agent `p3_spec_review` found no remaining runtime/scope findings, and reviewed
+both the specification and the approved acceptance correction. The final
+reviewer must still check the delivered head, evidence and configured CI.
 
-Runtime is implemented on **`story/11-P3-finishing`**: root authored the pure
-engine and authenticated server guards; `p3_ui` authored initial inspection,
-serialized save/check/recovery, dialogs, locking and CSS confetti. Independent
-read-only full-code review by `p3_spec_review` has no remaining blockers after
-fixing one reconciliation edge: a noncomplete Retry must write latest entries
-even if they equal the stale previous acknowledgement. No frozen tests changed.
+Initial human-approved specification/acceptance main freeze: **`d1570e0`**.
+The first full browser run passed 391 cases and failed two recovery cases
+because they inherited a paused context clock without advancing the specified
+500 ms debounce. Runtime was preserved. The user explicitly approved the
+independently reviewed one-line `await returned.clock.runFor(500);` correction;
+test-only main commit **`dbc3ee8`** refroze it before merging into P3. All
+**78 acceptance files** match that corrected baseline; every other test remains
+unchanged from the original freeze. No assertions/timeouts were weakened.
 
-Runtime commit **`98b17f9`** is pushed and contains exactly the verifier's six
-tested runtime hashes. [PR #22](https://github.com/akiryk/crossward-raptor/pull/22)
-is **open and draft**. At readback, Vercel deployment was pending and Preview
-Comments succeeded; neither is runtime verification evidence. Browser/visual
-gates and independent final-head review/merge remain pending; P3 is **not
-complete**. The standing test-reset policy is being delivered separately to
-main so future test runs do not depend on the pending acceptance correction.
-Check live git/PR state before relying on recorded delivery/check status.
-
-**Permission boundary:** the user-approved standing grant covers this
-repository's guarded test-harness deletion of all rows in the validated local
-`localhost`/`127.0.0.1:5433/crossward_test` target for necessary test runs,
-including future stories; do not ask again within that scope. No env-file access, live migration,
-development/production database, inbox, P4 or P5 work is authorized.
+**Standing authorization:** user-approved guarded local test resets are
+recorded in DEVELOPMENT, AGENTS and STORY, delivered on main in **`976a037`**.
+Reuse the grant for necessary harness runs across sessions/stories without
+asking again. Only the validated `localhost`/`127.0.0.1`, port `5433`, database
+`crossward_test` is covered. No env-file access, ad hoc deletion, development /
+production database, inbox, P4 or P5 work is authorized.
 
 ## Verification
 
-- Root: pre-freeze TypeScript, focused candidate ESLint, browser listing,
-  staged diff checks and original acceptance hash preservation passed; focused
-  runtime engine/P3-server/P2-server run passed all 107 tests.
-- Separate `p3_verification` agent: final **`npm run verify` exit 0**, 32 files /
-  **534 tests**, TypeScript clean; lint has only the existing
-  `request-logger/render.ts:802` unused `reqJson` warning. This run follows the
-  final autosave recovery fix.
-- Verifier's disposable no-DB probe passed via
-  `node --import tsx /private/tmp/crossward-p3-recovery-probe.ts`: full wrong
-  save commits but loses response; edits return to old partial; Retry inspects,
-  then writes partial before clearing draft.
-- Verifier confirmed all 78 frozen files byte-identical to `d1570e0`, with no
-  replacement acceptance. Six exact tested runtime hashes are in
-  `/private/tmp/crossward-p3-verification-runtime.json` (manifest SHA256
-  `81a09d1c7c268b1273dfc0f8a21fd653aecd621ac78501da6012ecbc19b51bb2`).
-  Confirm delivered runtime matches these hashes to bind precommit evidence.
-- Verifier's full `npm run test:e2e -- --workers=2` exited **1: 391 passed /
-  2 failed**. Both failures are the full-draft close/recover cases: the new page
-  inherits the paused context clock, but the tests never advance the required
-  500 ms recovery debounce before awaiting Saved. Runtime remains unchanged;
-  affected work is stopped under STORY's frozen-test correction procedure.
-- Independent reviewer confirmed the proposed single-line correction at
-  `/private/tmp/crossward-p3-recovery-clock.patch`: add
-  `await returned.clock.runFor(500);` before `saved(returned)` in the shared
-  test body. This preserves assertions, timeouts and specified behavior.
-  Human approval is pending; then correction must be committed/refrozen
-  separately on main before repeating the full browser gate. Original failure
-  contexts: `/private/tmp/crossward-p3-first-e2e-failures/`.
-- Verifier's separate visual/focus/reduced-motion demonstration **passed** on
-  unchanged runtime: both dialogs, Tab/Shift+Tab/Escape/focus restoration,
-  completed mark/grid/message, decorative confetti/pointer/ARIA behavior,
-  automatic cleanup, reduced motion and silent locked reopen. Four screenshots
-  were visually inspected under `/private/tmp/crossward-p3-visual/`.
-  Final-head CI/review/merge remain pending. Disposable visual runner/config is
-  prepared at `/private/tmp/crossward-p3-visual`; it reuses the built E2E server
-  without a second reset. If unavailable, recreate the demonstration, not frozen
-  acceptance. Serialize all browser use of the shared test database.
+Separate agent **`p3_verification`** observed, after refreeze:
+
+- **`npm run verify` exit 0:** 32 files / **534 tests**; TypeScript clean and
+  lint has only the pre-existing `request-logger/render.ts:802` warning.
+- **`npm run test:e2e -- --workers=2` exit 0: 393/393**, including both corrected
+  recovery cases. Suites were serialized; no retries, assertions or timeouts
+  changed. Verify session `62416`, completion `615a2a`; browser session `38802`,
+  completion `1c7139`.
+- Visual/focus/reduced-motion demonstration **passed** on identical runtime:
+  both dialogs, Tab/Shift+Tab/Escape/focus restoration, completed mark/grid /
+  message, confetti pointer/ARIA/cleanup, reduced motion and silent locked
+  reopen. Four screenshots were visually inspected in
+  `/private/tmp/crossward-p3-visual/`; test session `35055`, completion `cd79e9`.
+- Disposable no-DB lost-acknowledgement recovery probe passed. All 78 frozen
+  files match `dbc3ee8`; all six runtime hashes match prior passing visual
+  evidence. Suite began at `a388a20`; later `d231671` changed documentation only.
+
+Retained provenance and content bindings:
+`/private/tmp/crossward-p3-verification-provenance.md` and
+`/private/tmp/crossward-p3-verification-runtime.json`. The verifier recorded a
+206-file source/config/test digest
+`d977d4bbff6ffca03f9a752daa46c19a9fd73f6391e348218e7636496ed0c857`.
+Confirm final delivered content matches these records. Final delivery edits are
+status/permission/evidence documentation only; no runtime or acceptance change.
 
 ## Next action
 
-Obtain human approval for the independently reviewed one-line frozen test
-clock correction; commit/refreeze it separately on main under STORY, merge
-that baseline into the story branch, and have the separate verifier repeat
-the complete `npm run test:e2e -- --workers=2` suite. Keep runtime unchanged
-for this test defect; preserve all other frozen acceptance.
-Bind final evidence to the delivered head, update this handoff, then obtain
-independent PR review and merge under REVIEW. Do not begin P4/P5.
+Push the final evidence/status documentation, mark PR #22 ready, and obtain
+independent review/normal merge of the unchanged reviewed head once configured
+CI passes. Reuse exact-content verification evidence; do not repeat suites
+solely for the reviewer/session change. Read back the merge, then record P3
+completion and await new authorization. P4/P5 are not authorized.
 
 **Next-session prompt:**
 
-> Read docs/epics/11-play/HANDOFF.md and the frozen P3 specification. Check live
-> story/11-P3-finishing and draft PR #22. Resolve pending human approval for the
-> independently reviewed one-line frozen recovery-clock correction; refreeze
-> separately on main, then repeat the complete browser suite using
-> DEVELOPMENT's standing test-reset grant. Preserve other frozen acceptance
-> against d1570e0 and reuse exact-runtime verification/visual evidence.
-> Finish P3 through independent final-head PR review/merge. Do not begin P4/P5.
+> Read docs/epics/11-play/HANDOFF.md and P3 Decisions/Scope. Independently review
+> PR #22 on its live final head, verify retained 534-test/393-browser/visual
+> evidence and frozen baseline dbc3ee8, check CI, then merge normally and read
+> back the result. Record P3 completion; await authorization before P4/P5.

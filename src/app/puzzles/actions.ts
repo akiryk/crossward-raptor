@@ -20,6 +20,7 @@ import type { PuzzleSize } from '@/lib/puzzle-size';
 import { displayNameValidationMessage } from '@/lib/display-name';
 import { clearLetters } from '@/engine/grid';
 import { isCompatiblePlayEntries } from '@/lib/play-entries';
+import { isFull, isSolved } from '@/engine/play';
 
 export type Visibility = 'private' | 'public';
 
@@ -114,13 +115,79 @@ export async function savePlayEntries(id: string, entries: SerializedGrid): Prom
     throw new Error('The entries must match the published puzzle grid.');
   }
 
+  const solution = deserializeGrid(puzzle.grid as unknown as SerializedGrid);
+  const ownSession = await prisma.playSession.findUnique({
+    where: { userId_puzzleId: { userId: authSession.user.id, puzzleId: id } },
+    select: { entries: true },
+  });
+  if (!ownSession) throw new Error('Your play session is not available to save.');
+  if (isSolved(solution, deserializeGrid(ownSession.entries as unknown as SerializedGrid))) {
+    if (isSolved(solution, deserializeGrid(entries))) return;
+    throw new Error('This puzzle is complete and cannot be edited.');
+  }
+
   // The mutation independently guards publication and the authenticated pair.
-  // Saving never creates a session or changes the answer puzzle or timestamps.
+  // The canonical solved JSON guard also blocks a solve committed by another
+  // tab after the read above. Legacy saved JSON is checked by the engine above.
   const { count } = await prisma.playSession.updateMany({
-    where: { userId: authSession.user.id, puzzleId: id, puzzle: { publishedAt: { not: null } } },
+    where: {
+      userId: authSession.user.id, puzzleId: id, puzzle: { publishedAt: { not: null } },
+      ...(isFull(solution) ? {
+        NOT: { entries: { equals: serializeGrid(solution) as unknown as Prisma.InputJsonValue } },
+      } : {}),
+    },
     data: { entries: serializeGrid(deserializeGrid(entries)) as unknown as Prisma.InputJsonValue },
   });
   if (count === 0) throw new Error('Your play session is not available to save.');
+}
+
+export type PlayCompletionResult =
+  | { status: 'incomplete' | 'incorrect' }
+  | { status: 'complete'; entries: SerializedGrid; completedAt: Date };
+
+/** Only the authenticated player's persisted snapshot can establish completion. */
+export async function inspectPlayCompletion(id: string): Promise<PlayCompletionResult> {
+  const authSession = await requireSession();
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: { grid: true },
+  });
+  if (!puzzle) throw new Error('This puzzle is not available to play.');
+  const session = await prisma.playSession.findUnique({
+    where: { userId_puzzleId: { userId: authSession.user.id, puzzleId: id } },
+    select: playSessionSelect,
+  });
+  if (!session) throw new Error('Your play session is not available to check.');
+
+  const entries = deserializeGrid(session.entries as unknown as SerializedGrid);
+  if (!isFull(entries)) return { status: 'incomplete' };
+  if (!isSolved(deserializeGrid(puzzle.grid as unknown as SerializedGrid), entries)) {
+    return { status: 'incorrect' };
+  }
+  if (session.completedAt !== null) {
+    return { status: 'complete', entries: serializeGrid(entries), completedAt: session.completedAt };
+  }
+
+  const snapshotGuard = {
+    id: session.id, userId: authSession.user.id, puzzleId: id,
+    puzzle: { publishedAt: { not: null } },
+    entries: { equals: session.entries as Prisma.InputJsonValue },
+  };
+  const completedAt = new Date();
+  const { count } = await prisma.playSession.updateMany({
+    where: { ...snapshotGuard, completedAt: null },
+    data: { completedAt },
+  });
+  if (count !== 0) return { status: 'complete', entries: serializeGrid(entries), completedAt };
+
+  // A concurrent first inspection can win the stamp; return its first date
+  // only if publication, identity and the exact inspected entries still match.
+  const confirmed = await prisma.playSession.findFirst({
+    where: { ...snapshotGuard, completedAt: { not: null } },
+    select: { completedAt: true },
+  });
+  if (!confirmed?.completedAt) throw new Error('Your play session changed. Please try again.');
+  return { status: 'complete', entries: serializeGrid(entries), completedAt: confirmed.completedAt };
 }
 
 export async function getDisplayName(): Promise<string | null> {

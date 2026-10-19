@@ -63,7 +63,7 @@ This is not a new epic-wide audit or runtime verification pass.
 ## Next action
 
 No work remains on the delivered workflow overhaul. Its separately authorized
-standing test-reset policy amendment is being delivered directly on main;
+standing test-reset policy amendment is delivered directly on main in `976a037`;
 AGENTS, DEVELOPMENT and STORY now record that grant. P3's specification and
 acceptance were subsequently approved, frozen in `d1570e0` and pushed to main.
 Use [Play's operational handoff](../11-play/HANDOFF.md) for live P3 verification
