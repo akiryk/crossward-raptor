@@ -127,6 +127,14 @@ session; server GET/prefetch does not. See the
 
 ### P2 — Typing and resuming
 
+Authorized on 2026-10-18. The [detailed P2 story](stories/11-P2-typing-and-resuming.md)
+and 40 unit/27 browser acceptance cases passed independent specification
+review and are frozen by the specification-only main baseline.
+The user confirmed same-browser local recovery of pending edits without a
+close warning, and an unselected puzzle on opening/reopening. Runtime begins
+only after final independent specification/acceptance review and freeze; P3
+is not authorized.
+
 Letters go into the entries grid; the cursor behaves as it does in the
 editor, since it is the same code. Saved debounced, as everything else
 in this app is. Leaving and returning restores exactly what was typed.

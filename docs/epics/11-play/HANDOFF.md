@@ -4,11 +4,14 @@
 
 1. `AGENTS.md`, if not loaded; this handoff's Current state and Next action.
 2. `docs/epics/11-play/EPIC.md` — Decisions, Non-goals and story order.
-3. `docs/epics/11-play/stories/11-P1-play-route.md` — frozen P1 contract,
+3. `docs/epics/11-play/stories/11-P2-typing-and-resuming.md` and new
+   `src/app/puzzles/actions.play-entries.test.ts`, `e2e/play-entries.spec.ts`
+   — frozen P2 contract and acceptance; preserve them during implementation.
+4. `docs/epics/11-play/stories/11-P1-play-route.md` — frozen P1 contract,
    acceptance paths, scope and manual checks.
-4. `src/app/puzzles/actions.play-route.test.ts` and `e2e/play-route.spec.ts`
+5. `src/app/puzzles/actions.play-route.test.ts` and `e2e/play-route.spec.ts`
    — immutable acceptance; `e2e/helpers/play-route.ts` is editable plumbing.
-5. For implementation: `src/app/puzzles/actions.ts`,
+6. For implementation: `src/app/puzzles/actions.ts`,
    `src/components/grid/PuzzleGrid.tsx`, `src/lib/cell-appearance.ts`,
    `src/engine/grid.ts`, `src/engine/numbering.ts`, `prisma/schema.prisma`,
    and `src/lib/require-session.ts` — inspected runtime seams.
@@ -20,14 +23,54 @@ handoff is prerequisite history, not work to replay.
 
 ## Current state (2026-10-18)
 
+**P2 specification and acceptance passed final independent review; runtime
+implementation has not begun at this specification-only checkpoint.**
+The user explicitly requested a new detailed story/acceptance, independent
+review/freeze on main before runtime, then implementation/verify/full E2E/PR
+and independent merge. P3 is excluded. Isolated harness-validated local test
+DB resets are authorized; development/production migrations/data deletion,
+environment-file inspection/edits and inbox operations are prohibited.
+
+The original checkout was clean on main at `5f35a50` (also origin/main).
+This specification-only main baseline adds P2's detailed story and 40 unit/27
+browser acceptance cases, plus the Play epic/handoff updates. No runtime edits
+or database/environment/inbox operations occurred before freeze.
+
+The user confirmed both decisions: open/reopen unselected with no cursor,
+and retain pending edits in the same browser so immediate closing does not
+lose them, retrying the server save on return without a close warning.
+The story records session-scoped localStorage, validation, acknowledgement
+cleanup, storage-failure feedback and ordinary last-write-wins scope.
+The user explicitly authorized authoring acceptance, overriding the story
+workflow's normal supplied-tests-only assumption.
+
+Two independent inspection agents examined merged P1 runtime/frozen acceptance
+before drafting. Separate agents authored the unit/browser acceptance, and a
+third independently reviewed the final actual files. That reviewer reported
+no blocking findings after the user decisions and recovery additions. Review
+caught premature saved waits, required painted selection/word indicators,
+moved P3-incompatible completion assertions to a manual P2 checkpoint, and
+covered stale local drafts after a newer storage write fails.
+
+Observed pre-implementation checks: all 40 new server cases fail explicitly
+for the absent `savePlayEntries` export; TypeScript and new-file ESLint pass.
+Browser listing passes: 27 P2 cases plus setup. The independent reviewer
+repeated nonincremental TypeScript, browser listing and diff checks, all exit 0.
+Browser execution/full verify are pending implementation. All 73 prior
+acceptance hashes match `/private/tmp/crossward-p2-preexisting-acceptance-sha256.json`.
+Freeze the current reviewed acceptance unchanged and preserve that baseline.
+
+### P1 completed checkpoint
+
 **P1 is complete: implemented, verified, independently reviewed and merged.**
 [PR #20](https://github.com/akiryk/crossward-raptor/pull/20) merged normally on
 2026-10-18 at `cea9ea05c81513fdd7aa86dc8fd0b76b85da4679`. The reviewed runtime
 head is `0988b5287494604d1c321fb89500e654fa1f8471`; corrected frozen acceptance
 is `6520aaf`. Local main was fast-forwarded to the merge before this
 documentation-only closeout. No runtime changes followed independent review.
-The original checkout was clean; no unrelated work was included. P2 is not
-authorized and has not started. The Play epic remains open for P2–P5.
+The original checkout was clean; no unrelated work was included. P2 was not
+authorized at that completed P1 checkpoint; the authorization above supersedes
+that boundary for P2 only. The Play epic remains open for P2–P5.
 
 The user authorized implementation, then explicitly authorized the minimal
 frozen-test await-order correction and isolated test-database resets. The
@@ -54,7 +97,7 @@ cascades, retaining an unrelated puzzle/session. No historical migrations
 were replayed for that proof. No development/production schema or data changes,
 inbox operations, or environment-file inspections/edits were performed.
 
-## Verification at the final runtime checkpoint
+## P1 verification at the final runtime checkpoint
 
 - `npm run verify`: **exit 0**, **427/427 tests**, 29 files; TypeScript and
   lint pass. One pre-existing unused-variable warning remains in
@@ -93,25 +136,23 @@ inbox operations, or environment-file inspections/edits were performed.
 
 ## Next action
 
-P1 has no remaining implementation/delivery work. Await authorization for the
-next slice. P2 is currently an epic outline, not a supplied frozen story;
-specify, independently review and freeze its story/acceptance before coding it.
-Do not infer P2 authorization from completion of P1.
-
-The additive migration has been applied only to the isolated test database.
-Development/production application remains a separate reviewed, explicitly
-authorized operation. No existing development/production data deletion,
-inbox operation, environment-file edit or live migration is authorized by this
-completed implementation task.
+Create `story/11-P2-typing-and-resuming` from the specification-only main
+baseline and implement the frozen P2 contract. Keep verification separate,
+serialize browser suites, pass `npm run verify` and full `npm run test:e2e`,
+record P2 manual/visual checks and unchanged acceptance, then update handoff,
+commit/open PR and obtain independent review/merge. Do not start P3 or operate
+on development/production/inbox/environment files.
 
 Resume prompt:
 
-> Read AGENTS.md and docs/epics/11-play/HANDOFF.md, following Read first. P1 is
-> complete and merged through independently reviewed PR #20 at cea9ea0, with
-> frozen corrected acceptance at 6520aaf. All required local gates and configured
-> CI passed. Follow only the newly authorized task; P2 needs its own frozen
-> story/acceptance, and development/production migration application needs a
-> separate reviewed and explicitly authorized operation.
+> Resume authorized Play P2 implementation. Read AGENTS.md and this handoff
+> beginning with Read first. P1 is merged through PR #20; P2 story and 40 unit/
+> 27 browser cases passed independent review and are frozen on main before
+> runtime work. User decisions: open/reopen unselected, and same-browser local
+> pending-edit recovery without a close warning. Continue implementation and
+> verification through independent PR merge. Validated isolated local test DB
+> resets are authorized. Do not inspect/edit environment files, touch inbox,
+> migrate development/production or begin P3.
 
 ## Implementation findings and resolved blockers
 
