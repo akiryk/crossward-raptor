@@ -3,8 +3,8 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not supplied.
-2. Await a new authorized task. Read that task's instructions and targeted
-   specification before work; P3 needs no further implementation or review.
+2. [EPIC](EPIC.md)'s P4 section, for writing the P4 specification. P3 needs
+   no further implementation or review.
 
 **Only if needed:** [P3 specification](stories/11-P3-finishing.md) for a specific
 regression; [STORY](../../process/STORY.md) for the applicable lifecycle;
@@ -72,13 +72,10 @@ The 206-file content digest is
 
 ## Next action
 
-Await the next user task. P4/P5 and epic closeout remain pending; P3 completion
-does not authorize them. Preserve frozen acceptance and retain the standing
-local test-reset grant within its recorded scope.
+Write the P4 (Reset) story specification and its proposed acceptance tests,
+per STORY's drafting phase. Work on main and commit nothing until the user
+approves and freezes them. P5 and epic closeout follow P4.
 
-**Next-session prompt:**
+## Resume prompt
 
-> Read docs/epics/11-play/HANDOFF.md. P3 is complete and independently merged
-> in PR #22 at 4cfa4d7. Await authorization for the next task; do not begin
-> P4/P5 or epic closeout. Read only the new task's targeted instructions once
-> authorized, and reuse the standing guarded local test-reset grant.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/EPIC.md (P4 — Reset). Write the P4 story specification and its proposed acceptance tests on main; don't commit until I approve and freeze them.

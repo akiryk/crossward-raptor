@@ -20,9 +20,30 @@ roughly 300–600 words of current context, adjusting for actual complexity:
 3. **Verification:** Commands, observed outcomes and the commit/tree tested.
    Attribute delegated checks and distinguish external CI. Explicitly mark
    required checks not run; old results must not imply a current pass.
-4. **Next action:** One concrete next task, any needed human action, and a
-   copy-ready prompt naming this handoff and minimum reading. Review pending
-   means review next; no further authorization means await the next task.
+4. **Next action:** One short paragraph: the next job, any needed human
+   action, and what limits it (branch, no push, approval before freeze).
+5. **Resume prompt:** The prompt the user pastes, in the form below.
+
+## The resume prompt
+
+```
+Read docs/epics/<id>-<name>/HANDOFF.md and <story path>[, then <session
+file>]. <The job> on <branch>; <the delivery limits>.
+```
+
+It names the files to read and the job, nothing more. It doesn't summarize
+the work, restate decisions or standing grants, or list files the procedure
+already sends the agent to (AGENTS, STORY and the docs they name).
+
+The job is the next one in the epic's order: review PR #N if a review is
+pending; otherwise implement the next story, or write its specification if
+there isn't one (name its section in `EPIC.md` in place of the story path).
+If the epic has no next job, the prompt points at the epic where work
+continues. The prompt is never "await a task": pasting it is the user's
+authorization, so it always names a job.
+
+End your final message to the user with the resume prompt, verbatim, as a
+plain line of text they can copy. No block quote or code fence.
 
 Keep settled product decisions in the story/epic. Before compressing history,
 preserve unique decisions, rationale, unresolved permissions and useful failure

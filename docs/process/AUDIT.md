@@ -120,4 +120,5 @@ gaps.
 For a completed audit or substantial session handoff, use the three-part
 human-facing completion report in [AGENTS](../../AGENTS.md#mandatory-completion-report).
 Place detailed findings in its Summary/status or a linked audit record; keep
-Human action and the exact next-session task explicit.
+Human action explicit and end with the resume prompt per
+[HANDOFF](HANDOFF.md#the-resume-prompt).

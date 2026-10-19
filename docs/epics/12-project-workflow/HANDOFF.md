@@ -48,6 +48,13 @@ These paths do not trigger the risky-code PR policy; no PR/merge is pending.
 Independent read-only documentation verification found no blocking defects.
 This is not a new epic-wide audit or runtime verification pass.
 
+On 2026-10-19 the user approved replacing the next-session prompt rule with a
+fixed resume prompt: HANDOFF owns its template and rules (files to read and
+the job, nothing more; never "await a task"), each epic handoff has a
+`## Resume prompt` section, and AGENTS and AUDIT point to it. Aligning the
+rest of the handoff layout with the user's budget-app repo was offered as a
+separate follow-up and is not decided.
+
 ## Verification
 
 - Implementer: 13 documents and 51 local Markdown links/anchors checked, no
@@ -62,22 +69,9 @@ This is not a new epic-wide audit or runtime verification pass.
 
 ## Next action
 
-No work remains on the delivered workflow overhaul. Its separately authorized
-standing test-reset policy amendment is delivered directly on main in `976a037`;
-AGENTS, DEVELOPMENT and STORY now record that grant. P3's specification and
-acceptance were subsequently approved, frozen in `d1570e0` and pushed to main.
-P3 is subsequently complete and independently merged in PR #22 at `4cfa4d7`.
-Use [Play's operational handoff](../11-play/HANDOFF.md) for current status;
-await the next authorized task and reuse the standing test-reset grant within
-its scope without another boilerplate permission request.
+No workflow job is pending; application work continues in Play. Aligning the
+handoff layout further is a follow-up only if the user asks for it.
 
-**Next-session prompt:**
+## Resume prompt
 
-> Read docs/epics/12-project-workflow/HANDOFF.md; use AGENTS if not supplied.
-> The workflow overhaul is delivered. DEVELOPMENT now records the user's
-> standing authorization for guarded local test resets. For authorized Play work,
-> follow docs/epics/11-play/HANDOFF.md's operational sections and its frozen
-> specification only when needed for a new authorized task; P3 is complete.
-> Await that task and reuse the standing test-reset grant within its scope.
-> Do not load archived history unless a specific issue needs it, or begin
-> P4/P5 without authorization.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/EPIC.md (P4 — Reset). Write the P4 story specification and its proposed acceptance tests on main; don't commit until I approve and freeze them.

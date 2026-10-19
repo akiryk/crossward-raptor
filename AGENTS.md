@@ -81,10 +81,8 @@ work in progress, give these three clearly named parts:
 2. **Human action:** `None` if none is needed; otherwise the precise necessary
    decision, approval, manual check or unblock. Do not turn routine steps into
    requests or imply that a pending PR has merged.
-3. **Next-session prompt:** Copy-ready instruction naming the live epic
-   `HANDOFF.md`, exact next task and minimum reading. If review/merge remains,
-   request it rather than next-story implementation. If no task is authorized,
-   say to await one; do not invent permission to proceed.
+3. **Resume prompt:** The one in the epic's `HANDOFF.md`, verbatim, per
+   [HANDOFF](docs/process/HANDOFF.md#the-resume-prompt).
 
 Keep the report concise. Logs and useful historical evidence belong in linked
 records, not the human-facing completion message.
