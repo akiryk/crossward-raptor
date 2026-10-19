@@ -82,6 +82,11 @@ export function PuzzleGrid({
           data-highlight={highlight}
           data-cell-state={appearance}
           className={APPEARANCE_BG[appearance]}
+          style={mode === 'play' && cell.kind === 'active' && highlight ? {
+            boxShadow: highlight === 'selected'
+              ? 'inset 0 0 0 3px var(--color-accent)'
+              : 'inset 0 0 0 1px var(--color-ink-3)',
+          } : undefined}
         >
           <GridCell
             cell={cell}

@@ -3,9 +3,16 @@
 Let a signed-in player type and erase guesses in the fixed published grid,
 autosave their own entries, and resume them later.
 
-**Status:** specification and 40 unit/27 browser acceptance cases independently
-reviewed and frozen by this specification-only main baseline. Runtime work
-begins afterward on `story/11-P2-typing-and-resuming`.
+**Status:** implemented and locally verified on
+`story/11-P2-typing-and-resuming`; independent PR review/merge pending. Specification and 40 unit/27 browser cases
+were independently reviewed and frozen on main in `29a63aa`. The user-approved
+locator-only correction was independently reviewed and refrozen in `4e53740`.
+
+Acceptance correction authorized on 2026-10-19: scope the save-failure alert
+role/visibility lookup to `play-puzzle` so Next's unrelated hidden route
+announcer does not cause a strict-locator collision. The same role and visible
+alert assertion remain; no product behavior changes. This correction was
+committed alone on main before continuing runtime verification.
 **Blast radius: high:** `src/app/puzzles/actions.ts` adds the play write path.
 
 ## Decisions
@@ -182,6 +189,10 @@ Expected implementation paths:
   geometry, white backgrounds and existing modes.
 - `e2e/helpers/play-route.ts` or `e2e/helpers/play-entries.ts` — editable
   isolated fixture plumbing only if needed; acceptance files stay frozen.
+- `e2e/helpers/auth.ts` — editable magic-link fixture request plumbing: send
+  the trusted isolated auth Origin on POST, including when signing a different
+  user into an already-authenticated browser. An observed full-suite failure
+  exposed the missing header. Preserve application auth/CSRF enforcement.
 - This story, `../EPIC.md` and `../HANDOFF.md` — decisions/delivery evidence.
 
 Reference `src/engine/cursor.ts`, `src/lib/{keyboard-intent,hint-lookup,
