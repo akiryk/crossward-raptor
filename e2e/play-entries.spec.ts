@@ -433,7 +433,7 @@ test.describe('P2 — typing and resuming', () => {
     await page.keyboard.type('a');
     await page.clock.runFor(500);
     await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'error');
-    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(page.getByTestId('play-puzzle').getByRole('alert')).toBeVisible();
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
     await expectLetters(page, { '0,0': 'A' });
     expect(await readPlaySessions(fixture.id)).toEqual(before);
