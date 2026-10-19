@@ -478,6 +478,7 @@ test.describe('P3 — finishing a puzzle', () => {
       const returned = await context.newPage();
       await open(returned, fixture.id);
       await expectEntries(returned, expected);
+      await returned.clock.runFor(500);
       await saved(returned);
       await expect.poll(async () => (await readPlaySessions(fixture.id))[0].entries).toEqual(expected);
       await expect(returned.getByTestId('play-incorrect-dialog')).toHaveCount(0);
