@@ -35,9 +35,13 @@ read-only full-code review by `p3_spec_review` has no remaining blockers after
 fixing one reconciliation edge: a noncomplete Retry must write latest entries
 even if they equal the stale previous acknowledgement. No frozen tests changed.
 
-The implementation is ready for a draft PR. Browser/visual gates and final-head
-independent review/merge remain pending; P3 is **not complete**. No PR/CI/merge
-success is claimed here. Read live git/PR state before relying on delivery state.
+Runtime commit **`98b17f9`** is pushed and contains exactly the verifier's six
+tested runtime hashes. [PR #22](https://github.com/akiryk/crossward-raptor/pull/22)
+is **open and draft**. At readback, Vercel deployment was pending and Preview
+Comments succeeded; neither is runtime verification evidence. Browser/visual
+gates and independent final-head review/merge remain pending; P3 is **not
+complete**. This documentation-only delivery closeout follows that readback.
+Check live git/PR state before relying on recorded delivery/check status.
 
 **Permission boundary:** explicit authorization to delete all rows in
 `localhost:5433/crossward_test` for necessary P3 E2E harness runs remains
@@ -80,7 +84,7 @@ independent PR review and merge under REVIEW. Do not begin P4/P5.
 **Next-session prompt:**
 
 > Read docs/epics/11-play/HANDOFF.md and the frozen P3 specification. Check live
-> story/11-P3-finishing git/PR state. Obtain explicit authorization to delete all
+> story/11-P3-finishing and draft PR #22. Obtain explicit authorization to delete all
 > rows in localhost:5433/crossward_test for P3 before running the serialized full
 > browser suite and visual/focus/reduced-motion checks. Preserve all acceptance
 > against d1570e0; use existing exact-content verify evidence when applicable.
