@@ -38,11 +38,12 @@ even if they equal the stale previous acknowledgement. No frozen tests changed.
 
 Runtime commit **`98b17f9`** is pushed and contains exactly the verifier's six
 tested runtime hashes. [PR #22](https://github.com/akiryk/crossward-raptor/pull/22)
-is **open and draft**. At readback, Vercel deployment was pending and Preview
-Comments succeeded; neither is runtime verification evidence. Browser/visual
-gates and independent final-head review/merge remain pending; P3 is **not
-complete**. The standing test-reset policy is being delivered separately to
-main so future test runs do not depend on the pending acceptance correction.
+is **open and draft**. Vercel/Preview Comments passed at the previous-head
+readback; neither is runtime verification evidence. The browser gate and
+independent final-head review/merge remain pending; P3 is **not complete**.
+The standing test-reset policy is delivered separately on main in **`976a037`**
+and merged into the story branch, so future necessary guarded test resets
+do not depend on the pending acceptance correction.
 Check live git/PR state before relying on recorded delivery/check status.
 
 **Permission boundary:** the user-approved standing grant covers this
