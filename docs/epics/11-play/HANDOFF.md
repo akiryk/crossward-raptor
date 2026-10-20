@@ -20,8 +20,20 @@ in [PR #24](https://github.com/akiryk/crossward-raptor/pull/24) at merge
 commit `e89b6d5`. The reviewed head was `54f1050`, the frozen baseline
 `687ac58`, and the O3 correction `be3a58b`.
 
-**The epic is not closed.** Closeout needs an independent, report-only audit
-from a session that authored none of the epic's work.
+**The epic is not closed.** The independent closeout audit ran on 2026-10-20
+([record](HISTORY.md#closeout-audit-2026-10-20)). Its verdict is that the epic
+can't be closed yet.
+
+**Blocker:** nothing records the `20261018180000_add_play_sessions` migration
+being applied to development or production. `main` deploys automatically, and
+since P5 the library page reads `playSessions`. The human must confirm and
+record the production and development schema state, or authorize the reviewed
+migration per [DEVELOPMENT](../../DEVELOPMENT.md). Agents may not touch those
+databases.
+
+The audit also found non-blocking doc drift in EPIC, the P1 story and
+LEARNINGS, plus follow-ups such as the P4 stale-ID keystroke window. They're
+listed in the record.
 
 P5 implementation summary (details in the PR):
 
@@ -69,11 +81,13 @@ passed.
 
 ## Next action
 
-Run the independent, report-only epic closeout audit per
-[AUDIT](../../process/AUDIT.md) and the [epic index](../README.md#close-an-epic),
-scoped to the Play epic. Use a session that authored none of P1–P5. Record
-findings in this handoff or HISTORY; fixing them needs separately scoped work.
+Once the human has confirmed and recorded the PlaySession migration state
+(blocker 1), fix the audit's doc corrections 2–6 on main. These are
+docs-only: EPIC, the P1 and P5 stories, and the HANDOFF prune. Then recheck
+blockers 1–6, and mark the epic closed in this handoff, EPIC and the
+[epic index](../README.md). Follow-ups 7–12 need their own scoped stories or
+tasks; they don't block closure.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/EPIC.md. Run the independent, report-only closeout audit of the Play epic on main; edit no files beyond recording the result.
+Read docs/epics/11-play/HANDOFF.md and the closeout audit record it links. Resolve the audit's doc corrections and close the Play epic on main once the PlaySession migration state is recorded; docs only, no database operations.

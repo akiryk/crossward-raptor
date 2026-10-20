@@ -564,3 +564,80 @@ The author separately reported the same verify result, focused P4 E2E 25/25,
 and a visual check of the builder shortcut, options disclosure, confirmation,
 pending, error, completed-to-blank reset and non-builder view (throwaway
 script, not committed). The reviewer did not repeat the visual check.
+
+---
+
+# Closeout audit (2026-10-20)
+
+Independent, report-only audit per [AUDIT](../../process/AUDIT.md). It was run
+by a fresh agent with no authorship of P1–P5, on `main` at `2a75254`. The
+session that started it had reviewed and merged P5 and edited the epic's docs,
+so it recorded the result but did not audit. The auditor edited nothing.
+
+**Coverage:**
+- PRs #20–#24 merged at the recorded merge and head commits.
+- Frozen acceptance unchanged against every baseline (`6520aaf`, `4e53740`,
+  `dbc3ee8`, `14bb217`, `687ac58`).
+- Runtime unchanged since the reviewed head `54f1050`.
+- Acceptance counts recomputed.
+- `npm run verify` exit 0 (35 files, 579 tests), auditor's own run.
+- Engine purity checked.
+- Epic Definition of Done covered by tests.
+
+**Not covered:**
+- Development and production schema state, since `.env*` and databases are
+  off-limits.
+- E2E, which the auditor didn't rerun; the reviewer's 435 passed on `54f1050`
+  stands.
+- Visual and keyboard UI checks.
+- An exhaustive trace of `play-autosave` concurrency.
+
+**Verdict:** not closable yet.
+
+**Blocker:**
+1. Nothing records `20261018180000_add_play_sessions` being applied to
+   development or production. The only record is the isolated test database
+   (HISTORY above, P1 migration proof). `build` is `prisma generate && next
+   build` with no migrate step, and `main` deploys automatically. Since P5,
+   `listPuzzles` reads `playSessions` (`actions.ts:332-336`), so a missing
+   table would break the library page itself. The recording session
+   confirmed that no doc records an application.
+
+**Non-blocking doc corrections:**
+2. EPIC Decisions (EPIC.md:55-56) say reset deletes the row. P4/P5, and
+   EPIC.md:197-199, say a fresh blank row is recreated.
+3. P1 story:39-40 says an opened empty puzzle will count as in progress in
+   P5. P5 classifies it as untouched.
+4. The audit resume prompt said both "record the result" and AUDIT's "do
+   not edit a file". Resolved this time by having the starting session do
+   the recording.
+5. "Four specs assert its shape" (EPIC.md:202, P5 story:14 and :240) is
+   miscounted: P5's own inspection list names five browser specs and three
+   unit files.
+6. Stale status lines:
+   - EPIC.md:161, "P5 is in review."
+   - EPIC.md:140, "remains open for P3–P5."
+   - EPIC.md:113-114 points at the handoff for migration-boundary evidence
+     that now lives in HISTORY.
+
+**Non-blocking follow-ups:**
+7. The P4 review's stale-ID reset window is still open and dropped from the
+   handoff. `PlayPuzzle.tsx:172-180` clears autosave and closes the dialog
+   before `beginSession`'s completion inspection, so keystrokes in that
+   window are dropped.
+8. Evidence paths under `/private/tmp/crossward-p3-*.json` are volatile.
+9. LEARNINGS #3 cites "Story P3/P5" without an epic. They're epic 02's, and
+   now collide with Play's IDs.
+10. No test covers freshness via app navigation or Back after a play-page
+    reset. Back after save and completion, and reset with reload, are
+    covered.
+11. The engine lint rule doesn't ban DOM globals (`no-restricted-globals`).
+12. `scripts/check-play-migration.mjs` is not documented in DEVELOPMENT.
+
+**Prunable candidates:**
+- The P5 implementation summary in HANDOFF, now test-enforced.
+- The `library-row.ts` review note.
+- The known-limit duplicate, which P4 story:117-120 owns.
+- EPIC per-story delivery paragraphs, which belong here. Trim them but keep
+  the human decisions.
+- LEARNINGS 1–8 all remain load-bearing.
