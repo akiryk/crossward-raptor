@@ -6,9 +6,10 @@ start again on the spot. Give builders a quiet shortcut for clearing test plays.
 **Status:** specification and acceptance approved and frozen on `main` by
 the human on 2026-10-19 (approval/freeze delegated to the agent after review;
 the two review fixes, client initialization from the returned view and the
-EPIC P5 untouched note, were approved). Runtime was authorized on 2026-10-20
-and is implemented on `story/11-P4-reset`; it awaits independent review and
-merge. P1–P3 acceptance remains frozen.
+EPIC P5 untouched note, were approved). Runtime was authorized on 2026-10-20.
+**Complete:** independently reviewed and merged in
+[PR #23](https://github.com/akiryk/crossward-raptor/pull/23) (reviewed head
+`c73cde7`, merge `740d569`, 2026-10-20). P1–P4 acceptance remains frozen.
 **Blast radius: high:** authenticated session deletion in `actions.ts`.
 
 ## Decisions
