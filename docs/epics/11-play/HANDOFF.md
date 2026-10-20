@@ -87,8 +87,8 @@ script, not committed). The reviewer did not repeat the visual check.
 P5 runtime, once separately authorized: branch `story/11-P5-library-play`
 from the frozen baseline, implement against the frozen acceptance, open a PR
 and arrange independent review. Freeze commits: the O3 correction `be3a58b`,
-then the P5 baseline (the commit that adds this line; read it back with
-`git log -1 -- docs/epics/11-play/stories/11-P5-library-play.md`).
+then the P5 baseline `687ac58`. Compare the acceptance files and
+`e2e/builder-edits.spec.ts` against `687ac58` before delivery.
 
 ## Resume prompt
 
