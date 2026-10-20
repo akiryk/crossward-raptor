@@ -3,8 +3,8 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not supplied.
-2. [P4 story](stories/11-P4-reset.md), its two frozen acceptance files and the
-   runtime paths it lists.
+2. [P4 story](stories/11-P4-reset.md), its two frozen acceptance files and
+   the PR #23 diff; [REVIEW](../../process/REVIEW.md) for the review.
 
 **Only if needed:** [EPIC P4](EPIC.md#p4--reset),
 [STORY](../../process/STORY.md) for implementation and delivery,
@@ -13,44 +13,44 @@
 The [historical P3 completion handoff](HISTORY.md#historical-p3-completion-handoff-archived-during-p4-drafting-2026-10-19)
 retains its full verification/permission provenance.
 
-## Current state (2026-10-19)
+## Current state (2026-10-20)
 
-**P4 specification and acceptance are approved and frozen on main; no P4
-runtime implementation exists.** The human approved after review on
-2026-10-19 and delegated the freeze to the agent, including two review fixes:
-the client initializes from the returned reset view (a stale-ID success may
-return a partial or completed attempt), and EPIC P5 must treat a blank,
-uncompleted session as untouched. The human also authorized pushing main,
-including the earlier unrelated commit `fd54be5`.
+**P4 is implemented on `story/11-P4-reset` in
+[PR #23](https://github.com/akiryk/crossward-raptor/pull/23), awaiting
+independent review per CODE-REVIEW (high risk: `actions.ts`). Not merged.**
+Runtime was authorized 2026-10-20 (implement, open PR, don't merge).
+Implementation commit `5e62dc4`; the handoff commit follows on the same
+branch. Frozen acceptance (26 server cases in
+`src/app/puzzles/actions.play-reset.test.ts`, 24 browser cases in
+`e2e/play-reset.spec.ts`) is byte-identical to baseline `14bb217`.
 
-Frozen acceptance: **26 server cases** in
-`src/app/puzzles/actions.play-reset.test.ts` and **24 browser cases** in
-`e2e/play-reset.spec.ts`. The baseline commit is the one that introduced
-this handoff text; find it with
-`git log --format=%h -1 -- e2e/play-reset.spec.ts`.
+Added paths beyond the story's list (declared in the story): new colocated
+`src/components/play/PlayReset.tsx`, and a read-only `isPlayPuzzleBuilder`
+action in `actions.ts` supplying the route's builder boolean.
 
 Human decisions: reset stays on the play page and shows a fresh blank
-attempt (one transaction deletes the old row and creates a new one); the
-library reset control moves to P5. Known accepted limit: saves are keyed by
-user and puzzle, so an old open tab can save into the fresh attempt.
-
-P1–P3 remain complete; P3 merged in PR #22 at `4cfa4d7`.
+attempt; the library reset control moves to P5. Known accepted limit: saves
+are keyed by user and puzzle, so an old open tab can save into the fresh
+attempt. P1–P3 remain complete (P3 merged in PR #22 at `4cfa4d7`).
 
 ## Verification
 
-Observed against the frozen baseline: focused Vitest **26/26 expected
-failures** at the missing `resetPlaySession` export; `tsc --noEmit` passed.
-Earlier drafting checks: focused ESLint passed, Playwright discovery found 24
-P4 cases + 1 auth setup, and the `enabled only after` browser case failed at
-the absent enabled reset button, confirming it discriminates. Full
-`npm run verify`, full E2E and visual demonstrations are implementation gates.
+On the code tree committed as `5e62dc4` (no code edits after these runs):
+`npm run verify` exit 0 (560 tests; one pre-existing lint warning in
+`request-logger/render.ts`); focused P4 E2E 25/25; full
+`npm run test:e2e -- --workers=2` exit 0, 417 passed. The browser runs used
+the standing guarded local test reset grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). Visual check of builder
+shortcut, options disclosure, confirmation, pending, error, completed-to-blank
+reset and non-builder view, via a throwaway local script (not committed).
+Configured CI on PR #23: not observed by the author.
 
 ## Next action
 
-When separately authorized, implement P4 on a story branch from the frozen
-main per STORY, keeping frozen acceptance byte-identical to the baseline;
-then open a PR for independent review per CODE-REVIEW.
+Independently review PR #23 per REVIEW/CODE-REVIEW (a different agent or
+session from the author). The reviewer merges if there are no blockers and the
+required verification and CI pass. P5 requires separate authorization.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P4-reset.md. Implement P4 on branch story/11-P4-reset from main; open a PR for independent review, don't merge.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P4-reset.md. Independently review PR #23 on story/11-P4-reset per REVIEW; merge only if no blockers remain and required checks pass.
