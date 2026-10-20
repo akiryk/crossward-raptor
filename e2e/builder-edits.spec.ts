@@ -30,6 +30,12 @@ test('O3 the unfiltered library distinguishes builders and gives only owners Edi
       if (fixture.builder === own) {
         await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
         await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();
+      } else if (fixture.state.includes('published')) {
+        // P5 correction: a foreign published row may offer Play, never the editor.
+        await expect(row.getByTestId('puzzle-edit-link')).toHaveCount(0);
+        const paths = await row.locator('a[href]').evaluateAll((links) =>
+          links.map((link) => new URL((link as HTMLAnchorElement).href).pathname.replace(/\/$/, '')));
+        expect(paths).not.toContain(`/puzzles/${fixture.id}`);
       } else {
         await expect(row.locator('a, button, [role="button"]')).toHaveCount(0);
       }

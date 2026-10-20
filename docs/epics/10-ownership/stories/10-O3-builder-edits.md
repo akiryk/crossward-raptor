@@ -34,6 +34,10 @@ acceptance, implementation, independent verification, and delivery on
   puzzle**, using the trusted session and returned `builderId`. Keep the
   existing Edit action only for the builder, including their published rows.
   Other rows have no action, link to an editor, or disabled/placeholder Play.
+  *Correction (P5, human-approved 2026-10-20):* another builder's published
+  row may offer Play's real controls (Play, reset of the player's own attempt)
+  as [Play P5](../../11-play/stories/11-P5-library-play.md) defines; it still
+  never links to the editor. Foreign unpublished rows keep no actions.
   No builder-name join is needed. Preserve size grouping, order, thumbnails,
   titles, dates, badges, and existing row/action hooks.
 - Content writes (`saveGrid`, `saveHints`, `saveTitle`, `enterHints`) require
@@ -119,8 +123,10 @@ Editable implementation/plumbing:
    A signed-in browser visiting foreign draft/hints/published public/private
    URLs sees the existing refusal, without the editor or puzzle title/grid.
 5. Own and foreign puzzles remain in the same size-grouped library, with
-   correct visible ownership labels. Only own rows have Edit, including own
-   published rows. Foreign draft/private/public rows have no actions. Reload
+   correct visible ownership labels. Only own rows have the editor link
+   (`puzzle-edit-link`: Edit, or Manage on published rows per P5), including
+   own published rows. Foreign draft rows have no actions; foreign published rows
+   have no editor link (P5 correction above). Reload
    preserves this behavior and foreign data remains unchanged.
 6. Own unpublished editing persists through the real browser flow; an own
    published puzzle opens locked, can be unpublished, and editing works again.
