@@ -5,6 +5,10 @@ import { deserializeGrid, serializeGrid, type SerializedGrid } from '@/lib/puzzl
 
 export type PlaySaveState = 'saved' | 'pending' | 'saving' | 'error';
 
+export function playDraftKey(sessionId: string) {
+  return `crossward:play-draft:v1:${sessionId}`;
+}
+
 /** One mounted tab owns one debounce and at most one entries write. */
 export function createPlayAutosave({
   sessionId,
@@ -29,7 +33,7 @@ export function createPlayAutosave({
     onComplete: (result: Extract<PlayCompletionResult, { status: 'complete' }>) => void;
   };
 }) {
-  const key = `crossward:play-draft:v1:${sessionId}`;
+  const key = playDraftKey(sessionId);
   let latest = serverEntries;
   let latestValue = JSON.stringify(serverEntries);
   let savedValue = latestValue;
@@ -44,6 +48,23 @@ export function createPlayAutosave({
   let paused = false;
   let completed = initiallyComplete;
   let active = true;
+  // A reset confirmation suspends this workflow: nothing new reaches the
+  // server, and an in-flight result neither continues nor reports feedback.
+  let suspended = false;
+  const idle: (() => void)[] = [];
+
+  function settle() {
+    inFlight = false;
+    for (const resolve of idle.splice(0)) resolve();
+  }
+
+  /** Stops an in-flight flush that settled during suspension; resume redoes
+   *  any skipped verification of a full snapshot. */
+  function interrupt(full: boolean) {
+    if (full) retryInspection = true;
+    settle();
+    setPaused(false);
+  }
 
   function clearTimer() {
     if (timer !== null) clearTimeout(timer);
@@ -95,7 +116,7 @@ export function createPlayAutosave({
   }
 
   async function flush() {
-    if (!active || completed || inFlight || failed || !due) return;
+    if (!active || suspended || completed || inFlight || failed || !due) return;
     due = false;
     const snapshot = latest;
     const snapshotValue = latestValue;
@@ -118,6 +139,7 @@ export function createPlayAutosave({
       if (reconciling && completion) {
         const result = await completion.inspect();
         if (!active) return;
+        if (suspended) { interrupt(false); return; }
         reconcileFullFailure = false;
         if (result.status === 'complete') {
           acceptCompletion(result);
@@ -129,11 +151,13 @@ export function createPlayAutosave({
         await save(snapshot);
         if (!active) return;
         savedValue = snapshotValue;
+        if (suspended) { interrupt(full); return; }
       }
       if (full && completion) {
         phase = 'inspection';
         const result = await completion.inspect();
         if (!active) return;
+        if (suspended) { interrupt(true); return; }
         retryInspection = false;
         // Responses only judge the snapshot that was submitted. The normal
         // full workflow pauses editing, but retain the guard for stale callers.
@@ -147,7 +171,7 @@ export function createPlayAutosave({
         }
       }
       if (!active) return;
-      inFlight = false;
+      settle();
       setPaused(false);
       removeIfMatching(snapshotValue);
       if (latestValue === savedValue) {
@@ -161,7 +185,7 @@ export function createPlayAutosave({
       }
     } catch {
       if (!active) return;
-      inFlight = false;
+      settle();
       failed = phase === 'inspection' ? 'inspection'
         : phase === 'reconciliation' || full ? 'full-save' : 'partial-save';
       // Acknowledged saves may already be solved and locked on the server;
@@ -216,7 +240,7 @@ export function createPlayAutosave({
     entries: latest,
     change(entries: SerializedGrid) {
       const value = JSON.stringify(entries);
-      if (!active || completed || paused || value === latestValue) return false;
+      if (!active || suspended || completed || paused || value === latestValue) return false;
       if (completion) {
         const wasFull = isFull(deserializeGrid(latest));
         const full = isFull(deserializeGrid(entries));
@@ -231,7 +255,7 @@ export function createPlayAutosave({
       return true;
     },
     retry() {
-      if (!active) return;
+      if (!active || suspended) return;
       clearTimer();
       reconcileFullFailure = failed === 'full-save';
       retryInspection = failed === 'inspection';
@@ -239,9 +263,25 @@ export function createPlayAutosave({
       due = true;
       void flush();
     },
+    /** Cancels the debounce and resolves once no request is in flight. */
+    suspend(): Promise<void> {
+      suspended = true;
+      clearTimer();
+      due = false;
+      return inFlight ? new Promise((resolve) => { idle.push(resolve); }) : Promise.resolve();
+    },
+    /** Restores the normal save/retry workflow, including preserved edits. */
+    resume() {
+      if (!active || !suspended) return;
+      suspended = false;
+      if (failed) return;
+      if (latestValue !== savedValue || retryInspection || reconcileFullFailure) schedule();
+      else onState('saved');
+    },
     stop() {
       active = false;
       clearTimer();
+      for (const resolve of idle.splice(0)) resolve();
     },
   };
 }

@@ -6,9 +6,9 @@ start again on the spot. Give builders a quiet shortcut for clearing test plays.
 **Status:** specification and acceptance approved and frozen on `main` by
 the human on 2026-10-19 (approval/freeze delegated to the agent after review;
 the two review fixes, client initialization from the returned view and the
-EPIC P5 untouched note, were approved). Runtime work requires separate
-authorization, a story branch, PR and independent review.
-P1–P3 acceptance remains frozen.
+EPIC P5 untouched note, were approved). Runtime was authorized on 2026-10-20
+and is implemented on `story/11-P4-reset`; it awaits independent review and
+merge. P1–P3 acceptance remains frozen.
 **Blast radius: high:** authenticated session deletion in `actions.ts`.
 
 ## Decisions
@@ -166,6 +166,10 @@ to necessary guarded local browser runs. Do not inspect/edit environment files.
 - Editable fixture plumbing only if needed: `e2e/helpers/play-route.ts`.
 - Documentation: this story, `../EPIC.md`, `../HANDOFF.md`, `../HISTORY.md`
   (preserve the prior P3 handoff's verification provenance).
+
+Implementation added the colocated `src/components/play/PlayReset.tsx`
+(disclosure, shortcut and dialog) and a read-only `isPlayPuzzleBuilder`
+action in `actions.ts` for the route's builder boolean.
 
 Declare additional paths before editing. Future runtime requires a story
 branch, PR and independent review per CODE-REVIEW; the specification baseline

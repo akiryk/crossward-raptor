@@ -171,7 +171,8 @@ grows — detection and locking are separable from the celebration.
 ### P4 — Reset
 
 The [P4 story](stories/11-P4-reset.md) and acceptance tests were approved and
-frozen on main on 2026-10-19; runtime has not started. By human decision
+frozen on main on 2026-10-19; runtime is implemented on
+`story/11-P4-reset` and awaits independent review (see the handoff). By human decision
 (2026-10-19), reset stays on the play page and shows a fresh blank attempt;
 the library reset control moves to P5.
 
