@@ -29,10 +29,15 @@ reset Decision, stale status lines, migration-evidence pointer and spec
 count; the P1 story's superseded P5 note; the P5 story's spec count; and the
 epic index now says a non-auditing session records audit results.
 
+**P6 approved and frozen (2026-10-20):** follow-up 7 is specified in the
+[P6 story](stories/11-P6-reset-settles-before-closing.md), with frozen
+acceptance `e2e/play-reset-settling.spec.ts` (3 cases), baseline `69066e4`.
+The human approved the story, its acceptance and the recommended
+check-failure decision. Runtime is not yet changed; it is a low-risk,
+direct-to-`main` change to `PlayPuzzle.tsx`. Draft checks are in the story.
+
 **Open follow-ups (non-blocking, each needs its own scoped story or task):**
-7. The P4 stale-ID reset window: `PlayPuzzle.tsx` clears autosave and closes
-   the dialog before `beginSession`'s completion inspection, so keystrokes in
-   that window are dropped.
+7. In progress as P6 (above).
 8. Volatile `/private/tmp/crossward-p3-*.json` evidence paths.
 9. LEARNINGS #3 cites "Story P3/P5" without naming epic 02.
 10. No test covers freshness via app navigation or Back after a play-page
@@ -53,11 +58,10 @@ Vercel deployment and preview comments.
 
 ## Next action
 
-No Play story remains. The most material follow-up is 7, the dropped
-keystrokes after a play-page reset: draft a scoped story for it on `main`,
-with proposed acceptance, and wait for human approval before freezing or
-implementing.
+Implement P6 on `main` against frozen baseline `69066e4`, then run
+`npm run verify` and the full E2E suite, and deliver directly. Follow-ups 8–12
+remain separate.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and the closeout audit record it links. Draft a scoped story for follow-up 7 (the P4 stale-ID reset keystroke window) with proposed acceptance tests on main; don't commit until I approve and freeze it.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P6-reset-settles-before-closing.md. Implement P6 on main; deliver directly once verify and the full E2E suite pass.
