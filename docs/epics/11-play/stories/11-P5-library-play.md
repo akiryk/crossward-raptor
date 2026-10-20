@@ -7,8 +7,9 @@ offer the confirmed P4 reset on rows with an attempt.
 **Status:** the human approved the specification and acceptance on
 2026-10-20, including the clickable row and the O3 correction, and gave the
 go-ahead to freeze. The baseline is frozen on `main` after the separate O3
-correction commit `be3a58b`; the handoff records the baseline commit. Runtime
-work is not authorized.
+correction commit `be3a58b`; the handoff records the baseline commit.
+Implemented on `story/11-P5-library-play` and awaiting independent review in
+[PR #24](https://github.com/akiryk/crossward-raptor/pull/24).
 **Blast radius: high:** `listPuzzles` in `actions.ts`, and the library page
 whose shape four existing browser specs assert.
 

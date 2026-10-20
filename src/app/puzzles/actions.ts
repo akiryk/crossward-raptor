@@ -21,6 +21,7 @@ import { displayNameValidationMessage } from '@/lib/display-name';
 import { clearLetters } from '@/engine/grid';
 import { isCompatiblePlayEntries } from '@/lib/play-entries';
 import { isFull, isSolved } from '@/engine/play';
+import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 
 export type Visibility = 'private' | 'public';
 
@@ -310,9 +311,12 @@ export async function listPuzzles(): Promise<
     cols: number;
     rows: number;
     black: boolean[][];
+    /** The caller's own attempt; null for unpublished puzzles. */
+    play: LibraryPlay | null;
   }[]
 > {
-  await requireSession();
+  const authSession = await requireSession();
+  // The caller's attempt comes from the same query, so the snapshot is atomic.
   const records = await prisma.puzzle.findMany({
     orderBy: { updatedAt: 'desc' },
     select: {
@@ -325,6 +329,11 @@ export async function listPuzzles(): Promise<
       phase: true,
       publishedAt: true,
       visibility: true,
+      playSessions: {
+        where: { userId: authSession.user.id },
+        select: { id: true, entries: true },
+        take: 1,
+      },
     },
   });
 
@@ -347,6 +356,9 @@ export async function listPuzzles(): Promise<
       cols: grid.cols,
       rows: grid.rows,
       black: grid.cells.map((row) => row.map((cell) => cell.kind === 'black')),
+      play: record.publishedAt === null
+        ? null
+        : classifyLibraryPlay(grid, record.playSessions[0] ?? null),
     };
   });
 }

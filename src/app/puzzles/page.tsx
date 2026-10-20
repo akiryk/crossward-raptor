@@ -5,6 +5,8 @@ import { puzzleStatus, type StatusKind } from '@/lib/puzzle-status';
 import { groupPuzzles } from '@/lib/puzzle-groups';
 import { GridThumbnail } from '@/components/puzzle/GridThumbnail';
 import { requireSession } from '@/lib/require-session';
+import { LibraryFreshness, LibraryPlayControls } from '@/components/puzzle/LibraryPlayControls';
+import { ROW_PRIMARY_LINK } from '@/components/puzzle/library-row';
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -24,6 +26,7 @@ export default async function PuzzlesPage() {
 
   return (
     <div className="p-6">
+      <LibraryFreshness />
       <div className="max-w-3xl mx-auto">
         <div data-testid="puzzle-list-header" className="flex items-center justify-between">
           <h1
@@ -55,6 +58,7 @@ export default async function PuzzlesPage() {
                   const isPublished = puzzle.publishedAt !== null;
                   const isBuilder = puzzle.builderId === session.user.id;
                   const status = puzzleStatus(puzzle);
+                  const play = isPublished ? puzzle.play : null;
                   return (
                     <li
                       key={puzzle.id}
@@ -65,7 +69,8 @@ export default async function PuzzlesPage() {
                       data-published={isPublished ? 'true' : 'false'}
                       data-visibility={puzzle.visibility}
                       data-published-at={isPublished ? puzzle.publishedAt!.toISOString() : undefined}
-                      className="flex items-center gap-3 border-b border-rule py-3 text-body"
+                      data-play-state={play?.state}
+                      className="relative flex items-center gap-3 border-b border-rule py-3 text-body"
                     >
                       <GridThumbnail cols={puzzle.cols} rows={puzzle.rows} black={puzzle.black} />
                       <div className="min-w-0 flex-1">
@@ -86,6 +91,16 @@ export default async function PuzzlesPage() {
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
+                        {play?.state === 'in-progress' && (
+                          <span data-testid="puzzle-play-state" className="text-label text-ink-2">
+                            In progress
+                          </span>
+                        )}
+                        {play?.state === 'completed' && (
+                          <span data-testid="puzzle-play-state" className="text-label text-accent">
+                            <span aria-hidden="true">✓</span> Completed
+                          </span>
+                        )}
                         <span
                           data-testid="puzzle-status-badge"
                           data-status-kind={status.kind}
@@ -93,11 +108,19 @@ export default async function PuzzlesPage() {
                         >
                           {status.label}
                         </span>
-                        {isBuilder && (
+                        {play && (
+                          <LibraryPlayControls
+                            puzzleId={puzzle.id}
+                            title={puzzle.title}
+                            play={play}
+                            isBuilder={isBuilder}
+                          />
+                        )}
+                        {!isPublished && isBuilder && (
                           <Link
                             href={`/puzzles/${puzzle.id}`}
                             data-testid="puzzle-edit-link"
-                            className="cursor-pointer rounded-btn border border-rule-strong bg-background px-3 py-1 text-body text-accent hover:bg-hover-tint"
+                            className={`${ROW_PRIMARY_LINK} rounded-btn border border-rule-strong bg-background px-3 py-1 text-body text-accent hover:bg-hover-tint`}
                           >
                             Edit
                           </Link>

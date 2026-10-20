@@ -1,5 +1,6 @@
 import { dimensionsFor, type PuzzleSize } from './puzzle-size';
 import type { Phase } from '../engine/puzzle';
+import type { PlayState } from './library-play';
 
 const SIZES: readonly PuzzleSize[] = ['mini', 'midi', 'daily', 'sunday'];
 
@@ -30,6 +31,7 @@ export interface GroupablePuzzle {
   phase: Phase;
   publishedAt: Date | null;
   updatedAt: Date;
+  play?: { state: PlayState } | null;
 }
 
 export interface PuzzleGroup<T> {
@@ -39,12 +41,17 @@ export interface PuzzleGroup<T> {
   puzzles: T[];
 }
 
-/** Unpublished before published; within the same status, most recently
- *  updated first. */
+/** 0 unpublished, 1 published and not completed, 2 completed by the caller. */
+function band(puzzle: GroupablePuzzle): number {
+  if (puzzle.publishedAt === null) return 0;
+  return puzzle.play?.state === 'completed' ? 2 : 1;
+}
+
+/** Unpublished, then published puzzles still to finish, then completed ones;
+ *  within a band, most recently updated first. */
 function compare(a: GroupablePuzzle, b: GroupablePuzzle): number {
-  const aPublished = a.publishedAt !== null;
-  const bPublished = b.publishedAt !== null;
-  if (aPublished !== bPublished) return aPublished ? 1 : -1;
+  const delta = band(a) - band(b);
+  if (delta !== 0) return delta;
   return b.updatedAt.getTime() - a.updatedAt.getTime();
 }
 
