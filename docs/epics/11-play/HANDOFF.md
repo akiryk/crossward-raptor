@@ -3,9 +3,8 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not supplied.
-2. [EPIC P5](EPIC.md#p5--the-library-learns-about-play) and the current
-   library path (`listPuzzles` and the specs asserting the library's shape)
-   for drafting the P5 specification.
+2. The frozen [P5 story](stories/11-P5-library-play.md) and its acceptance
+   files for implementing P5.
 
 **Only if needed:** [P4 story](stories/11-P4-reset.md) for reset behavior P5
 reuses; [STORY](../../process/STORY.md) for drafting, approval and freeze;
@@ -92,4 +91,4 @@ then the P5 baseline `687ac58`. Compare the acceptance files and
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/EPIC.md (P5 — The library learns about play). Write the P5 story specification and its proposed acceptance tests on main; don't commit until I approve and freeze them.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P5-library-play.md. Implement P5 against its frozen acceptance on branch story/11-P5-library-play, then open a PR for independent review.
