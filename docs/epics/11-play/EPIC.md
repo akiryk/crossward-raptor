@@ -158,7 +158,7 @@ P3 is complete, independently reviewed and merged in
 [PR #22](https://github.com/akiryk/crossward-raptor/pull/22) at `4cfa4d7` on
 2026-10-19. The reviewed head passed 534 verification tests, all 393 browser
 cases, required visual/focus/reduced-motion demonstrations and configured CI.
-P4 is complete (see its section); P5 requires new authorization. See the handoff.
+P4 is complete (see its section); P5 is in review. See the handoff.
 
 Completion detected by comparing entries to answers. The "so close"
 modal on the full-but-wrong transition. Confetti and congratulations on
@@ -187,7 +187,8 @@ attempt on the play page (new row, new `startedAt`).
 Drafted on 2026-10-20 as the [P5 story](stories/11-P5-library-play.md). The
 human approved its decisions that day: a clickable row, interim Manage on own
 published rows, and a reviewed correction to frozen O3 acceptance. Frozen on
-`main` on 2026-10-20; runtime requires new authorization.
+`main` on 2026-10-20. Implemented and awaiting independent review in
+[PR #24](https://github.com/akiryk/crossward-raptor/pull/24).
 
 Published puzzles offer Play. A row shows untouched, in progress, or
 completed; completed sorts last within its size group. A started or
