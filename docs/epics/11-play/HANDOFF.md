@@ -29,15 +29,14 @@ reset Decision, stale status lines, migration-evidence pointer and spec
 count; the P1 story's superseded P5 note; the P5 story's spec count; and the
 epic index now says a non-auditing session records audit results.
 
-**P6 approved and frozen (2026-10-20):** follow-up 7 is specified in the
-[P6 story](stories/11-P6-reset-settles-before-closing.md), with frozen
-acceptance `e2e/play-reset-settling.spec.ts` (3 cases), baseline `69066e4`.
-The human approved the story, its acceptance and the recommended
-check-failure decision. Runtime is not yet changed; it is a low-risk,
-direct-to-`main` change to `PlayPuzzle.tsx`. Draft checks are in the story.
+**P6 done (2026-10-20):** follow-up 7 is resolved by the
+[P6 story](stories/11-P6-reset-settles-before-closing.md): a confirmed
+reset now stays pending in its dialog until the returned attempt (including
+any completion check) is shown. Runtime change is `PlayPuzzle.tsx` only,
+delivered directly to `main`; checks are recorded in the story.
 
 **Open follow-ups (non-blocking, each needs its own scoped story or task):**
-7. In progress as P6 (above).
+7. Resolved by P6 (above).
 8. Volatile `/private/tmp/crossward-p3-*.json` evidence paths.
 9. LEARNINGS #3 cites "Story P3/P5" without naming epic 02.
 10. No test covers freshness via app navigation or Back after a play-page
@@ -50,18 +49,18 @@ puzzle, so an old open tab can save into a fresh attempt.
 
 ## Verification
 
-Closeout is docs-only; no runtime changed after the reviewed P5 head
-`54f1050`, so no suite was rerun for it. Standing evidence: the reviewer's
-`npm run verify` (579 tests) and full E2E (435 passed) on `54f1050`, and the
-auditor's own `npm run verify` exit 0 on `2a75254`. Configured CI is only the
-Vercel deployment and preview comments.
+P6 on `main`: `npm run verify` exit 0 (579 tests) and full
+`npm run test:e2e -- --workers=2` exit 0 (438 passed), run by the
+implementing agent; exact content identity is in the P6 story. Guarded E2E
+reset ran under the standing grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). Configured CI is only
+the Vercel deployment and preview comments.
 
 ## Next action
 
-Implement P6 on `main` against frozen baseline `69066e4`, then run
-`npm run verify` and the full E2E suite, and deliver directly. Follow-ups 8–12
-remain separate.
+Draft a scoped story or task for follow-up 8 (volatile evidence paths), in
+list order, and stop for human approval. Follow-ups 9–12 remain separate.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P6-reset-settles-before-closing.md. Implement P6 on main; deliver directly once verify and the full E2E suite pass.
+Read docs/epics/11-play/HANDOFF.md. Draft the scoped specification for follow-up 8 on main; stop for human approval before freezing or implementing.

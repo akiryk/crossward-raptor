@@ -47,10 +47,18 @@ export function PlayPuzzle({
   const resetBusy = useRef(false);
   const finishCelebration = useCallback(() => setCelebrating(false), []);
 
-  /** Shows an authenticated attempt from start or reset with a new save workflow. */
-  const beginSession = useCallback(async (started: PlayPuzzleView, isCurrent: () => boolean) => {
+  /**
+   * Shows an authenticated attempt from start or reset with a new save workflow.
+   * `onShown` runs in the same update that shows the attempt or the start error.
+   */
+  const beginSession = useCallback(async (
+    started: PlayPuzzleView,
+    isCurrent: () => boolean,
+    onShown?: () => void,
+  ) => {
     if (!isCurrent()) return;
     if (!started.session) {
+      onShown?.();
       setSessionState('error');
       return;
     }
@@ -98,6 +106,7 @@ export function PlayPuzzle({
     setPuzzle({ ...started, entries: saver.entries });
     setCursor(null);
     setIsFocused(false);
+    onShown?.();
     setSessionState('ready');
   }, []);
 
@@ -154,32 +163,43 @@ export function PlayPuzzle({
     resetBusy.current = true;
     setResetPending(true);
     setResetFailed(false);
-    let fresh: PlayPuzzleView;
     try {
-      // No save or inspection of the old attempt may reach the server after
-      // the reset request; settle anything already running first.
-      await saver.suspend();
+      let fresh: PlayPuzzleView;
+      try {
+        // No save or inspection of the old attempt may reach the server after
+        // the reset request; settle anything already running first.
+        await saver.suspend();
+        if (!isCurrent()) return;
+        fresh = await resetPlaySession(initialPuzzle.id, sessionId);
+      } catch {
+        if (isCurrent()) {
+          setResetFailed(true);
+          setResetPending(false);
+        }
+        return;
+      }
       if (!isCurrent()) return;
-      fresh = await resetPlaySession(initialPuzzle.id, sessionId);
-    } catch {
-      if (isCurrent()) setResetFailed(true);
-      return;
+      saver.stop();
+      autosave.current = null;
+      try {
+        localStorage.removeItem(playDraftKey(sessionId));
+      } catch {
+        // The new session ID already prevents recovering the obsolete draft.
+      }
+      // The reset stays pending in its dialog until the returned attempt is
+      // shown, including any completion check of a full returned attempt.
+      const closeReset = () => {
+        setResetOpen(false);
+        setResetPending(false);
+      };
+      await beginSession(fresh, isCurrent, closeReset).catch(() => {
+        if (!isCurrent()) return;
+        closeReset();
+        setSessionState('error');
+      });
     } finally {
       resetBusy.current = false;
-      if (isCurrent()) setResetPending(false);
     }
-    if (!isCurrent()) return;
-    saver.stop();
-    autosave.current = null;
-    try {
-      localStorage.removeItem(playDraftKey(sessionId));
-    } catch {
-      // The new session ID already prevents recovering the obsolete draft.
-    }
-    setResetOpen(false);
-    await beginSession(fresh, isCurrent).catch(() => {
-      if (isCurrent()) setSessionState('error');
-    });
   }
 
   function changeEntries(next: Grid) {

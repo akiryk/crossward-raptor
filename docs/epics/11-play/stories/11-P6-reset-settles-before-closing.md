@@ -5,9 +5,9 @@ Close the P4 reset window that the P4 review and the
 (follow-up 7): after a reset returns a full attempt, the play page drops the
 player's keystrokes while that attempt's completion check is pending.
 
-**Status:** specification and acceptance approved and frozen on `main` by
-the human on 2026-10-20, including the recommended check-failure decision.
-Runtime is not yet authorized.
+**Status:** done (2026-10-20). Specification and acceptance approved and
+frozen on `main` by the human on 2026-10-20, including the recommended
+check-failure decision; runtime implemented and delivered directly to `main`.
 **Blast radius: low:** client-only change to `PlayPuzzle.tsx`; no CODE-REVIEW
 risk path. The standing direct-delivery policy applies after approval.
 
@@ -123,3 +123,15 @@ CODE-REVIEW risk path, move it to a story branch and PR.
   content identity.
 - Update the handoff (mark follow-up 7 resolved) and deliver per the
   direct-delivery policy.
+
+## Implementation checks (2026-10-20, implementing agent)
+
+- Diff: `src/components/play/PlayPuzzle.tsx` only (`confirmReset` plus an
+  optional `onShown` callback on `beginSession`, run in the same update that
+  shows the attempt or the start error). Frozen specs unchanged.
+- Content identity: runtime on baseline `2e2ddee`; `PlayPuzzle.tsx` blob
+  `7c4fdc5921734e7541519157ab21fd2e81d2a286`.
+- `npm run verify` exit 0 (579 tests).
+- `npm run test:e2e -- --workers=2` exit 0: 438 passed, including all 3
+  cases of `e2e/play-reset-settling.spec.ts` and the frozen
+  `e2e/play-reset.spec.ts`; no retries or timeout changes.
