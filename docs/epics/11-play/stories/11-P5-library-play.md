@@ -11,7 +11,7 @@ correction commit `be3a58b`; the handoff records the baseline commit.
 Implemented, independently reviewed and merged in
 [PR #24](https://github.com/akiryk/crossward-raptor/pull/24) at `e89b6d5`.
 **Blast radius: high:** `listPuzzles` in `actions.ts`, and the library page
-whose shape four existing browser specs assert.
+whose shape five existing browser specs and three unit files assert.
 
 ## Decisions
 
@@ -237,7 +237,7 @@ specification baseline belongs on main only after human approval and freeze.
 - Obtain human approval of the specification and acceptance. Commit only the
   approved baseline on main before any runtime work.
 - Show that the new tests catch the missing P5 behavior. Keep P1–P4 and every
-  other frozen acceptance intact, especially the four library specs. Stop
+  other frozen acceptance intact, especially the library-shape specs listed under Decisions. Stop
   affected work on an erroneous frozen test.
 - After separately authorized implementation, `npm run verify` and the
   complete `npm run test:e2e -- --workers=2` suite exit 0 without weakened

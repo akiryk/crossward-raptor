@@ -1,5 +1,8 @@
 # Epic: Play
 
+**Status: closed (2026-10-20)** after an independent closeout audit; see the
+[handoff](HANDOFF.md).
+
 Everything up to now has served the builder. This epic serves the
 solver: opening a published puzzle, typing answers into it, leaving and
 coming back, and finishing it.
@@ -52,8 +55,10 @@ introduce a deletion block. The session's user relation also cascades.
 These P1 product choices were confirmed by the user on 2026-10-18; the
 [P1 story](stories/11-P1-play-route.md) defines the detailed contract.
 
-**Reset deletes the session row**, so "never played" and "reset" are
-indistinguishable. Available to every player behind an unobtrusive
+**Reset deletes the session row and starts a fresh blank attempt** (new
+row, new `startedAt`; human decision, 2026-10-19). The library classifies a
+blank, uncompleted session as untouched, so "never played" and "reset" look
+the same. Available to every player behind an unobtrusive
 control, and additionally as a quiet visible button when the player is
 the puzzle's builder, since test-playing is the case that needs it most.
 Both routes confirm first, through `Modal`.
@@ -110,8 +115,9 @@ published-versus-in-progress.
 ### P1 — A play route
 
 Implemented, verified and independently reviewed/merged in
-[PR #20](https://github.com/akiryk/crossward-raptor/pull/20). See the handoff
-for gate evidence and the separate development/production migration boundary.
+[PR #20](https://github.com/akiryk/crossward-raptor/pull/20). Gate evidence
+and the migration proof are in [HISTORY](HISTORY.md); the
+development/production migration state is recorded in the handoff.
 
 `PlaySession` and `/puzzles/{id}/play`, rendering a published puzzle with
 the player's entries grid and static numbered clues, read-only to begin
@@ -127,17 +133,12 @@ session; server GET/prefetch does not. See the
 
 ### P2 — Typing and resuming
 
-Authorized on 2026-10-18. The [detailed P2 story](stories/11-P2-typing-and-resuming.md)
-and 40 unit/27 browser acceptance cases passed independent specification
-review and are frozen by the specification-only main baseline.
-The user confirmed same-browser local recovery of pending edits without a
-close warning, and an unselected puzzle on opening/reopening. P2 is complete:
-implemented, verified and independently reviewed/merged in
+The [P2 story](stories/11-P2-typing-and-resuming.md) was frozen on main and
+refrozen after a user-authorized locator-only correction in `4e53740`. The user
+confirmed same-browser local recovery of pending edits without a close
+warning, and an unselected puzzle on opening/reopening. Merged in
 [PR #21](https://github.com/akiryk/crossward-raptor/pull/21) at `a67ff61` on
-2026-10-19. The reviewed head passed 467 verification tests, all 370 browser
-cases with a two-worker resource cap, and configured CI. The user-authorized
-locator-only correction is separately refrozen on main in `4e53740`.
-The epic remains open for P3–P5.
+2026-10-19; evidence is in [HISTORY](HISTORY.md).
 
 Letters go into the entries grid; the cursor behaves as it does in the
 editor, since it is the same code. Saved debounced, as everything else
@@ -149,16 +150,11 @@ inconsistent by an empty cell.
 
 ### P3 — Finishing
 
-Authorized on 2026-10-19. The [detailed P3 story](stories/11-P3-finishing.md)
-and 28 engine / 39 server / 23 browser acceptance cases passed independent
-specification review and received human approval/freeze delegation on 2026-10-19.
-Initial baseline `d1570e0` preceded runtime; the independently reviewed,
-human-approved one-line recovery-clock correction is refrozen in `dbc3ee8`.
-P3 is complete, independently reviewed and merged in
+The [P3 story](stories/11-P3-finishing.md) received human approval/freeze
+delegation on 2026-10-19 (baseline `d1570e0`); the human-approved one-line
+recovery-clock correction is refrozen in `dbc3ee8`. Merged in
 [PR #22](https://github.com/akiryk/crossward-raptor/pull/22) at `4cfa4d7` on
-2026-10-19. The reviewed head passed 534 verification tests, all 393 browser
-cases, required visual/focus/reduced-motion demonstrations and configured CI.
-P4 is complete (see its section); P5 is in review. See the handoff.
+2026-10-19; evidence is in [HISTORY](HISTORY.md).
 
 Completion detected by comparing entries to answers. The "so close"
 modal on the full-but-wrong transition. Confetti and congratulations on
@@ -199,7 +195,8 @@ a session whose active entries are all blank and not completed as untouched,
 not in progress.
 
 *Touches `listPuzzles` — high blast radius.* The library page has been
-restyled three times and four specs assert its shape, so this needs the
+restyled three times and five browser specs and three unit files assert
+its shape, so this needs the
 same grep-first discipline the last epic established.
 
 ---

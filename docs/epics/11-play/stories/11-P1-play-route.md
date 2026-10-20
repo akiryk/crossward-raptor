@@ -36,8 +36,8 @@ closed. No Play runtime or schema exists at this specification checkpoint.
 The user confirmed these product choices on 2026-10-18:
 
 - Opening the mounted play screen counts as starting, even with no letters.
-  A server GET or background prefetch does not. An opened empty puzzle will
-  therefore count as in progress when P5 adds library cues.
+  A server GET or background prefetch does not. (Superseded for the library:
+  P5 classifies an opened, still-blank, uncompleted session as untouched.)
 - Include static numbered Across and Down clues in P1.
 - Deleting a puzzle also deletes its sessions. Preserve the builder's existing
   ability to delete a published puzzle; another player's progress does not

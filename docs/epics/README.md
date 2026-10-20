@@ -9,7 +9,7 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Play](11-play/HANDOFF.md)
+- [Play](11-play/HANDOFF.md) (closed 2026-10-20; open follow-ups listed there)
 - [Project workflow](12-project-workflow/HANDOFF.md)
 - [Accounts](09-accounts/HANDOFF.md) and [Ownership](10-ownership/HANDOFF.md)
   are prerequisite history when relevant.
@@ -41,7 +41,8 @@ the decision boundary. No shared-skill edit is implied by repo workflow work.
 After every story meets its Definition of Done, obtain an independent,
 report-only [audit](../process/AUDIT.md) from an agent/session that authored none
 of the audited work. Scope it to the epic and affected code/docs; expand only
-when evidence requires. Record date, coverage, findings and disposition in the
-handoff/history. Resolve blockers through scoped implementation and recheck
+when evidence requires. The auditor only reports; a non-auditing session
+records date, coverage, findings and disposition in the handoff/history, so an
+audit resume prompt must not ask the auditor to record its own result. Resolve blockers through scoped implementation and recheck
 affected findings before marking the epic closed. Do not retroactively claim
 older epics were audited because their implementations shipped.

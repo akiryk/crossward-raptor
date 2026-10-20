@@ -641,3 +641,17 @@ so it recorded the result but did not audit. The auditor edited nothing.
 - EPIC per-story delivery paragraphs, which belong here. Trim them but keep
   the human decisions.
 - LEARNINGS 1–8 all remain load-bearing.
+
+**Disposition (2026-10-20, recorded by a non-auditing session):**
+- Blocker 1: resolved by human confirmation that the migration is applied to
+  development and production. User-reported; no agent inspected either
+  database.
+- Corrections 2, 3, 5 and 6: fixed in EPIC and the P1/P5 stories.
+- Correction 4: the [epic index](../README.md#close-an-epic) now says a
+  non-auditing session records the result.
+- Follow-ups 7–12: open and listed in the handoff; none blocks closure.
+- Prunes: the HANDOFF P5 summary, `library-row.ts` note and known-limit
+  duplicate were pruned (PR #24 and the P4 story keep them). EPIC's P2/P3
+  delivery paragraphs were trimmed, keeping the human decisions.
+
+**The Play epic is closed.**
