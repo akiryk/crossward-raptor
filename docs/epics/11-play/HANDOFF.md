@@ -34,10 +34,39 @@ Known accepted limit (human decision): saves are keyed by user and puzzle,
 so an old open tab can save into the fresh attempt. The library reset control
 is deferred to P5.
 
-**P5 is not authorized.** No P5 specification exists yet. The standing
-guarded local test-reset grant in
+**P5 is approved and frozen (2026-10-20).** On `main`: the [P5 story](stories/11-P5-library-play.md) and frozen
+acceptance, namely `src/app/puzzles/actions.library-play.test.ts` (13),
+`src/lib/puzzle-groups.play.test.ts` (6) and `e2e/library-play.spec.ts` (18).
+The human approved every drafter recommendation, plus a clickable row (a
+stretched primary link: Play when published, Edit when a draft) and an
+interim **Manage** link on own published rows until a later "⋯" menu story.
+
+P5 also needs a **correction to frozen O3 acceptance**
+(`e2e/builder-edits.spec.ts` and the
+[O3 story](../10-ownership/stories/10-O3-builder-edits.md)). Another
+builder's published rows may now offer Play and Reset, but never an editor
+link; their drafts keep no controls. The human approved it on 2026-10-20. A
+separate read-only reviewer agent then reviewed it independently: APPROVE.
+Its nits and its P5 test findings were applied: scroll-in and real pointer
+clicks for the stretched-link test, the caller-filter enforced at the query
+mock, a discriminating stale-ID refresh, Manage hover/cursor, and the dialog
+copy contract.
+
+Runtime is not authorized. The standing guarded local test-reset grant in
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment) still applies to necessary
 harness runs; nothing else is authorized.
+
+Draft checks (author):
+- `tsc --noEmit` and eslint on the changed tests exit 0.
+- The new unit tests on unchanged runtime: 14 fail on missing behavior and
+  5 guards pass.
+- A throwaway `listPuzzles`/`groupPuzzles` prototype, reverted and never
+  committed, passed all 35 files / 579 unit tests, frozen ones included. That
+  run predates the caller-filter tightening, which the prototype met.
+- An E2E red run on unchanged runtime under the standing grant: 18/18 P5
+  cases fail at P5 assertions. Every corrected `builder-edits.spec.ts` case
+  passes.
+- The P5 browser spec has not passed against any implementation.
 
 ## Verification
 
@@ -55,10 +84,11 @@ script, not committed). The reviewer did not repeat the visual check.
 
 ## Next action
 
-Draft the P5 specification and proposed acceptance per STORY, starting from
-EPIC P5 and a grep of every library-shape assertion. Resolve material product
-decisions with the human. Approval/freeze on `main` precedes any runtime work,
-which then needs a story branch, PR and independent review.
+P5 runtime, once separately authorized: branch `story/11-P5-library-play`
+from the frozen baseline, implement against the frozen acceptance, open a PR
+and arrange independent review. Freeze commits: the O3 correction `be3a58b`,
+then the P5 baseline (the commit that adds this line; read it back with
+`git log -1 -- docs/epics/11-play/stories/11-P5-library-play.md`).
 
 ## Resume prompt
 

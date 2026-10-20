@@ -184,6 +184,11 @@ attempt on the play page (new row, new `startedAt`).
 
 ### P5 — The library learns about play
 
+Drafted on 2026-10-20 as the [P5 story](stories/11-P5-library-play.md). The
+human approved its decisions that day: a clickable row, interim Manage on own
+published rows, and a reviewed correction to frozen O3 acceptance. Frozen on
+`main` on 2026-10-20; runtime requires new authorization.
+
 Published puzzles offer Play. A row shows untouched, in progress, or
 completed; completed sorts last within its size group. A started or
 completed row also offers the confirmed reset from P4 (moved here by human
