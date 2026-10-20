@@ -79,6 +79,17 @@ export async function loadPlayPuzzle(id: string): Promise<PlayPuzzleView | null>
   return playView(puzzle, session);
 }
 
+/** Whether the authenticated player built this published puzzle. Only
+ *  chooses the quiet reset shortcut; reset permission never depends on it. */
+export async function isPlayPuzzleBuilder(id: string): Promise<boolean> {
+  const authSession = await requireSession();
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: { builderId: true },
+  });
+  return puzzle?.builderId === authSession.user.id;
+}
+
 export async function startPlaySession(id: string): Promise<PlayPuzzleView> {
   const authSession = await requireSession();
   const puzzle = await prisma.puzzle.findUnique({
@@ -101,6 +112,50 @@ export async function startPlaySession(id: string): Promise<PlayPuzzleView> {
     where: { userId_puzzleId: { userId: authSession.user.id, puzzleId: id } },
     select: playSessionSelect,
   });
+  return playView(puzzle, session);
+}
+
+/** Discards only the caller's identified attempt and returns their current
+ *  one, creating a fresh blank attempt when none remains. A session ID that
+ *  matches nothing (a retry, an older request, another user's or puzzle's
+ *  attempt) deletes nothing. */
+export async function resetPlaySession(id: string, sessionId: string): Promise<PlayPuzzleView> {
+  const authSession = await requireSession();
+  if (typeof id !== 'string' || !id || typeof sessionId !== 'string' || !sessionId) {
+    throw new Error('resetPlaySession: invalid identifiers');
+  }
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id, publishedAt: { not: null } },
+    select: playPuzzleSelect,
+  });
+  if (!puzzle) throw new Error('This puzzle is not available to play.');
+
+  const userId = authSession.user.id;
+  const session = await prisma.$transaction(async (tx) => {
+    // The delete guards publication itself; the re-read rejects if the puzzle
+    // became unavailable, rolling back any deletion before creating anything.
+    await tx.playSession.deleteMany({
+      where: { id: sessionId, userId, puzzleId: id, puzzle: { publishedAt: { not: null } } },
+    });
+    const published = await tx.puzzle.findFirst({
+      where: { id, publishedAt: { not: null } },
+      select: { id: true },
+    });
+    if (!published) throw new Error('This puzzle is not available to play.');
+    await tx.playSession.createMany({
+      data: {
+        userId,
+        puzzleId: id,
+        entries: playView(puzzle, null).entries as unknown as Prisma.InputJsonValue,
+      },
+      skipDuplicates: true,
+    });
+    return tx.playSession.findUniqueOrThrow({
+      where: { userId_puzzleId: { userId, puzzleId: id } },
+      select: playSessionSelect,
+    });
+  });
+  revalidatePath('/puzzles');
   return playView(puzzle, session);
 }
 
