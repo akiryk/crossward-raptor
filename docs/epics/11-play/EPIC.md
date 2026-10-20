@@ -187,8 +187,8 @@ attempt on the play page (new row, new `startedAt`).
 Drafted on 2026-10-20 as the [P5 story](stories/11-P5-library-play.md). The
 human approved its decisions that day: a clickable row, interim Manage on own
 published rows, and a reviewed correction to frozen O3 acceptance. Frozen on
-`main` on 2026-10-20. Implemented and awaiting independent review in
-[PR #24](https://github.com/akiryk/crossward-raptor/pull/24).
+`main` on 2026-10-20. Independently reviewed and merged in
+[PR #24](https://github.com/akiryk/crossward-raptor/pull/24) at `e89b6d5`.
 
 Published puzzles offer Play. A row shows untouched, in progress, or
 completed; completed sorts last within its size group. A started or

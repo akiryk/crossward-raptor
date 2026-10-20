@@ -3,26 +3,27 @@
 ## Read first
 
 1. This handoff's Current state and Next action; use AGENTS if not supplied.
-2. [REVIEW](../../process/REVIEW.md) and the frozen
-   [P5 story](stories/11-P5-library-play.md) for reviewing PR #24.
+2. [AUDIT](../../process/AUDIT.md) and [EPIC](EPIC.md) for the closeout
+   audit.
 
-**Only if needed:** [P4 story](stories/11-P4-reset.md) for the reset behavior P5
-reuses; [CODE-REVIEW](../../CODE-REVIEW.md) for the high-risk path;
+**Only if needed:** the [P1–P5 stories](stories/) for per-story scope;
+[CODE-REVIEW](../../CODE-REVIEW.md) for the high-risk paths;
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment) before browser work.
 [History](HISTORY.md) keeps older evidence; don't load it for routine startup.
 
 ## Current state (2026-10-20)
 
-**P1–P4 are complete** (P4 merged in
-[PR #23](https://github.com/akiryk/crossward-raptor/pull/23) at `740d569`).
+**P1–P5 are complete.** P4 merged in
+[PR #23](https://github.com/akiryk/crossward-raptor/pull/23) at `740d569`.
+P5 was independently reviewed (a separate session, no findings) and merged
+in [PR #24](https://github.com/akiryk/crossward-raptor/pull/24) at merge
+commit `e89b6d5`. The reviewed head was `54f1050`, the frozen baseline
+`687ac58`, and the O3 correction `be3a58b`.
 
-**P5 is implemented and awaiting independent review** in
-[PR #24](https://github.com/akiryk/crossward-raptor/pull/24) on branch
-`story/11-P5-library-play`. It was branched from `affa322`; the frozen
-baseline is `687ac58`, after the O3 correction `be3a58b`. Implementation
-commit `14aaba6`; this handoff update follows it on the branch. Not merged.
+**The epic is not closed.** Closeout needs an independent, report-only audit
+from a session that authored none of the epic's work.
 
-Implementation summary (details in the PR):
+P5 implementation summary (details in the PR):
 
 - `listPuzzles` reads the caller's attempt through a caller-filtered
   `playSessions` relation in the single `findMany`.
@@ -40,37 +41,39 @@ Implementation summary (details in the PR):
   shared class string, because a client module's exported constant can't
   be used as a string in the server page.
 
+Non-blocking review note: `library-row.ts` was not declared in Repo paths
+before editing, but the PR and this handoff record it.
+
 Known limit (accepted in P4/P5): saves are keyed by user and puzzle, so an
 old open tab can save into a fresh attempt.
 
 The standing guarded local test-reset grant in
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment) covers necessary harness
-runs. Merging needs an independent reviewer; epic closeout needs separate
-authorization.
+runs.
 
 ## Verification
 
-Author-observed on the implementation tree (`14aaba6`):
+Reviewer-observed on the PR head `54f1050`, whose runtime tree matches
+`14aaba6` (only docs changed after it):
 - `npm run verify` exit 0, 35 files / 579 tests (only the pre-existing
   `request-logger/render.ts:802` lint warning).
-- Full `npm run test:e2e -- --workers=2` exit 0, **435 passed**; the focused
-  P5 spec passed 18/18.
-- Disabling `LibraryFreshness` made the Back freshness case fail, which
-  shows the refresh is needed. It was restored before the full run.
-- Frozen acceptance and every test/E2E file show no diff against `687ac58`.
-- Visual and keyboard check (throwaway spec, not committed): cues and the
-  ✓, quiet Reset/Manage, completed sorted last, the dialog naming the
-  puzzle, Escape returning focus to Reset, and a keyboard-confirmed reset
-  focusing Play.
+- Full `npm run test:e2e -- --workers=2` exit 0, **435 passed**, with no
+  retries configured.
+- Frozen tests and E2E files show no diff against `687ac58`.
+- Configured CI is only the Vercel deployment and preview comments, both
+  passing. CI doesn't run the unit or E2E gates.
 
-Not yet observed: independent review and configured CI on the PR head.
+Author-observed on `14aaba6`: the focused P5 spec passed 18/18. Disabling
+`LibraryFreshness` made the Back case fail. The visual and keyboard check
+passed.
 
 ## Next action
 
-Independent review of PR #24 by a session other than its author, under
-REVIEW/CODE-REVIEW. Merge it if no blockers remain and verification and CI
-pass. Then do P5 and epic closeout docs only if separately authorized.
+Run the independent, report-only epic closeout audit per
+[AUDIT](../../process/AUDIT.md) and the [epic index](../README.md#close-an-epic),
+scoped to the Play epic. Use a session that authored none of P1–P5. Record
+findings in this handoff or HISTORY; fixing them needs separately scoped work.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P5-library-play.md. Independently review PR #24 against the frozen P5 acceptance and merge it if no blockers remain.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/EPIC.md. Run the independent, report-only closeout audit of the Play epic on main; edit no files beyond recording the result.
