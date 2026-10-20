@@ -170,14 +170,25 @@ grows — detection and locking are separable from the celebration.
 
 ### P4 — Reset
 
+The [P4 story](stories/11-P4-reset.md) and acceptance tests were approved and
+frozen on main on 2026-10-19; runtime has not started. By human decision
+(2026-10-19), reset stays on the play page and shows a fresh blank attempt;
+the library reset control moves to P5.
+
 Unobtrusive for every player, plus a quiet visible button for the
 builder. Confirmed through `Modal`, which M1 and M2 already made
-suitable. Deletes the session row and returns the puzzle to untouched.
+suitable. Deletes the session row and immediately starts a fresh blank
+attempt on the play page (new row, new `startedAt`).
 
 ### P5 — The library learns about play
 
 Published puzzles offer Play. A row shows untouched, in progress, or
-completed; completed sorts last within its size group.
+completed; completed sorts last within its size group. A started or
+completed row also offers the confirmed reset from P4 (moved here by human
+decision, 2026-10-19, since only P5 knows which rows have an attempt).
+Because P4 reset leaves a fresh blank row rather than none, P5 must classify
+a session whose active entries are all blank and not completed as untouched,
+not in progress.
 
 *Touches `listPuzzles` — high blast radius.* The library page has been
 restyled three times and four specs assert its shape, so this needs the
