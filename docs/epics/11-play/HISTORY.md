@@ -5,6 +5,25 @@ is preserved verbatim, including then-current statuses, permissions and next
 steps. It is historical evidence, not current instructions or required startup
 reading. Use [HANDOFF.md](HANDOFF.md) for current state and authorization.
 
+**Temporary evidence paths.** `/private/tmp` paths in the snapshot below are
+temporary local artifacts that may no longer exist
+([P7](stories/11-P7-durable-evidence-pointers.md)). Their hash manifests can
+be rebuilt from commits on `main`; each entry equals
+`git show <anchor>:<path> | shasum -a 256`:
+
+| Temporary manifest | Durable anchor |
+| --- | --- |
+| `crossward-p1-preexisting-acceptance-sha256.json` | `f446509` (parent of P1 freeze `b6f357a`) |
+| `crossward-p2-refrozen-acceptance-sha256.json` | `4e53740` |
+| `crossward-p3-preexisting-acceptance-sha256.json` | `4e53740` |
+| `crossward-p3-verified-source-sha256.json` | `3e0a4d5` (P3 reviewed head) |
+| `crossward-p3-verification-runtime.json` (six runtime hashes) | `3e0a4d5` (also `2211e7a`) |
+
+The other cited artifacts (checkpoint drivers, screenshots, traces and trace
+summary, failure contexts, the P3 visual demo and provenance notes) were
+one-off observations. The snapshot's text summarizing what each showed is the
+durable record and supersedes the files.
+
 # Play — Handoff
 
 ## Read first

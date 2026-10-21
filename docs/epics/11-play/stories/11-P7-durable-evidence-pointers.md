@@ -5,8 +5,9 @@ Resolve follow-up 8 from the
 docs cite evidence under `/private/tmp`, which the OS or a cleanup can delete.
 Then a reader can't check the claims those paths support.
 
-**Status:** frozen (2026-10-21). Approved as written by the human on
-2026-10-21, with both pending decisions resolved as recommended.
+**Status:** done (2026-10-21). Approved as written and frozen on `main` in
+`23352c2` by the human on 2026-10-21, with both pending decisions resolved as
+recommended. Results are under [Implementation record](#implementation-record).
 **Blast radius: none at runtime.** Documentation only, inside
 `docs/epics/11-play/`. No CODE-REVIEW risk path. Direct delivery to `main`
 after approval.
@@ -117,3 +118,28 @@ documentation-only).
 Acceptance checks 1–5 pass and are recorded here. The change is committed to
 `main` as one docs-only commit naming P7 and pushed. HANDOFF names follow-up
 9 as the next job.
+
+## Implementation record
+
+Implemented on `main` (2026-10-21) against baseline `23352c2`. Checks run by
+the implementing agent:
+
+1. **Anchors rebuild: pass.** All six files still existed. Every entry
+   recomputed from its anchor with zero mismatches: P1 preexisting 71
+   (`f446509`), P2 refrozen 75 and P3 preexisting 75 (`4e53740`), P3 resume
+   75 (`dbc3ee8`), P3 verified source 206 (`3e0a4d5`), P3 runtime 6 (both
+   `3e0a4d5` and `2211e7a`). `git merge-base --is-ancestor` confirmed each
+   anchor is an ancestor of `main`.
+2. **Coverage: pass.** The `/private/tmp` grep shows only the new note,
+   snapshot lines, audit item 8, HANDOFF's follow-up 8 and this story. The
+   note's table lists all five manifests the snapshot names; the sixth
+   (P3 resume) is cited only in the P3 story, now anchored to `dbc3ee8`.
+3. **Preservation: pass.** HISTORY's diff is one hunk adding lines 8–26
+   above the snapshot. The P3 story diff is lines 201–202 only. Only
+   `docs/epics/11-play/` changed; `git diff --check` exited 0.
+4. **Links: pass.** The new note's link to this story resolves; the existing
+   `closeout-audit-2026-10-20` anchor matches HISTORY's heading.
+5. **Handoff: pass.** Follow-up 8 marked resolved by P7; next action and
+   resume prompt name follow-up 9.
+
+Application and browser suites were not run (documentation-only).

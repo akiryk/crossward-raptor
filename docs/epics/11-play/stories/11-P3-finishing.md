@@ -198,8 +198,8 @@ before the lost-response locked-input assertion.
 Approved acceptance: 28 engine, 39 server and 23 browser cases. At initial
 freeze, parent TypeScript, focused candidate ESLint and browser listing passed;
 runtime and browser execution were still pending. All 75 original acceptance
-files remain immutable; resume hashes are recorded at
-`/private/tmp/crossward-p3-resume-frozen-sha256.json`.
+files remain immutable; their resume hashes are reproducible from commit
+`dbc3ee8` (`git show dbc3ee8:<path> | shasum -a 256`).
 
 The initial full browser run exposed a test-clock omission in the two pending
 full-draft recovery cases. Independent review confirmed the new page inherits
