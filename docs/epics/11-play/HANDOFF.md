@@ -35,9 +35,15 @@ reset now stays pending in its dialog until the returned attempt (including
 any completion check) is shown. Runtime change is `PlayPuzzle.tsx` only,
 delivered directly to `main`; checks are recorded in the story.
 
+**P7 frozen (2026-10-21).** The human approved the
+[P7 story](stories/11-P7-durable-evidence-pointers.md) as written, with both
+pending decisions resolved as recommended: point rebuildable manifests to
+commits and label the rest; no general process rule in P7. It is a docs-only
+fix for follow-up 8, committed as the baseline on `main`.
+
 **Open follow-ups (non-blocking, each needs its own scoped story or task):**
 7. Resolved by P6 (above).
-8. Volatile `/private/tmp/crossward-p3-*.json` evidence paths.
+8. Volatile `/private/tmp/crossward-p3-*.json` evidence paths (P7 frozen).
 9. LEARNINGS #3 cites "Story P3/P5" without naming epic 02.
 10. No test covers freshness via app navigation or Back after a play-page
     reset.
@@ -58,9 +64,9 @@ the Vercel deployment and preview comments.
 
 ## Next action
 
-Draft a scoped story or task for follow-up 8 (volatile evidence paths), in
-list order, and stop for human approval. Follow-ups 9–12 remain separate.
+Implement the frozen P7 story on `main` and push. Follow-ups 9–12 remain
+separate.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md. Draft the scoped specification for follow-up 8 on main; stop for human approval before freezing or implementing.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P7-durable-evidence-pointers.md. Implement the frozen P7 story on main; deliver directly to main.
