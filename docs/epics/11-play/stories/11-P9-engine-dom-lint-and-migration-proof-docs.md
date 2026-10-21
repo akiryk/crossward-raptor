@@ -7,9 +7,11 @@ the human's request (2026-10-21):
 - **11.** The engine lint rule doesn't ban DOM globals.
 - **12.** `scripts/check-play-migration.mjs` is undocumented in DEVELOPMENT.
 
-**Status:** approved by the human on 2026-10-21, with both pending
-decisions resolved as recommended, and frozen on `main`. Drafted at
-`ec6769f`. **Blast radius: none at runtime.** One lint
+**Status:** done (2026-10-21). Approved by the human on 2026-10-21, with
+both pending decisions resolved as recommended, and frozen on `main` in
+`8dd87bd`. Drafted at `ec6769f`. Results are under
+[Implementation record](#implementation-record).
+**Blast radius: none at runtime.** One lint
 config block and one DEVELOPMENT subsection. `eslint.config.mjs` and
 `docs/DEVELOPMENT.md` aren't CODE-REVIEW risk paths, and nothing under
 `src/engine/**` changes, so delivery goes directly to `main` after approval.
@@ -143,3 +145,28 @@ changes (STORY, Verification).
 
 Acceptance 1–5 pass and are recorded here. It's committed to `main` as one
 commit naming P9 and pushed. HANDOFF names the next job.
+
+## Implementation record
+
+Implemented on `main` (2026-10-21) against baseline `8dd87bd`. Checks run by
+the implementing agent:
+
+1. **Rule discriminates: pass.** Before the change (drafting, `ec6769f`):
+   `npx eslint src/engine/__lint-probe.ts` exited 0. After it, it exits 1 with
+   three `no-restricted-globals` errors (`window`, `globalThis`,
+   `localStorage`), each with the headless message. The probe was deleted, and
+   `git status` showed no probe file.
+2. **No false positives: pass.** `npm run verify` exited 0 (35 files, 579
+   tests) with no engine file changed.
+3. **Script doc is accurate: pass.** After `npm run db:up`,
+   `node scripts/check-play-migration.mjs` exited 0 and printed all three
+   `PASS` lines, matching the new subsection.
+4. **Preservation: pass.** There is one added hunk in `eslint.config.mjs`,
+   inside the engine block, and one added hunk in `docs/DEVELOPMENT.md` at
+   the end of `## E2E environment`. Otherwise only `docs/epics/11-play/`
+   changed. `git diff --check` exited 0, and the new P1 story link resolves.
+5. **Handoff: pass.** Follow-ups 11 and 12 are marked resolved by P9. The
+   next action is the rebus epic draft the human chose; follow-up 10 stays
+   open.
+
+Browser suites were not run; no runtime or browser-driven behavior changed.

@@ -34,6 +34,27 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
+      "no-restricted-globals": [
+        "error",
+        ...[
+          "window",
+          "document",
+          "navigator",
+          "location",
+          "history",
+          "localStorage",
+          "sessionStorage",
+          "fetch",
+          "XMLHttpRequest",
+          // Close the `globalThis.document` bypass.
+          "globalThis",
+          "self",
+        ].map((name) => ({
+          name,
+          message:
+            "The grid engine is headless: no DOM or browser globals in src/engine/.",
+        })),
+      ],
     },
   },
 ]);

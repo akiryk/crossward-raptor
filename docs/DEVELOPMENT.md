@@ -183,6 +183,29 @@ does not carry across tests or retries. An explicit third argument to
 `seedPuzzle(puzzle, title, builderId)` always takes precedence; otherwise the
 shared suite builder remains the fallback.
 
+### One-off migration proof
+
+`scripts/check-play-migration.mjs` is the
+[Play P1](epics/11-play/stories/11-P1-play-route.md) proof that the
+`add_play_sessions` migration is additive. With the test database up
+(`npm run db:up`), run `node scripts/check-play-migration.mjs`. It connects
+to the validated test target from `scripts/e2e-env.mjs` and creates a random
+`p1_proof_*` schema. It copies the shape (not the data) of the public
+`user`, `Puzzle`, `session`, `account` and `verification` tables, then
+seeds synthetic rows and applies the migration SQL. It then checks three
+things, printing one `PASS` line for each:
+
+- existing rows are preserved, with no backfill;
+- `PlaySession` constraints hold;
+- puzzle and user deletes cascade only to matching sessions.
+
+It drops the schema afterward. It never writes to public tables or replays
+other migrations, so it deletes no existing rows and needs no reset grant.
+
+It's historical evidence, not part of `npm run verify` or
+`npm run test:e2e`. It's tied to that one migration: it refuses to run if
+more than one migration directory matches `play…session`.
+
 ## Playwright production server and Next.js build
 
 Playwright runs `scripts/e2e-server.mjs`: `npm run build` generates Prisma
