@@ -49,14 +49,22 @@ in entry #3, and `Story 08-M2` in entry #8 (approved in addition), each
 linked to its story file. Docs-only, delivered directly to `main`; checks are
 in the story.
 
+**P9 frozen (2026-10-21).** The human approved the
+[P9 story](stories/11-P9-engine-dom-lint-and-migration-proof-docs.md),
+which handles follow-ups 11 and 12 together, with both pending decisions
+resolved as recommended: ban the listed DOM and browser globals in the
+engine; document the migration-proof script rather than retire it. Committed
+as the baseline on `main`.
+
 **Open follow-ups (non-blocking, each needs its own scoped story or task):**
 7. Resolved by P6 (above).
 8. Resolved by P7 (above).
 9. Resolved by P8 (above).
 10. No test covers freshness via app navigation or Back after a play-page
     reset.
-11. The engine lint rule doesn't ban DOM globals.
-12. `scripts/check-play-migration.mjs` is undocumented in DEVELOPMENT.
+11. The engine lint rule doesn't ban DOM globals (P9 frozen).
+12. `scripts/check-play-migration.mjs` is undocumented in DEVELOPMENT (P9
+    frozen).
 
 Known limit (accepted, owned by the P4 story): saves are keyed by user and
 puzzle, so an old open tab can save into a fresh attempt.
@@ -78,10 +86,9 @@ application and browser suites were not run (docs-only).
 
 ## Next action
 
-Draft a scoped story or task for follow-up 10 (no test covers freshness via
-app navigation or Back after a play-page reset), in list order, and stop for
-human approval. Follow-ups 11–12 remain separate.
+Implement the frozen P9 story on `main` and push. Follow-up 10 remains
+separate.
 
 ## Resume prompt
 
-Read docs/epics/11-play/HANDOFF.md. Draft the scoped specification for follow-up 10 on main; stop for human approval before freezing or implementing.
+Read docs/epics/11-play/HANDOFF.md and docs/epics/11-play/stories/11-P9-engine-dom-lint-and-migration-proof-docs.md. Implement the frozen P9 story on main; deliver directly to main.
