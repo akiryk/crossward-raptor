@@ -6,9 +6,11 @@ cites "Story P3" and "Story P5" without naming the epic. Those stories belong
 to epic 02. Since Play reused the P-prefix (`11-P1`–`11-P7`), a reader can't
 tell which P3 and P5 are meant.
 
-**Status:** approved by the human on 2026-10-21, with both pending
-decisions resolved as recommended, and frozen on `main`. Drafted at
-`c67e75c`. **Blast radius: none at runtime.**
+**Status:** done (2026-10-21). Approved by the human on 2026-10-21, with
+both pending decisions resolved as recommended, and frozen on `main` in
+`71e562c`. Drafted at `c67e75c`. Results are under
+[Implementation record](#implementation-record).
+**Blast radius: none at runtime.**
 Documentation only. No CODE-REVIEW risk path. Direct delivery to `main`
 after approval.
 
@@ -97,3 +99,23 @@ documentation-only).
 Acceptance checks 1–4 pass and are recorded here. The change is committed to
 `main` as one docs-only commit naming P8 and pushed. HANDOFF names follow-up
 10 as the next job.
+
+## Implementation record
+
+Implemented on `main` (2026-10-21) against baseline `71e562c`. Checks run by
+the implementing agent:
+
+1. **Qualified: pass.** `grep -nE "Story [A-Z][0-9]" docs/LEARNINGS.md`
+   returns nothing (exit 1). The three citations are now `Story 02-P3`
+   (:63), `Story 02-P5` (:66) and `Story 08-M2` (:164), each a link.
+2. **Correct targets: pass.** All three links, resolved from `docs/`, point
+   to the existing files named in check 2.
+3. **Preservation: pass.** `git diff -- docs/LEARNINGS.md` has two hunks:
+   entry #3's third bullet and entry #8's first bullet, rewrapped around the
+   links with the wording unchanged. All eight headings are unchanged. Only
+   `docs/LEARNINGS.md` and `docs/epics/11-play/` changed; `git diff --check`
+   exited 0.
+4. **Handoff: pass.** Follow-up 9 marked resolved by P8; next action and
+   resume prompt name follow-up 10.
+
+Application and browser suites were not run (documentation-only).

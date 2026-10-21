@@ -60,9 +60,11 @@ times:
 - A story's Definition of Done referenced "existing Group A tests" in a
   file that didn't have them. Caught by the implementing agent, which
   correctly stopped rather than guessing which of two readings was meant.
-- Story P3's scope note said `PuzzleGrid.tsx` wouldn't need changes. It
-  did — the result was an orphaned component and a duplicated grid-layout
-  container that Story P5 had to reconcile.
+- [Story 02-P3](epics/02-builder-ui/stories/02-P3-cursor-editing.md)'s
+  scope note said `PuzzleGrid.tsx` wouldn't need changes. It did — the
+  result was an orphaned component and a duplicated grid-layout container
+  that [Story 02-P5](epics/02-builder-ui/stories/02-P5-hints-panel.md) had
+  to reconcile.
 
 The third one is the instructive case: it wasn't caught, because nobody
 checked. The cost was a full story's worth of cleanup later.
@@ -158,8 +160,10 @@ The same bug shape appeared twice, in unrelated code, within one epic's
 worth of work. Both times a `useRef` flag was meant to fire an effect's
 real side effect on every render *except* the first:
 
-- **Modal's initial focus** (Story M2): "leave focus wherever a child's
-  own `autoFocus` already put it, otherwise focus the panel" silently
+- **Modal's initial focus**
+  ([Story 08-M2](epics/08-puzzle-library/stories/08-M2-modal-accessibility.md)):
+  "leave focus wherever a child's own `autoFocus` already put it,
+  otherwise focus the panel" silently
   focused the panel instead of the intended field — but only for a
   `Modal` instance that mounts fresh each time it opens, never for one
   that stays mounted and only toggles `open`.
