@@ -1,10 +1,16 @@
 # Accounts — Handoff
 
-## Read first — Accounts closed; production personal sign-in confirmed
+## Read first — Accounts closed; production sign-in on verified domain confirmed
 
 1. `AGENTS.md`, this current-state/audit section, and Accounts `EPIC.md` Decisions/Non-goals for the closeout boundary.
 2. **A6 delivery and verification checkpoint** below for the delivered-link/retry evidence, frozen-test exception, and separate user confirmation. Read the A4/A5 historical evidence only when rechecking those findings.
 3. For the current personal sign-in follow-up, `README.md`, `docs/DEVELOPMENT.md` → Deployment, and `src/lib/email.ts` explain the production URL, Vercel settings, and sender override. Do not inspect or edit `.env*` files.
+
+## Verified sending domain — 2026-10-22
+
+Production now sends sign-in mail from **`Crossward <login@send.adamkiryk.com>`**. The user registered `adamkiryk.com` at Porkbun (Porkbun DNS) and added `send.adamkiryk.com` in Resend. Four records were added in Porkbun: DKIM TXT `resend._domainkey.send`, SPF CNAMEs `rsend.send` → `rsend.forge.rmta.net` and `send.send` → `send.forge.rmta.net`, and DMARC TXT `_dmarc` = `v=DMARC1; p=none;`. The agent confirmed all four via Porkbun's authoritative nameserver and 1.1.1.1; Resend reported the domain verified at 2:40 PM. The existing root MX/SPF records (Porkbun email forwarding) were left unchanged.
+
+The agent replaced Production `RESEND_FROM_EMAIL` (previously `onboarding@resend.dev`) through the Vercel CLI and redeployed the latest production deployment (`vercel redeploy … --scope akiryks-projects`; without `--scope` the CLI wrongly reported a different team). **User-confirmed:** sign-in links arrived from `login@send.adamkiryk.com` for both the Resend account address and a separate non-account address. The user's first non-account attempt failed before succeeding on retry; the cause was not captured and was likely timing around verification. No code changed: the code default `login@crossward.app` remains for an unset variable, and Mailpit's local sender is fixed by frozen acceptance. README and `docs/DEVELOPMENT.md` record the configuration. Inviting other users is now possible by email delivery; Ownership remains unauthorized.
 
 ## Production personal sign-in complete — 2026-10-17
 
@@ -72,11 +78,11 @@ Retained local evidence: `/private/tmp/crossward-a4-independent-verification.md`
 
 ## Next action — use the hosted app
 
-The user can use `https://crossward-raptor.vercel.app/` with their Resend account email; production sign-in and visibility of all four puzzles are confirmed. No further personal-login setup, redeployment, or migration replay is pending. Preserve existing data/messages and do not inspect/edit `.env*` files. Verified custom-domain delivery is still required before inviting other users; the stale epic progress paragraph and optional handoff pruning remain separate follow-ups. Ownership and hydration investigation require separate instructions and remain out of scope.
+The user can use `https://crossward-raptor.vercel.app/`; production sign-in, visibility of all four puzzles, and delivery from the verified `send.adamkiryk.com` domain to non-account addresses are confirmed. No further login setup, redeployment, or migration replay is pending. Preserve existing data/messages and do not inspect/edit `.env*` files. The stale epic progress paragraph and optional handoff pruning remain separate follow-ups. Ownership and hydration investigation require separate instructions and remain out of scope.
 
 Copyable resume prompt:
 
-> Read AGENTS.md and the top production-personal-sign-in section of docs/epics/09-accounts/HANDOFF.md. Accounts is closed. Three approved production migrations applied successfully, with independent schema/checksum verification and unchanged original data for all four puzzles. On 2026-10-17 the user confirmed they can log in to https://crossward-raptor.vercel.app/ and see all four puzzles. Personal sign-in setup is complete; custom-domain delivery before inviting others remains separate. No redeploy or migration replay is needed. Preserve all existing data/messages and avoid .env* files and the CLI native environment runner. Await the user's next task; no Ownership or hydration work is authorized.
+> Read AGENTS.md and the top sections of docs/epics/09-accounts/HANDOFF.md. Accounts is closed. Three approved production migrations applied successfully, with independent schema/checksum verification and unchanged original data for all four puzzles. On 2026-10-17 the user confirmed they can log in to https://crossward-raptor.vercel.app/ and see all four puzzles. On 2026-10-22 production switched to the verified sender login@send.adamkiryk.com, and the user confirmed delivery to a non-account address. No redeploy or migration replay is needed. Preserve all existing data/messages and avoid .env* files and the CLI native environment runner. Await the user's next task; no Ownership or hydration work is authorized.
 
 ---
 

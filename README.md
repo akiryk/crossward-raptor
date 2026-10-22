@@ -22,13 +22,12 @@ local Mailpit inbox before starting Next. Development captures sign-in mail
 there even if a `RESEND_API_KEY` was inherited; it never falls back to real
 delivery when the inbox is unavailable.
 
-Production delivery uses `RESEND_API_KEY`. Set `RESEND_FROM_EMAIL` to choose
-the sender; it defaults to `Crossward <login@crossward.app>`, which requires
-verifying `crossward.app` in Resend. For personal sign-in without a verified
-domain, set `RESEND_FROM_EMAIL=Crossward <onboarding@resend.dev>` and request
-links only for the email address associated with your Resend account.
-Sending to other people requires a verified sending domain. Check real
-email delivery separately before inviting others.
+Production delivery uses `RESEND_API_KEY`. `RESEND_FROM_EMAIL` chooses the
+sender; production uses `Crossward <login@send.adamkiryk.com>`, on the
+`send.adamkiryk.com` sending domain verified in Resend (DNS at Porkbun). Unset,
+it defaults to `Crossward <login@crossward.app>`, an unverified domain.
+Resend's testing sender `Crossward <onboarding@resend.dev>` delivers only to
+the Resend account's email address.
 Production without a key does not deliver; tests never send email or use
 the local inbox.
 

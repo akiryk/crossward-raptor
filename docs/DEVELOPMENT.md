@@ -248,11 +248,14 @@ In the Vercel project's Settings → Environment Variables, configure Production
 - `BETTER_AUTH_SECRET` — a stable random signing secret, stored as Secret.
 - `BETTER_AUTH_URL` — `https://crossward-raptor.vercel.app`.
 - `RESEND_API_KEY` — your Resend API key, stored as Secret.
-- `RESEND_FROM_EMAIL` — `Crossward <onboarding@resend.dev>` for personal
-  sign-in using Resend's testing sender. It can deliver only to the address
-  associated with your Resend account. For other recipients, verify a sending
-  domain and use a sender on that domain. Without this variable the app uses
-  `Crossward <login@crossward.app>`, requiring verification of `crossward.app`.
+- `RESEND_FROM_EMAIL` — `Crossward <login@send.adamkiryk.com>`. The sender
+  must be on a domain verified in Resend; `send.adamkiryk.com` is verified
+  through DKIM, SPF (`rsend.send`/`send.send` CNAMEs) and DMARC records in
+  Porkbun's DNS for `adamkiryk.com`. Leave the root `adamkiryk.com` MX/SPF
+  records, which serve Porkbun email forwarding, unchanged. Resend's testing
+  sender `Crossward <onboarding@resend.dev>` delivers only to the Resend
+  account's address. Without this variable the app uses
+  `Crossward <login@crossward.app>`, an unverified domain.
 
 Redeploy after changing these settings; existing deployments retain their
 previous settings. Local `.env.local` edits do not configure Vercel, and local
@@ -355,6 +358,6 @@ messages, before applying the migration to its then-empty puzzle table.
 If the deployed homepage returns HTTP 500, check runtime logs. The observed
 2026-10-17 failure was Better Auth rejecting its default signing secret;
 adding the production auth settings and redeploying restored the login screen.
-Reaching that screen does not prove email delivery. Request a link for your
-Resend account email, check the real mailbox, and follow it in the same browser
-to confirm the session and usable library. Never publish live links or secrets.
+Reaching that screen does not prove email delivery. Request a link, check the
+real mailbox, and follow it in the same browser to confirm the session and
+usable library. Never publish live links or secrets.
