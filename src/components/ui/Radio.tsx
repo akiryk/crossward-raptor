@@ -12,19 +12,20 @@ export type RadioOption<V extends string> = {
 };
 
 // Story F6. `form` is a stacked choice inside a form (the puzzle size);
-// `nav` is a row of large blue choices (Build/Play). Hovering an unselected
-// option, or focusing any option by keyboard, shows the hover color.
+// `nav` is a row of blue choices (Build/Play). Hovering an unselected
+// option, or focusing any option by keyboard, shows the hover color, and
+// colors change over 150ms.
 const RING = {
   form: 'border-line-dark',
   nav: 'border-link-muted',
 };
 
 const LABEL = {
-  form: { selected: 'text-body-large text-primary', unselected: 'text-body-large text-primary' },
+  form: { selected: 'text-body-normal text-primary', unselected: 'text-body-normal text-primary' },
   nav: {
-    selected: 'text-title-3 text-button-active group-has-[:focus-visible]:text-button-hover',
+    selected: 'text-title-4 text-button-active group-has-[:focus-visible]:text-button-hover',
     unselected:
-      'text-title-3 text-link-muted group-hover:text-button-hover group-has-[:focus-visible]:text-button-hover',
+      'text-title-4 text-link-muted group-hover:text-button-hover group-has-[:focus-visible]:text-button-hover',
   },
 };
 
@@ -63,9 +64,9 @@ export function RadioGroup<V extends string>({
           <label
             key={option.value}
             data-testid={dataTestId ? `${dataTestId}-option` : undefined}
-            className="group inline-flex cursor-pointer items-center gap-3 select-none"
+            className="group inline-flex cursor-pointer items-center gap-2 select-none"
           >
-            <span className="relative inline-flex size-6 shrink-0">
+            <span className="relative inline-flex size-4 shrink-0">
               <input
                 type="radio"
                 name={name}
@@ -73,17 +74,17 @@ export function RadioGroup<V extends string>({
                 checked={selected}
                 onChange={() => onChange(option.value)}
                 {...option.attributes}
-                className={`peer size-6 cursor-pointer appearance-none rounded-pill border-2 bg-transparent outline-none ${ring}`}
+                className={`peer size-4 cursor-pointer appearance-none rounded-pill border-2 bg-transparent outline-none transition-colors duration-150 ease-out ${ring}`}
               />
               {selected && (
                 <span
                   data-radio-dot
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[6px] rounded-pill bg-button-active peer-focus-visible:bg-button-hover"
+                  className="pointer-events-none absolute inset-1 rounded-pill bg-button-active transition-colors duration-150 ease-out peer-focus-visible:bg-button-hover"
                 />
               )}
             </span>
-            <span data-radio-label className={LABEL[variant][selected ? 'selected' : 'unselected']}>
+            <span data-radio-label className={`transition-colors duration-150 ease-out ${LABEL[variant][selected ? 'selected' : 'unselected']}`}>
               {option.label}
             </span>
           </label>

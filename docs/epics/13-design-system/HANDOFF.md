@@ -90,50 +90,29 @@ variants. Hovering an unselected option or an off toggle, or keyboard
 focus in any state, shows `button-hover`. The new-puzzle size picker is a
 `form` RadioGroup, and `/style-guide` has `sg-toggles` and `sg-radios`.
 
-**An F6 correction was approved by the human as written** (2026-10-24),
-including the agent's choices below, and is being refrozen and delivered. After delivery the human asked for: a 16px Radio
-ring (2px stroke) with an 8px dot, 8px label gaps on Radio and the toggle,
-the toggle label `button-active` when on, and subtle hover transitions.
-They also flagged that the green style-guide links should be `button-fill`.
-The agent chose: `body-normal`/`title-4` Radio labels, 150ms `ease-out`
-transitions on buttons, toggle, Radio and links, and unchanged option
-spacing. These choices are recorded in the story's
-[Correction](stories/13-F6-toggle-radio.md#correction-2026-10-24) section
-and still need the human's approval.
-
-Uncommitted on `main` (based on `6b21489`):
-
-- **Proposed test correction:** `e2e/toggle-radio.spec.ts` (new values
-  and F6-7), plus waits for running transitions before style reads in
-  `e2e/buttons.spec.ts` and `e2e/controls.spec.ts` (D2-1 hover).
-  `src/components/ui/radio-source.test.ts` also changed. Docs: the F6
-  story, `EPIC.md` and `13-F3-button.md`.
-- **Scratch runtime, the intended implementation:** `Radio.tsx`,
-  `PreviewToggle.tsx`, `Button.tsx` and `style-guide/page.tsx`. Keep it
-  out of the refreeze commit.
-
-**The independent review** (a fresh reviewer agent, 2026-10-24) returned
-APPROVE WITH NITS. All six fixes are applied (2026-10-24):
-`controls.spec.ts` is recorded in the story, the Acceptance list is
-reordered, the toggle label is asserted unchanged on off-hover and
-keyboard focus, F6-7 pins the `ease-out` timing function and the knob's
-`translate`, the link tag is split human/agent, and F6-5 checks the label
-gap.
+**The F6 correction is done** and pushed on `main`. After delivery the
+human asked for a 16px Radio ring (2px stroke) with an 8px dot, 8px label
+gaps, the toggle label `button-active` when on, subtle hover transitions
+and `button-fill` links. They approved the
+[correction](stories/13-F6-toggle-radio.md#correction-2026-10-24) as
+written on 2026-10-24, including the agent's choices (`body-normal` and
+`title-4` Radio labels, 150ms `ease-out` transitions on buttons, toggle,
+Radio and links, unchanged option spacing), after an independent review
+whose six fixes were applied. It was refrozen in specification-only commit
+`f4f9a19`. Style readers in `toggle-radio`, `buttons` and `controls` specs
+wait for running transitions, with no F3 or D2 assertion changes, and the
+new case F6-7 pins the transitions. The implementation commit follows it.
 
 ## Verification
 
-F6 correction after the review fixes (2026-10-24, uncommitted): verify
-exit 0 (598); `toggle-radio`, `buttons` and `controls` specs 45/45 with
-`--workers=4`; the new assertions discriminate (recorded in the story).
-The full e2e suite is rerun after the refreeze.
-
-F6 correction scratch (2026-10-24, uncommitted, before the review fixes):
-`npm run verify` exit 0 (598). Full `npm run test:e2e` with
-`--workers=4` (a disclosed resource cap): 495/495. Uncapped runs hit
-machine overload (load average about 60) and timed out in unrelated
-specs. Discrimination is recorded in the story. Visual check at 1280px
-and 375px: the catalog toggles, radios and link and the new-puzzle dialog
-match the correction. Rerun the checks after the review fixes.
+F6 correction implementation (2026-10-24, on the refrozen baseline
+`f4f9a19`): `npm run verify` exit 0 (598 tests, the known
+`request-logger/render.ts` lint warning); full `npm run test:e2e` with
+`--workers=4` (a disclosed resource cap; uncapped runs overload this
+machine) exit 0, 495/495, under the standing guarded test-reset grant.
+Frozen acceptance unchanged from `f4f9a19`. Visual check at 1280px and
+375px was done on the same runtime before the refreeze: the catalog
+toggles, radios and link and the new-puzzle dialog match the correction.
 
 F6 implementation tree (2026-10-24, on the frozen baseline `3c077fd`):
 `npm run verify` exit 0 (598 tests, the known `request-logger/render.ts`
@@ -161,11 +140,8 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Present the correction to the human, especially the agent's choices, and
-get their explicit approval. After approval, commit a refreeze containing only the
-specification, then commit the scratch runtime as the implementation. Run
-verify and the full e2e suite, update this handoff and push `main`. Don't
-refreeze without approval. F7 follows.
+F6 is complete, including its correction. F7 (Title, Logo and Masthead)
+follows; it isn't authorized until the human asks for it.
 
 ## Resume prompt
 

@@ -11,7 +11,7 @@ row, Build/Play). The new-puzzle size picker adopts Radio now, and
 keyboard-focus rule; frozen in `3c077fd`; delivered in `6b21489`.
 **Correction approved by the human as written (2026-10-24)**, including
 the agent's choices: see [Correction](#correction-2026-10-24). Refrozen in
-a specification-only commit after `6b21489`.
+`f4f9a19` and delivered in the following commit.
 **Blast radius: low:** one restyled component, one new UI component, one
 call site (the size picker) and the style-guide page. No CODE-REVIEW risk
 path, so this is delivered directly to `main`.

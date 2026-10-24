@@ -7,6 +7,7 @@ export type ButtonSize = 'normal' | 'large';
 
 // Story F3. Each type's look per state. Hover's look also shows on keyboard
 // focus (focus-visible); the selected look shows while selected or pressed.
+// Colors change over 150ms (F6 correction).
 const FILLED = {
   base: 'border-button-fill bg-button-fill text-inverse',
   hover: 'hover:border-button-hover hover:bg-button-hover focus-visible:border-button-hover focus-visible:bg-button-hover',
@@ -83,7 +84,7 @@ export function Button({
       onClick={onClick}
       disabled={disabled}
       className={[
-        'group inline-flex items-center justify-center whitespace-nowrap rounded-pill border outline-hidden',
+        'group inline-flex items-center justify-center whitespace-nowrap rounded-pill border outline-hidden transition-colors duration-150 ease-out',
         layout,
         selected ? look.selected : look.base,
         interactive ? `${look.hover} ${look.pressed}` : '',
@@ -95,7 +96,7 @@ export function Button({
           <span
             data-button-number
             className={[
-              'inline-flex size-6 items-center justify-center rounded-pill bg-inverse',
+              'inline-flex size-6 items-center justify-center rounded-pill bg-inverse transition-colors duration-150 ease-out',
               selected ? NUMBER.selected : NUMBER.base,
               interactive ? `${NUMBER.hover} ${NUMBER.pressed}` : '',
             ].join(' ')}

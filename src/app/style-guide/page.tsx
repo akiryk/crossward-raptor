@@ -75,7 +75,7 @@ export default function StyleGuidePage() {
             </Button>
             <a
               href="#"
-              className="cursor-pointer text-accent underline hover:text-accent-hover hover:no-underline"
+              className="cursor-pointer text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover hover:no-underline"
             >
               Hover link
             </a>
@@ -194,7 +194,7 @@ export default function StyleGuidePage() {
           <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
             Links
           </h2>
-          <a href="#" className="cursor-pointer text-accent underline">
+          <a href="#" className="cursor-pointer text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover">
             Example link
           </a>
         </section>
