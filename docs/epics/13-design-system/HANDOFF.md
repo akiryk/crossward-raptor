@@ -19,19 +19,26 @@ Inputs came from a redesign backlog, a Figma export
 (`~/Downloads/components-colors-text-styles.pdf`) and desktop mockups.
 Epics 14, 15 and the username epic are outlined in the EPIC but not created.
 
-The EPIC and this handoff are committed on `main`. No story, test or runtime
-change exists yet.
+The [F1 story](stories/13-F1-color-tokens.md) and its acceptance
+(`e2e/color-tokens.spec.ts`, `src/app/globals-css.test.ts`) are
+**approved by the human (2026-10-24, reconfirmed at freeze)**, including the
+28-test retirement, and **frozen on `main`** in a specification-only commit.
+That commit also applies the deletion-only retirement in
+`e2e/style-guide.spec.ts`. F1 runtime is in progress.
 
 ## Verification
 
-Documentation-only; no application or browser checks run or required.
+F1 drafting only: the proposed Vitest file fails 3/5 on current `main` and
+passes on a scratch correct stylesheet; the browser spec type-checks, lints
+and lists 10 cases but hasn't run against the app. No application or full
+browser suite run.
 
 ## Next action
 
-Draft the F1 story (color tokens and the style-guide catalog) with proposed
-acceptance on `main`, naming any frozen tests it supersedes. Don't freeze or
-commit the specification before human approval.
+Implement F1 against the frozen acceptance, run `npm run verify` and the
+full `npm run test:e2e`, visually check the catalog, then commit and push
+`main`.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the F1 section of docs/epics/13-design-system/EPIC.md. Write the F1 story specification and proposed acceptance on main; do not freeze or commit before human approval.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F1-color-tokens.md. Freeze the approved F1 specification and its acceptance retirement, then implement F1 on main; push main only after verification passes.
