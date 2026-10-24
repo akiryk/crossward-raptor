@@ -62,32 +62,35 @@ footer (save submits via a new `form` pass-through on `Button`), and
 play's incorrect and completion dialogs gained an OK button.
 `/style-guide` has an `sg-modal` sample.
 
+**F5 is approved and frozen; implementation in progress** (2026-10-24).
+The human approved the [story](stories/13-F5-input.md) as written on
+2026-10-24, after settling its questions (marked *(human)* in the story).
+It is frozen in a specification-only commit on `main` with
+`e2e/inputs.spec.ts` and `src/components/ui/input-source.test.ts`. No
+frozen test is retired and no other frozen file changes. The runtime
+starts from the drafting scratch (`TextInput.tsx`, `SignInForm.tsx`,
+`NewPuzzleDialog.tsx`, `DisplayNameDialog.tsx`, `HintsPanel.tsx`,
+`style-guide/page.tsx`), uncommitted on `main`.
+
 ## Verification
 
-For the F4 implementation tree, before the commit:
+F5 scratch tree (uncommitted, observed 2026-10-24; see the story's
+discrimination evidence): `npm run verify` exit 0 (595 tests, the known
+`request-logger/render.ts` lint warning); full `npm run test:e2e` exit 0,
+480/480, under the standing guarded test-reset grant. Not yet run on a
+frozen baseline; the visual check is not done.
 
-- `npm run verify`: exit 0, 592 Vitest tests passed. The existing lint
-  warning in `request-logger/render.ts` remains.
-- Full `npm run test:e2e`: exit 0, 463/463 passed on the first run, using
-  the standing guarded local test-reset grant
-  ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-- Frozen acceptance is unchanged since `b2dfa65`.
-- Visual check at 1280px and 375px (Playwright screenshots from a
-  temporary, uncommitted spec): the catalog sample, new-puzzle,
-  builder-name, enter-hints, play's incorrect, completion and reset
-  dialogs, and the library's reset dialog. All match the story.
-- Seen, not F4's job: on the play page at 375px the "Puzzle options"
-  button runs past the right edge. The panel clips content taller than
-  the viewport (`max-h-full` with the frozen `overflow: hidden`); before
-  F4 such a panel overflowed the locked viewport instead. No current
-  dialog is that tall.
+F4 (committed `7dccf78`) passed verify (592) and the full e2e suite
+(463/463). Seen then, not F4's job: at 375px play's "Puzzle options"
+button runs past the right edge, and the modal panel clips content taller
+than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Draft F5 (Input): the story and its proposed acceptance, with
-discrimination evidence. Get the human's approval before freezing. Starting
-F5 needs the human's go-ahead.
+Commit the F5 runtime, run `npm run verify`, the full `npm run test:e2e`
+and the story's visual check, update this handoff and push `main`. F6
+needs its own go-ahead.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F5 (Input) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F5 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F5-input.md. Get the human's approval of the drafted F5 (Input) story; after approval, freeze and implement F5 on main and push main.
