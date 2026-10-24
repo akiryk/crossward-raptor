@@ -145,4 +145,4 @@ follows; it isn't authorized until the human asks for it.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F6-toggle-radio.md. Finish the F6 correction on main: apply the review fixes, get the human's approval, then refreeze, implement and push main; do not refreeze without that approval.
+Read docs/epics/13-design-system/HANDOFF.md and the "F7 — Title, Logo and Masthead" section of docs/epics/13-design-system/EPIC.md. Draft the F7 story specification on main for the human's approval; do not freeze or implement it without that approval.
