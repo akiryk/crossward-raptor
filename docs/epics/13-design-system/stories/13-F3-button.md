@@ -17,6 +17,10 @@ direct delivery to `main`.
 
 ## Decisions
 
+*Amended by [F6's correction](13-F6-toggle-radio.md#correction-2026-10-24)
+(2026-10-24): button colors change over a 150ms transition, and
+`e2e/buttons.spec.ts`'s style readers wait for it to finish.*
+
 Inspected `src/components/ui/Button.tsx`, all 11 files that render it,
 `src/app/globals.css`, `src/app/style-guide/page.tsx`, `Stepper.tsx`, every
 frozen browser spec that reads a button's computed style, and the Figma

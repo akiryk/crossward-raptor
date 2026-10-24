@@ -132,7 +132,8 @@ a single selected cell), **play** is solving.
 **One toggle only: Preview.** The existing Preview toggle keeps its
 behavior and gets the new colors and type: pill and knob outline are
 `button-active` when on and `button-fill` when off; the knob is white; the
-label is `link-muted`. There is no two-label toggle. **Build/Play on
+label is `link-muted` when off and `button-active` when on (story F6's
+correction). There is no two-label toggle. **Build/Play on
 `/puzzles` is a radio choice** (adopted in epic 14), which needs a new Radio
 component; the new-puzzle size picker uses it too. A selected Build/Play
 option's label is `button-active`, an unselected one's `link-muted`.
@@ -181,7 +182,8 @@ properties (states differ, interactive things look interactive) rather than
 judging the design. **Rounded corners are 10px; strokes are 1px.** Buttons are the exception:
 they have pill ends (story F3). The modal's 2px white border (story F4)
 and the Radio's 2px ring (story F6) are the stroke exceptions. Paddings
-and other sizes are set per story, defaulting to the mockups.
+and other sizes are set per story, defaulting to the mockups. Interactive
+colors change over a 150ms transition (story F6's correction).
 
 **The style guide becomes a plain catalog.** The live token editor on
 `/style-guide` is removed; the page shows the new tokens, text styles and

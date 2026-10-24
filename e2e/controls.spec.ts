@@ -62,7 +62,14 @@ test.describe('D2-1 buttons', () => {
     const button = page.getByTestId('new-puzzle-button');
     const before = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
     await button.hover();
-    const after = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
+    // Buttons change color over a short transition (story F6's correction,
+    // 2026-10-24), so read the settled background.
+    const after = await button.evaluate(async (el) => {
+      for (let i = 0; i < 10 && el.getAnimations().length > 0; i++) {
+        await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
+      }
+      return getComputedStyle(el).backgroundColor;
+    });
 
     expect(after).not.toBe(before);
   });
