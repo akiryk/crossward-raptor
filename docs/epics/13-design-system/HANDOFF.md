@@ -75,10 +75,26 @@ specification-only commit `065b887` with `e2e/inputs.spec.ts` and
 builder-name dialogs pass their names as labels. `/style-guide` has four
 `sg-input-*` samples.
 
-**F6 (Preview toggle and Radio) is next** and needs the human's go-ahead
-before drafting.
+**F6 is approved and frozen** (2026-10-24). The human supplied two
+mockups, settled the questions recorded as *(human)* in the
+[story](stories/13-F6-toggle-radio.md) (two Radio variants, `form` gray
+and `nav` blue, a 2px ring, hover only on unselected options and an off
+toggle, adopting Radio in the size picker now) and then approved the whole
+story as written, including the keyboard-focus rule (focus shows
+`button-hover` in every state). It is frozen in a specification-only
+commit with `e2e/toggle-radio.spec.ts`,
+`src/components/ui/radio-source.test.ts` and the EPIC's 2px ring
+exception. No frozen test was retired. Implementation is in progress on
+`main`.
 
 ## Verification
+
+F6 scratch tree (2026-10-24, uncommitted, with the 24px ring):
+`npm run verify` exit 0 (598 tests); full `npm run test:e2e` exit 0,
+494/494, under the standing guarded test-reset grant. The story records
+the discrimination evidence. No visual check has been done since the ring
+grew from 20px to 24px, and the editor's toggle hasn't been looked at
+in place.
 
 F5 implementation tree (2026-10-24, on the frozen baseline `065b887`):
 `npm run verify` exit 0 (595 tests, the known `request-logger/render.ts`
@@ -96,10 +112,15 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Get the human's go-ahead for F6 (Preview toggle and Radio). Then draft
-the story and its proposed acceptance, with discrimination evidence, and
-get its approval before freezing.
+Get the human's approval of the F6 story, including the keyboard-focus
+rule. If they ask for changes, revise the story and its tests and
+re-check discrimination. After approval, commit a specification-only
+freeze on `main` with the story, both acceptance files and the EPIC's
+2px-ring stroke exception (under Components and conventions). Then commit
+the scratch runtime as the implementation. Run verify and the full e2e
+suite, do the visual check at 1280px and 375px, update this handoff and
+the EPIC's F6 status, and push `main`.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F6 (Preview toggle and Radio) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F6 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F6-toggle-radio.md. Get the human's approval of Design system story F6, then freeze and implement F6 on main and push main.

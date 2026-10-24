@@ -179,8 +179,8 @@ Epic 05's conventions still hold: no component hardcodes a color, font,
 radius or border width; layout stays untokenized; tests assert structural
 properties (states differ, interactive things look interactive) rather than
 judging the design. **Rounded corners are 10px; strokes are 1px.** Buttons are the exception:
-they have pill ends (story F3). The modal's 2px white border is the one
-stroke exception (story F4). Paddings
+they have pill ends (story F3). The modal's 2px white border (story F4)
+and the Radio's 2px ring (story F6) are the stroke exceptions. Paddings
 and other sizes are set per story, defaulting to the mockups.
 
 **The style guide becomes a plain catalog.** The live token editor on
