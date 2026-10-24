@@ -47,6 +47,14 @@ is gray, and its selected look matches its hover. There are three new
 color styles: `inverse`, `line-dark` and `button-alternate-hover`. Danger
 is gone, and every call site uses the new variant names.
 
+**F4 is approved and frozen; implementation in progress** (2026-10-24).
+The human approved the [story](stories/13-F4-modal.md) as written on
+2026-10-24. It is frozen in a specification-only commit on `main` with
+`e2e/modal-design.spec.ts`, `src/components/ui/modal-source.test.ts`, the
+one-line `STYLES` amendment in `e2e/color-tokens.spec.ts` and
+`src/app/globals-css.test.ts`, and the EPIC's `modal-background` row and
+2px modal-border exception. The runtime starts from the drafting scratch.
+
 ## Verification
 
 For the F3 implementation tree, before the commit:
@@ -68,10 +76,13 @@ For the F3 implementation tree, before the commit:
 
 ## Next action
 
-Draft F4 (Modal): the story and its proposed acceptance, with
-discrimination evidence. Get the human's approval before freezing. Starting
-F4 needs the human's go-ahead.
+Show the human the F4 story and get their approval, or revise it. After
+approval, freeze on `main` with a specification-only commit: the story
+marked approved, the two new test files, the `STYLES` amendment and the
+EPIC update. Then commit the runtime, run the full `npm run verify` and
+`npm run test:e2e` and the story's visual checks, update this handoff and
+push `main`. F5 needs its own go-ahead.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F4 (Modal) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F4 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md. Get the human's approval of the drafted Design system story F4 (Modal) in docs/epics/13-design-system/stories/13-F4-modal.md; after approval, freeze and implement F4 on main from the uncommitted scratch and push main.

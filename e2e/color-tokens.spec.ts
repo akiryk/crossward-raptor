@@ -70,6 +70,7 @@ const STYLES: Record<string, string> = {
   'button-alternate-hover': 'gray-500',
   'puzzle-row': 'interactive-faint',
   'puzzle-row-hover': 'interactive-faint-hover',
+  'modal-background': 'white',
   'modal-title-background': 'yellow-bright',
 };
 

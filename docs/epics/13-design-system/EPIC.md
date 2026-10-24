@@ -121,6 +121,7 @@ The same color then serves text, background and border utilities.
 | *(new)* | button-alternate-hover | gray-500 | `bg-button-alternate-hover` |
 | *(new)* | puzzle-row | interactive-faint | `bg-puzzle-row` |
 | *(new)* | puzzle-row-hover | interactive-faint-hover | |
+| *(new)* | modal-background | white | `bg-modal-background`, `border-modal-background` |
 | modal-title-background | modal-title-background | yellow-bright | |
 | *(new)* | modal-backdrop | black at 40% opacity | `bg-modal-backdrop` |
 
@@ -178,7 +179,8 @@ Epic 05's conventions still hold: no component hardcodes a color, font,
 radius or border width; layout stays untokenized; tests assert structural
 properties (states differ, interactive things look interactive) rather than
 judging the design. **Rounded corners are 10px; strokes are 1px.** Buttons are the exception:
-they have pill ends (story F3). Paddings
+they have pill ends (story F3). The modal's 2px white border is the one
+stroke exception (story F4). Paddings
 and other sizes are set per story, defaulting to the mockups.
 
 **The style guide becomes a plain catalog.** The live token editor on
