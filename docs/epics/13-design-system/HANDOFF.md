@@ -28,7 +28,16 @@ adds the `--palette-*` `:root` rule and the 33 styles in `@theme static` to
 `globals.css`, and replaces the token pane with the `ColorSwatches` catalog.
 The six editor components are removed. The old tokens are unchanged. The only
 other `globals.css` edit is a `--text-title` comment that named the removed
-`SizeControl`. F2 (typography) has no story yet.
+`SizeControl`.
+
+**F2 is approved and frozen, not implemented.** The human approved the
+[story](stories/13-F2-typography.md) in full on 2026-10-24, including the
+default line heights and the no-retirement finding. It is frozen on `main` in
+a specification-only commit with its acceptance (`e2e/text-styles.spec.ts`,
+`src/app/typography-source.test.ts`). It retires
+no frozen test: none asserts Space Grotesk or the 12px label size, and the
+kept old-token checks pass unchanged against a scratch implementation, now
+reverted. Discrimination evidence is in the story.
 
 ## Verification
 
@@ -49,10 +58,9 @@ For the F1 implementation tree, before the commit:
 
 ## Next action
 
-Draft the F2 story (typography) with proposed acceptance on `main`, naming any
-frozen tests it supersedes (`typography.spec.ts` and the kept style-guide
-token checks). Don't freeze or commit before human approval.
+Implement F2 on `main` against its frozen acceptance, then verify and deliver
+per the story's Definition of Done.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the F2 section of docs/epics/13-design-system/EPIC.md. Write the F2 story specification and proposed acceptance on main; do not freeze or commit before human approval.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F2-typography.md. Once the human approves the F2 story, freeze it in a specification-only commit on main, then implement and deliver F2 on main.
