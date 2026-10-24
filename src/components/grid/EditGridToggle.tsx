@@ -13,7 +13,7 @@ export function EditGridToggle({
 }) {
   return (
     <Button
-      variant="quiet"
+      variant="alternate"
       data-testid="edit-grid-toggle"
       disabled={disabled}
       onClick={onToggle}

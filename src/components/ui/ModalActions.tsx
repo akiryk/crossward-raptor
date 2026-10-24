@@ -21,7 +21,7 @@ export function ModalActions({
 }) {
   return (
     <div className="mt-6 flex justify-end gap-3">
-      <Button variant="quiet" data-testid={cancelTestId} onClick={onCancel}>
+      <Button variant="alternate" data-testid={cancelTestId} onClick={onCancel}>
         {cancelLabel}
       </Button>
       <Button data-testid={confirmTestId} onClick={onConfirm} disabled={confirmDisabled}>

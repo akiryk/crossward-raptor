@@ -35,43 +35,43 @@ triples (size, weight, line height) at the story's default line heights, and
 the new `label` replaces the old 12px `--text-label`. `/style-guide` gains
 the `TextStyles` catalog after Colors. Other old type tokens are unchanged.
 
-**F3 is approved and frozen; implementation in progress.** The human
-settled the [story](stories/13-F3-button.md)'s pending questions and
-approved it on 2026-10-24. The settled values: pill ends (new
-`--radius-pill`), sizes from the mockups, a white number circle in
-numbered buttons, and gray alternate colors. Alternate's selected style is
-the same as its hover style. Three new color styles: `inverse`,
-`line-dark` and `button-alternate-hover`. The freeze commit adds
-`e2e/buttons.spec.ts` and `src/components/ui/button-source.test.ts`,
-retires one D2-1 case, amends F1's two style maps and updates the EPIC.
+**F3 is done** and pushed on `main`. The human settled the
+[story](stories/13-F3-button.md)'s pending questions and approved it on
+2026-10-24. It was frozen in specification-only commit `58cc471`, which
+added `e2e/buttons.spec.ts` and `src/components/ui/button-source.test.ts`,
+retired the D2-1 danger case, amended F1's two style maps and updated the
+EPIC. `Button` now has four types (normal, numbered, large, alternate) and a
+`selected` prop. All buttons are pills (new `--radius-pill`), 32px tall,
+and large is 50px. Numbered buttons show a white number circle. Alternate
+is gray, and its selected look matches its hover. There are three new
+color styles: `inverse`, `line-dark` and `button-alternate-hover`. Danger
+is gone, and every call site uses the new variant names.
 
 ## Verification
 
-For the F2 implementation tree, before the commit:
+For the F3 implementation tree, before the commit:
 
-- `npm run verify`: exit 0, 586 Vitest tests passed. The existing lint
+- `npm run verify`: exit 0, 589 Vitest tests passed. The existing lint
   warning in `request-logger/render.ts` remains.
-- First full `npm run test:e2e` run: 426 passed, 3 failed in library specs
-  unrelated to type (`library-play` P5 row click and Back-to-library,
-  `new-puzzle` D6-3 list). Both spec files then passed alone (32/32).
-- Second full `npm run test:e2e` run: 429/429 passed.
-- These runs used the standing guarded local test-reset grant
+- Full `npm run test:e2e`: 448/448 passed on the first run, using the
+  standing guarded local test-reset grant
   ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-- Frozen acceptance is unchanged since `4b8c401`.
-- Visual check at 1280px and 375px: the catalog, `/puzzles`, the builder and
-  play. Bold text renders with the 600 face, labels are 14px, and the
-  stepper badges keep computed weight 700. The catalog's 44px sample wraps
-  at 375px.
-- Play at 375px already overflowed before F2, checked on the pre-F2 tree:
-  the clue columns overlap past the right edge. This is responsive layout
-  (epic 15), not F2.
+- Frozen acceptance is unchanged since `58cc471`.
+- Visual check at 1280px and 375px (Playwright screenshots): the catalog
+  idle and hovered, `/puzzles`, the new-puzzle dialog, and the builder's
+  delete and clear-letters confirmations. All match the mockups. Not
+  visually checked: publish/unpublish and play's reset confirmation. They
+  use the same alternate and normal types that F3-9 asserts.
+- Seen, not F3's job: the delete confirmation's two buttons touch, because
+  that container has no gap, and they touched before F3 too. Epic 14
+  moves delete into a dialog.
 
 ## Next action
 
-Implement F3 against the frozen acceptance on `main`, run `npm run
-verify`, the full `npm run test:e2e` and the visual checks, then update
-this handoff and push `main`.
+Draft F4 (Modal): the story and its proposed acceptance, with
+discrimination evidence. Get the human's approval before freezing. Starting
+F4 needs the human's go-ahead.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F3-button.md. Settle F3's pending questions with the human; after approval, freeze and implement F3 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F4 (Modal) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F4 on main and push main.

@@ -69,8 +69,10 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'highlight', variable: 'blue-bright', swatch: 'bg-highlight' },
   { name: 'error', variable: 'text-error', swatch: 'bg-error' },
   { name: 'subtle', variable: 'gray-600', swatch: 'bg-subtle' },
+  { name: 'inverse', variable: 'white', swatch: 'bg-inverse' },
   { name: 'line-muted', variable: 'gray-200', swatch: 'bg-line-muted' },
   { name: 'line-highlight', variable: 'blue-bright', swatch: 'bg-line-highlight' },
+  { name: 'line-dark', variable: 'gray-600', swatch: 'bg-line-dark' },
   { name: 'fill-muted', variable: 'gray-200', swatch: 'bg-fill-muted' },
   { name: 'button-fill', variable: 'interactive-light', swatch: 'bg-button-fill' },
   { name: 'button-hover', variable: 'interactive-medium', swatch: 'bg-button-hover' },
@@ -79,6 +81,11 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     name: 'button-alternate-border',
     variable: 'gray-500',
     swatch: 'bg-button-alternate-border',
+  },
+  {
+    name: 'button-alternate-hover',
+    variable: 'gray-500',
+    swatch: 'bg-button-alternate-hover',
   },
   { name: 'puzzle-row', variable: 'interactive-faint', swatch: 'bg-puzzle-row' },
   {

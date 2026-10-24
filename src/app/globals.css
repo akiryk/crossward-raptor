@@ -55,10 +55,12 @@
   --color-highlight: var(--palette-blue-bright);
   --color-error: var(--palette-text-error);
   --color-subtle: var(--palette-gray-600);
+  --color-inverse: var(--palette-white);
 
   /* lines and fills */
   --color-line-muted: var(--palette-gray-200);
   --color-line-highlight: var(--palette-blue-bright);
+  --color-line-dark: var(--palette-gray-600);
   --color-fill-muted: var(--palette-gray-200);
 
   /* controls and surfaces */
@@ -66,10 +68,17 @@
   --color-button-hover: var(--palette-interactive-medium);
   --color-button-active: var(--palette-interactive-dark);
   --color-button-alternate-border: var(--palette-gray-500);
+  --color-button-alternate-hover: var(--palette-gray-500);
   --color-puzzle-row: var(--palette-interactive-faint);
   --color-puzzle-row-hover: var(--palette-interactive-faint-hover);
   --color-modal-title-background: var(--palette-yellow-bright);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);
+}
+
+/* --- shape (Story F3) --- */
+/* Fully rounded ends for buttons; `rounded-pill`. */
+@theme static {
+  --radius-pill: 9999px;
 }
 
 /* --- text styles (Story F2) --- */

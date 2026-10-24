@@ -21,7 +21,7 @@ export function PublishControls({
     return (
       <div className="flex items-center gap-3">
         <p data-testid="publish-state">Published, {visibility}.</p>
-        <Button variant="quiet" data-testid="unpublish-button" onClick={onUnpublish}>
+        <Button variant="alternate" data-testid="unpublish-button" onClick={onUnpublish}>
           Unpublish
         </Button>
       </div>

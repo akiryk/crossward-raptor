@@ -11,7 +11,6 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
       <div data-testid="clear-letters-confirmation">
         <p className="text-help text-ink-2">This cannot be undone.</p>
         <Button
-          variant="danger"
           data-testid="clear-letters-confirm-button"
           onClick={() => {
             onConfirm();
@@ -21,7 +20,7 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
           Clear all letters
         </Button>
         <Button
-          variant="quiet"
+          variant="alternate"
           data-testid="clear-letters-cancel-button"
           onClick={() => setConfirming(false)}
         >
@@ -32,7 +31,7 @@ export function ClearLettersButton({ onConfirm }: { onConfirm: () => void }) {
   }
 
   return (
-    <Button variant="quiet" data-testid="clear-letters-button" onClick={() => setConfirming(true)}>
+    <Button variant="alternate" data-testid="clear-letters-button" onClick={() => setConfirming(true)}>
       Clear all letters
     </Button>
   );

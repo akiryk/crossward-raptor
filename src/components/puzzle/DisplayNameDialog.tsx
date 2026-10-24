@@ -65,7 +65,7 @@ export function DisplayNameDialog({
         {error && <p role="alert" className="mt-2 text-help">{error}</p>}
         <div className="mt-6 flex justify-end gap-3">
           <Button
-            variant="quiet"
+            variant="alternate"
             data-testid="display-name-cancel"
             onClick={handleCancel}
             disabled={pending}

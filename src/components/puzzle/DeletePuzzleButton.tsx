@@ -21,7 +21,6 @@ export function DeletePuzzleButton({ puzzleId }: { puzzleId: string }) {
       <div data-testid="delete-confirmation">
         <p className="text-help text-ink-2">This cannot be undone.</p>
         <Button
-          variant="danger"
           data-testid="delete-confirm-button"
           onClick={handleConfirm}
           disabled={pending}
@@ -29,7 +28,7 @@ export function DeletePuzzleButton({ puzzleId }: { puzzleId: string }) {
           Delete puzzle
         </Button>
         <Button
-          variant="quiet"
+          variant="alternate"
           data-testid="delete-cancel-button"
           onClick={() => setConfirming(false)}
           disabled={pending}
@@ -41,7 +40,7 @@ export function DeletePuzzleButton({ puzzleId }: { puzzleId: string }) {
   }
 
   return (
-    <Button variant="danger" data-testid="delete-puzzle-button" onClick={() => setConfirming(true)}>
+    <Button data-testid="delete-puzzle-button" onClick={() => setConfirming(true)}>
       Delete puzzle
     </Button>
   );

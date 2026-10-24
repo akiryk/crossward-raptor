@@ -6,7 +6,8 @@ selected states. Hover's look also shows on keyboard focus, and there is no
 focus ring. Every existing button use takes the new look, and `/style-guide`
 catalogs the types.
 
-**Status:** approved by the human on 2026-10-24 and frozen on `main`.
+**Status:** done (2026-10-24). Approved by the human and frozen in
+`58cc471`; results in the [handoff](../HANDOFF.md#verification).
 The human settled the pending questions the same day (sizes, pill ends,
 the numbered circle and alternate's colors), and the proposed acceptance
 was revised to match before approval.

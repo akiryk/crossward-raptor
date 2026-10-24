@@ -33,14 +33,30 @@ export default function StyleGuidePage() {
             Buttons
           </h2>
           {/* sg-hover wraps the interactive elements hover states are
-              demonstrated on -- kept as the single primary/disabled button
-              on the page, not a duplicate, so the existing unscoped D1-3
-              queries and this scoped hover demo resolve to the same
-              elements rather than colliding under Playwright's strict mode. */}
+              demonstrated on: each button type unselected and selected,
+              a disabled button and a hover link. */}
           <div data-testid="sg-hover" className="flex flex-wrap items-center gap-3">
-            <Button data-testid="sg-button-primary">Primary</Button>
-            <Button variant="quiet" data-testid="sg-button-quiet">
-              Quiet
+            <Button data-testid="sg-button">Normal</Button>
+            <Button data-testid="sg-button" selected>
+              Normal
+            </Button>
+            <Button data-testid="sg-button" number={1}>
+              Edit the Grid
+            </Button>
+            <Button data-testid="sg-button" number={2} selected>
+              Create Hints
+            </Button>
+            <Button data-testid="sg-button" size="large">
+              Large
+            </Button>
+            <Button data-testid="sg-button" size="large" selected>
+              Large
+            </Button>
+            <Button data-testid="sg-button" variant="alternate">
+              Alternate
+            </Button>
+            <Button data-testid="sg-button" variant="alternate" selected>
+              Alternate
             </Button>
             <Button disabled data-testid="sg-button-disabled">
               Disabled
@@ -108,8 +124,8 @@ export default function StyleGuidePage() {
           <div className="rounded-md border border-rule-strong bg-panel-tint px-4 py-3">
             <p className="text-help text-ink-2">This cannot be undone.</p>
             <div className="mt-2 flex gap-2">
-              <Button variant="danger">Confirm</Button>
-              <Button variant="quiet">Cancel</Button>
+              <Button>Confirm</Button>
+              <Button variant="alternate">Cancel</Button>
             </div>
           </div>
         </section>
