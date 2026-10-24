@@ -56,22 +56,6 @@ test.describe('D2-1 buttons', () => {
     }
   });
 
-  test('the danger button looks different from the primary button', async ({ page }) => {
-    await page.goto('/puzzles');
-    const primaryBg = await page
-      .getByTestId('new-puzzle-button')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-
-    const { id } = await seedForControls();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-    const dangerBg = await page
-      .getByTestId('delete-puzzle-button')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-
-    expect(dangerBg).not.toBe(primaryBg);
-  });
-
   test('hovering the new-puzzle button changes its background', async ({ page }) => {
     await page.goto('/puzzles');
 

@@ -35,6 +35,16 @@ triples (size, weight, line height) at the story's default line heights, and
 the new `label` replaces the old 12px `--text-label`. `/style-guide` gains
 the `TextStyles` catalog after Colors. Other old type tokens are unchanged.
 
+**F3 is approved and frozen; implementation in progress.** The human
+settled the [story](stories/13-F3-button.md)'s pending questions and
+approved it on 2026-10-24. The settled values: pill ends (new
+`--radius-pill`), sizes from the mockups, a white number circle in
+numbered buttons, and gray alternate colors. Alternate's selected style is
+the same as its hover style. Three new color styles: `inverse`,
+`line-dark` and `button-alternate-hover`. The freeze commit adds
+`e2e/buttons.spec.ts` and `src/components/ui/button-source.test.ts`,
+retires one D2-1 case, amends F1's two style maps and updates the EPIC.
+
 ## Verification
 
 For the F2 implementation tree, before the commit:
@@ -58,9 +68,10 @@ For the F2 implementation tree, before the commit:
 
 ## Next action
 
-Draft the F3 story with proposed acceptance on `main`, naming any frozen
-tests it supersedes. Don't freeze or commit before human approval.
+Implement F3 against the frozen acceptance on `main`, run `npm run
+verify`, the full `npm run test:e2e` and the visual checks, then update
+this handoff and push `main`.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the F3 section of docs/epics/13-design-system/EPIC.md. Write the F3 story specification and proposed acceptance on main; do not freeze or commit before human approval.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F3-button.md. Settle F3's pending questions with the human; after approval, freeze and implement F3 on main and push main.

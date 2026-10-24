@@ -109,13 +109,16 @@ The same color then serves text, background and border utilities.
 | text-highlight | highlight | blue-bright | `text-highlight` |
 | text-error | error | text-error | `text-error`, `border-error` |
 | text-gray | subtle | gray-600 | `text-subtle` |
+| *(new)* | inverse | white | `text-inverse` |
 | line-muted | line-muted | gray-200 | `border-line-muted` |
 | line-highlight | line-highlight | blue-bright | `border-line-highlight` |
+| *(new)* | line-dark | gray-600 | `border-line-dark` |
 | fill-muted | fill-muted | gray-200 | `bg-fill-muted` |
 | button-fill | button-fill | interactive-light | `bg-button-fill` |
 | button-hover | button-hover | interactive-medium | |
 | button-active | button-active | interactive-dark | |
 | *(new)* | button-alternate-border | gray-500 | `border-button-alternate-border` |
+| *(new)* | button-alternate-hover | gray-500 | `bg-button-alternate-hover` |
 | *(new)* | puzzle-row | interactive-faint | `bg-puzzle-row` |
 | *(new)* | puzzle-row-hover | interactive-faint-hover | |
 | modal-title-background | modal-title-background | yellow-bright | |
@@ -174,7 +177,8 @@ letter scale with the cell and gives the number a readable minimum.
 Epic 05's conventions still hold: no component hardcodes a color, font,
 radius or border width; layout stays untokenized; tests assert structural
 properties (states differ, interactive things look interactive) rather than
-judging the design. **Rounded corners are 10px; strokes are 1px.** Paddings
+judging the design. **Rounded corners are 10px; strokes are 1px.** Buttons are the exception:
+they have pill ends (story F3). Paddings
 and other sizes are set per story, defaulting to the mockups.
 
 **The style guide becomes a plain catalog.** The live token editor on
