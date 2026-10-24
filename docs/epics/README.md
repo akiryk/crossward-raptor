@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Design system](13-design-system/HANDOFF.md) (active; first of the redesign
+  epics)
 - [Play](11-play/HANDOFF.md) (closed 2026-10-20; open follow-ups listed there)
 - [Project workflow](12-project-workflow/HANDOFF.md)
 - [Accounts](09-accounts/HANDOFF.md) and [Ownership](10-ownership/HANDOFF.md)
