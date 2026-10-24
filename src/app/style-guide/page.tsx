@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ColorSwatches } from '@/components/style-guide/ColorSwatches';
 import { GridExamples } from '@/components/style-guide/GridExamples';
+import { TextStyles } from '@/components/style-guide/TextStyles';
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 
@@ -13,6 +14,8 @@ export default function StyleGuidePage() {
     <div className="p-6">
       <div className="min-w-0 space-y-12">
         <ColorSwatches />
+
+        <TextStyles />
 
         <section data-testid="sg-text" className="space-y-2">
           <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">

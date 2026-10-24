@@ -72,9 +72,56 @@
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);
 }
 
+/* --- text styles (Story F2) --- */
+/* Each style's size, weight and line height; `text-<name>` applies all
+   three. Line heights are defaults, tuned later. static: emitted whether or
+   not a utility uses it yet. */
+@theme static {
+  --text-label: 0.875rem;
+  --text-label--font-weight: 400;
+  --text-label--line-height: 1.25rem;
+  --text-title-1: 2.75rem;
+  --text-title-1--font-weight: 600;
+  --text-title-1--line-height: 3.25rem;
+  --text-title-2: 2rem;
+  --text-title-2--font-weight: 600;
+  --text-title-2--line-height: 2.5rem;
+  --text-title-3: 1.125rem;
+  --text-title-3--font-weight: 600;
+  --text-title-3--line-height: 1.5rem;
+  --text-title-4: 0.875rem;
+  --text-title-4--font-weight: 600;
+  --text-title-4--line-height: 1.25rem;
+  --text-button-large: 1.125rem;
+  --text-button-large--font-weight: 600;
+  --text-button-large--line-height: 1.5rem;
+  --text-button-normal: 0.875rem;
+  --text-button-normal--font-weight: 600;
+  --text-button-normal--line-height: 1.25rem;
+  --text-body-large: 1.125rem;
+  --text-body-large--font-weight: 400;
+  --text-body-large--line-height: 1.75rem;
+  --text-body-normal: 0.875rem;
+  --text-body-normal--font-weight: 400;
+  --text-body-normal--line-height: 1.25rem;
+  --text-body-small: 0.75rem;
+  --text-body-small--font-weight: 400;
+  --text-body-small--line-height: 1rem;
+  --text-hint-number: 0.875rem;
+  --text-hint-number--font-weight: 600;
+  --text-hint-number--line-height: 1.25rem;
+  /* uppercase too: whatever uses it adds Tailwind's `uppercase` */
+  --text-cell-letter: 1rem;
+  --text-cell-letter--font-weight: 400;
+  --text-cell-letter--line-height: 1rem;
+  --text-cell-number: 0.625rem;
+  --text-cell-number--font-weight: 400;
+  --text-cell-number--line-height: 0.625rem;
+}
+
 @theme {
   /* --- typefaces --- */
-  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
   --font-data: var(--font-inter), system-ui, sans-serif; /* grid letters */
 
@@ -136,7 +183,7 @@
   --text-headline: 1.75rem;
   --text-body: 1rem;
   --text-help: 0.875rem;
-  --text-label: 0.75rem;
+  /* --text-label is now a text style above (Story F2) */
   /* Fluid: a clamp(), not a single rem value. */
   --text-title: clamp(34px, 5vw, 46px);
 

@@ -20,47 +20,47 @@ Inputs came from a redesign backlog, a Figma export
 Epics 14, 15 and the username epic are outlined in the EPIC but not created.
 
 **F1 is done** and pushed on `main`. The [story](stories/13-F1-color-tokens.md)
-was approved by the human (2026-10-24, reconfirmed at freeze) and frozen in
-specification-only commit `c5e5d7a`. That commit added
-`e2e/color-tokens.spec.ts` and `src/app/globals-css.test.ts` and retired 28
-live-editor tests from `e2e/style-guide.spec.ts`, deletion only. The runtime
-adds the `--palette-*` `:root` rule and the 33 styles in `@theme static` to
-`globals.css`, and replaces the token pane with the `ColorSwatches` catalog.
-The six editor components are removed. The old tokens are unchanged. The only
-other `globals.css` edit is a `--text-title` comment that named the removed
-`SizeControl`.
+was frozen in `c5e5d7a`. It added the `--palette-*` variables and the 33 color
+styles to `globals.css`, and replaced the live token editor on `/style-guide`
+with the `ColorSwatches` catalog. The old tokens are unchanged.
 
-**F2 is approved and frozen, not implemented.** The human approved the
+**F2 is done** and pushed on `main`. The human approved the
 [story](stories/13-F2-typography.md) in full on 2026-10-24, including the
-default line heights and the no-retirement finding. It is frozen on `main` in
-a specification-only commit with its acceptance (`e2e/text-styles.spec.ts`,
-`src/app/typography-source.test.ts`). It retires
-no frozen test: none asserts Space Grotesk or the 12px label size, and the
-kept old-token checks pass unchanged against a scratch implementation, now
-reverted. Discrimination evidence is in the story.
+default line heights and the no-retirement finding. It was frozen in
+specification-only commit `4b8c401` with `e2e/text-styles.spec.ts` and
+`src/app/typography-source.test.ts`. No frozen test was retired. The runtime
+loads only Inter, at 400 and 600, and drops Space Grotesk. `--font-display`
+now points at Inter. A second `@theme static` block holds the 13 text-style
+triples (size, weight, line height) at the story's default line heights, and
+the new `label` replaces the old 12px `--text-label`. `/style-guide` gains
+the `TextStyles` catalog after Colors. Other old type tokens are unchanged.
 
 ## Verification
 
-For the F1 implementation tree, before the commit:
+For the F2 implementation tree, before the commit:
 
-- `npm run verify`: exit 0, 584 Vitest tests passed. One existing lint
-  warning remains in `request-logger/render.ts`.
-- First full `npm run test:e2e` run: 417 passed, 2 failed in unrelated library
-  specs (`library-play` P5 row click, `puzzle-list-layout` L2b-1 publish).
-  Both passed when rerun alone.
-- Second full `npm run test:e2e` run: 419/419 passed, exit 0.
+- `npm run verify`: exit 0, 586 Vitest tests passed. The existing lint
+  warning in `request-logger/render.ts` remains.
+- First full `npm run test:e2e` run: 426 passed, 3 failed in library specs
+  unrelated to type (`library-play` P5 row click and Back-to-library,
+  `new-puzzle` D6-3 list). Both spec files then passed alone (32/32).
+- Second full `npm run test:e2e` run: 429/429 passed.
 - These runs used the standing guarded local test-reset grant
   ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-- Frozen acceptance is unchanged since `c5e5d7a`.
-- The `/style-guide` catalog was checked visually at 1280px and 375px: white
-  swatches stay visible, the backdrop swatch reads as translucent gray, and
-  nothing overflows.
+- Frozen acceptance is unchanged since `4b8c401`.
+- Visual check at 1280px and 375px: the catalog, `/puzzles`, the builder and
+  play. Bold text renders with the 600 face, labels are 14px, and the
+  stepper badges keep computed weight 700. The catalog's 44px sample wraps
+  at 375px.
+- Play at 375px already overflowed before F2, checked on the pre-F2 tree:
+  the clue columns overlap past the right edge. This is responsive layout
+  (epic 15), not F2.
 
 ## Next action
 
-Implement F2 on `main` against its frozen acceptance, then verify and deliver
-per the story's Definition of Done.
+Draft the F3 story with proposed acceptance on `main`, naming any frozen
+tests it supersedes. Don't freeze or commit before human approval.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F2-typography.md. Once the human approves the F2 story, freeze it in a specification-only commit on main, then implement and deliver F2 on main.
+Read docs/epics/13-design-system/HANDOFF.md and the F3 section of docs/epics/13-design-system/EPIC.md. Write the F3 story specification and proposed acceptance on main; do not freeze or commit before human approval.
