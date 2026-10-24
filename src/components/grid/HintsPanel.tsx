@@ -79,7 +79,6 @@ export function HintsPanel({
                     <TextInput
                       data-testid="hint-input"
                       aria-label={`${label} clue`}
-                      variant="underline"
                       value={hints[key] ?? ''}
                       onChange={(text) => onHintChange(key, text)}
                       onFocus={() => onHintFocus(key)}

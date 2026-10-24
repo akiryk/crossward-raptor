@@ -1,16 +1,15 @@
 'use client';
 
-export type TextInputVariant = 'box' | 'underline';
+import { useId } from 'react';
 
-// 'box' is exactly the original styling, unchanged. 'underline' drops the
-// border, radius, focus ring and horizontal padding, keeping a single
-// bottom rule that strengthens to --color-accent on hover and focus --
-// the same affordance rule (D2) as 'box', just drawn with one line
-// instead of four.
-const VARIANT_CLASS: Record<TextInputVariant, string> = {
-  box: 'rounded-md border border-rule bg-background px-3 py-2 hover:border-accent focus:border-accent focus:ring-2 focus:ring-accent',
-  underline:
-    'w-full border-b border-rule bg-transparent hover:border-accent focus:border-accent',
+export type TextInputSize = 'regular' | 'large';
+
+// One underlined field (story F5). The 1px bottom line is the only stroke:
+// line-muted at rest, line-highlight on focus (no ring, no hover change),
+// error whenever an error is shown, focused or not.
+const SIZE_CLASS: Record<TextInputSize, string> = {
+  regular: 'py-1 text-body-normal',
+  large: 'py-1.5 text-body-large',
 };
 
 export function TextInput({
@@ -19,7 +18,9 @@ export function TextInput({
   onFocus,
   autoFocus,
   disabled,
-  variant = 'box',
+  size = 'regular',
+  label,
+  error,
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
@@ -29,23 +30,52 @@ export function TextInput({
   onFocus?: () => void;
   autoFocus?: boolean;
   disabled?: boolean;
-  variant?: TextInputVariant;
+  size?: TextInputSize;
+  label?: string;
+  error?: string;
   'aria-label': string;
   placeholder?: string;
   'data-testid'?: string;
 }) {
+  const id = useId();
+  const errorId = `${id}-error`;
+  const line = error ? 'border-error' : 'border-line-muted focus:border-line-highlight';
+
   return (
-    <input
-      type="text"
-      data-testid={dataTestId}
-      aria-label={ariaLabel}
-      placeholder={placeholder}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      onFocus={onFocus}
-      autoFocus={autoFocus}
-      disabled={disabled}
-      className={`text-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASS[variant]}`}
-    />
+    <div className="flex w-full flex-col">
+      {label && (
+        <label
+          htmlFor={id}
+          data-testid={dataTestId && `${dataTestId}-label`}
+          className="mb-2 text-title-4 text-primary"
+        >
+          {label}
+        </label>
+      )}
+      <input
+        id={id}
+        type="text"
+        data-testid={dataTestId}
+        aria-label={ariaLabel}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onFocus={onFocus}
+        autoFocus={autoFocus}
+        disabled={disabled}
+        className={`w-full border-b bg-transparent px-1 text-primary outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 ${SIZE_CLASS[size]} ${line}`}
+      />
+      {error && (
+        <p
+          id={errorId}
+          data-testid={dataTestId && `${dataTestId}-error`}
+          className="mt-2 text-body-normal text-error"
+        >
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

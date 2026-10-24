@@ -71,10 +71,10 @@ export function DisplayNameDialog({
       }
     >
       <form id={formId} data-testid="display-name-step" onSubmit={handleSubmit}>
-        <div data-modal-initial-focus className="flex flex-col gap-1">
-          <span className="text-label text-ink-2">Builder name</span>
+        <div data-modal-initial-focus>
           <TextInput
             data-testid="display-name-input"
+            label="Builder name"
             aria-label="Builder name"
             value={name}
             onChange={(value) => { setName(value); setError(''); }}

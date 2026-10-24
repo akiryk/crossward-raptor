@@ -7,8 +7,7 @@ underline turns blue on focus and red on error. Every existing field takes
 the new look, sign-in becomes large, the two naming dialogs pass their names
 as labels, and `/style-guide` catalogs the variations.
 
-**Status:** approved by the human as written (2026-10-24) and frozen;
-implementation in progress.
+**Status:** approved by the human as written (2026-10-24), frozen in `065b887`, and done.
 **Blast radius: low:** one UI component, its five call sites (size, label
 and the dropped variant only) and the style-guide page. No CODE-REVIEW risk
 path, so this is delivered directly to `main`.

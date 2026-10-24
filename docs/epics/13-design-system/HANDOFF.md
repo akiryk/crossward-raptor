@@ -62,23 +62,32 @@ footer (save submits via a new `form` pass-through on `Button`), and
 play's incorrect and completion dialogs gained an OK button.
 `/style-guide` has an `sg-modal` sample.
 
-**F5 is approved and frozen; implementation in progress** (2026-10-24).
-The human approved the [story](stories/13-F5-input.md) as written on
-2026-10-24, after settling its questions (marked *(human)* in the story).
-It is frozen in a specification-only commit on `main` with
-`e2e/inputs.spec.ts` and `src/components/ui/input-source.test.ts`. No
-frozen test is retired and no other frozen file changes. The runtime
-starts from the drafting scratch (`TextInput.tsx`, `SignInForm.tsx`,
-`NewPuzzleDialog.tsx`, `DisplayNameDialog.tsx`, `HintsPanel.tsx`,
-`style-guide/page.tsx`), uncommitted on `main`.
+**F5 is done** and pushed on `main`. The human approved the
+[story](stories/13-F5-input.md) as written on 2026-10-24, after settling
+its questions (marked *(human)* in the story). It was frozen in
+specification-only commit `065b887` with `e2e/inputs.spec.ts` and
+`src/components/ui/input-source.test.ts`. No frozen test was retired.
+`TextInput` is one underlined field: a 1px line, `line-muted` at rest,
+`line-highlight` on focus, and `error` whenever an `error` message is set
+(the message sits below). It has `regular` (`body-normal`) and `large`
+(`body-large`) sizes and an optional `title-4` `<label>` above. The
+`variant` prop is gone. Sign-in is large, and the new-puzzle and
+builder-name dialogs pass their names as labels. `/style-guide` has four
+`sg-input-*` samples.
+
+**F6 (Preview toggle and Radio) is next** and needs the human's go-ahead
+before drafting.
 
 ## Verification
 
-F5 scratch tree (uncommitted, observed 2026-10-24; see the story's
-discrimination evidence): `npm run verify` exit 0 (595 tests, the known
-`request-logger/render.ts` lint warning); full `npm run test:e2e` exit 0,
-480/480, under the standing guarded test-reset grant. Not yet run on a
-frozen baseline; the visual check is not done.
+F5 implementation tree (2026-10-24, on the frozen baseline `065b887`):
+`npm run verify` exit 0 (595 tests, the known `request-logger/render.ts`
+lint warning); full `npm run test:e2e` exit 0, 480/480, under the standing
+guarded test-reset grant. Visual check at 1280px and 375px: the catalog,
+sign-in, the new-puzzle and builder-name dialogs and the hint inputs all
+look as the story describes, with no overflow. Sampled pixels confirmed the
+focused line is `line-highlight` and the error line is `error`. Seen, not
+F5's job (epic 14): the sign-in button sits right against the email line.
 
 F4 (committed `7dccf78`) passed verify (592) and the full e2e suite
 (463/463). Seen then, not F4's job: at 375px play's "Puzzle options"
@@ -87,10 +96,10 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Commit the F5 runtime, run `npm run verify`, the full `npm run test:e2e`
-and the story's visual check, update this handoff and push `main`. F6
-needs its own go-ahead.
+Get the human's go-ahead for F6 (Preview toggle and Radio). Then draft
+the story and its proposed acceptance, with discrimination evidence, and
+get its approval before freezing.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F5-input.md. Get the human's approval of the drafted F5 (Input) story; after approval, freeze and implement F5 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F6 (Preview toggle and Radio) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F6 on main and push main.

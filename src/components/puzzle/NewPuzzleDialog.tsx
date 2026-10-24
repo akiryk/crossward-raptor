@@ -57,10 +57,10 @@ export function NewPuzzleDialog({
         />
       }
     >
-      <div data-modal-initial-focus className="flex flex-col gap-1">
-        <span className="text-label text-ink-2">Puzzle name</span>
+      <div data-modal-initial-focus>
         <TextInput
           data-testid="new-puzzle-name"
+          label="Puzzle name"
           aria-label="Puzzle name"
           placeholder="e.g. Monday Puzzle"
           value={title}

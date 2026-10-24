@@ -60,6 +60,7 @@ export function SignInForm() {
     <form data-testid="sign-in-form" data-ready={isReady} onSubmit={handleSubmit}>
       <TextInput
         data-testid="sign-in-email"
+        size="large"
         aria-label="Email"
         placeholder="you@example.com"
         value={email}

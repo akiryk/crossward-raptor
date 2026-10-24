@@ -11,6 +11,9 @@ import { TextInput } from '@/components/ui/TextInput';
 
 export default function StyleGuidePage() {
   const [demoValue, setDemoValue] = useState('');
+  const [labelValue, setLabelValue] = useState('');
+  const [largeValue, setLargeValue] = useState('');
+  const [errorValue, setErrorValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -103,18 +106,36 @@ export default function StyleGuidePage() {
         <section data-testid="sg-inputs" className="space-y-3">
           <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Inputs</h2>
           <TextInput
-            data-testid="sg-input"
-            aria-label="Style guide demo input"
+            data-testid="sg-input-regular"
+            aria-label="Regular input"
             placeholder="Type here"
             value={demoValue}
             onChange={setDemoValue}
           />
-          <input
-            data-testid="sg-input-focused-example"
-            type="text"
-            readOnly
-            value="Focused example"
-            className="rounded-md border border-accent bg-background px-3 py-2 text-foreground ring-2 ring-accent outline-none"
+          <TextInput
+            data-testid="sg-input-label"
+            label="Name it!"
+            aria-label="Name it!"
+            placeholder="Add name here..."
+            value={labelValue}
+            onChange={setLabelValue}
+          />
+          <TextInput
+            data-testid="sg-input-large"
+            size="large"
+            aria-label="Large input"
+            placeholder="Your username..."
+            value={largeValue}
+            onChange={setLargeValue}
+          />
+          <TextInput
+            data-testid="sg-input-error"
+            size="large"
+            aria-label="Input with an error"
+            placeholder="Your username..."
+            error="Oops! You need to add a username."
+            value={errorValue}
+            onChange={setErrorValue}
           />
         </section>
 
