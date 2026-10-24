@@ -3,7 +3,7 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [EPIC](EPIC.md), especially its Decisions and Pending questions.
+2. [EPIC](EPIC.md), especially its Decisions.
 
 **Only if needed:** [epic 05](../05-visual-design/EPIC.md) for the token
 conventions this epic keeps; `src/app/globals.css` for the old tokens.
