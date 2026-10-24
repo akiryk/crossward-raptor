@@ -47,42 +47,47 @@ is gray, and its selected look matches its hover. There are three new
 color styles: `inverse`, `line-dark` and `button-alternate-hover`. Danger
 is gone, and every call site uses the new variant names.
 
-**F4 is approved and frozen; implementation in progress** (2026-10-24).
-The human approved the [story](stories/13-F4-modal.md) as written on
-2026-10-24. It is frozen in a specification-only commit on `main` with
-`e2e/modal-design.spec.ts`, `src/components/ui/modal-source.test.ts`, the
-one-line `STYLES` amendment in `e2e/color-tokens.spec.ts` and
-`src/app/globals-css.test.ts`, and the EPIC's `modal-background` row and
-2px modal-border exception. The runtime starts from the drafting scratch.
+**F4 is done** and pushed on `main`. The human approved the
+[story](stories/13-F4-modal.md) as written on 2026-10-24. It was frozen in
+specification-only commit `b2dfa65` with `e2e/modal-design.spec.ts`,
+`src/components/ui/modal-source.test.ts`, the one-line `STYLES` amendment
+(`modal-background`) in F1's two style maps, and the EPIC's new style row
+and 2px modal-border exception. No frozen test was retired. `Modal` is a
+white panel with a 2px white border and 10px corners (new
+`--radius-modal`), a yellow header with the `title-3` title and the ✕,
+`body-normal` content and a left-aligned footer, confirm first, over
+`modal-backdrop`. `ModalActions` renders only its two buttons. Play
+reset's footer is confirm first, the builder-name buttons moved into the
+footer (save submits via a new `form` pass-through on `Button`), and
+play's incorrect and completion dialogs gained an OK button.
+`/style-guide` has an `sg-modal` sample.
 
 ## Verification
 
-For the F3 implementation tree, before the commit:
+For the F4 implementation tree, before the commit:
 
-- `npm run verify`: exit 0, 589 Vitest tests passed. The existing lint
+- `npm run verify`: exit 0, 592 Vitest tests passed. The existing lint
   warning in `request-logger/render.ts` remains.
-- Full `npm run test:e2e`: 448/448 passed on the first run, using the
-  standing guarded local test-reset grant
+- Full `npm run test:e2e`: exit 0, 463/463 passed on the first run, using
+  the standing guarded local test-reset grant
   ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-- Frozen acceptance is unchanged since `58cc471`.
-- Visual check at 1280px and 375px (Playwright screenshots): the catalog
-  idle and hovered, `/puzzles`, the new-puzzle dialog, and the builder's
-  delete and clear-letters confirmations. All match the mockups. Not
-  visually checked: publish/unpublish and play's reset confirmation. They
-  use the same alternate and normal types that F3-9 asserts.
-- Seen, not F3's job: the delete confirmation's two buttons touch, because
-  that container has no gap, and they touched before F3 too. Epic 14
-  moves delete into a dialog.
+- Frozen acceptance is unchanged since `b2dfa65`.
+- Visual check at 1280px and 375px (Playwright screenshots from a
+  temporary, uncommitted spec): the catalog sample, new-puzzle,
+  builder-name, enter-hints, play's incorrect, completion and reset
+  dialogs, and the library's reset dialog. All match the story.
+- Seen, not F4's job: on the play page at 375px the "Puzzle options"
+  button runs past the right edge. The panel clips content taller than
+  the viewport (`max-h-full` with the frozen `overflow: hidden`); before
+  F4 such a panel overflowed the locked viewport instead. No current
+  dialog is that tall.
 
 ## Next action
 
-Show the human the F4 story and get their approval, or revise it. After
-approval, freeze on `main` with a specification-only commit: the story
-marked approved, the two new test files, the `STYLES` amendment and the
-EPIC update. Then commit the runtime, run the full `npm run verify` and
-`npm run test:e2e` and the story's visual checks, update this handoff and
-push `main`. F5 needs its own go-ahead.
+Draft F5 (Input): the story and its proposed acceptance, with
+discrimination evidence. Get the human's approval before freezing. Starting
+F5 needs the human's go-ahead.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md. Get the human's approval of the drafted Design system story F4 (Modal) in docs/epics/13-design-system/stories/13-F4-modal.md; after approval, freeze and implement F4 on main from the uncommitted scratch and push main.
+Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F5 (Input) with its proposed acceptance and settle its questions with the human; after approval, freeze and implement F5 on main and push main.

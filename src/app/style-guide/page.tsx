@@ -5,10 +5,13 @@ import { ColorSwatches } from '@/components/style-guide/ColorSwatches';
 import { GridExamples } from '@/components/style-guide/GridExamples';
 import { TextStyles } from '@/components/style-guide/TextStyles';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { ModalActions } from '@/components/ui/ModalActions';
 import { TextInput } from '@/components/ui/TextInput';
 
 export default function StyleGuidePage() {
   const [demoValue, setDemoValue] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div className="p-6">
@@ -68,6 +71,33 @@ export default function StyleGuidePage() {
               Hover link
             </a>
           </div>
+        </section>
+
+        <section data-testid="sg-modal">
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            Modal
+          </h2>
+          <Button data-testid="sg-modal-open" onClick={() => setModalOpen(true)}>
+            Open modal
+          </Button>
+          <Modal
+            open={modalOpen}
+            title="A New Puzzle!"
+            onClose={() => setModalOpen(false)}
+            testId="sg-modal-dialog"
+            footer={
+              <ModalActions
+                confirmLabel="Create"
+                cancelLabel="Cancel"
+                onConfirm={() => setModalOpen(false)}
+                onCancel={() => setModalOpen(false)}
+                confirmTestId="sg-modal-confirm"
+                cancelTestId="sg-modal-cancel"
+              />
+            }
+          >
+            <p>A short sample of a dialog&rsquo;s content.</p>
+          </Modal>
         </section>
 
         <section data-testid="sg-inputs" className="space-y-3">

@@ -40,6 +40,7 @@ export function Button({
   number,
   selected = false,
   type = 'button',
+  form,
   disabled = false,
   onClick,
   children,
@@ -50,6 +51,8 @@ export function Button({
   number?: number;
   selected?: boolean;
   type?: 'button' | 'submit' | 'reset';
+  /** Ties a submit button to a form it sits outside, as in a modal footer. */
+  form?: string;
   disabled?: boolean;
   onClick?: () => void;
   children: ReactNode;
@@ -73,6 +76,7 @@ export function Button({
   return (
     <button
       type={type}
+      form={form}
       data-testid={dataTestId}
       data-button-type={buttonType}
       aria-current={selected ? 'true' : undefined}

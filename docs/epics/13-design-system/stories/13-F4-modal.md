@@ -6,7 +6,7 @@ the title and the close control, the content, and a footer of buttons, over
 the `modal-backdrop`. Its accessibility behavior doesn't change. Every
 existing dialog takes the new look, and `/style-guide` catalogs a sample.
 
-**Status:** approved by the human as written (2026-10-24) and frozen.
+**Status:** approved by the human as written (2026-10-24), frozen in `b2dfa65`, and done.
 **Blast radius: low:** one UI component, its footer helper, a `form`
 pass-through on `Button`, the dialogs that render it (footer placement
 only, plus two OK buttons), the stylesheet and the style-guide page. No CODE-REVIEW risk path; direct

@@ -5,6 +5,7 @@ import {
   inspectPlayCompletion, resetPlaySession, savePlayEntries, startPlaySession, type PlayPuzzleView,
 } from '@/app/puzzles/actions';
 import { PuzzleGrid } from '@/components/grid/PuzzleGrid';
+import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { arrowKey, deleteAt, moveTo, place, toggleOrientation, type CursorState } from '@/engine/cursor';
 import type { Coord, Grid } from '@/engine/grid';
@@ -338,6 +339,11 @@ export function PlayPuzzle({
         title="You're so close"
         testId="play-incorrect-dialog"
         onClose={() => setDialog(null)}
+        footer={
+          <Button data-testid="play-incorrect-ok" onClick={() => setDialog(null)}>
+            OK
+          </Button>
+        }
       >
         <p>At least one entry is incorrect. Keep going!</p>
       </Modal>
@@ -346,6 +352,11 @@ export function PlayPuzzle({
         title="Congratulations!"
         testId="play-completion-dialog"
         onClose={() => setDialog(null)}
+        footer={
+          <Button data-testid="play-completion-ok" onClick={() => setDialog(null)}>
+            OK
+          </Button>
+        }
       >
         <p>You completed the puzzle!</p>
       </Modal>

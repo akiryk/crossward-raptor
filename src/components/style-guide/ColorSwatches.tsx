@@ -93,6 +93,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'interactive-faint-hover',
     swatch: 'bg-puzzle-row-hover',
   },
+  { name: 'modal-background', variable: 'white', swatch: 'bg-modal-background' },
   {
     name: 'modal-title-background',
     variable: 'yellow-bright',

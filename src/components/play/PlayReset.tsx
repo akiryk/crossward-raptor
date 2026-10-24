@@ -121,14 +121,14 @@ export function PlayResetDialog({
       onClose={onCancel}
       dismissalDisabled={pending}
       footer={(
-        <div className="mt-6 flex justify-end gap-3">
-          <Button variant="alternate" data-testid="play-reset-cancel" onClick={onCancel} disabled={pending}>
-            Cancel
-          </Button>
+        <>
           <Button data-testid="play-reset-confirm" onClick={onConfirm} disabled={pending}>
             Reset puzzle
           </Button>
-        </div>
+          <Button variant="alternate" data-testid="play-reset-cancel" onClick={onCancel} disabled={pending}>
+            Cancel
+          </Button>
+        </>
       )}
     >
       {puzzleTitle === undefined ? (

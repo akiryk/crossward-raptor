@@ -2,6 +2,8 @@
 
 import { Button } from './Button';
 
+/** A dialog's confirm and cancel buttons, confirm first; Modal's footer
+ *  row lays them out. */
 export function ModalActions({
   confirmLabel,
   cancelLabel,
@@ -20,13 +22,13 @@ export function ModalActions({
   cancelTestId?: string;
 }) {
   return (
-    <div className="mt-6 flex justify-end gap-3">
-      <Button variant="alternate" data-testid={cancelTestId} onClick={onCancel}>
-        {cancelLabel}
-      </Button>
+    <>
       <Button data-testid={confirmTestId} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmLabel}
       </Button>
-    </div>
+      <Button variant="alternate" data-testid={cancelTestId} onClick={onCancel}>
+        {cancelLabel}
+      </Button>
+    </>
   );
 }

@@ -139,7 +139,7 @@ export function Modal({
       <div
         data-testid="modal-backdrop"
         onClick={() => { if (!dismissalDisabled) onClose(); }}
-        className="absolute inset-0 bg-foreground/50"
+        className="absolute inset-0 bg-modal-backdrop"
       />
       <div className="pointer-events-none relative flex h-full items-center justify-center p-4">
         <div
@@ -149,27 +149,39 @@ export function Modal({
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          className="pointer-events-auto relative max-w-md rounded-md border border-rule-strong bg-background p-6 outline-none"
+          className="pointer-events-auto relative max-h-full min-w-[min(300px,100%)] max-w-[min(500px,100%)] overflow-hidden rounded-modal border-2 border-modal-background bg-modal-background outline-hidden"
         >
-          <button
-            type="button"
-            data-testid="modal-close"
-            aria-label="Close"
-            onClick={onClose}
-            disabled={dismissalDisabled}
-            className="absolute top-3 right-3 cursor-pointer text-ink-2 hover:text-foreground"
+          <div
+            data-testid="modal-header"
+            className="flex items-center justify-between gap-4 bg-modal-title-background px-4 py-3"
           >
-            ✕
-          </button>
-          <h2
-            id={titleId}
-            data-testid="modal-title"
-            className="font-display text-headline [font-weight:var(--weight-bold)]"
+            <h2 id={titleId} data-testid="modal-title" className="text-title-3 text-primary">
+              {title}
+            </h2>
+            <button
+              type="button"
+              data-testid="modal-close"
+              aria-label="Close"
+              onClick={onClose}
+              disabled={dismissalDisabled}
+              className="flex size-6 shrink-0 cursor-pointer items-center justify-center text-title-3 text-primary outline-hidden hover:text-muted focus-visible:text-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-primary"
+            >
+              ✕
+            </button>
+          </div>
+          <div
+            data-testid="modal-content"
+            className="space-y-3 px-4 pt-4 text-body-normal text-primary"
           >
-            {title}
-          </h2>
-          <div className="text-body text-ink-2 mt-3 space-y-3">{children}</div>
-          {footer}
+            {children}
+          </div>
+          {footer ? (
+            <div data-testid="modal-footer" className="flex flex-wrap gap-3 px-4 pt-6 pb-6">
+              {footer}
+            </div>
+          ) : (
+            <div className="pb-6" />
+          )}
         </div>
       </div>
     </div>,

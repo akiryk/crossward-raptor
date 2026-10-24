@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import { saveDisplayName } from '@/app/puzzles/actions';
 import { displayNameValidationMessage } from '@/lib/display-name';
 import { Button } from '../ui/Button';
@@ -18,6 +18,7 @@ export function DisplayNameDialog({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const savingRef = useRef(false);
+  const formId = useId();
   const validationMessage = displayNameValidationMessage(name);
 
   function handleCancel() {
@@ -48,8 +49,28 @@ export function DisplayNameDialog({
       testId="new-puzzle-dialog"
       onClose={handleCancel}
       dismissalDisabled={pending}
+      footer={
+        <>
+          <Button
+            type="submit"
+            form={formId}
+            data-testid="display-name-save"
+            disabled={pending || validationMessage !== null}
+          >
+            Save and continue
+          </Button>
+          <Button
+            variant="alternate"
+            data-testid="display-name-cancel"
+            onClick={handleCancel}
+            disabled={pending}
+          >
+            Cancel
+          </Button>
+        </>
+      }
     >
-      <form data-testid="display-name-step" onSubmit={handleSubmit}>
+      <form id={formId} data-testid="display-name-step" onSubmit={handleSubmit}>
         <div data-modal-initial-focus className="flex flex-col gap-1">
           <span className="text-label text-ink-2">Builder name</span>
           <TextInput
@@ -63,23 +84,6 @@ export function DisplayNameDialog({
         </div>
         {validationMessage && <p className="mt-2 text-help">{validationMessage}</p>}
         {error && <p role="alert" className="mt-2 text-help">{error}</p>}
-        <div className="mt-6 flex justify-end gap-3">
-          <Button
-            variant="alternate"
-            data-testid="display-name-cancel"
-            onClick={handleCancel}
-            disabled={pending}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            data-testid="display-name-save"
-            disabled={pending || validationMessage !== null}
-          >
-            Save and continue
-          </Button>
-        </div>
       </form>
     </Modal>
   );

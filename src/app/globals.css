@@ -71,14 +71,17 @@
   --color-button-alternate-hover: var(--palette-gray-500);
   --color-puzzle-row: var(--palette-interactive-faint);
   --color-puzzle-row-hover: var(--palette-interactive-faint-hover);
+  --color-modal-background: var(--palette-white);
   --color-modal-title-background: var(--palette-yellow-bright);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);
 }
 
 /* --- shape (Story F3) --- */
-/* Fully rounded ends for buttons; `rounded-pill`. */
+/* Fully rounded ends for buttons, `rounded-pill`; the modal's 10px
+   corners, `rounded-modal` (Story F4). */
 @theme static {
   --radius-pill: 9999px;
+  --radius-modal: 10px;
 }
 
 /* --- text styles (Story F2) --- */
