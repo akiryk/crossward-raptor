@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { DEFAULT_SIZE, type PuzzleSize } from '../../lib/puzzle-size';
 import { Modal } from '../ui/Modal';
 import { ModalActions } from '../ui/ModalActions';
+import { RadioGroup } from '../ui/Radio';
 import { TextInput } from '../ui/TextInput';
 
 const SIZES: { id: PuzzleSize; label: string }[] = [
@@ -68,26 +69,18 @@ export function NewPuzzleDialog({
           autoFocus
         />
       </div>
-      <div
+      <RadioGroup
         data-testid="new-puzzle-size"
-        role="radiogroup"
-        aria-label="Puzzle size"
-        className="flex flex-col gap-2"
-      >
-        {SIZES.map(({ id, label }) => (
-          <label key={id} className="flex items-center gap-2 text-label">
-            <input
-              type="radio"
-              name="new-puzzle-size"
-              data-size={id}
-              data-selected={size === id ? 'true' : 'false'}
-              checked={size === id}
-              onChange={() => setSize(id)}
-            />
-            {label}
-          </label>
-        ))}
-      </div>
+        name="new-puzzle-size"
+        label="Puzzle size"
+        options={SIZES.map(({ id, label }) => ({
+          value: id,
+          label,
+          attributes: { 'data-size': id, 'data-selected': size === id ? 'true' : 'false' },
+        }))}
+        value={size}
+        onChange={setSize}
+      />
     </Modal>
   );
 }

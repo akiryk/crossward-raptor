@@ -7,6 +7,8 @@ import { TextStyles } from '@/components/style-guide/TextStyles';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ModalActions } from '@/components/ui/ModalActions';
+import { PreviewToggle } from '@/components/grid/PreviewToggle';
+import { RadioGroup } from '@/components/ui/Radio';
 import { TextInput } from '@/components/ui/TextInput';
 
 export default function StyleGuidePage() {
@@ -15,6 +17,10 @@ export default function StyleGuidePage() {
   const [largeValue, setLargeValue] = useState('');
   const [errorValue, setErrorValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [toggleOff, setToggleOff] = useState(false);
+  const [toggleOn, setToggleOn] = useState(true);
+  const [formChoice, setFormChoice] = useState('mini');
+  const [navChoice, setNavChoice] = useState('build');
 
   return (
     <div className="p-6">
@@ -136,6 +142,51 @@ export default function StyleGuidePage() {
             error="Oops! You need to add a username."
             value={errorValue}
             onChange={setErrorValue}
+          />
+        </section>
+
+        <section data-testid="sg-toggles" className="space-y-3">
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Toggle</h2>
+          <div className="flex flex-wrap items-center gap-6">
+            <PreviewToggle
+              data-testid="sg-toggle-off"
+              isPreviewing={toggleOff}
+              onToggle={() => setToggleOff((on) => !on)}
+            />
+            <PreviewToggle
+              data-testid="sg-toggle-on"
+              isPreviewing={toggleOn}
+              onToggle={() => setToggleOn((on) => !on)}
+            />
+          </div>
+        </section>
+
+        <section data-testid="sg-radios" className="space-y-6">
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Radio</h2>
+          <RadioGroup
+            data-testid="sg-radio-form"
+            name="sg-radio-form"
+            label="Size"
+            options={[
+              { value: 'mini', label: 'Mini (5×5)' },
+              { value: 'midi', label: 'Midi (9×9)' },
+              { value: 'daily', label: 'Daily (15×15)' },
+              { value: 'sunday', label: 'Sunday (21×21)' },
+            ]}
+            value={formChoice}
+            onChange={setFormChoice}
+          />
+          <RadioGroup
+            data-testid="sg-radio-nav"
+            name="sg-radio-nav"
+            label="Build or play"
+            variant="nav"
+            options={[
+              { value: 'build', label: 'Build' },
+              { value: 'play', label: 'Play' },
+            ]}
+            value={navChoice}
+            onChange={setNavChoice}
           />
         </section>
 

@@ -75,26 +75,34 @@ specification-only commit `065b887` with `e2e/inputs.spec.ts` and
 builder-name dialogs pass their names as labels. `/style-guide` has four
 `sg-input-*` samples.
 
-**F6 is approved and frozen** (2026-10-24). The human supplied two
-mockups, settled the questions recorded as *(human)* in the
-[story](stories/13-F6-toggle-radio.md) (two Radio variants, `form` gray
-and `nav` blue, a 2px ring, hover only on unselected options and an off
-toggle, adopting Radio in the size picker now) and then approved the whole
-story as written, including the keyboard-focus rule (focus shows
-`button-hover` in every state). It is frozen in a specification-only
-commit with `e2e/toggle-radio.spec.ts`,
+**F6 is done** and pushed on `main`. The human supplied two mockups,
+settled the questions recorded as *(human)* in the
+[story](stories/13-F6-toggle-radio.md), then approved it as written on
+2026-10-24, including the keyboard-focus rule. It was frozen in
+specification-only commit `3c077fd` with `e2e/toggle-radio.spec.ts`,
 `src/components/ui/radio-source.test.ts` and the EPIC's 2px ring
-exception. No frozen test was retired. Implementation is in progress on
-`main`.
+exception. No frozen test was retired. The Preview toggle is restyled in
+place (`button-fill` off, `button-active` on, white knob, `label`
+`link-muted`) with an optional test id. The new `RadioGroup`
+(`src/components/ui/Radio.tsx`) is a native radio group with a 24px, 2px
+ring and a 12px dot, in `form` (stacked, gray) and `nav` (row, blue)
+variants. Hovering an unselected option or an off toggle, or keyboard
+focus in any state, shows `button-hover`. The new-puzzle size picker is a
+`form` RadioGroup, and `/style-guide` has `sg-toggles` and `sg-radios`.
+
+**F7 is next** and has no story yet.
 
 ## Verification
 
-F6 scratch tree (2026-10-24, uncommitted, with the 24px ring):
-`npm run verify` exit 0 (598 tests); full `npm run test:e2e` exit 0,
-494/494, under the standing guarded test-reset grant. The story records
-the discrimination evidence. No visual check has been done since the ring
-grew from 20px to 24px, and the editor's toggle hasn't been looked at
-in place.
+F6 implementation tree (2026-10-24, on the frozen baseline `3c077fd`):
+`npm run verify` exit 0 (598 tests, the known `request-logger/render.ts`
+lint warning); full `npm run test:e2e` exit 0, 494/494, under the standing
+guarded test-reset grant. Frozen acceptance unchanged from `3c077fd`.
+Visual check at 1280px and 375px: the catalog toggles and radios
+(including nav hover), the editor's Preview toggle in place and the
+new-puzzle dialog's size picker look as the story describes, with no
+horizontal overflow. Seen, not F6's job: at 375px a long puzzle title in
+the editor clips at the right edge.
 
 F5 implementation tree (2026-10-24, on the frozen baseline `065b887`):
 `npm run verify` exit 0 (595 tests, the known `request-logger/render.ts`
@@ -112,15 +120,11 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Get the human's approval of the F6 story, including the keyboard-focus
-rule. If they ask for changes, revise the story and its tests and
-re-check discrimination. After approval, commit a specification-only
-freeze on `main` with the story, both acceptance files and the EPIC's
-2px-ring stroke exception (under Components and conventions). Then commit
-the scratch runtime as the implementation. Run verify and the full e2e
-suite, do the visual check at 1280px and 375px, update this handoff and
-the EPIC's F6 status, and push `main`.
+Draft story F7 (Title, Logo and Masthead) from the EPIC's F7 outline,
+following STORY's drafting phase: Decisions, proposed acceptance with
+observed discrimination, and the questions the human must settle. Then
+get the human's approval and freeze it before any runtime change.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F6-toggle-radio.md. Get the human's approval of Design system story F6, then freeze and implement F6 on main and push main.
+Read docs/epics/13-design-system/HANDOFF.md. Draft Design system story F7 on main and get the human's approval; do not freeze or implement it without that approval.

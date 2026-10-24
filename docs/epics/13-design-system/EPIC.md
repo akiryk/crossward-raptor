@@ -1,8 +1,8 @@
 # Epic: Design system
 
 **Status: approved (2026-10-24).** The human approved this epic and its
-proposals on 2026-10-24, with the changes recorded below. F1 to F5 are
-done (2026-10-24); F6 is next.
+proposals on 2026-10-24, with the changes recorded below. F1 to F6 are
+done (2026-10-24); F7 is next.
 
 The user has redesigned the app's visual design and UX in Figma. This epic
 lays the foundation: the new color palette, a single typeface with named
