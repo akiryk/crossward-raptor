@@ -19,26 +19,40 @@ Inputs came from a redesign backlog, a Figma export
 (`~/Downloads/components-colors-text-styles.pdf`) and desktop mockups.
 Epics 14, 15 and the username epic are outlined in the EPIC but not created.
 
-The [F1 story](stories/13-F1-color-tokens.md) and its acceptance
-(`e2e/color-tokens.spec.ts`, `src/app/globals-css.test.ts`) are
-**approved by the human (2026-10-24, reconfirmed at freeze)**, including the
-28-test retirement, and **frozen on `main`** in a specification-only commit.
-That commit also applies the deletion-only retirement in
-`e2e/style-guide.spec.ts`. F1 runtime is in progress.
+**F1 is done** and pushed on `main`. The [story](stories/13-F1-color-tokens.md)
+was approved by the human (2026-10-24, reconfirmed at freeze) and frozen in
+specification-only commit `c5e5d7a`. That commit added
+`e2e/color-tokens.spec.ts` and `src/app/globals-css.test.ts` and retired 28
+live-editor tests from `e2e/style-guide.spec.ts`, deletion only. The runtime
+adds the `--palette-*` `:root` rule and the 33 styles in `@theme static` to
+`globals.css`, and replaces the token pane with the `ColorSwatches` catalog.
+The six editor components are removed. The old tokens are unchanged. The only
+other `globals.css` edit is a `--text-title` comment that named the removed
+`SizeControl`. F2 (typography) has no story yet.
 
 ## Verification
 
-F1 drafting only: the proposed Vitest file fails 3/5 on current `main` and
-passes on a scratch correct stylesheet; the browser spec type-checks, lints
-and lists 10 cases but hasn't run against the app. No application or full
-browser suite run.
+For the F1 implementation tree, before the commit:
+
+- `npm run verify`: exit 0, 584 Vitest tests passed. One existing lint
+  warning remains in `request-logger/render.ts`.
+- First full `npm run test:e2e` run: 417 passed, 2 failed in unrelated library
+  specs (`library-play` P5 row click, `puzzle-list-layout` L2b-1 publish).
+  Both passed when rerun alone.
+- Second full `npm run test:e2e` run: 419/419 passed, exit 0.
+- These runs used the standing guarded local test-reset grant
+  ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
+- Frozen acceptance is unchanged since `c5e5d7a`.
+- The `/style-guide` catalog was checked visually at 1280px and 375px: white
+  swatches stay visible, the backdrop swatch reads as translucent gray, and
+  nothing overflows.
 
 ## Next action
 
-Implement F1 against the frozen acceptance, run `npm run verify` and the
-full `npm run test:e2e`, visually check the catalog, then commit and push
-`main`.
+Draft the F2 story (typography) with proposed acceptance on `main`, naming any
+frozen tests it supersedes (`typography.spec.ts` and the kept style-guide
+token checks). Don't freeze or commit before human approval.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F1-color-tokens.md. Freeze the approved F1 specification and its acceptance retirement, then implement F1 on main; push main only after verification passes.
+Read docs/epics/13-design-system/HANDOFF.md and the F2 section of docs/epics/13-design-system/EPIC.md. Write the F2 story specification and proposed acceptance on main; do not freeze or commit before human approval.

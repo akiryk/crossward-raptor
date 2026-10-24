@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TokenPane } from '@/components/style-guide/TokenPane';
+import { ColorSwatches } from '@/components/style-guide/ColorSwatches';
 import { GridExamples } from '@/components/style-guide/GridExamples';
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
@@ -10,12 +10,10 @@ export default function StyleGuidePage() {
   const [demoValue, setDemoValue] = useState('');
 
   return (
-    <div className="flex flex-col gap-8 p-6 lg:flex-row lg:items-start">
-      <div className="lg:sticky lg:top-6 lg:h-fit lg:w-72 lg:shrink-0">
-        <TokenPane />
-      </div>
+    <div className="p-6">
+      <div className="min-w-0 space-y-12">
+        <ColorSwatches />
 
-      <div data-testid="examples-pane" className="min-w-0 flex-1 space-y-12">
         <section data-testid="sg-text" className="space-y-2">
           <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
             Text

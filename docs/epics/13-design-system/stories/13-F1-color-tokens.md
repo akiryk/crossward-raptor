@@ -7,7 +7,7 @@ acceptance.
 
 **Status:** approved by the human on 2026-10-24, including the 28-test
 retirement and the `--palette-` prefix (reconfirmed at freeze). Frozen on
-`main` in the specification-only commit that adds this status line.
+`main` in `c5e5d7a`. **Done (2026-10-24)**; see the handoff for verification.
 **Blast radius: low:** stylesheet, the style-guide page and its components.
 No CODE-REVIEW risk path; direct delivery to `main`.
 
