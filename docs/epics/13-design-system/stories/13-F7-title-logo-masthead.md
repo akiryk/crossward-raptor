@@ -139,7 +139,7 @@ this before approval.
 
 ## Acceptance
 
-Proposed; frozen at approval, then immutable:
+Frozen in `5509870`; immutable:
 
 - `e2e/masthead.spec.ts`: 11 browser cases. SVG geometry is read from
   each element's own rect, since Playwright's box model widens SVG paths.

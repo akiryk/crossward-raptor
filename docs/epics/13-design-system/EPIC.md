@@ -2,7 +2,8 @@
 
 **Status: approved (2026-10-24).** The human approved this epic and its
 proposals on 2026-10-24, with the changes recorded below. F1 to F7 are
-done (2026-10-24); epic closeout is next.
+done (2026-10-24). **Closed (2026-10-24)** after an independent closeout
+audit with no blockers ([record](HISTORY.md#closeout-audit-2026-10-24)).
 
 The user has redesigned the app's visual design and UX in Figma. This epic
 lays the foundation: the new color palette, a single typeface with named
@@ -49,6 +50,27 @@ Four epics, in this order. Only this one exists yet.
      (yellow-medium).
    - The style guide's old hint-row and grid samples are replaced by these.
      A play-state grid sample doesn't exist yet and comes later.
+   - **To settle in drafting:** F5 describes the hint answer below the line
+     as letter-spaced, `muted` turning `primary` on focus; the Hint Input
+     detail above says `label` `muted`, with no letter spacing or focus
+     change.
+
+   Carried from epic 13 (seen during its stories, not its scope):
+   - At 375px a long puzzle title in the editor clips at the right edge,
+     and play's "Puzzle options" button runs past the right edge (may be
+     epic 15's).
+   - The sign-in button sits right against the email line.
+   - The builder's delete confirmation buttons touch (no gap); epic 14
+     moves delete into a dialog.
+   - The modal panel clips content taller than the viewport (no current
+     dialog is that tall).
+   - The modal close button has no color transition. If it gains one,
+     `e2e/modal-design.spec.ts`'s close-button focus read must first wait
+     for transitions, as the other style readers do.
+   - `Masthead.tsx` sets `home-link` only when its test id is
+     `app-header`, a caller-specific branch no story specified.
+   - `src/lib/google-font.ts` and its test are unused since F2; the
+     old-token cleanup story can remove them.
 3. **15 — Responsive layout and spacing** (not yet created). Media and
    container queries: keep the grid at full size while the hints re-flow,
    then move hints below, and only then shrink the grid. Cell letters scale
@@ -211,8 +233,9 @@ properties (states differ, interactive things look interactive) rather than
 judging the design. **Rounded corners are 10px; strokes are 1px.** Buttons are the exception:
 they have pill ends (story F3). The modal's 2px white border (story F4)
 and the Radio's 2px ring (story F6) are the stroke exceptions. Paddings
-and other sizes are set per story, defaulting to the mockups. Interactive
-colors change over a 150ms transition (story F6's correction).
+and other sizes are set per story, defaulting to the mockups. Buttons, the
+Preview toggle, Radio and links change color over a 150ms transition
+(story F6's correction).
 
 **The style guide becomes a plain catalog.** The live token editor on
 `/style-guide` is removed; the page shows the new tokens, text styles and
@@ -226,12 +249,13 @@ accepted this on 2026-10-24.
 
 Components that already exist (`Button`, `Modal`, `TextInput`, the Preview
 toggle) are redesigned in place, so every use changes together; new
-components (Radio, Title, Logo, Masthead) are built here and adopted screen
-by screen in epic 14.
+components (Radio, Title, Logo, Masthead) are built here. The new-puzzle
+size picker adopted Radio in F6 and the Masthead replaced the header on
+every page in F7; the rest are adopted screen by screen in epic 14.
 
 **Retiring superseded acceptance.** Earlier epics' frozen browser
 tests pin the old look (for example `e2e/style-guide.spec.ts` and
-`e2e/typography.spec.ts` assert old tokens and Space Grotesk). A redesign
+`e2e/typography.spec.ts` assert old tokens). A redesign
 story names each frozen test it supersedes and the replacement behavior.
 Approving the story approves that retirement, which lands in the story's
 specification-only freeze commit on `main`, never in the implementation

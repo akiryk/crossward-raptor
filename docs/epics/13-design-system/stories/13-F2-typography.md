@@ -6,8 +6,8 @@ replaces the old 12px label. `/style-guide` gains a text-style catalog.
 
 **Status:** approved by the human on 2026-10-24 in full, including the
 default line heights and the finding that no frozen test is retired. Frozen
-on `main` in `4b8c401`. **Done (2026-10-24)**; see the handoff for
-verification.
+on `main` in `4b8c401`. **Done (2026-10-24)**; verification is in the epic
+[history](../HISTORY.md#f1f3-verification).
 **Blast radius: low:** stylesheet, root layout font loading and the
 style-guide page. No CODE-REVIEW risk path; direct delivery to `main`.
 

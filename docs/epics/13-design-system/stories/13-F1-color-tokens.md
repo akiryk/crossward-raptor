@@ -7,7 +7,8 @@ acceptance.
 
 **Status:** approved by the human on 2026-10-24, including the 28-test
 retirement and the `--palette-` prefix (reconfirmed at freeze). Frozen on
-`main` in `c5e5d7a`. **Done (2026-10-24)**; see the handoff for verification.
+`main` in `c5e5d7a`. **Done (2026-10-24)**; verification is in the epic
+[history](../HISTORY.md#f1f3-verification).
 **Blast radius: low:** stylesheet, the style-guide page and its components.
 No CODE-REVIEW risk path; direct delivery to `main`.
 
@@ -39,7 +40,9 @@ configs on 2026-10-24. Values and names come from the
 - **The old tokens are untouched:** same names, values and `@theme` placement.
   Nothing outside the style guide switches to a new token in this story.
   Mapping old tokens to new ones is out of scope. The only `@theme` colors
-  are the 23 old tokens and the 33 new styles.
+  are the 23 old tokens and the 33 new styles. *(Closeout note,
+  2026-10-24: F3, F4 and F7 added seven more styles through their freeze
+  commits, making 40.)*
 
 ### The catalog
 
@@ -95,7 +98,8 @@ which F1 keeps. Typography retirements belong to F2.
 
 Frozen; do not edit:
 
-- `e2e/color-tokens.spec.ts`: 10 browser cases.
+- `e2e/color-tokens.spec.ts`: 9 browser cases *(closeout correction,
+  2026-10-24; it said 10)*.
   - F1-1: every variable resolves to its hex on `/puzzles`.
   - F1-2: every style resolves to its variable on `/puzzles`. On
     `/style-guide`, editing each style's variable live repaints the style

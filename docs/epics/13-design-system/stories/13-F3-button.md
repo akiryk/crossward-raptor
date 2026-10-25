@@ -7,7 +7,7 @@ focus ring. Every existing button use takes the new look, and `/style-guide`
 catalogs the types.
 
 **Status:** done (2026-10-24). Approved by the human and frozen in
-`58cc471`; results in the [handoff](../HANDOFF.md#verification).
+`58cc471`; results in the epic [history](../HISTORY.md#f1f3-verification).
 The human settled the pending questions the same day (sizes, pill ends,
 the numbered circle and alternate's colors), and the proposed acceptance
 was revised to match before approval.
@@ -20,6 +20,10 @@ direct delivery to `main`.
 *Amended by [F6's correction](13-F6-toggle-radio.md#correction-2026-10-24)
 (2026-10-24): button colors change over a 150ms transition, and
 `e2e/buttons.spec.ts`'s style readers wait for it to finish.*
+
+*Amended by [F7](13-F7-title-logo-masthead.md) (2026-10-24): its freeze
+commit `5509870` retired F3-9's "Sign-out is alternate" case, leaving 19
+browser cases.*
 
 Inspected `src/components/ui/Button.tsx`, all 11 files that render it,
 `src/app/globals.css`, `src/app/style-guide/page.tsx`, `Stepper.tsx`, every
@@ -189,9 +193,9 @@ No other frozen test pins button styling. `style-guide.spec.ts` lists
 
 ## Acceptance
 
-Proposed; frozen at approval, then immutable:
+Frozen in `58cc471`; immutable:
 
-- `e2e/buttons.spec.ts`: 20 browser cases.
+- `e2e/buttons.spec.ts`: 20 browser cases (19 since F7's retirement).
   - F3-1 catalog (3): each type appears once unselected and once selected
     as a real `<button type="button">`, plus a disabled button. A numbered
     button's text starts with its number, then its label; the other types
@@ -229,7 +233,7 @@ Proposed; frozen at approval, then immutable:
     new shape and 14px text. In the builder, delete and both confirms are
     filled and clear-letters and both cancels are alternate. In the
     new-puzzle dialog, create is filled and cancel is alternate. Sign-out
-    is alternate.
+    is alternate (retired by F7).
 - `src/components/ui/button-source.test.ts`: 3 Vitest cases.
   - `Button.tsx` has no literal color, built-in `white`/`black`, old color
     token, `rounded-btn`, arbitrary `rounded-[…]` or `brightness`, and

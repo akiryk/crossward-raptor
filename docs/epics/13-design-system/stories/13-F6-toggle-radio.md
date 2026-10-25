@@ -230,7 +230,8 @@ Discrimination observed on 2026-10-24:
   - giving the form variant blue unselected rings failed only the six
     form-ring cases (F6-3 ×3, F6-5 ×2, F6-6).
 - The scratch first animated the pill's color, and three cases read it
-  mid-transition. That is why color changes are instant.
+  mid-transition. That is why color changes are instant. *(Reversed by the
+  correction: colors now transition, and style readers wait for it.)*
 - Browser runs used the standing guarded test-reset grant
   ([DEVELOPMENT](../../../DEVELOPMENT.md#e2e-environment)).
 
@@ -258,7 +259,8 @@ Correction discrimination, observed on 2026-10-24:
 
 ## Repo paths
 
-New acceptance, immutable after freeze:
+Acceptance, immutable after freeze (the first two are new; the other two
+are existing specs corrected by F6's correction):
 
 - `e2e/toggle-radio.spec.ts`
 - `src/components/ui/radio-source.test.ts`

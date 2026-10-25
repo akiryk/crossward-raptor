@@ -3,178 +3,53 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [EPIC](EPIC.md), especially its Decisions.
+2. The [EPIC](EPIC.md)'s redesign programme, especially the epic 14 entry.
 
-**Only if needed:** [epic 05](../05-visual-design/EPIC.md) for the token
-conventions this epic keeps; `src/app/globals.css` for the old tokens.
+**Only if needed:** the [F1–F7 stories](stories/) for settled component
+scope; [HISTORY](HISTORY.md) for the closeout audit, F1–F3 verification and
+the pre-closeout handoff. Don't load HISTORY for routine startup.
 
 ## Current state (2026-10-24)
 
-The epic is **approved** by the human (2026-10-24), including its proposals,
-with the changes recorded in the EPIC: Preview stays a one-label toggle,
-Build/Play becomes a radio choice (new Radio component, story F6), the style
-guide becomes a plain catalog, `label` replaces the old 12px label now,
-default line heights, 10px radii and 1px strokes, and the accepted contrast.
-Inputs came from a redesign backlog, a Figma export
-(`~/Downloads/components-colors-text-styles.pdf`) and desktop mockups.
-Epics 14, 15 and the username epic are outlined in the EPIC but not created.
+**The Design system epic is closed.** F1–F7 and the F6 correction are done
+and on `main`, delivered directly (no PRs), each on its frozen baseline:
+F1 `c5e5d7a`, F2 `4b8c401`, F3 `58cc471`, F4 `b2dfa65`, F5 `065b887`,
+F6 `3c077fd` (refrozen `f4f9a19`), F7 `5509870`. The last implementation
+commit is `67e8ebc`.
 
-**F1 is done** and pushed on `main`. The [story](stories/13-F1-color-tokens.md)
-was frozen in `c5e5d7a`. It added the `--palette-*` variables and the 33 color
-styles to `globals.css`, and replaced the live token editor on `/style-guide`
-with the `ColorSwatches` catalog. The old tokens are unchanged.
+The independent, report-only closeout audit ran on `main` at `171d839`, by
+a fresh agent that authored none of the work. It found no blockers. This
+session recorded it and applied the dispositions in a docs-only commit
+([record and disposition](HISTORY.md#closeout-audit-2026-10-24)):
 
-**F2 is done** and pushed on `main`. The human approved the
-[story](stories/13-F2-typography.md) in full on 2026-10-24, including the
-default line heights and the no-retirement finding. It was frozen in
-specification-only commit `4b8c401` with `e2e/text-styles.spec.ts` and
-`src/app/typography-source.test.ts`. No frozen test was retired. The runtime
-loads only Inter, at 400 and 600, and drops Space Grotesk. `--font-display`
-now points at Inter. A second `@theme static` block holds the 13 text-style
-triples (size, weight, line height) at the story's default line heights, and
-the new `label` replaces the old 12px `--text-label`. `/style-guide` gains
-the `TextStyles` catalog after Colors. Other old type tokens are unchanged.
+- EPIC, F1, F3, F6 and F7 got wording and count corrections, with notes
+  where a story's text is historical.
+- F1–F3 verification was recovered into HISTORY.
+- Observations that lived only in this handoff, and three small code
+  points, moved into the EPIC's epic 14 entry.
+- The epic index now lists the epic as closed.
 
-**F3 is done** and pushed on `main`. The human settled the
-[story](stories/13-F3-button.md)'s pending questions and approved it on
-2026-10-24. It was frozen in specification-only commit `58cc471`, which
-added `e2e/buttons.spec.ts` and `src/components/ui/button-source.test.ts`,
-retired the D2-1 danger case, amended F1's two style maps and updated the
-EPIC. `Button` now has four types (normal, numbered, large, alternate) and a
-`selected` prop. All buttons are pills (new `--radius-pill`), 32px tall,
-and large is 50px. Numbered buttons show a white number circle. Alternate
-is gray, and its selected look matches its hover. There are three new
-color styles: `inverse`, `line-dark` and `button-alternate-hover`. Danger
-is gone, and every call site uses the new variant names.
+No runtime or test file changed.
 
-**F4 is done** and pushed on `main`. The human approved the
-[story](stories/13-F4-modal.md) as written on 2026-10-24. It was frozen in
-specification-only commit `b2dfa65` with `e2e/modal-design.spec.ts`,
-`src/components/ui/modal-source.test.ts`, the one-line `STYLES` amendment
-(`modal-background`) in F1's two style maps, and the EPIC's new style row
-and 2px modal-border exception. No frozen test was retired. `Modal` is a
-white panel with a 2px white border and 10px corners (new
-`--radius-modal`), a yellow header with the `title-3` title and the ✕,
-`body-normal` content and a left-aligned footer, confirm first, over
-`modal-backdrop`. `ModalActions` renders only its two buttons. Play
-reset's footer is confirm first, the builder-name buttons moved into the
-footer (save submits via a new `form` pass-through on `Button`), and
-play's incorrect and completion dialogs gained an OK button.
-`/style-guide` has an `sg-modal` sample.
-
-**F5 is done** and pushed on `main`. The human approved the
-[story](stories/13-F5-input.md) as written on 2026-10-24, after settling
-its questions (marked *(human)* in the story). It was frozen in
-specification-only commit `065b887` with `e2e/inputs.spec.ts` and
-`src/components/ui/input-source.test.ts`. No frozen test was retired.
-`TextInput` is one underlined field: a 1px line, `line-muted` at rest,
-`line-highlight` on focus, and `error` whenever an `error` message is set
-(the message sits below). It has `regular` (`body-normal`) and `large`
-(`body-large`) sizes and an optional `title-4` `<label>` above. The
-`variant` prop is gone. Sign-in is large, and the new-puzzle and
-builder-name dialogs pass their names as labels. `/style-guide` has four
-`sg-input-*` samples.
-
-**F6 is done** and pushed on `main`. The human supplied two mockups,
-settled the questions recorded as *(human)* in the
-[story](stories/13-F6-toggle-radio.md), then approved it as written on
-2026-10-24, including the keyboard-focus rule. It was frozen in
-specification-only commit `3c077fd` with `e2e/toggle-radio.spec.ts`,
-`src/components/ui/radio-source.test.ts` and the EPIC's 2px ring
-exception. No frozen test was retired. The Preview toggle is restyled in
-place (`button-fill` off, `button-active` on, white knob, `label`
-`link-muted`) with an optional test id. The new `RadioGroup`
-(`src/components/ui/Radio.tsx`) is a native radio group with a 24px, 2px
-ring and a 12px dot, in `form` (stacked, gray) and `nav` (row, blue)
-variants. Hovering an unselected option or an off toggle, or keyboard
-focus in any state, shows `button-hover`. The new-puzzle size picker is a
-`form` RadioGroup, and `/style-guide` has `sg-toggles` and `sg-radios`.
-
-**The F6 correction is done** and pushed on `main`. After delivery the
-human asked for a 16px Radio ring (2px stroke) with an 8px dot, 8px label
-gaps, the toggle label `button-active` when on, subtle hover transitions
-and `button-fill` links. They approved the
-[correction](stories/13-F6-toggle-radio.md#correction-2026-10-24) as
-written on 2026-10-24, including the agent's choices (`body-normal` and
-`title-4` Radio labels, 150ms `ease-out` transitions on buttons, toggle,
-Radio and links, unchanged option spacing), after an independent review
-whose six fixes were applied. It was refrozen in specification-only commit
-`f4f9a19`. Style readers in `toggle-radio`, `buttons` and `controls` specs
-wait for running transitions, with no F3 or D2 assertion changes, and the
-new case F6-7 pins the transitions. The implementation commit follows it.
-
-**F7 is done** and pushed on `main`. The human answered the six
-questions and supplied a masthead mockup, then settled the two open
-points: Sign out uses `link-muted`, the color the styles set, and sits
-20px from the right, the padding they stated. Both matched the
-specification. They approved the
-[story](stories/13-F7-title-logo-masthead.md) as written on 2026-10-24,
-including the retirement of F3-9's `sign-out is an alternate button`.
-It was frozen in specification-only commit `5509870` with
-`e2e/masthead.spec.ts`, `src/components/ui/title-source.test.ts`, that
-retirement, F1's two style-map amendments and the EPIC's three new
-styles (`logo`, `logo-cell`, `masthead`). `Title` renders the four title
-styles in any of the seven text color styles. `Logo` is the human's SVG
-inline, colored from styles, with hidden text "Crossward". `Masthead`
-replaces the dark header: a white bar with a `line-muted` hairline, 20px
-padding, the logo as the home link and, when signed in, a link-looking
-Sign out (`MastheadAction`). `/style-guide` has `sg-titles`, `sg-logo` and
-`sg-masthead`.
+Epics 14 (screen redesign), 15 (responsive layout) and the username epic
+are outlined in the EPIC but not created. Nothing authorizes creating them;
+this closeout did not start them.
 
 ## Verification
 
-F7 implementation (2026-10-24, on the frozen baseline `5509870`):
-`npm run verify` exit 0 (602 tests, the known `request-logger/render.ts`
-lint warning); full `npm run test:e2e` with `--workers=4` exit 0, 505/505,
-under the standing guarded test-reset grant. Frozen acceptance unchanged
-from `5509870`. Visual check at 1280px and 375px against the mockup: the
-front door signed out, `/puzzles` signed in (via the local inbox) and the
-three new catalog sections look as the story describes, with no
-horizontal overflow.
-
-F6 correction implementation (2026-10-24, on the refrozen baseline
-`f4f9a19`): `npm run verify` exit 0 (598 tests, the known
-`request-logger/render.ts` lint warning); full `npm run test:e2e` with
-`--workers=4` (a disclosed resource cap; uncapped runs overload this
-machine) exit 0, 495/495, under the standing guarded test-reset grant.
-Frozen acceptance unchanged from `f4f9a19`. Visual check at 1280px and
-375px was done on the same runtime before the refreeze: the catalog
-toggles, radios and link and the new-puzzle dialog match the correction.
-
-F6 implementation tree (2026-10-24, on the frozen baseline `3c077fd`):
-`npm run verify` exit 0 (598 tests, the known `request-logger/render.ts`
-lint warning); full `npm run test:e2e` exit 0, 494/494, under the standing
-guarded test-reset grant. Frozen acceptance unchanged from `3c077fd`.
-Visual check at 1280px and 375px: the catalog toggles and radios
-(including nav hover), the editor's Preview toggle in place and the
-new-puzzle dialog's size picker look as the story describes, with no
-horizontal overflow. Seen, not F6's job: at 375px a long puzzle title in
-the editor clips at the right edge.
-
-F5 implementation tree (2026-10-24, on the frozen baseline `065b887`):
-`npm run verify` exit 0 (595 tests, the known `request-logger/render.ts`
-lint warning); full `npm run test:e2e` exit 0, 480/480, under the standing
-guarded test-reset grant. Visual check at 1280px and 375px: the catalog,
-sign-in, the new-puzzle and builder-name dialogs and the hint inputs all
-look as the story describes, with no overflow. Sampled pixels confirmed the
-focused line is `line-highlight` and the error line is `error`. Seen, not
-F5's job (epic 14): the sign-in button sits right against the email line.
-
-F4 (committed `7dccf78`) passed verify (592) and the full e2e suite
-(463/463). Seen then, not F4's job: at 375px play's "Puzzle options"
-button runs past the right edge, and the modal panel clips content taller
-than the viewport (no current dialog is that tall).
+Closeout (docs-only, on the tree that follows `171d839`): `npm run verify`
+exit 0. E2E not rerun, since no runtime or test file changed; the last full
+run is F7's 505/505 on its implementation tree. The auditor ran its own
+`npm run verify` at `171d839`: exit 0, 602 tests, the known
+`request-logger/render.ts` lint warning.
 
 ## Next action
 
-All seven stories are done. After F7, the human reviewed `/style-guide`
-and found the hint-row, stepper and grid samples wrong. They are
-pre-redesign samples on old tokens, already epic 14's scope, not F1–F7
-defects. Their details (and the stepper's removal) are recorded in the
-EPIC's epic 14 entry for its drafting. Epic closeout follows the
-[epic index](../README.md#close-an-epic); it isn't authorized until the
-human asks for it.
+Work continues in epic 14, Screen redesign. The next job is drafting its
+`EPIC.md` from the epic 14 entry in this epic's EPIC, with the carried
+observations, for the human's approval. Don't draft its stories until the
+EPIC is approved.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the closeout section of docs/epics/README.md. Close out the Design system epic as that section describes; do not start epics 14 or 15.
+Read docs/epics/13-design-system/HANDOFF.md and the epic 14 entry in docs/epics/13-design-system/EPIC.md. Draft the Screen redesign epic (14) EPIC.md and HANDOFF.md for human approval; do not draft its stories or start epic 15.
