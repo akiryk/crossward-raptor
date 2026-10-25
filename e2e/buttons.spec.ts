@@ -577,10 +577,4 @@ test.describe('F3-9 adoption', () => {
     expectColor((await look(confirm)).background, await token(page, 'button-fill'), 'modal confirm fill');
     await expectAlternate(page, cancel, 'modal cancel');
   });
-
-  test('sign-out is an alternate button', async ({ page }) => {
-    await page.goto('/puzzles');
-    await parkMouse(page);
-    await expectAlternate(page, page.getByTestId('sign-out'), 'sign-out');
-  });
 });

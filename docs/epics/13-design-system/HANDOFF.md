@@ -103,6 +103,17 @@ whose six fixes were applied. It was refrozen in specification-only commit
 wait for running transitions, with no F3 or D2 assertion changes, and the
 new case F6-7 pins the transitions. The implementation commit follows it.
 
+**F7 is approved and frozen; implementation is in progress** (2026-10-24).
+The human answered the six questions and supplied a masthead mockup, then
+settled the two open points: Sign out uses `link-muted`, the color the
+styles set, and sits 20px from the right, the padding they stated. Both
+matched the specification. They approved the
+[story](stories/13-F7-title-logo-masthead.md) as written, including the
+retirement of F3-9's `sign-out is an alternate button` case. The
+specification-only freeze commit adds `e2e/masthead.spec.ts` (11 cases),
+`src/components/ui/title-source.test.ts` (4 cases), that retirement, F1's
+two style-map amendments and the EPIC's three new style rows.
+
 ## Verification
 
 F6 correction implementation (2026-10-24, on the refrozen baseline
@@ -140,9 +151,10 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-F6 is complete, including its correction. F7 (Title, Logo and Masthead)
-follows; it isn't authorized until the human asks for it.
+Implement F7 on the frozen baseline (the runtime paths in the story), run
+`npm run verify` and the full `npm run test:e2e`, do the visual check,
+then commit and push `main`.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the "F7 — Title, Logo and Masthead" section of docs/epics/13-design-system/EPIC.md. Draft the F7 story specification on main for the human's approval; do not freeze or implement it without that approval.
+Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F7-title-logo-masthead.md. Record the human's answers to F7's open points and their approval, then freeze F7 on main and implement it; do not freeze without that approval.

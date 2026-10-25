@@ -70,6 +70,9 @@ const STYLES: Record<string, string> = {
   'puzzle-row-hover': 'interactive-faint-hover',
   'modal-background': 'white',
   'modal-title-background': 'yellow-bright',
+  logo: 'gray-400',
+  'logo-cell': 'white',
+  masthead: 'white',
 };
 
 const BACKDROP = 'modal-backdrop';

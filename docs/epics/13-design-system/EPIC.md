@@ -123,6 +123,9 @@ The same color then serves text, background and border utilities.
 | *(new)* | puzzle-row-hover | interactive-faint-hover | |
 | *(new)* | modal-background | white | `bg-modal-background`, `border-modal-background` |
 | modal-title-background | modal-title-background | yellow-bright | |
+| *(new)* | logo | gray-400 | `stroke-logo`, `fill-logo` |
+| *(new)* | logo-cell | white | `fill-logo-cell` |
+| *(new)* | masthead | white | `bg-masthead` |
 | *(new)* | modal-backdrop | black at 40% opacity | `bg-modal-backdrop` |
 
 Phase vocabulary: **build** is grid construction, **preview** is the build
