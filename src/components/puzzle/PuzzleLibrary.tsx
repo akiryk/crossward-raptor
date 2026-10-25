@@ -57,7 +57,8 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
       data-ready={ready}
       className="mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5"
     >
-      <div data-testid="puzzle-list-header" className="flex items-center justify-between px-[10px] pt-[10px]">
+      {/* Last-baseline alignment: the Radio's first baseline is its circle, its last is the label text. */}
+      <div data-testid="puzzle-list-header" className="flex items-baseline-last justify-between pt-[10px]">
         <Title size={2} as="h1" tabIndex={-1} id="puzzle-library-heading" data-testid="page-heading">Puzzles</Title>
         <RadioGroup
           name="library-view"
