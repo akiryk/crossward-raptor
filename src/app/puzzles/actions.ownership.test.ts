@@ -20,6 +20,22 @@ const other = {
   ...stored, id: 'theirs', builderId: 'other-builder', title: 'Theirs',
   updatedAt: new Date('2026-10-16T12:00:00Z'), publishedAt: null, visibility: 'private',
 };
+// 14-S2: another builder's puzzle is listed once published.
+const otherPublished = {
+  ...other, id: 'theirs-published', title: 'Theirs, published',
+  updatedAt: new Date('2026-10-15T12:00:00Z'), publishedAt: new Date('2026-10-15T12:00:00Z'), visibility: 'public',
+};
+type Stored = typeof own | typeof otherPublished;
+type Where = { builderId?: string; publishedAt?: { not?: null }; OR?: Where[] };
+
+/** The subset of Prisma's where clause the library uses (14-S2). */
+function matches(row: Stored, where: Where | undefined): boolean {
+  if (!where) return true;
+  if (where.OR && !where.OR.some((clause) => matches(row, clause))) return false;
+  if (where.builderId !== undefined && row.builderId !== where.builderId) return false;
+  if (where.publishedAt && 'not' in where.publishedAt && row.publishedAt === where.publishedAt.not) return false;
+  return true;
+}
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -27,12 +43,17 @@ beforeEach(() => {
   mocks.create.mockResolvedValue({ id: 'new-puzzle' });
   // Behave like a select projection: forgetting builderId must fail the
   // returned-value assertion, even though these source rows contain it.
+  // Relations (the caller's attempt, the builder) resolve as empty.
   mocks.findMany.mockImplementation(async (query: {
-    where?: { builderId?: string }; select?: Record<string, boolean>;
-  }) => [own, other]
-    .filter((row) => !query.where?.builderId || row.builderId === query.where.builderId)
+    where?: Where; select?: Record<string, unknown>;
+  }) => ([own, other, otherPublished] as Stored[])
+    .filter((row) => matches(row, query.where))
     .map((row) => query.select
-      ? Object.fromEntries(Object.entries(row).filter(([key]) => query.select?.[key]))
+      ? {
+        ...Object.fromEntries(Object.entries(row).filter(([key]) => query.select?.[key])),
+        ...(query.select.playSessions ? { playSessions: [] } : {}),
+        ...(query.select.builder ? { builder: { displayName: null } } : {}),
+      }
       : row));
 });
 
@@ -69,8 +90,14 @@ describe('O1 puzzles have builders', () => {
         visibility: 'private', cols: 5, rows: 5,
         black: Array.from({ length: 5 }, () => Array(5).fill(false)),
       }),
-      expect.objectContaining({ id: 'theirs', builderId: 'other-builder', title: 'Theirs' }),
+      expect.objectContaining({ id: 'theirs-published', builderId: 'other-builder', title: 'Theirs, published' }),
     ]);
     expect(mocks.findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: { updatedAt: 'desc' } }));
+  });
+
+  it("does not return another builder's unpublished puzzle (14-S2)", async () => {
+    const rows = await listPuzzles();
+
+    expect(rows.map((row) => row.id)).not.toContain('theirs');
   });
 });

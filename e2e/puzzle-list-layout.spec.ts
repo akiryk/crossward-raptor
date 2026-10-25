@@ -38,29 +38,8 @@ async function seedGridPhase(title: string) {
 }
 
 test.describe('L2b-1 the library page', () => {
-  test('the heading and the new-puzzle button share a header row', async ({ page }) => {
-    await seedGridPhase(uniqueTitle('header'));
-    await page.goto('/puzzles');
-
-    const header = page.getByTestId('puzzle-list-header');
-    await expect(header).toBeVisible();
-    await expect(header.getByTestId('page-heading')).toBeVisible();
-    await expect(header.getByTestId('new-puzzle-button')).toBeVisible();
-
-    const boxes = await page.evaluate(() => {
-      const pick = (id: string) => {
-        const el = document.querySelector(`[data-testid="${id}"]`);
-        if (!el) throw new Error(`no ${id}`);
-        const r = el.getBoundingClientRect();
-        return { left: r.left, right: r.right, centreY: r.top + r.height / 2 };
-      };
-      return { heading: pick('page-heading'), button: pick('new-puzzle-button') };
-    });
-
-    // button sits to the right of the heading, on the same line
-    expect(boxes.button.left).toBeGreaterThan(boxes.heading.right);
-    expect(Math.abs(boxes.button.centreY - boxes.heading.centreY)).toBeLessThanOrEqual(4);
-  });
+  // 14-S2 retired "the heading and the new-puzzle button share a header row";
+  // e2e/puzzle-library.spec.ts (14-S2-1) measures the new header and button.
 
   test('a row shows its title and a metadata line', async ({ page }) => {
     const title = uniqueTitle('shape');
@@ -101,6 +80,8 @@ test.describe('L2b-1 the library page', () => {
     );
   });
 
+  // 14-S2: the status reads as the title's bracketed marker, so the two rows
+  // differ in the marker's text rather than a badge background.
   test('a published puzzle reads as published, and looks different', async ({ page }) => {
     const unpublishedTitle = uniqueTitle('unpublished');
     const publishedTitle = uniqueTitle('published');
@@ -121,10 +102,9 @@ test.describe('L2b-1 the library page', () => {
     const publishedBadge = row(page, publishedTitle).getByTestId('puzzle-status-badge');
     await expect(publishedBadge).toHaveAttribute('data-status-kind', 'published');
 
-    const bg = (locator: ReturnType<Page['locator']>) =>
-      locator.evaluate((el) => getComputedStyle(el).backgroundColor);
     const unpublishedBadge = row(page, unpublishedTitle).getByTestId('puzzle-status-badge');
-    expect(await bg(publishedBadge)).not.toBe(await bg(unpublishedBadge));
+    await expect(publishedBadge).toHaveText('[published]');
+    await expect(unpublishedBadge).toHaveText('[grid]');
   });
 
   test('each row has an edit link pointing at that puzzle', async ({ page }) => {

@@ -55,6 +55,8 @@ function entries(state: 'blank' | 'partial' | 'incorrect' | 'solved' | 'mismatch
 let puzzles: Row[];
 let sessions: SessionRow[];
 let counter: number;
+/** Each user's stored displayName (14-S2). */
+let users: Record<string, string | null>;
 
 function puzzle(id: string, published: boolean, overrides: Row = {}): Row {
   counter += 1;
@@ -86,6 +88,10 @@ function session(
 function matches(row: Row, where: Row | undefined): boolean {
   if (!where) return true;
   return Object.entries(where).every(([key, expected]) => {
+    // 14-S2: the library's filter combines clauses.
+    if (key === 'OR') return (expected as Row[]).some((clause) => matches(row, clause));
+    if (key === 'AND') return ([] as Row[]).concat(expected as Row | Row[]).every((clause) => matches(row, clause));
+    if (key === 'NOT') return !([] as Row[]).concat(expected as Row | Row[]).some((clause) => matches(row, clause));
     if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
       return row[key] === expected;
     }
@@ -115,10 +121,16 @@ function findMany(query: { where?: Row; select?: Row; include?: Row; orderBy?: R
     return order?.updatedAt === 'asc' ? delta : -delta;
   });
   return rows.map((row) => {
-    const { playSessions: selected, ...scalars } = query.select ?? {};
+    const { playSessions: selected, builder: builderQuery, ...scalars } = query.select ?? {};
     const result = query.select ? project(row, scalars as Row) : { ...row };
     const nested = selected ?? query.include?.playSessions;
     if (nested) result.playSessions = relation(row.id as string, nested);
+    // 14-S2: the builder relation, as Prisma resolves it inside the same query.
+    const builder = builderQuery ?? query.include?.builder;
+    if (builder) {
+      const user = { id: row.builderId, displayName: users[row.builderId as string] ?? null };
+      result.builder = builder === true ? user : project(user, (builder as { select?: Row }).select);
+    }
     return result;
   });
 }
@@ -132,6 +144,7 @@ async function playOf(id: string): Promise<Play | undefined> {
 beforeEach(() => {
   vi.resetAllMocks();
   puzzles = []; sessions = []; counter = 0;
+  users = { builder: 'Fixture Builder', 'player-a': 'Player A' };
   mocks.headers.mockResolvedValue(requestHeaders);
   mocks.getSession.mockResolvedValue({ user: { id: 'player-a' }, session: { id: 'valid' } });
   mocks.puzzle.findMany.mockImplementation(async (query) => structuredClone(findMany(query)));
@@ -148,15 +161,16 @@ describe('P5 — listPuzzles learns about play', () => {
     }
   });
 
-  it('keeps every existing field and the updated-at order, adding play', async () => {
-    puzzle('newer-draft', false, { phase: 'grid', visibility: 'private' });
+  it('keeps every existing field and the updated-at order, adding play and builderName', async () => {
+    // 14-S2: a draft is listed only for its own builder.
+    puzzle('newer-draft', false, { builderId: 'player-a', phase: 'grid', visibility: 'private' });
     puzzle('older-published', true, { visibility: 'private' });
 
     const rows = await list();
 
     expect(rows.map((row) => row.id)).toEqual(['newer-draft', 'older-published']);
     expect(rows[0]).toEqual({
-      id: 'newer-draft', builderId: 'builder', title: 'P5 newer-draft',
+      id: 'newer-draft', builderId: 'player-a', builderName: 'Player A', title: 'P5 newer-draft',
       updatedAt: puzzles[0].updatedAt, phase: 'grid', hintsComplete: expect.any(Boolean),
       publishedAt: null, visibility: 'private', cols: 2, rows: 2,
       black: [[false, false], [true, false]], play: null,
@@ -168,7 +182,8 @@ describe('P5 — listPuzzles learns about play', () => {
   });
 
   it('gives unpublished puzzles no play state, even when a session survives', async () => {
-    puzzle('unpublished', false);
+    // 14-S2: the caller's own draft, since other builders' drafts are not listed.
+    puzzle('unpublished', false, { builderId: 'player-a' });
     session('unpublished', 'solved', { stamped: true });
 
     expect(await playOf('unpublished')).toBeNull();
@@ -241,5 +256,47 @@ describe('P5 — listPuzzles learns about play', () => {
     expect(serialized).not.toContain('completedAt');
     expect(serialized).not.toContain('2026-01-03');
     expect(serialized).not.toContain('2026-01-04');
+  });
+});
+
+describe('14-S2 — listPuzzles sends only what the library shows', () => {
+  it("never returns another builder's unpublished puzzle", async () => {
+    puzzle('own-draft', false, { builderId: 'player-a' });
+    puzzle('foreign-draft', false, { builderId: 'builder', title: 'FOREIGN_DRAFT_SENTINEL' });
+    puzzle('foreign-published', true, { builderId: 'builder' });
+    puzzle('own-published', true, { builderId: 'player-a' });
+
+    const rows = await list();
+
+    expect(rows.map((row) => row.id)).toEqual(['own-draft', 'foreign-published', 'own-published']);
+    expect(JSON.stringify(rows)).not.toContain('FOREIGN_DRAFT_SENTINEL');
+  });
+
+  it("returns each builder's trimmed username as builderName, null when blank or missing", async () => {
+    users = { builder: '  Grace Maker  ', 'player-a': '   ', nameless: null };
+    puzzle('named', true, { builderId: 'builder' });
+    puzzle('blank', true, { builderId: 'player-a' });
+    puzzle('missing', true, { builderId: 'nameless' });
+
+    const rows = await list();
+    const nameOf = (id: string) => (rows.find((row) => row.id === id) as Record<string, unknown> | undefined)?.builderName;
+
+    expect(nameOf('named')).toBe('Grace Maker');
+    expect(nameOf('blank')).toBeNull();
+    expect(nameOf('missing')).toBeNull();
+    expect(mocks.puzzle.findMany).toHaveBeenCalledOnce();
+    for (const fn of Object.values(mocks.playSession)) expect(fn).not.toHaveBeenCalled();
+    expect(mocks.transaction).not.toHaveBeenCalled();
+  });
+
+  it('adds no field beyond builderName', async () => {
+    puzzle('target', true, { builderId: 'builder' });
+
+    const [row] = await list();
+
+    expect(Object.keys(row).sort()).toEqual([
+      'black', 'builderId', 'builderName', 'cols', 'hintsComplete', 'id', 'phase', 'play',
+      'publishedAt', 'rows', 'title', 'updatedAt', 'visibility',
+    ]);
   });
 });

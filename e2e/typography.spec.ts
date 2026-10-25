@@ -75,30 +75,11 @@ test.describe('D9-1 type tokens', () => {
 });
 
 // --- D9-3: the app reads the scale ---
+// 14-S2 retired "the page heading uses the headline size and bold weight",
+// "a list row uses the body size" and "the app reads the token rather than a
+// copied value": the library now uses the redesign's text styles
+// (e2e/puzzle-library.spec.ts). The old-token checks elsewhere stay for S8.
 test.describe('D9-3 the app uses the type scale', () => {
-  test('the page heading uses the headline size and bold weight', async ({ page }) => {
-    await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' });
-    await page.goto('/puzzles');
-
-    const heading = page.getByTestId('page-heading');
-    expect(await fontSizeOf(heading)).toBe(
-      await asPx(page, await tokenValue(page, '--text-headline'))
-    );
-
-    const weight = await heading.evaluate((el) => getComputedStyle(el).fontWeight);
-    expect(weight).toBe((await tokenValue(page, '--weight-bold')).trim());
-  });
-
-  test('a list row uses the body size', async ({ page }) => {
-    await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' });
-    await page.goto('/puzzles');
-
-    const row = page.getByTestId('puzzle-list-item').first();
-    expect(await fontSizeOf(row)).toBe(
-      await asPx(page, await tokenValue(page, '--text-body'))
-    );
-  });
-
   test('help text uses the help size and secondary ink', async ({ page }) => {
     const { id } = await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' });
     await page.goto(`/puzzles/${id}`);
@@ -133,21 +114,5 @@ test.describe('D9-3 the app uses the type scale', () => {
     expect(await fontSizeOf(label)).toBe(
       await asPx(page, await tokenValue(page, '--text-label'))
     );
-  });
-
-  test('the app reads the token rather than a copied value', async ({ page }) => {
-    await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' });
-    await page.goto('/puzzles');
-
-    const row = page.getByTestId('puzzle-list-item').first();
-    const before = await fontSizeOf(row);
-
-    await page.evaluate(() =>
-      document.documentElement.style.setProperty('--text-body', '2.5rem')
-    );
-
-    const after = await fontSizeOf(row);
-    expect(after).not.toBe(before);
-    expect(after).toBe(await asPx(page, '2.5rem'));
   });
 });

@@ -83,8 +83,9 @@ Publish step does today.
 **Build/Play on `/puzzles`** *(human, 2026-10-25)*. Build lists your own
 puzzles, in any phase, to edit. Play lists every published puzzle you can
 see, your own included, to solve. The choice is remembered per browser in
-`localStorage`, with Build as the default when nothing is stored. No server
-or schema change.
+`localStorage`, with Build as the default when nothing is stored. No schema
+change; `listPuzzles` stops returning other builders' unpublished puzzles
+and adds each builder's username (S2).
 
 **Delete moves into a dialog** *(carried from epic 13)*. The builder's
 inline delete confirmation becomes a Modal, which also ends its touching
@@ -203,9 +204,9 @@ branch.
 
 `/puzzles` with the Build/Play Radio, Row Heading (the size group's
 heading) and Puzzle Row (`puzzle-row`, `puzzle-row-hover`, hover on
-keyboard focus). The row keeps its thumbnail, title, dates, status and play
-controls, restyled. Build/Play filters the list client-side per its
-Decision.
+keyboard focus). Adds the library delete, the title markers and a fixed
+crossword icon; drops the thumbnail and in-progress Reset from the library.
+Build/Play splits the list client-side per its Decision.
 
 ### S3 — New-puzzle dialog
 

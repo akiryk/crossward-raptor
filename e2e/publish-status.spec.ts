@@ -78,8 +78,8 @@ test.describe('PB5-2 published status in the list', () => {
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-published', 'true');
     await expect(item).toHaveAttribute('data-visibility', 'private');
-    await expect(item).toContainText(/published/i);
-    await expect(item).toContainText(/private/i);
+    // 14-S2: the marker reads [published]; visibility stays in data-visibility.
+    await expect(item).toContainText('[published]');
 
     const publishedAt = await item.getAttribute('data-published-at');
     expect(publishedAt).toBeTruthy();
@@ -95,7 +95,7 @@ test.describe('PB5-2 published status in the list', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-visibility', 'public');
-    await expect(item).toContainText(/public/i);
+    await expect(item).toContainText('[published]');
   });
 
   test('unpublishing returns the row to unpublished', async ({ page }) => {

@@ -7,7 +7,10 @@ function title(label: string) { return `O3 ${label} ${Date.now()}-${Math.random(
 function item(page: Page, name: string) { return page.getByTestId('puzzle-list-item').filter({ hasText: name }); }
 const states: BuilderEditState[] = ['grid', 'hints', 'private published', 'public published'];
 
-test('O3 the unfiltered library distinguishes builders and gives only owners Edit, across reloads', async ({ page }) => {
+// 14-S2: Build lists only the caller's puzzles, each opening the editor; Play
+// lists every published puzzle with Play and never the editor. Foreign drafts
+// are in neither view.
+test('O3 the library gives only owners Edit, and foreign published puzzles only Play, across reloads', async ({ page }) => {
   const own = await currentBuilderId(page);
   const other = await seedOtherBuilder();
   const fixtures = [];
@@ -17,28 +20,44 @@ test('O3 the unfiltered library distinguishes builders and gives only owners Edi
       fixtures.push({ ...await seedBuilderEditPuzzle(name, builder, state), name, builder, state });
     }
   }
+  const showView = async (view: 'Build' | 'Play') => {
+    const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
+    await option.check();
+    await expect(option).toBeChecked();
+  };
   await page.goto('/puzzles');
   for (let visit = 0; visit < 2; visit++) {
     if (visit) await page.reload();
+    await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
+    await showView('Build');
     for (const fixture of fixtures) {
       const row = item(page, fixture.name);
+      if (fixture.builder !== own) {
+        await expect(row).toHaveCount(0);
+        continue;
+      }
       await expect(row).toBeVisible();
       await expect(row.getByTestId('puzzle-list-title')).toHaveText(fixture.name);
       await expect(row.getByTestId('puzzle-status-badge')).toBeVisible();
       await expect(row.getByTestId('puzzle-list-updated')).toBeVisible();
-      await expect(row).toContainText(fixture.builder === own ? 'Your puzzle' : "Another builder's puzzle");
-      if (fixture.builder === own) {
-        await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
-        await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();
-      } else if (fixture.state.includes('published')) {
-        // P5 correction: a foreign published row may offer Play, never the editor.
-        await expect(row.getByTestId('puzzle-edit-link')).toHaveCount(0);
-        const paths = await row.locator('a[href]').evaluateAll((links) =>
-          links.map((link) => new URL((link as HTMLAnchorElement).href).pathname.replace(/\/$/, '')));
-        expect(paths).not.toContain(`/puzzles/${fixture.id}`);
-      } else {
-        await expect(row.locator('a, button, [role="button"]')).toHaveCount(0);
+      await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
+      await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();
+    }
+    await showView('Play');
+    for (const fixture of fixtures) {
+      const row = item(page, fixture.name);
+      if (!fixture.state.includes('published')) {
+        await expect(row).toHaveCount(0);
+        continue;
       }
+      await expect(row).toBeVisible();
+      await expect(row.getByTestId('puzzle-list-title')).toHaveText(fixture.name);
+      await expect(row.getByTestId('puzzle-play-link')).toHaveAttribute('href', `/puzzles/${fixture.id}/play`);
+      // P5 correction: a published row in Play offers Play, never the editor.
+      await expect(row.getByTestId('puzzle-edit-link')).toHaveCount(0);
+      const paths = await row.locator('a[href]').evaluateAll((links) =>
+        links.map((link) => new URL((link as HTMLAnchorElement).href).pathname.replace(/\/$/, '')));
+      expect(paths).not.toContain(`/puzzles/${fixture.id}`);
     }
   }
 });

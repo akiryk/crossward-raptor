@@ -107,14 +107,18 @@ test.describe('D2-2 puzzles list', () => {
     await seedForControls();
     await page.goto('/puzzles');
 
-    const edit = page.getByTestId('puzzle-edit-link').first();
+    // 14-S2: the link covers its Puzzle Row, and the row shows the hover.
+    const item = page
+      .getByTestId('puzzle-list-item')
+      .filter({ has: page.getByTestId('puzzle-edit-link') })
+      .first();
+    const edit = item.getByTestId('puzzle-edit-link');
     expect(await edit.evaluate((el) => getComputedStyle(el).cursor)).toBe('pointer');
 
-    const before = await styleOf(edit, ['background-color', 'color', 'text-decoration-line']);
+    await page.mouse.move(0, 0);
+    const before = await styleOf(item, ['background-color']);
     await edit.hover();
-    const after = await styleOf(edit, ['background-color', 'color', 'text-decoration-line']);
-
-    expect(after).not.toBe(before);
+    await expect.poll(() => styleOf(item, ['background-color'])).not.toBe(before);
   });
 });
 

@@ -142,32 +142,8 @@ test.describe('L3-2 grouped library', () => {
     expect(inProgressIndex).toBeLessThan(publishedIndex);
   });
 
-  test('the thumbnail draws the puzzle\'s actual black squares', async ({ page }) => {
-    const title = uniqueTitle('thumb');
-    await seedPuzzle(
-      {
-        grid: createGrid({
-          cols: 5,
-          rows: 5,
-          black: [
-            { col: 0, row: 0 },
-            { col: 4, row: 4 },
-          ],
-        }),
-        hints: {},
-        phase: 'grid',
-      },
-      title
-    );
-    await page.goto('/puzzles');
-
-    const thumbnail = row(page, title).getByTestId('puzzle-thumbnail');
-    await expect(thumbnail).toBeVisible();
-
-    const cells = thumbnail.locator('[data-black]');
-    await expect(cells).toHaveCount(25);
-    await expect(thumbnail.locator('[data-black="true"]')).toHaveCount(2);
-  });
+  // 14-S2 retired "the thumbnail draws the puzzle's actual black squares":
+  // every row shows one fixed icon (e2e/puzzle-library.spec.ts, 14-S2-2).
 
   test('edit sits beside its title, not across the window', async ({ page }) => {
     await page.setViewportSize({ width: 2400, height: 900 });

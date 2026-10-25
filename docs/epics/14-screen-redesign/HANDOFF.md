@@ -41,7 +41,15 @@ style guide sample use `title-1`. Following the mockup, the pro-tip sits
 16px below the sent line and the failure alert's two lines have the same
 16px gap. The story sets neither gap.
 
-**S2 has no story yet.**
+**S2 is approved and frozen** by the human (2026-10-25): its Decisions,
+Acceptance, retired and amended acceptance and *(drafting)* additions. The
+human accepted the lost-acknowledgement delete gap, so `deletePuzzle` stays
+as is. The freeze is a specification-only commit on `main`: the
+[story](stories/14-S2-puzzle-library.md), the new
+`e2e/puzzle-library.spec.ts` and `src/components/puzzle/library-source.test.ts`,
+the new action cases, the amendments to 9 frozen browser specs and 2 frozen
+unit tests, the EPIC amendment and this handoff. S2 touches the risk path
+`actions.ts`, so it's a reviewed branch story.
 
 ## Verification
 
@@ -63,10 +71,9 @@ The reviewer's runs on head `42da1bc`, the merged tree:
 
 ## Next action
 
-Write the S2 (Puzzle library) specification from the EPIC's S2 section per
-[STORY](../../process/STORY.md), for the human's approval. Implementation
-waits for approval and a specification-only freeze on `main`.
+Implement S2 on `story/14-S2-puzzle-library` from the freeze commit, per
+[STORY](../../process/STORY.md), and open a PR for independent review.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and the S2 section of docs/epics/14-screen-redesign/EPIC.md. Write the S2 (Puzzle library) story specification for the human's approval; no implementation before approval and freeze.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S2-puzzle-library.md. Once the human approves S2's acceptance, freeze it on main, then implement it on story/14-S2-puzzle-library; open a PR for independent review, no merge.

@@ -33,14 +33,26 @@ test('O1 default puzzle fixtures belong to the suite authenticated user', async 
   await waitForEditorReady(page);
 });
 
-test('O1 explicit fixture builders are retained and the library remains unfiltered', async ({ page }) => {
+// 14-S2: the library no longer lists another builder's unpublished puzzle;
+// Build lists the caller's own drafts, Play only published puzzles.
+test('O1 explicit fixture builders are retained and the library lists only the caller\'s drafts', async ({ page }) => {
   const current = await currentBuilderId(page);
   const other = await seedOtherBuilder();
   expect(other).not.toBe(current);
   const otherTitle = title('other builder');
+  const ownTitle = title('own draft');
   const seeded = await seedPuzzle(createBlankPuzzle('mini'), otherTitle, other);
+  await seedPuzzle(createBlankPuzzle('mini'), ownTitle);
 
   expect(await readPuzzleBuilderId(seeded.id)).toBe(other);
   await page.goto('/puzzles');
-  await expect(page.getByTestId('puzzle-list')).toContainText(otherTitle);
+  await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
+  const library = page.getByTestId('puzzle-library');
+  await expect(library).toContainText(ownTitle);
+  await expect(library).not.toContainText(otherTitle);
+  const play = page.getByTestId('library-view').getByRole('radio', { name: 'Play', exact: true });
+  await play.check();
+  await expect(play).toBeChecked();
+  await expect(library).not.toContainText(otherTitle);
+  await expect(library).not.toContainText(ownTitle);
 });

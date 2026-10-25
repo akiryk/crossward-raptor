@@ -68,7 +68,17 @@ function row(page: Page, title: string): Locator {
 }
 async function library(page: Page) {
   await page.goto('/puzzles');
-  await expect(page.getByTestId('puzzle-list')).toBeVisible();
+  await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
+}
+/** 14-S2: published puzzles are played from the library's Play view; Build lists the caller's own. */
+async function showView(page: Page, view: 'Build' | 'Play') {
+  const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
+  await option.check();
+  await expect(option).toBeChecked();
+}
+async function playLibrary(page: Page) {
+  await library(page);
+  await showView(page, 'Play');
 }
 async function titlesInOrder(page: Page, titles: string[]) {
   const all = await page.getByTestId('puzzle-list-item').allTextContents();
@@ -84,13 +94,13 @@ async function expectState(item: Locator, state: 'untouched' | 'in-progress' | '
     return;
   }
   await expect(cue).toBeVisible();
+  // 14-S2: the title's bracketed marker; only a completed row offers Reset.
   if (state === 'in-progress') {
-    await expect(cue).toContainText('In progress');
-    await expect(cue).not.toContainText('Completed');
-  } else {
-    await expect(cue).toContainText('Completed');
-    await expect(cue).toContainText('✓');
+    await expect(cue).toHaveText('[in-play]');
+    await expect(reset).toHaveCount(0);
+    return;
   }
+  await expect(cue).toHaveText('[complete]');
   await expect(reset).toBeVisible();
   await expect(reset).toHaveAccessibleName('Reset');
 }
@@ -129,42 +139,50 @@ test.describe('P5 — the library learns about play', () => {
     const ownPublic = await seed(page, 'none', { visibility: 'public' });
     const othersPrivate = await seed(page, 'none', { builderId: await seedOtherBuilder() });
     const unpublished = await seed(page, 'partial', { published: false });
-    await library(page);
+    await playLibrary(page);
 
     for (const fixture of [ownPublic, othersPrivate]) {
       const item = row(page, fixture.title);
       const play = item.getByTestId('puzzle-play-link');
       await expect(play).toBeVisible();
-      await expect(play).toHaveAccessibleName('Play');
+      // 14-S2: the link wraps the title and its marker; an untouched row has none.
+      await expect(play).toHaveAccessibleName(fixture.title);
       expect(await play.evaluate((el) => el.tagName.toLowerCase())).toBe('a');
       expect(await play.getAttribute('href')).toMatch(new RegExp(`/puzzles/${fixture.id}/play$`));
       await expectState(item, 'untouched');
+      await expect(item.getByTestId('puzzle-edit-link')).toHaveCount(0);
     }
+    // 14-S2: drafts are only in Build, and only the caller's own.
+    await expect(row(page, unpublished.title)).toHaveCount(0);
+
+    await showView(page, 'Build');
     const manage = row(page, ownPublic.title).getByTestId('puzzle-edit-link');
     await expect(manage).toBeVisible();
-    await expect(manage).toHaveAccessibleName('Manage');
+    await expect(manage).toHaveAccessibleName(`${ownPublic.title} [published]`);
     expect(await manage.getAttribute('href')).toMatch(new RegExp(`/puzzles/${ownPublic.id}$`));
-    await expect(row(page, othersPrivate.title).getByTestId('puzzle-edit-link')).toHaveCount(0);
+    await expect(row(page, othersPrivate.title)).toHaveCount(0);
 
     const draft = row(page, unpublished.title);
     await expect(draft.getByTestId('puzzle-edit-link')).toBeVisible();
-    await expect(draft.getByTestId('puzzle-edit-link')).toHaveAccessibleName('Edit');
+    await expect(draft.getByTestId('puzzle-edit-link')).toHaveAccessibleName(`${unpublished.title} [hint]`);
     await expect(draft.getByTestId('puzzle-play-link')).toHaveCount(0);
     await expect(draft.getByTestId('puzzle-play-state')).toHaveCount(0);
     await expect(draft.getByTestId('puzzle-reset-button')).toHaveCount(0);
     await expect(draft).not.toHaveAttribute('data-play-state', /.*/);
 
+    await showView(page, 'Play');
     await row(page, othersPrivate.title).getByTestId('puzzle-play-link').click();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${othersPrivate.id}/play$`));
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
     // Opening started a blank attempt, which still reads as untouched.
     expect(await ownRows(othersPrivate)).toHaveLength(1);
-    await library(page);
+    await playLibrary(page);
     await expectState(row(page, othersPrivate.title), 'untouched');
   });
 
   test('clicking anywhere on a row follows its primary action; secondary controls act alone', async ({ page }) => {
-    const ownPublished = await seed(page, 'partial');
+    // 14-S2: completed, since only a completed row has a secondary control (Reset).
+    const ownPublished = await seed(page, 'complete');
     const ownDraft = await seed(page, 'none', { published: false });
     const other = await seedOtherBuilder();
     const foreignPublished = await seed(page, 'none', { builderId: other });
@@ -186,57 +204,63 @@ test.describe('P5 — the library learns about play', () => {
       expect(box).not.toBeNull();
       await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
     }
-    await library(page);
-    for (const fixture of [ownPublished, ownDraft, foreignPublished, foreignDraft]) {
-      const item = row(page, fixture.title);
-      expect(await item.evaluate((el) => el.tagName.toLowerCase())).toBe('li');
-      await expect(item).not.toHaveAttribute('tabindex', /.*/);
-      await expect(item).not.toHaveAttribute('role', /.*/);
-    }
-    for (const [fixture, href] of [
-      [ownPublished, `/puzzles/${ownPublished.id}/play`],
-      [foreignPublished, `/puzzles/${foreignPublished.id}/play`],
-      [ownDraft, `/puzzles/${ownDraft.id}`],
+    // 14-S2: Play rows open play; Build rows (the caller's own) open the editor.
+    for (const [view, rows] of [
+      ['Play', [
+        [ownPublished, `/puzzles/${ownPublished.id}/play`],
+        [foreignPublished, `/puzzles/${foreignPublished.id}/play`],
+      ]],
+      ['Build', [
+        [ownPublished, `/puzzles/${ownPublished.id}`],
+        [ownDraft, `/puzzles/${ownDraft.id}`],
+      ]],
     ] as const) {
-      const item = row(page, fixture.title);
-      for (const part of ['puzzle-list-title', 'puzzle-thumbnail', 'puzzle-list-updated']) {
-        expect(await hit(item.getByTestId(part))).toEqual({ href, cursor: 'pointer' });
+      await library(page);
+      await showView(page, view);
+      for (const [fixture, href] of rows) {
+        const item = row(page, fixture.title);
+        expect(await item.evaluate((el) => el.tagName.toLowerCase())).toBe('li');
+        await expect(item).not.toHaveAttribute('tabindex', /.*/);
+        await expect(item).not.toHaveAttribute('role', /.*/);
+        for (const part of ['puzzle-list-title', 'puzzle-icon', 'puzzle-list-updated']) {
+          expect(await hit(item.getByTestId(part))).toEqual({ href, cursor: 'pointer' });
+        }
       }
+      // Another builder's draft is listed in neither view.
+      await expect(row(page, foreignDraft.title)).toHaveCount(0);
     }
-    const foreignDraftHit = await hit(row(page, foreignDraft.title).getByTestId('puzzle-list-title'));
-    expect(foreignDraftHit.href).toBeNull();
-    expect(foreignDraftHit.cursor).not.toBe('pointer');
-    expect((await hit(row(page, ownPublished.title).getByTestId('puzzle-edit-link'))).href)
-      .toBe(`/puzzles/${ownPublished.id}`);
 
+    await playLibrary(page);
     await pointAndClick(row(page, foreignPublished.title).getByTestId('puzzle-list-title'));
     await expect(page).toHaveURL(new RegExp(`/puzzles/${foreignPublished.id}/play$`));
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
-    await library(page);
-    await pointAndClick(row(page, ownPublished.title).getByTestId('puzzle-thumbnail'));
+    await playLibrary(page);
+    await pointAndClick(row(page, ownPublished.title).getByTestId('puzzle-icon'));
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownPublished.id}/play$`));
     await library(page);
+    await showView(page, 'Build');
     await pointAndClick(row(page, ownDraft.title).getByTestId('puzzle-list-title'));
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownDraft.id}$`));
     await library(page);
+    await showView(page, 'Build');
     await row(page, ownPublished.title).getByTestId('puzzle-edit-link').click();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownPublished.id}$`));
     await expect(page.getByTestId('puzzle-editor')).toBeVisible();
-    await library(page);
+    await playLibrary(page);
     await openReset(row(page, ownPublished.title));
     await expect(page).toHaveURL(/\/puzzles$/);
     await page.keyboard.press('Escape');
-    await expectState(row(page, ownPublished.title), 'in-progress');
+    await expectState(row(page, ownPublished.title), 'completed');
   });
 
-  test('each attempt shows its state, and only started rows offer reset', async ({ page }) => {
+  test('each attempt shows its state, and only completed rows offer reset', async ({ page }) => {
     const cases = [
       ['none', 'untouched'], ['blank', 'untouched'], ['partial', 'in-progress'],
       ['incorrect', 'in-progress'], ['complete', 'completed'], ['solved-unstamped', 'completed'],
     ] as const;
     const fixtures = [];
     for (const [attempt] of cases) fixtures.push(await seed(page, attempt));
-    await library(page);
+    await playLibrary(page);
 
     for (const [index, [, state]] of cases.entries()) {
       await expectState(row(page, fixtures[index].title), state);
@@ -248,7 +272,7 @@ test.describe('P5 — the library learns about play', () => {
     const otherPlayer = await seedOtherBuilder();
     const theirs = await seedPlaySession(otherPlayer, fixture.id, deserializeGrid(entries('complete')));
     await stamp(theirs);
-    await library(page);
+    await playLibrary(page);
 
     await expectState(row(page, fixture.title), 'untouched');
   });
@@ -263,29 +287,30 @@ test.describe('P5 — the library learns about play', () => {
     await setUpdatedAt(inProgress.id, new Date('2031-01-03T00:00:00Z'));
     // The most recently updated puzzle still sorts after every unfinished one.
     await setUpdatedAt(completed.id, new Date('2031-01-04T00:00:00Z'));
-    await library(page);
+    await playLibrary(page);
 
+    // 14-S2: Play lists the published rows; the draft is only in Build.
+    await expect(row(page, draft.title)).toHaveCount(0);
     const group = page.getByTestId('puzzle-group').filter({ has: row(page, completed.title) });
-    for (const fixture of [draft, untouched, inProgress]) {
+    for (const fixture of [untouched, inProgress]) {
       await expect(group.getByTestId('puzzle-list-item').filter({ hasText: fixture.title })).toHaveCount(1);
     }
-    const [d, u, p, c] = await titlesInOrder(page, [draft.title, untouched.title, inProgress.title, completed.title]);
-    expect(Math.min(d, u, p, c)).toBeGreaterThan(-1);
-    expect(d).toBeLessThan(p);
+    const [u, p, c] = await titlesInOrder(page, [untouched.title, inProgress.title, completed.title]);
+    expect(Math.min(u, p, c)).toBeGreaterThan(-1);
     expect(p).toBeLessThan(u);
     expect(u).toBeLessThan(c);
 
     await openReset(row(page, completed.title));
     await page.getByTestId('play-reset-confirm').click();
     await expectLibraryFresh(page, completed);
-    const [d2, c2, p2] = await titlesInOrder(page, [draft.title, completed.title, inProgress.title]);
-    expect(d2).toBeLessThan(c2);
+    const [c2, p2] = await titlesInOrder(page, [completed.title, inProgress.title]);
+    expect(c2).toBeGreaterThan(-1);
     expect(c2).toBeLessThan(p2);
   });
 
   test('the library confirmation uses Modal semantics and names the puzzle', async ({ page }) => {
-    const fixture = await seed(page);
-    await library(page);
+    const fixture = await seed(page, 'complete');
+    await playLibrary(page);
     const item = row(page, fixture.title);
     await openReset(item);
     const dialog = page.getByTestId('play-reset-dialog');
@@ -314,7 +339,7 @@ test.describe('P5 — the library learns about play', () => {
     test(`${dismissal} leaves the attempt and the row unchanged`, async ({ page }) => {
       const fixture = await seed(page, 'complete');
       const before = await readPlaySessions(fixture.id);
-      await library(page);
+      await playLibrary(page);
       const item = row(page, fixture.title);
       await openReset(item);
       if (dismissal === 'Cancel') await page.getByTestId('play-reset-cancel').click();
@@ -328,7 +353,8 @@ test.describe('P5 — the library learns about play', () => {
     });
   }
 
-  for (const attempt of ['partial', 'complete'] as const) {
+  // 14-S2: the partial variant is retired; only a completed row offers Reset in the library.
+  for (const attempt of ['complete'] as const) {
     test(`resetting a ${attempt} attempt from the library replaces only that row, in place`, async ({ page }) => {
       const fixture = await seed(page, attempt);
       const otherPlayer = await seedOtherBuilder();
@@ -338,7 +364,7 @@ test.describe('P5 — the library learns about play', () => {
         ...(await readPlaySessions(fixture.id)).filter((r) => r.id === theirs),
         ...(await readPlaySessions(elsewhere.id)),
       ];
-      await library(page);
+      await playLibrary(page);
       await page.evaluate(({ old }) => {
         localStorage.setItem(old, 'old-draft');
         localStorage.setItem('crossward:play-draft:v1:unrelated-attempt', 'keep-draft');
@@ -373,8 +399,8 @@ test.describe('P5 — the library learns about play', () => {
   }
 
   test('blocked local draft cleanup cannot fail a library reset', async ({ page }) => {
-    const fixture = await seed(page);
-    await library(page);
+    const fixture = await seed(page, 'complete');
+    await playLibrary(page);
     await page.evaluate((draftKey) => {
       localStorage.setItem(draftKey, 'old-draft');
       const original = Storage.prototype.removeItem;
@@ -390,8 +416,8 @@ test.describe('P5 — the library learns about play', () => {
   });
 
   test('a pending library reset disables confirmation and every dismissal', async ({ page }) => {
-    const fixture = await seed(page);
-    await library(page);
+    const fixture = await seed(page, 'complete');
+    await playLibrary(page);
     await openReset(row(page, fixture.title));
     const before = await readPlaySessions(fixture.id);
     const held = gate(); let requests = 0;
@@ -409,7 +435,7 @@ test.describe('P5 — the library learns about play', () => {
       await page.keyboard.press('Escape');
       await page.getByTestId('modal-backdrop').click({ position: { x: 2, y: 2 } });
       await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
-      await expectState(row(page, fixture.title), 'in-progress');
+      await expectState(row(page, fixture.title), 'completed');
       expect(await readPlaySessions(fixture.id)).toEqual(before);
       expect(requests).toBe(1);
     } finally { held.release(); }
@@ -421,7 +447,7 @@ test.describe('P5 — the library learns about play', () => {
     test(`${committed ? 'a lost acknowledgement' : 'a failed library reset'} keeps the dialog and retries idempotently`, async ({ page }) => {
       const fixture = await seed(page, 'complete');
       const beforeRows = await readPlaySessions(fixture.id);
-      await library(page);
+      await playLibrary(page);
       let attempts = 0;
       await page.route('**/puzzles', async (route) => {
         if (route.request().headers()['next-action'] && ++attempts === 1) {
@@ -450,10 +476,11 @@ test.describe('P5 — the library learns about play', () => {
   }
 
   test('a stale library row cannot reset an attempt that replaced it', async ({ page }) => {
-    const fixture = await seed(page, 'partial');
-    await library(page);
-    await expectState(row(page, fixture.title), 'in-progress');
-    const newer = await replaceAttempt(fixture, 'solved-unstamped');
+    // 14-S2: the stale row is completed, since only a completed row offers Reset.
+    const fixture = await seed(page, 'complete');
+    await playLibrary(page);
+    await expectState(row(page, fixture.title), 'completed');
+    const newer = await replaceAttempt(fixture, 'incorrect');
     const before = await ownRows(fixture);
     expect(before.map((r) => r.id)).toEqual([newer]);
 
@@ -463,12 +490,12 @@ test.describe('P5 — the library learns about play', () => {
     await expect(page).toHaveURL(/\/puzzles$/);
     expect(await ownRows(fixture)).toEqual(before);
     // The row refreshes to the surviving newer attempt, not the stale one.
-    await expectState(row(page, fixture.title), 'completed');
+    await expectState(row(page, fixture.title), 'in-progress');
   });
 
   test('going Back to the library after playing shows the saved and completed state', async ({ page }) => {
     const fixture = await seed(page, 'none');
-    await library(page);
+    await playLibrary(page);
     await expectState(row(page, fixture.title), 'untouched');
 
     await row(page, fixture.title).getByTestId('puzzle-play-link').click();
