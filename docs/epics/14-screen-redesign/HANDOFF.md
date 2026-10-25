@@ -47,40 +47,42 @@ frozen on `main` in `ba9d99e`, a specification-only commit. The human
 accepted the lost-acknowledgement delete gap, so `deletePuzzle` is
 unchanged.
 
-**S2 is implemented** on `story/14-S2-puzzle-library`, in PR #26 (head
-`b6bae39` before this handoff commit), open for independent review, not
-merged. It touches the risk path `actions.ts`
-(`listPuzzles`'s filter and `builderName`). The changed paths are the
-story's declared runtime paths. Implementation notes:
+**S2 was corrected after the human's visual check** (2026-10-25), in
+`4dc7886`, a specification-only commit on `main`. "Puzzles" now sits on the
+content edge, and the Build/Play Radio on the content's right edge, its
+labels on the heading's baseline. The icon keeps the human's SVG's 8px
+corners. An independent subagent review approved it with no blockers; the
+record is in the story's Correction section.
 
-- `CrosswordIcon` draws the human's exported SVG (2026-10-25), with
-  `primary`/`inverse` fills and a per-instance clip id. Its corners are the
-  export's 8px, not the story's 5px. The frozen test doesn't pin the radius.
-  **Open for the human:** keep 8px, or use 5px as the story says.
+**S2 is implemented** on `story/14-S2-puzzle-library` in PR #26, open for
+independent review, not merged. `main` is merged into the branch to bring in
+the correction. It touches the risk path `actions.ts` (`listPuzzles`'s
+filter and `builderName`). The changed paths are the story's declared
+runtime paths. Implementation notes:
+
+- `CrosswordIcon` draws the human's exported SVG, with `primary`/`inverse`
+  fills and a per-instance clip id.
+- The header uses last-baseline alignment, because the Radio's first
+  baseline is its circle.
 - The row's Delete and Reset share `ROW_CONTROL` in `library-row.ts`.
 - The style-guide Puzzle Row samples are drawn at 679px inside a
   horizontally scrolling box, so `/style-guide` doesn't overflow at 375px.
-- Not done by the agent: the visual check against the two mockups, which
-  weren't available in the implementing session.
 
 ## Verification
 
-The author's runs on the S2 implementation tree (the PR head; the handoff
-commit changes only this file):
+The author's runs on the PR head's code (the handoff commit changes only
+this file):
 
 - `npm run verify`: exit 0 (44 files, 602 Vitest tests; one pre-existing
   lint warning in `request-logger/render.ts`).
 - `npm run test:e2e` (full suite, standing reset grant in
   [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)): exit 0, 539 passed.
-  An earlier run had 7 failures, all `/style-guide` overflow at 375px from
-  the new row samples; fixed before the final run.
-- Frozen acceptance: no test file changes since `ba9d99e`.
+- Frozen acceptance: no test file changes since `4dc7886`.
 
 ## Next action
 
 Independent review of PR #26 per [REVIEW](../../process/REVIEW.md),
-then merge if no blockers remain. Afterwards, the human checks the library
-against the two mockups and settles the icon's corner radius.
+then merge if no blockers remain.
 
 ## Resume prompt
 
