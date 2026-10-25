@@ -74,6 +74,10 @@
   --color-modal-background: var(--palette-white);
   --color-modal-title-background: var(--palette-yellow-bright);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);
+  /* the logo and masthead (Story F7) */
+  --color-logo: var(--palette-gray-400);
+  --color-logo-cell: var(--palette-white);
+  --color-masthead: var(--palette-white);
 }
 
 /* --- shape (Story F3) --- */

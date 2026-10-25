@@ -10,6 +10,12 @@ import { ModalActions } from '@/components/ui/ModalActions';
 import { PreviewToggle } from '@/components/grid/PreviewToggle';
 import { RadioGroup } from '@/components/ui/Radio';
 import { TextInput } from '@/components/ui/TextInput';
+import { Title } from '@/components/ui/Title';
+import type { TitleColor } from '@/components/ui/Title';
+import { Logo } from '@/components/ui/Logo';
+import { Masthead, MastheadAction } from '@/components/layout/Masthead';
+
+const TITLE_COLORS: TitleColor[] = ['primary', 'muted', 'link-muted', 'highlight', 'error', 'subtle', 'inverse'];
 
 export default function StyleGuidePage() {
   const [demoValue, setDemoValue] = useState('');
@@ -188,6 +194,45 @@ export default function StyleGuidePage() {
             value={navChoice}
             onChange={setNavChoice}
           />
+        </section>
+
+        <section data-testid="sg-titles" className="space-y-3">
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Titles</h2>
+          <Title size={1} data-testid="sg-title-1">Title 1</Title>
+          <Title size={2} data-testid="sg-title-2">Title 2</Title>
+          <Title size={3} data-testid="sg-title-3">Title 3</Title>
+          <Title size={4} data-testid="sg-title-4">Title 4</Title>
+          {TITLE_COLORS.map((color) =>
+            color === 'inverse' ? (
+              <div key={color} className="bg-primary p-2">
+                <Title size={3} color={color} data-testid={`sg-title-${color}`}>
+                  {color}
+                </Title>
+              </div>
+            ) : (
+              <Title key={color} size={3} color={color} data-testid={`sg-title-${color}`}>
+                {color}
+              </Title>
+            )
+          )}
+          <Title size={3} as="h5" data-testid="sg-title-as">
+            Title 3 as h5
+          </Title>
+        </section>
+
+        <section data-testid="sg-logo">
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">Logo</h2>
+          <Logo />
+        </section>
+
+        <section data-testid="sg-masthead" className="space-y-3">
+          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Masthead</h2>
+          <div data-testid="sg-masthead-signed-out">
+            <Masthead />
+          </div>
+          <div data-testid="sg-masthead-signed-in">
+            <Masthead action={<MastheadAction data-testid="sg-masthead-sign-out">Sign out</MastheadAction>} />
+          </div>
         </section>
 
         <section data-testid="sg-links">

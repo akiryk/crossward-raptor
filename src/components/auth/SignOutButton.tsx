@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { Button } from '@/components/ui/Button';
+import { MastheadAction } from '@/components/layout/Masthead';
 
 export function SignOutButton() {
   const router = useRouter();
@@ -13,8 +13,8 @@ export function SignOutButton() {
   }
 
   return (
-    <Button data-testid="sign-out" variant="alternate" onClick={handleSignOut}>
+    <MastheadAction data-testid="sign-out" onClick={handleSignOut}>
       Sign out
-    </Button>
+    </MastheadAction>
   );
 }

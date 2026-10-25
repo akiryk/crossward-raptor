@@ -100,6 +100,9 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     swatch: 'bg-modal-title-background',
   },
   { name: 'modal-backdrop', variable: 'black at 40%', swatch: 'bg-modal-backdrop' },
+  { name: 'logo', variable: 'gray-400', swatch: 'bg-logo' },
+  { name: 'logo-cell', variable: 'white', swatch: 'bg-logo-cell' },
+  { name: 'masthead', variable: 'white', swatch: 'bg-masthead' },
 ];
 
 // line-muted border keeps white and translucent swatches visible.

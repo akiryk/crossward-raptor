@@ -9,7 +9,8 @@ catalogs all three. Title and a standalone Logo are adopted screen by
 screen in epic 14.
 
 **Status:** approved by the human as written on 2026-10-24, after they
-settled the two [open points](#open-points), and frozen on `main`. They
+settled the two [open points](#open-points), frozen on `main` in
+`5509870`, and done. They
 answered the six questions and supplied a masthead mockup the same day.
 **Blast radius: low:** two new UI components, one restyled layout
 component, the sign-out control's look, the root layout's header and the

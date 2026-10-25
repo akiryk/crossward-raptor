@@ -103,18 +103,34 @@ whose six fixes were applied. It was refrozen in specification-only commit
 wait for running transitions, with no F3 or D2 assertion changes, and the
 new case F6-7 pins the transitions. The implementation commit follows it.
 
-**F7 is approved and frozen; implementation is in progress** (2026-10-24).
-The human answered the six questions and supplied a masthead mockup, then
-settled the two open points: Sign out uses `link-muted`, the color the
-styles set, and sits 20px from the right, the padding they stated. Both
-matched the specification. They approved the
-[story](stories/13-F7-title-logo-masthead.md) as written, including the
-retirement of F3-9's `sign-out is an alternate button` case. The
-specification-only freeze commit adds `e2e/masthead.spec.ts` (11 cases),
-`src/components/ui/title-source.test.ts` (4 cases), that retirement, F1's
-two style-map amendments and the EPIC's three new style rows.
+**F7 is done** and pushed on `main`. The human answered the six
+questions and supplied a masthead mockup, then settled the two open
+points: Sign out uses `link-muted`, the color the styles set, and sits
+20px from the right, the padding they stated. Both matched the
+specification. They approved the
+[story](stories/13-F7-title-logo-masthead.md) as written on 2026-10-24,
+including the retirement of F3-9's `sign-out is an alternate button`.
+It was frozen in specification-only commit `5509870` with
+`e2e/masthead.spec.ts`, `src/components/ui/title-source.test.ts`, that
+retirement, F1's two style-map amendments and the EPIC's three new
+styles (`logo`, `logo-cell`, `masthead`). `Title` renders the four title
+styles in any of the seven text color styles. `Logo` is the human's SVG
+inline, colored from styles, with hidden text "Crossward". `Masthead`
+replaces the dark header: a white bar with a `line-muted` hairline, 20px
+padding, the logo as the home link and, when signed in, a link-looking
+Sign out (`MastheadAction`). `/style-guide` has `sg-titles`, `sg-logo` and
+`sg-masthead`.
 
 ## Verification
+
+F7 implementation (2026-10-24, on the frozen baseline `5509870`):
+`npm run verify` exit 0 (602 tests, the known `request-logger/render.ts`
+lint warning); full `npm run test:e2e` with `--workers=4` exit 0, 505/505,
+under the standing guarded test-reset grant. Frozen acceptance unchanged
+from `5509870`. Visual check at 1280px and 375px against the mockup: the
+front door signed out, `/puzzles` signed in (via the local inbox) and the
+three new catalog sections look as the story describes, with no
+horizontal overflow.
 
 F6 correction implementation (2026-10-24, on the refrozen baseline
 `f4f9a19`): `npm run verify` exit 0 (598 tests, the known
@@ -151,10 +167,10 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-Implement F7 on the frozen baseline (the runtime paths in the story), run
-`npm run verify` and the full `npm run test:e2e`, do the visual check,
-then commit and push `main`.
+All seven stories are done. Epic closeout follows the
+[epic index](../README.md#close-an-epic); it isn't authorized until the
+human asks for it.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and docs/epics/13-design-system/stories/13-F7-title-logo-masthead.md. Record the human's answers to F7's open points and their approval, then freeze F7 on main and implement it; do not freeze without that approval.
+Read docs/epics/13-design-system/HANDOFF.md and the closeout section of docs/epics/README.md. Close out the Design system epic as that section describes; do not start epics 14 or 15.
