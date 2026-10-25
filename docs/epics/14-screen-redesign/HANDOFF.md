@@ -16,38 +16,41 @@ details.
 in `22e0737`. Its pending questions are answered and recorded in its
 Decisions.
 
-**S1 is approved and frozen** on `main` (2026-10-25) in a
-specification-only commit: the [story](stories/14-S1-sign-in.md), its three
-new tests (`e2e/sign-in.spec.ts`, `src/lib/username.test.ts`,
+**S1 is approved and frozen** on `main` in `a225e88`, a specification-only
+commit: the [story](stories/14-S1-sign-in.md), its three new tests
+(`e2e/sign-in.spec.ts`, `src/lib/username.test.ts`,
 `src/components/auth/sign-in-source.test.ts`), the frozen-test amendments
-under its "Retired and amended acceptance", the EPIC amendment (username at
-sign-in, builder-name dialog removed) and the Design system handoff note.
+under its "Retired and amended acceptance", the EPIC amendment and the Design
+system handoff note.
 
-Implementation is in progress on `story/14-S1-sign-in` (risk path
-`src/app/puzzles/actions.ts`), for a PR and an independent review. The
-mockups were shared in conversation only; ask the human to re-share them for
-the visual check.
+**S1 is implemented** on `story/14-S1-sign-in` and pushed, with a PR open
+for independent review (not merged). It touches the risk path
+`src/app/puzzles/actions.ts` (removing the two display-name actions). The
+username hook in `src/lib/auth.ts` is a better-auth `before` hook on
+`/magic-link/verify` that reads the token's `name` before it's consumed and
+passes it, through the hook's returned context, to an `after` hook that
+writes `displayName` only while the stored value is blank.
+
+**Visual check pending:** the mockups were shared in conversation only; the
+human needs to re-share them to compare against the page at desktop width.
 
 ## Verification
 
-- **Discrimination** (details in the story):
-  - On current `main`, 21 of 22 browser cases fail. The one that passes is a
-    guard, as expected. Both Vitest files fail.
-  - A reverted throwaway implementation passed all of them.
-  - Two deliberate mutations were each caught.
-- ESLint passes on the three proposed files.
-- `npm run verify` fails while they're uncommitted without runtime, by
-  design.
-- Docs were checked for links and consistency.
+On the implementation tree (story branch, before commit; committed
+unchanged):
+
+- `npm run verify`: exit 0 (43 files, 594 Vitest tests).
+- `npm run test:e2e` (full suite): exit 0, 517 passed. Run under the
+  standing reset grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
+- Frozen acceptance: `git diff a225e88` over the spec and test files is
+  empty.
+- Not done: the visual check against the mockups.
 
 ## Next action
 
-Freeze S1: one specification-only commit on `main` with the story, the three
-tests, the frozen-test amendments, the EPIC amendment and the Design system
-handoff note. Then implement on `story/14-S1-sign-in` (removing the orphaned
-`e2e/helpers/display-name.ts` there) and open a PR for independent review. Ask the human to re-share the mockups for the visual
-check.
+Independently review the S1 PR per [REVIEW](../../process/REVIEW.md) and merge
+it if it passes. The human re-shares the three mockups for the visual check.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S1-sign-in.md. Freeze the approved story S1 on main, then implement it on story/14-S1-sign-in and open a PR; do not merge it.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S1-sign-in.md. Review the S1 pull request from story/14-S1-sign-in independently and merge it if it passes.

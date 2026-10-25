@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getDisplayName, listPuzzles } from './actions';
+import { listPuzzles } from './actions';
 import { NewPuzzleButton } from './NewPuzzleButton';
 import { puzzleStatus, type StatusKind } from '@/lib/puzzle-status';
 import { groupPuzzles } from '@/lib/puzzle-groups';
@@ -19,9 +19,7 @@ const BADGE_CLASS: Record<StatusKind, string> = {
 };
 
 export default async function PuzzlesPage() {
-  const [puzzles, displayName, session] = await Promise.all([
-    listPuzzles(), getDisplayName(), requireSession(),
-  ]);
+  const [puzzles, session] = await Promise.all([listPuzzles(), requireSession()]);
   const groups = groupPuzzles(puzzles);
 
   return (
@@ -35,7 +33,7 @@ export default async function PuzzlesPage() {
           >
             Puzzles
           </h1>
-          <NewPuzzleButton displayName={displayName} />
+          <NewPuzzleButton />
         </div>
         <div data-testid="puzzle-list" className="mt-6 flex flex-col gap-8">
           {groups.map((group) => (

@@ -5,13 +5,11 @@ import { useRouter } from 'next/navigation';
 import { createPuzzle } from './actions';
 import { Button } from '@/components/ui/Button';
 import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
-import { DisplayNameDialog } from '@/components/puzzle/DisplayNameDialog';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 
-export function NewPuzzleButton({ displayName: initialDisplayName }: { displayName: string | null }) {
+export function NewPuzzleButton() {
   const router = useRouter();
   const triggerRef = useRef<HTMLDivElement>(null);
-  const [displayName, setDisplayName] = useState(initialDisplayName);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -33,8 +31,6 @@ export function NewPuzzleButton({ displayName: initialDisplayName }: { displayNa
 
   function handleCancel() {
     setOpen(false);
-    // The title modal can open while the name field is focused. Restore the
-    // flow's original trigger even when that intermediate field is gone.
     triggerRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
   }
 
@@ -43,9 +39,7 @@ export function NewPuzzleButton({ displayName: initialDisplayName }: { displayNa
       <Button data-testid="new-puzzle-button" onClick={() => setOpen(true)} disabled={pending}>
         New Puzzle
       </Button>
-      {open && (displayName
-        ? <NewPuzzleDialog onCancel={handleCancel} onCreate={handleCreate} />
-        : <DisplayNameDialog onCancel={handleCancel} onSaved={setDisplayName} />)}
+      {open && <NewPuzzleDialog onCancel={handleCancel} onCreate={handleCreate} />}
     </div>
   );
 }
