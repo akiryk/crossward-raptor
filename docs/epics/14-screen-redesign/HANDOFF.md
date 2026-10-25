@@ -42,38 +42,46 @@ style guide sample use `title-1`. Following the mockup, the pro-tip sits
 16px gap. The story sets neither gap.
 
 **S2 is approved and frozen** by the human (2026-10-25): its Decisions,
-Acceptance, retired and amended acceptance and *(drafting)* additions. The
-human accepted the lost-acknowledgement delete gap, so `deletePuzzle` stays
-as is. The freeze is a specification-only commit on `main`: the
-[story](stories/14-S2-puzzle-library.md), the new
-`e2e/puzzle-library.spec.ts` and `src/components/puzzle/library-source.test.ts`,
-the new action cases, the amendments to 9 frozen browser specs and 2 frozen
-unit tests, the EPIC amendment and this handoff. S2 touches the risk path
-`actions.ts`, so it's a reviewed branch story.
+Acceptance, retired and amended acceptance and *(drafting)* additions,
+frozen on `main` in `ba9d99e`, a specification-only commit. The human
+accepted the lost-acknowledgement delete gap, so `deletePuzzle` is
+unchanged.
+
+**S2 is implemented** on `story/14-S2-puzzle-library`, in PR #26 (head
+`b6bae39` before this handoff commit), open for independent review, not
+merged. It touches the risk path `actions.ts`
+(`listPuzzles`'s filter and `builderName`). The changed paths are the
+story's declared runtime paths. Implementation notes:
+
+- `CrosswordIcon` draws the human's exported SVG (2026-10-25), with
+  `primary`/`inverse` fills and a per-instance clip id. Its corners are the
+  export's 8px, not the story's 5px. The frozen test doesn't pin the radius.
+  **Open for the human:** keep 8px, or use 5px as the story says.
+- The row's Delete and Reset share `ROW_CONTROL` in `library-row.ts`.
+- The style-guide Puzzle Row samples are drawn at 679px inside a
+  horizontally scrolling box, so `/style-guide` doesn't overflow at 375px.
+- Not done by the agent: the visual check against the two mockups, which
+  weren't available in the implementing session.
 
 ## Verification
 
-The reviewer's runs on head `42da1bc`, the merged tree:
+The author's runs on the S2 implementation tree (the PR head; the handoff
+commit changes only this file):
 
-- `npm run verify`: exit 0 (43 files, 594 Vitest tests).
-- `npm run test:e2e` (full suite): the first run exited 1, 515 passed. The
-  two failures were `e2e/library-play.spec.ts` "resetting a partial/complete
-  attempt from the library replaces only that row, in place". That spec then
-  passed 55 of 55 at `--repeat-each=3`, and a full rerun exited 0 with 517
-  passed. This looks like a load-related flake outside S1. Run under the
-  standing reset grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
-- CI: Vercel and Vercel Preview Comments passed. They don't run the test
-  gates.
-- Frozen acceptance: no test file changes in `a225e88..42da1bc`.
-- After the `title-1` change on `main`: `npm run verify` exited 0, and
-  `sign-in`, `text-styles`, `typography`, `masthead` and the style-guide
-  specs passed, 63 of 63. The full browser suite wasn't rerun.
+- `npm run verify`: exit 0 (44 files, 602 Vitest tests; one pre-existing
+  lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant in
+  [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)): exit 0, 539 passed.
+  An earlier run had 7 failures, all `/style-guide` overflow at 375px from
+  the new row samples; fixed before the final run.
+- Frozen acceptance: no test file changes since `ba9d99e`.
 
 ## Next action
 
-Implement S2 on `story/14-S2-puzzle-library` from the freeze commit, per
-[STORY](../../process/STORY.md), and open a PR for independent review.
+Independent review of PR #26 per [REVIEW](../../process/REVIEW.md),
+then merge if no blockers remain. Afterwards, the human checks the library
+against the two mockups and settles the icon's corner radius.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S2-puzzle-library.md. Once the human approves S2's acceptance, freeze it on main, then implement it on story/14-S2-puzzle-library; open a PR for independent review, no merge.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S2-puzzle-library.md. Review PR #26 on story/14-S2-puzzle-library per docs/process/REVIEW.md; merge only if no blockers remain and the required checks pass.
