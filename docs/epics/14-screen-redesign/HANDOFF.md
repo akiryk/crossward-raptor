@@ -31,25 +31,32 @@ username hook in `src/lib/auth.ts` is a better-auth `before` hook on
 passes it, through the hook's returned context, to an `after` hook that
 writes `displayName` only while the stored value is blank.
 
-**Visual check pending:** the mockups were shared in conversation only; the
-human needs to re-share them to compare against the page at desktop width.
+**Visual check done** (2026-10-25) at 1280px against the three mockups the
+human re-shared: form, error and sent states match. Two notes:
+
+- Following the mockup, the pro-tip now sits 16px below the sent line, and
+  the failure alert's two lines get the same 16px gap. The story sets no gap
+  for either.
+- The mockup's heading lines are about 61px apart, while the `title-1` token
+  gives 52px. That's a Design system token, out of S1's scope; it's left for
+  the human to decide on.
 
 ## Verification
 
-On the implementation tree (story branch, before commit; committed
-unchanged):
+On the final implementation tree, including the sent-gap change
+(story branch, before commit; committed unchanged):
 
 - `npm run verify`: exit 0 (43 files, 594 Vitest tests).
 - `npm run test:e2e` (full suite): exit 0, 517 passed. Run under the
   standing reset grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 - Frozen acceptance: `git diff a225e88` over the spec and test files is
   empty.
-- Not done: the visual check against the mockups.
+- Visual check against the mockups: done (see above).
 
 ## Next action
 
 Independently review the S1 PR per [REVIEW](../../process/REVIEW.md) and merge
-it if it passes. The human re-shares the three mockups for the visual check.
+it if it passes.
 
 ## Resume prompt
 

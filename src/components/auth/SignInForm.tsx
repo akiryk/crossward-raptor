@@ -94,7 +94,7 @@ export function SignInForm() {
         <p data-testid="sign-in-sent" className="text-body-large text-primary">
           Check your email for the magic link that signs you in.
         </p>
-        <p className="text-body-large text-muted">Pro-tip: check your spam folder, it&apos;s probably in there.</p>
+        <p className="mt-4 text-body-large text-muted">Pro-tip: check your spam folder, it&apos;s probably in there.</p>
         <HelpLine />
       </div>
     );
@@ -147,7 +147,7 @@ export function SignInForm() {
       {failed && (
         <div role="alert" className="mt-5 text-body-large">
           <p className="text-primary">Could not send the sign-in link.</p>
-          <p className="text-muted">Please try again.</p>
+          <p className="mt-4 text-muted">Please try again.</p>
         </div>
       )}
       <HelpLine />
