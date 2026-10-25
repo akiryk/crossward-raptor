@@ -167,7 +167,11 @@ than the viewport (no current dialog is that tall).
 
 ## Next action
 
-All seven stories are done. Epic closeout follows the
+All seven stories are done. After F7, the human reviewed `/style-guide`
+and found the hint-row, stepper and grid samples wrong. They are
+pre-redesign samples on old tokens, already epic 14's scope, not F1–F7
+defects. Their details (and the stepper's removal) are recorded in the
+EPIC's epic 14 entry for its drafting. Epic closeout follows the
 [epic index](../README.md#close-an-epic); it isn't authorized until the
 human asks for it.
 

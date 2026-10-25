@@ -19,10 +19,36 @@ Four epics, in this order. Only this one exists yet.
 1. **13 — Design system (this epic).** Tokens, typography, shared components.
 2. **14 — Screen redesign** (not yet created). Sign-in, `/puzzles` (Build/Play
    radio choice, Row Heading, Puzzle Row), the new-puzzle modal, the builder
-   (numbered stepper, Preview toggle, hint skeleton, Hint Input), play
+   (numbered buttons, Preview toggle, hint skeleton, Hint Input), play
    (Prominent Hint, Player Hint) and Grid Cell colors per phase and
    selection state. Its last story deletes the old tokens and reports any
-   still in use without a replacement.
+   still in use without a replacement. The human's details, given
+   2026-10-24 for its drafting:
+   - **No stepper.** The human removed it; F3's numbered buttons ("1 Edit
+     the Grid / 2 Create Hints") replace it. Epic 14 removes the old
+     `sg-stepper` sample, retiring its expectation in
+     `e2e/style-guide.spec.ts` through a story's freeze commit.
+   - **Hint skeleton** (beside the grid during the build phase, a
+     placeholder): an 18×18px dot in `fill-muted`, then a 12px gap, then a
+     1px `line-muted` hairline.
+   - **Hint Input** (builders, hint phase): the cell's number in `title-4`
+     `primary`; an input (the hairline) whose text is `body-normal`
+     `primary`; the slot's word in `label` `muted`, right-aligned below
+     the line.
+   - **Player Hint** (play): the number in `title-4` `primary` and the hint
+     in `body-normal` `primary`. While a word (complete or incomplete) is
+     selected in the grid, its hint has a `blue-medium` background.
+   - **Build grid:** the `build-cell-*` styles for the selected cell, the
+     selected word's on cells (lettered or symmetric) and its off cells;
+     the border is `build-cell-border` (gray-400).
+   - **Hint-phase grid, locked:** on cells white (`play-cell-on`), border
+     `play-cell-border` (gray-500).
+   - **Hint-phase grid, EDIT GRID:** the same colors as locked; the on
+     cells are editable, the selected cell is `build-cell-selected-cell`
+     and the selected word's cells `build-cell-selected-row-on`
+     (yellow-medium).
+   - The style guide's old hint-row and grid samples are replaced by these.
+     A play-state grid sample doesn't exist yet and comes later.
 3. **15 — Responsive layout and spacing** (not yet created). Media and
    container queries: keep the grid at full size while the hints re-flow,
    then move hints below, and only then shrink the grid. Cell letters scale
