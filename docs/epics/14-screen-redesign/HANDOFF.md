@@ -54,11 +54,12 @@ labels on the heading's baseline. The icon keeps the human's SVG's 8px
 corners. An independent subagent review approved it with no blockers; the
 record is in the story's Correction section.
 
-**S2 is implemented** on `story/14-S2-puzzle-library` in PR #26, open for
-independent review, not merged. `main` is merged into the branch to bring in
-the correction. It touches the risk path `actions.ts` (`listPuzzles`'s
-filter and `builderName`). The changed paths are the story's declared
-runtime paths. Implementation notes:
+**S2 is merged.** PR #26 (head `9441b26`) was independently reviewed and
+merged into `main` as `8fbc96a` (2026-10-25), with no blocking findings. It
+touches the risk path `actions.ts`: `listPuzzles` filters to
+`builderId = caller OR publishedAt not null` and adds `builderName`. The
+changed paths are the story's declared runtime paths, and no test file
+changed since the freeze. Implementation notes:
 
 - `CrosswordIcon` draws the human's exported SVG, with `primary`/`inverse`
   fills and a per-instance clip id.
@@ -67,23 +68,24 @@ runtime paths. Implementation notes:
 - The row's Delete and Reset share `ROW_CONTROL` in `library-row.ts`.
 - The style-guide Puzzle Row samples are drawn at 679px inside a
   horizontally scrolling box, so `/style-guide` doesn't overflow at 375px.
+  Their Delete calls the real `deletePuzzle` with a sample id, so confirming
+  it there shows the failure line (non-blocking review note).
 
 ## Verification
 
-The author's runs on the PR head's code (the handoff commit changes only
-this file):
+The reviewer's runs on PR head `9441b26`:
 
 - `npm run verify`: exit 0 (44 files, 602 Vitest tests; one pre-existing
   lint warning in `request-logger/render.ts`).
 - `npm run test:e2e` (full suite, standing reset grant in
   [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)): exit 0, 539 passed.
-- Frozen acceptance: no test file changes since `4dc7886`.
+- CI: Vercel and Vercel Preview Comments passed; there are no other checks.
 
 ## Next action
 
-Independent review of PR #26 per [REVIEW](../../process/REVIEW.md),
-then merge if no blockers remain.
+Write the S3 specification (the [EPIC](EPIC.md)'s "S3 — New-puzzle dialog"
+section) per [STORY](../../process/STORY.md), for the human's approval.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S2-puzzle-library.md. Review PR #26 on story/14-S2-puzzle-library per docs/process/REVIEW.md; merge only if no blockers remain and the required checks pass.
+Read docs/epics/14-screen-redesign/HANDOFF.md and the S3 section of docs/epics/14-screen-redesign/EPIC.md. Write the S3 story specification on main; stop for the human's approval before freezing or implementing.
