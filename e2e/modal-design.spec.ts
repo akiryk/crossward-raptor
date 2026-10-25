@@ -3,7 +3,6 @@ import type { Locator, Page } from '@playwright/test';
 import { createGrid, withLetter } from '../src/engine/grid';
 import type { Grid } from '../src/engine/grid';
 import { deserializeGrid, type SerializedGrid } from '../src/lib/puzzle-storage';
-import { signInDisplayNameUser } from './helpers/display-name';
 import { currentBuilderId } from './helpers/ownership';
 import { seedPlayPuzzle, seedPlaySession } from './helpers/play-route';
 import { seedPuzzle } from './helpers/seed-puzzle';
@@ -420,26 +419,6 @@ test.describe('F4-5 footer', () => {
     await page.getByTestId('play-reset-button').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
     await expectFooter(page, page.getByTestId('play-reset-confirm'), page.getByTestId('play-reset-cancel'), 'play reset');
-  });
-
-  test.describe('builder name', () => {
-    test.use({ storageState: { cookies: [], origins: [] } });
-
-    test("the builder-name dialog's buttons are in its footer, and Enter still saves", async ({ page }) => {
-      await signInDisplayNameUser(page);
-      await openNewPuzzleDialog(page);
-      await expect(page.getByTestId('display-name-step')).toBeVisible();
-      await page.getByTestId('display-name-input').fill('F4 builder');
-      await expectFooter(
-        page,
-        page.getByTestId('display-name-save'),
-        page.getByTestId('display-name-cancel'),
-        'builder name'
-      );
-      await page.getByTestId('display-name-input').press('Enter');
-      await expect(page.getByTestId('display-name-step')).toHaveCount(0);
-      await expect(page.getByTestId('new-puzzle-name')).toBeFocused();
-    });
   });
 });
 

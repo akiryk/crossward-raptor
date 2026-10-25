@@ -2,7 +2,9 @@
 
 **Status: approved by the human 2026-10-25** (drafted 2026-10-24; the
 pending questions were answered the same day as approval). Stories are
-drafted and approved one at a time.
+drafted and approved one at a time. **Amended 2026-10-25** *(human)*: the
+username moves into S1 (see [Username at sign-in](#username-at-sign-in-human-2026-10-25)),
+replacing the separate username epic and the builder-name dialog.
 
 The second of the four redesign epics outlined in the
 [Design system EPIC](../13-design-system/EPIC.md#the-redesign-programme).
@@ -18,10 +20,10 @@ tokens.
 
 Screens, in story order:
 
-1. **Sign-in** (`/`).
+1. **Sign-in and username** (`/`).
 2. **Puzzle library** (`/puzzles`): the Build/Play radio choice, Row
    Heading and Puzzle Row.
-3. **New-puzzle and display-name dialogs.**
+3. **New-puzzle dialog.**
 4. **Builder controls**: numbered buttons in place of the stepper, the
    Preview toggle, the title, Edit grid, clear letters and delete (moved
    into a dialog), publishing.
@@ -64,8 +66,8 @@ implementation diff.
 **Behavior is kept unless a story says otherwise.** This epic changes how
 screens look and where controls sit. Saving, publishing, play persistence,
 ownership checks and the grid engine keep their behavior. Each departure
-(the stepper's removal, delete in a dialog, Build/Play) is named in its
-story.
+(the username at sign-in, the stepper's removal, delete in a dialog,
+Build/Play) is named in its story.
 
 **No stepper** *(human)*. F3's numbered buttons ("1 Edit the Grid /
 2 Create Hints") replace it. The `Stepper` component, `src/lib/stepper.ts`
@@ -124,6 +126,18 @@ background.
 The style guide's old hint-row and grid samples are replaced by these. Its
 play-state grid sample is added by the play story.
 
+### Username at sign-in *(human, 2026-10-25)*
+
+Sign-in asks for a username and an email every time; neither the app nor
+the form can know beforehand whether the email has an account. The first
+username an account gets is kept: a later sign-in with a different one is
+quietly ignored. Usernames aren't unique and follow today's builder-name
+rules (not blank once trimmed, at most 80 characters). The browser
+pre-fills the username it last sent successfully. The username replaces
+the builder name, so the builder-name dialog before a first puzzle is
+removed. This supersedes the "Username at sign-in" epic outlined in the
+Design system EPIC, which won't be created.
+
 **Old tokens are deleted last** *(human)*. The final story deletes every
 pre-redesign token, `--font-display` and the old radii, and reports any
 old token still in use with no replacement rather than inventing one.
@@ -156,8 +170,8 @@ whose screen it's on; the story either fixes it or says why not.
 
 - **No responsive or spacing work** (epic 15), including scaling cell
   letters and numbers.
-- **No account or sign-in behavior change** (the username epic). Sign-in
-  is restyled only; it still asks for email alone.
+- **No account change beyond the username** (S1). Sign-in stays a magic
+  link; no passwords or account pages.
 - **No grid-engine change.** `src/engine/**` is untouched.
 - **No new puzzle, publishing or play behavior** beyond the named control
   moves (stepper, delete dialog, Build/Play's list filter).
@@ -175,11 +189,15 @@ Order as listed. Story files are `stories/14-S<n>-<slug>.md`. Each takes
 exact values from the human where given and the mockups otherwise, and
 lists the frozen tests it supersedes.
 
-### S1 — Sign-in
+### S1 — Sign-in and username
 
-Restyle sign-in with Title, the large Input and the large Button ("Send
-Sign-in Link"), on the new tokens. Fixes the button sitting against the
-email line. Same behavior and sent-link message.
+Redesigns sign-in from the human's mockups: the "Build a puzzle. Or play
+a puzzle. Log in to start." Title, username and email Inputs with
+validation, the large "Send Sign-in Link" Button, and new sent and
+failure messages. Adds the username per its Decision and removes the
+builder-name dialog. Fixes the button sitting against the email line.
+Touches `src/app/puzzles/actions.ts`, so it's a reviewed story on a
+branch.
 
 ### S2 — Puzzle library
 
@@ -189,10 +207,11 @@ keyboard focus). The row keeps its thumbnail, title, dates, status and play
 controls, restyled. Build/Play filters the list client-side per its
 Decision.
 
-### S3 — New-puzzle and display-name dialogs
+### S3 — New-puzzle dialog
 
 The new-puzzle modal (name Input with its label, the size Radio already
-adopted in F6) and the display-name dialog, laid out from the mockups.
+adopted in F6), laid out from the mockups. (The display-name dialog is
+removed by S1.)
 
 ### S4 — Builder controls
 

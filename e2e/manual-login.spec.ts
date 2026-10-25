@@ -23,6 +23,7 @@ test.describe('A6 — usable sign-in submission', () => {
           requests.push(request.postData() ?? '');
         }
       });
+      await page.getByTestId('sign-in-username').fill('Tester');
       await page.getByTestId('sign-in-email').fill(email);
 
       if (mode === 'email Enter') await page.getByTestId('sign-in-email').press('Enter');
@@ -64,6 +65,7 @@ test.describe('A6 — usable sign-in submission', () => {
       });
     });
     const email = uniqueEmail('retry');
+    await page.getByTestId('sign-in-username').fill('Tester');
     await page.getByTestId('sign-in-email').fill(email);
     await page.getByTestId('sign-in-submit').click();
 

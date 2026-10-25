@@ -95,13 +95,10 @@ describe('F5 Input source', () => {
   it('sign-in is large and the two dialogs pass their names as labels', () => {
     const signIn = textInputTags(withoutComments(source('components/auth/SignInForm.tsx')));
     const newPuzzle = textInputTags(withoutComments(source('components/puzzle/NewPuzzleDialog.tsx')));
-    const builderName = textInputTags(withoutComments(source('components/puzzle/DisplayNameDialog.tsx')));
 
-    expect(signIn).toHaveLength(1);
-    expect(signIn[0]).toMatch(/\bsize="large"/);
+    expect(signIn).toHaveLength(2);
+    for (const tag of signIn) expect(tag).toMatch(/\bsize="large"/);
     expect(newPuzzle).toHaveLength(1);
     expect(newPuzzle[0]).toMatch(/\blabel="Puzzle name"/);
-    expect(builderName).toHaveLength(1);
-    expect(builderName[0]).toMatch(/\blabel="Builder name"/);
   });
 });

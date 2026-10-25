@@ -32,8 +32,8 @@ session recorded it and applied the dispositions in a docs-only commit
 No runtime or test file changed.
 
 Epic 14 (screen redesign) has since been drafted (see Next action).
-Epic 15 (responsive layout) and the username epic are outlined in the EPIC
-but not created. Nothing authorizes creating them.
+Epic 15 (responsive layout) is outlined in the EPIC but not created. The
+username epic was folded into epic 14's S1 (human, 2026-10-25). Nothing authorizes creating them.
 
 ## Verification
 

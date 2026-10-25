@@ -48,6 +48,7 @@ test.describe('A2 — the front door', () => {
     await page.goto('/');
     await waitForFrontDoorReady(page);
 
+    await page.getByTestId('sign-in-username').fill('Tester');
     await page.getByTestId('sign-in-email').fill(email);
     await page.getByTestId('sign-in-submit').click();
 

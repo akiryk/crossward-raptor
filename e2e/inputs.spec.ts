@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import { createGrid, withLetter } from '../src/engine/grid';
 import type { Grid } from '../src/engine/grid';
-import { signInDisplayNameUser } from './helpers/display-name';
 import { seedPuzzle } from './helpers/seed-puzzle';
 import { openSignedOutFrontDoor } from './helpers/sign-in-ui';
 import { waitForEditorReady, waitForNewPuzzleReady } from './helpers/wait-for-ready';
@@ -326,21 +325,6 @@ test.describe('F5-6 call sites', () => {
       await expectTextStyle(page, email, 'body-large', 18, 400, 'sign-in email');
       await expectUnderline(page, email, 'line-muted', 'sign-in email');
       await expect(email).toHaveAttribute('placeholder', /\S/);
-    });
-
-    test('the builder-name field carries its name as a title-4 label above it', async ({ page }) => {
-      await signInDisplayNameUser(page);
-      await page.goto('/puzzles');
-      await waitForNewPuzzleReady(page);
-      await page.getByTestId('new-puzzle-button').click();
-      const input = page.getByTestId('display-name-input');
-      const label = page.getByTestId('display-name-input-label');
-      await expect(label).toHaveText('Builder name');
-      await expectTextStyle(page, label, 'title-4', 14, 600, 'builder-name label');
-      expect((await box(label)).y).toBeLessThan((await box(input)).y);
-      await expect(page.getByRole('textbox', { name: 'Builder name', exact: true })).toBeFocused();
-      await expectTextStyle(page, input, 'body-normal', 14, 400, 'builder-name field');
-      await expectUnderline(page, input, 'line-highlight', 'builder-name focused');
     });
   });
 
