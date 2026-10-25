@@ -31,9 +31,9 @@ session recorded it and applied the dispositions in a docs-only commit
 
 No runtime or test file changed.
 
-Epics 14 (screen redesign), 15 (responsive layout) and the username epic
-are outlined in the EPIC but not created. Nothing authorizes creating them;
-this closeout did not start them.
+Epic 14 (screen redesign) has since been drafted (see Next action).
+Epic 15 (responsive layout) and the username epic are outlined in the EPIC
+but not created. Nothing authorizes creating them.
 
 ## Verification
 
@@ -45,11 +45,10 @@ run is F7's 505/505 on its implementation tree. The auditor ran its own
 
 ## Next action
 
-Work continues in epic 14, Screen redesign. The next job is drafting its
-`EPIC.md` from the epic 14 entry in this epic's EPIC, with the carried
-observations, for the human's approval. Don't draft its stories until the
-EPIC is approved.
+Work continues in epic 14, Screen redesign. Its EPIC was approved
+2026-10-25; its [handoff](../14-screen-redesign/HANDOFF.md)
+is the resume point.
 
 ## Resume prompt
 
-Read docs/epics/13-design-system/HANDOFF.md and the epic 14 entry in docs/epics/13-design-system/EPIC.md. Draft the Screen redesign epic (14) EPIC.md and HANDOFF.md for human approval; do not draft its stories or start epic 15.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/EPIC.md. Record the human's approval of and answers to the Screen redesign EPIC, commit it on main, then draft story S1 (Sign-in, the EPIC's S1 section) for approval; do not freeze or implement it.

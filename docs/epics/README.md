@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, approved
+  2026-10-25)
 - [Design system](13-design-system/HANDOFF.md) (closed 2026-10-24; first of
   the redesign epics, which continue with epic 14, outlined there)
 - [Play](11-play/HANDOFF.md) (closed 2026-10-20; open follow-ups listed there)
