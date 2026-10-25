@@ -280,13 +280,17 @@ export async function listPuzzles(): Promise<
     black: boolean[][];
     /** The caller's own attempt; null for unpublished puzzles. */
     play: LibraryPlay | null;
+    /** The builder's trimmed username, or null when blank. */
+    builderName: string | null;
   }[]
 > {
   const authSession = await requireSession();
   // The caller's attempt comes from the same query, so the snapshot is atomic.
   const records = await prisma.puzzle.findMany({
+    where: { OR: [{ builderId: authSession.user.id }, { publishedAt: { not: null } }] },
     orderBy: { updatedAt: 'desc' },
     select: {
+      builder: { select: { displayName: true } },
       id: true,
       builderId: true,
       title: true,
@@ -326,6 +330,7 @@ export async function listPuzzles(): Promise<
       play: record.publishedAt === null
         ? null
         : classifyLibraryPlay(grid, record.playSessions[0] ?? null),
+      builderName: record.builder?.displayName?.trim() || null,
     };
   });
 }

@@ -30,6 +30,7 @@ export function Title({
   color = 'primary',
   as,
   id,
+  tabIndex,
   'data-testid': testId,
   children,
 }: {
@@ -37,12 +38,13 @@ export function Title({
   color?: TitleColor;
   as?: HeadingTag;
   id?: string;
+  tabIndex?: number;
   'data-testid'?: string;
   children: ReactNode;
 }) {
   const Tag = as ?? (`h${size}` as HeadingTag);
   return (
-    <Tag id={id} data-testid={testId} className={`${SIZES[size]} ${COLORS[color]}`}>
+    <Tag id={id} tabIndex={tabIndex} data-testid={testId} className={`${SIZES[size]} ${COLORS[color]}`}>
       {children}
     </Tag>
   );

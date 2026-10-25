@@ -14,6 +14,36 @@ import { Title } from '@/components/ui/Title';
 import type { TitleColor } from '@/components/ui/Title';
 import { Logo } from '@/components/ui/Logo';
 import { Masthead, MastheadAction } from '@/components/layout/Masthead';
+import { PuzzleRow, type LibraryPuzzle } from '@/components/puzzle/PuzzleRow';
+import { RowHeading } from '@/components/puzzle/RowHeading';
+
+const SAMPLE_ROW: LibraryPuzzle = {
+  id: 'sg-sample',
+  builderId: 'sg-builder',
+  builderName: 'crossworder',
+  title: 'Sample puzzle',
+  phase: 'grid',
+  hintsComplete: false,
+  updatedAt: '2026-10-21T12:00:00.000Z',
+  updatedLabel: 'October 21, 2026',
+  publishedAt: null,
+  visibility: 'private',
+  cols: 5,
+  rows: 5,
+  statusKind: 'grid',
+  play: null,
+};
+
+const SAMPLE_COMPLETE_ROW: LibraryPuzzle = {
+  ...SAMPLE_ROW,
+  id: 'sg-sample-complete',
+  phase: 'hints',
+  hintsComplete: true,
+  publishedAt: '2026-10-21T12:00:00.000Z',
+  visibility: 'public',
+  statusKind: 'published',
+  play: { state: 'completed', sessionId: 'sg-session' },
+};
 
 const TITLE_COLORS: TitleColor[] = ['primary', 'muted', 'link-muted', 'highlight', 'error', 'subtle', 'inverse'];
 
@@ -232,6 +262,22 @@ export default function StyleGuidePage() {
           </div>
           <div data-testid="sg-masthead-signed-in">
             <Masthead action={<MastheadAction data-testid="sg-masthead-sign-out">Sign out</MastheadAction>} />
+          </div>
+        </section>
+
+        <section data-testid="sg-row-heading">
+          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">Row Heading</h2>
+          <RowHeading label="Mini" dimensions="5 × 5" />
+        </section>
+
+        <section data-testid="sg-puzzle-row">
+          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">Puzzle Row</h2>
+          {/* Rows are drawn at the library's 679px content width. */}
+          <div className="overflow-x-auto">
+            <ul className="flex w-[679px] flex-col gap-1">
+              <PuzzleRow puzzle={SAMPLE_ROW} view="build" onDeleted={() => {}} />
+              <PuzzleRow puzzle={SAMPLE_COMPLETE_ROW} view="play" onDeleted={() => {}} />
+            </ul>
           </div>
         </section>
 
