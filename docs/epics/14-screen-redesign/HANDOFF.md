@@ -34,11 +34,12 @@ while the stored value is blank. The reviewer checked this against
 better-auth 1.7.5: tokens are stored plain by default, and the context a
 before hook returns is merged onto the endpoint context.
 
-**Open for the human** (not blocking, outside S1's scope): the mockup's
-heading lines are about 61px apart, while the `title-1` token gives 52px.
-That's a Design system token. Following the mockup, the pro-tip sits 16px
-below the sent line and the failure alert's two lines have the same 16px
-gap. The story sets neither gap.
+**Heading line height settled** by the human (2026-10-25): the mockup's
+Figma value is 54, so `--text-title-1--line-height` is now 54px
+(`3.375rem`, was 52px), committed on `main`. Only the sign-in heading and the
+style guide sample use `title-1`. Following the mockup, the pro-tip sits
+16px below the sent line and the failure alert's two lines have the same
+16px gap. The story sets neither gap.
 
 **S2 has no story yet.**
 
@@ -56,6 +57,9 @@ The reviewer's runs on head `42da1bc`, the merged tree:
 - CI: Vercel and Vercel Preview Comments passed. They don't run the test
   gates.
 - Frozen acceptance: no test file changes in `a225e88..42da1bc`.
+- After the `title-1` change on `main`: `npm run verify` exited 0, and
+  `sign-in`, `text-styles`, `typography`, `masthead` and the style-guide
+  specs passed, 63 of 63. The full browser suite wasn't rerun.
 
 ## Next action
 
