@@ -37,7 +37,7 @@ export function NewPuzzleButton() {
   return (
     <div ref={triggerRef} data-testid="new-puzzle" data-ready={isReady}>
       <Button data-testid="new-puzzle-button" onClick={() => setOpen(true)} disabled={pending}>
-        New Puzzle
+        Create A Puzzle
       </Button>
       {open && <NewPuzzleDialog onCancel={handleCancel} onCreate={handleCreate} />}
     </div>
