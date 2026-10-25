@@ -14,9 +14,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // 90px under it, at most 700px wide and centered, at least 630px tall, with
 // a 1px `line-muted` hairline down its left edge. The content runs from 20px
 // right of the hairline to the container's right edge. The `title-2` h1
-// "Puzzles" sits 10px inside the content's top-left, the Build/Play `nav`
-// Radio 10px inside its right edge, centered on the heading, and a 1px
-// `line-dark` rule spans the content 8px below the heading.
+// "Puzzles" sits on the content's left edge, 10px below its top, the
+// Build/Play `nav` Radio on its right edge, its labels on the heading's
+// baseline, and a 1px `line-dark` rule spans the content 8px below the
+// heading.
 //
 // Build lists the caller's own puzzles in every phase; Play lists every
 // published puzzle. Only the chosen view is rendered. The choice is kept in
@@ -340,7 +341,7 @@ test.describe('14-S2-1 layout', () => {
     expectColor(border.leftColor, await token(page, 'line-muted'), 'hairline');
   });
 
-  test('the title-2 h1 sits 10px inside the content, the nav Radio 10px from its right edge on the heading, and a 1px line-dark rule 8px below', async ({ page }) => {
+  test('the title-2 h1 sits on the content edge, the nav Radio on its right edge on the heading\'s baseline, and a 1px line-dark rule 8px below', async ({ page }) => {
     await freshBuilder(page);
     await openLibrary(page);
     const { container, contentLeft, contentRight } = await frame(page);
@@ -352,7 +353,7 @@ test.describe('14-S2-1 layout', () => {
     await expectTextStyle(page, heading, 'title-2', 'heading');
     await expectTextColor(page, heading, 'primary', 'heading');
     const h = await box(heading);
-    expect(h.x, 'heading left').toBeCloseTo(contentLeft + 10, 0);
+    expect(h.x, 'heading left').toBeCloseTo(contentLeft, 0);
     expect(h.y, 'heading top').toBeCloseTo(container.y + 10, 0);
 
     const choice = page.getByTestId('library-view');
@@ -361,8 +362,13 @@ test.describe('14-S2-1 layout', () => {
     expect(await choice.getByRole('radio').evaluateAll((inputs) => inputs.map((i) => (i as HTMLInputElement).labels?.[0]?.textContent?.trim())))
       .toEqual(['Build', 'Play']);
     const r = await box(choice);
-    expect(r.x + r.width, 'Radio right edge').toBeCloseTo(contentRight - 10, 0);
-    expect(r.y + r.height / 2, 'Radio centered on the heading').toBeCloseTo(h.y + h.height / 2, 0);
+    expect(r.x + r.width, 'Radio right edge').toBeCloseTo(contentRight, 0);
+    const headingBaseline = await baseline(heading);
+    const labels = choice.locator('[data-radio-label]');
+    await expect(labels).toHaveCount(2);
+    for (const i of [0, 1]) {
+      expect(await baseline(labels.nth(i)), `Radio label ${i} on the heading's baseline`).toBeCloseTo(headingBaseline, 0);
+    }
 
     const rule = page.getByTestId('puzzle-list-rule');
     const line = await box(rule);

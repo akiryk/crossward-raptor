@@ -59,11 +59,13 @@ styles (the heading reads as `title-2`, row titles as `title-4`).
   S1's values are kept, so both pages share one content edge.
 - **Header** (`puzzle-list-header`):
   - "Puzzles" is the page's `h1`, `title-2` `primary` via `Title`, test id
-    `page-heading` (kept). It starts 10px inside the content edge and 10px
-    below the container's top. `Title` gains an optional `tabIndex` prop
+    `page-heading` (kept). It starts on the content edge, flush with the
+    rows and Create A Puzzle, and 10px below the container's top
+    *(human correction)*. `Title` gains an optional `tabIndex` prop
     for the heading's `tabindex="-1"` *(drafting)*.
-  - The Radio sits at the right, its right edge 10px inside the content's
-    right edge, vertically centered on the heading.
+  - The Radio sits at the right, its right edge on the content's right
+    edge, flush with the rows. Its labels share the heading's baseline
+    *(human correction)*.
   - A 1px `line-dark` rule spans the full content width, 8px below the
     heading (test id `puzzle-list-rule`, *drafting*).
 - **Groups:** inside `puzzle-list` (kept, always rendered, holding the
@@ -101,12 +103,14 @@ styles (the heading reads as `title-2`, row titles as `title-4`).
     has today.
 - **Icon** *(human: "just one icon for now")*. A fixed crossword icon, the
   same on every row in both views (test id `puzzle-icon`, decorative):
-  - 34×34px, with 5px corners, a 1px `primary` outline and 1px `primary`
+  - drawn from the human's exported SVG *(human)*: 34×34px, with 8px
+    corners, a 1px `primary` outline and 1px `primary`
     lines dividing it into 3×3 cells;
   - `primary` cells at (col 1, row 0), (col 0, row 1) and (col 2, row 2),
     the rest white.
   - It sits 10px inside the row's left edge, vertically centered.
-  - 5px corners is a new recorded exception to the 10px rule, as drawn.
+  - 8px corners is a new recorded exception to the 10px rule, as drawn
+    *(human correction)*.
   - It replaces the per-puzzle `GridThumbnail`, which is removed.
 - **Text block**, 12px right of the icon and vertically centered:
   - Line 1, `title-4` `primary`: the title (`puzzle-list-title`, kept,
@@ -317,11 +321,11 @@ which only visit `/puzzles`.
 1. **14-S2-1 layout**
    - The container, as S1: 90px below `app-header`, 700px, centered, at
      least 630px, only a 1px solid `line-muted` left border.
-   - One `h1` in the library, "Puzzles", `title-2` `primary`, at content
-     edge + 10px and container top + 10px.
+   - One `h1` in the library, "Puzzles", `title-2` `primary`, on the
+     content edge and at container top + 10px.
    - `library-view` is the radiogroup named "Show puzzles", `nav` variant,
-     options Build then Play. Its right edge is the content's right edge −
-     10px, its center on the heading's.
+     options Build then Play. Its right edge is the content's right edge;
+     both labels' baselines are the heading's.
    - `puzzle-list-rule`: 8px below the heading, the content's full width,
      1px, `line-dark` (a background or a top border).
    - With two Mini rows and one Other-size row: 20px rule to first Row
@@ -399,7 +403,7 @@ which only visit `/puzzles`.
 - `page.tsx`, `PuzzleLibrary`, `PuzzleRow`, `RowHeading`, `CrosswordIcon`,
   `LibraryDeleteDialog` and `LibraryPlayControls` use only the redesign
   tokens: S1's checks, except that radii are free apart from the old
-  `rounded-btn/sm/md/lg/grid` tokens (rows use 10px, the icon 5px).
+  `rounded-btn/sm/md/lg/grid` tokens (rows use 10px, the icon 8px).
 - Exactly one `<Title size={2}>` among them.
 - `GridThumbnail.tsx` is gone and no source names it.
 - Play's empty line, "No puzzles to play yet.", is in their source. The
@@ -452,6 +456,28 @@ A server action can't be checked over HTTP, so these cover the server:
 - The worktree matches its starting state plus the proposed tests. `tsc`
   and ESLint pass on them. `npm run verify` fails until implementation, by
   design.
+
+### Correction (2026-10-25, human)
+
+After the visual check against the mockups, the human asked for three
+changes. "Puzzles" was not flush with the content: it now sits on the
+content edge. The Build/Play labels sat too high: they now share the
+heading's baseline, and the Radio sits on the content's right edge. The
+icon's corners follow the human's exported SVG at 8px. The 5px came from
+drafting, not from the human.
+
+- Amended: 14-S2-1 "the title-2 h1 sits 10px inside the content, the nav
+  Radio 10px from its right edge on the heading …", now "the title-2 h1
+  sits on the content edge, the nav Radio on its right edge on the
+  heading's baseline …" (heading left, Radio right edge, and baseline
+  instead of center). Row Headings stay
+  at content edge + 10px.
+- The icon test doesn't pin the radius and is unchanged. The source test is
+  unchanged.
+- Approved by the human. An independent subagent review approved it with
+  no blockers. The corrected case failed on PR #26's head (heading left
+  321, expected 311). A throwaway `items-baseline` header still failed, its
+  labels 3px high; `items-baseline-last` passed.
 
 ## EPIC amendment
 
