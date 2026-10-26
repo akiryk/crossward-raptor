@@ -4,6 +4,8 @@ import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { PuzzleGrid } from '../grid/PuzzleGrid';
+import { HintSkeleton } from '../grid/HintSkeleton';
+import { PreviewLegend } from '../grid/PreviewLegend';
 
 // A 10x10 with two crossing words (row 2 across, col 3 down, sharing (3,2)).
 // The cursor sits mid-run in the down slot so that slot spans both lettered
@@ -81,6 +83,16 @@ export function GridExamples() {
         </h2>
         <div className="max-w-sm">
           <PuzzleGrid grid={grid} mode="preview" />
+          <PreviewLegend grid={grid} />
+        </div>
+      </section>
+
+      <section data-testid="sg-hint-skeleton">
+        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          Hint skeleton (build phase, wide screens)
+        </h2>
+        <div className="flex">
+          <HintSkeleton grid={grid} />
         </div>
       </section>
 

@@ -12,7 +12,6 @@ import {
   toggleOrientation,
 } from "../../engine/cursor";
 import type { Phase } from "../../engine/puzzle";
-import { applyGeometryEdit } from "../../engine/phase";
 import { hintsComplete } from "../../engine/hints";
 import {
   deserializeGrid,
@@ -33,6 +32,8 @@ import {
 import type { Visibility } from "../../app/puzzles/actions";
 import { PuzzleGrid } from "./PuzzleGrid";
 import { HintsPanel } from "./HintsPanel";
+import { HintSkeleton } from "./HintSkeleton";
+import { PreviewLegend } from "./PreviewLegend";
 import { PreviewToggle } from "./PreviewToggle";
 import { EnterHintsDialog } from "./EnterHintsDialog";
 import { BuilderSteps, PublishedState, type BuilderStepId } from "./BuilderSteps";
@@ -41,12 +42,14 @@ import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 
 const SAVE_DEBOUNCE_MS = 500;
-const LOCKED_MESSAGE_MS = 2000;
 // Space reserved above editor-layout for the title, phase line, and
 // editor-actions row (now including the stepper, Story D5b), so the
 // height-based term of the grid's min() sizing (Story D5a) doesn't push
 // its bottom edge past the viewport.
 const VERTICAL_ALLOWANCE_PX = 300;
+// Every grid size fits within this width at most (14-S5): a 15×15's 36px
+// cells, 1px lines shared, are 15 × 35 + 1.
+const GRID_MAX_PX = 526;
 
 interface EditorState {
   grid: Grid;
@@ -54,7 +57,6 @@ interface EditorState {
   phase: Phase;
   hints: Record<string, string>;
   title: string;
-  geometryLocked: boolean;
   publishedAt: Date | null;
   visibility: Visibility;
 }
@@ -95,7 +97,6 @@ export function PuzzleGridEditor({
       phase: initialPhase,
       hints: initialHints,
       title: initialTitle,
-      geometryLocked: false,
       publishedAt: initialPublishedAt,
       visibility: initialVisibility,
     };
@@ -187,14 +188,6 @@ export function PuzzleGridEditor({
   }, [state.title, puzzleId]);
 
   useEffect(() => {
-    if (!state.geometryLocked) return;
-    const timer = setTimeout(() => {
-      setState((prev) => ({ ...prev, geometryLocked: false }));
-    }, LOCKED_MESSAGE_MS);
-    return () => clearTimeout(timer);
-  }, [state.geometryLocked]);
-
-  useEffect(() => {
     // Focusing the grid here (rather than leaving it unfocused until a
     // click) keeps the pre-existing "type immediately after load, no click
     // needed" behavior -- the effect that used to attach a global keydown
@@ -240,20 +233,7 @@ export function PuzzleGridEditor({
           cursor: arrowKey(prev.grid, prev.cursor, intent.direction),
         };
       }
-      if (intent.type === "toggleOrientation") {
-        return { ...prev, cursor: toggleOrientation(prev.cursor) };
-      }
-
-      const coord = prev.cursor.current;
-      const isBlack = prev.grid.at(coord.col, coord.row).kind === "black";
-      const result = applyGeometryEdit(
-        { grid: prev.grid, hints: {}, phase: prev.phase },
-        coord,
-        !isBlack,
-      );
-      return result.ok
-        ? { ...prev, grid: result.puzzle.grid, geometryLocked: false }
-        : { ...prev, geometryLocked: true };
+      return { ...prev, cursor: toggleOrientation(prev.cursor) };
     });
   }
 
@@ -388,7 +368,6 @@ export function PuzzleGridEditor({
     phase,
     hints,
     title,
-    geometryLocked,
     publishedAt,
   } = state;
   const isPublished = publishedAt !== null;
@@ -462,39 +441,37 @@ export function PuzzleGridEditor({
           />
         )}
       </div>
-      {geometryLocked && (
-        <p
-          data-testid="geometry-locked-message"
-          className="text-help text-ink-2"
-        >
-          Geometry is locked in hints phase
-        </p>
-      )}
       <div
         data-testid="editor-layout"
-        className="flex flex-col gap-6 lg:flex-row lg:items-start"
+        className={`flex flex-col gap-6 lg:flex-row lg:items-start ${phase === "grid" ? "lg:gap-[72px]" : ""}`}
         onFocus={handleEditorFocus}
         onBlur={handleEditorBlur}
       >
         <div
-          ref={gridRegionRef}
-          data-testid="grid-region"
-          tabIndex={0}
-          onKeyDown={handleGridKeyDown}
-          className="max-w-full outline-none lg:max-w-[45%]"
+          className="max-w-full lg:max-w-[45%]"
           style={{
-            width: `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${gridRatio}), 640px)`,
+            width: `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${gridRatio}), ${GRID_MAX_PX}px)`,
           }}
         >
-          <PuzzleGrid
-            grid={grid}
-            highlights={highlights}
-            mode={isPreviewing ? "preview" : "build"}
-            isHintsPhase={phase === "hints"}
-            isEditingGrid={isEditingGrid}
-            onCellClick={handleCellClick}
-          />
+          <div
+            ref={gridRegionRef}
+            data-testid="grid-region"
+            tabIndex={0}
+            onKeyDown={handleGridKeyDown}
+            className="w-full outline-none"
+          >
+            <PuzzleGrid
+              grid={grid}
+              highlights={highlights}
+              mode={isPreviewing ? "preview" : "build"}
+              isHintsPhase={phase === "hints"}
+              isEditingGrid={isEditingGrid}
+              onCellClick={handleCellClick}
+            />
+          </div>
+          {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
         </div>
+        {phase === "grid" && <HintSkeleton grid={grid} />}
         {phase === "hints" && (
           <div
             data-testid="hints-region"

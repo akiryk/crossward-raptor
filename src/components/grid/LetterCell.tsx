@@ -11,7 +11,8 @@ export function LetterCell({
 }) {
   return (
     <div
-      className="relative flex h-full w-full items-center justify-center font-data"
+      className="text-cell-letter relative flex h-full w-full items-center justify-center uppercase"
+      style={{ fontSize: 'var(--cell-letter-size)', lineHeight: 1 }}
       onClick={onClick}
     >
       {number !== undefined && <CellNumber number={number} />}

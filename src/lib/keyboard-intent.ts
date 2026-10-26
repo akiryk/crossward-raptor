@@ -4,7 +4,6 @@ export type Intent =
   | { type: 'letter'; letter: string }
   | { type: 'delete' }
   | { type: 'arrow'; direction: ArrowDirection }
-  | { type: 'toggleBlack' }
   | { type: 'toggleOrientation' };
 
 const ARROW_DIRECTIONS: Record<string, ArrowDirection> = {
@@ -22,9 +21,6 @@ export function keyToIntent(key: string): Intent | null {
   }
   if (key === 'Backspace') {
     return { type: 'delete' };
-  }
-  if (key === '.') {
-    return { type: 'toggleBlack' };
   }
   if (key === ' ') {
     return { type: 'toggleOrientation' };

@@ -212,7 +212,7 @@ export function PlayPuzzle({
     if (!editable || !isFocused || !cursor || event.ctrlKey || event.metaKey || event.altKey
       || event.nativeEvent.isComposing) return;
     const intent = keyToIntent(event.key);
-    if (!intent || intent.type === 'toggleBlack') return;
+    if (!intent) return;
     event.preventDefault();
     if (intent.type === 'letter' || intent.type === 'delete') {
       const result = intent.type === 'letter'

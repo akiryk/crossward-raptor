@@ -19,7 +19,7 @@
   --palette-yellow-bright: #fcff4d;
   --palette-yellow-medium: #feffb0;
   --palette-yellow-dull: #e6e6d1;
-  --palette-cell-warning: #c9772e;
+  --palette-cell-warning: #ceb55a;
   --palette-cell-error: #ff251a;
   --palette-text-error: #e2655f;
   --palette-blue-bright: #4bc0ff;
@@ -42,6 +42,7 @@
   --color-preview-cell-off: var(--palette-gray-700);
   --color-preview-cell-warning: var(--palette-cell-warning);
   --color-preview-cell-error: var(--palette-cell-error);
+  --color-preview-cell-border: var(--palette-gray-500);
   --color-play-cell-on: var(--palette-white);
   --color-play-cell-off: var(--palette-gray-700);
   --color-play-cell-border: var(--palette-gray-500);
