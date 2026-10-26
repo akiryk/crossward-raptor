@@ -46,7 +46,8 @@ Decisions, which still hold.
 
 **Epic 13's Decisions carry over unchanged** *(human)*: start fresh rather
 than mapping old tokens to new ones; components use color styles, never
-palette variables; no doubled names; Inter only; no focus rings; 10px
+palette variables; no doubled names; Inter only; no focus rings (until
+S11, which adds a keyboard focus ring); 10px
 corners and 1px strokes, with the recorded exceptions; 150ms color
 transitions on buttons, toggles, Radio and links; layout stays
 untokenized; tests assert structural properties rather than judging the
@@ -191,7 +192,8 @@ whose screen it's on; the story either fixes it or says why not.
   generated default name (S3), and S4's publishing changes: publishing
   needs every hint, and Unpublish, Clear all letters and the builder's
   Delete are removed.
-- **No dark mode, no focus rings, no two-label toggle.**
+- **No dark mode, no two-label toggle.** No focus rings, except S11's
+  keyboard focus ring.
 - **No new shared components** beyond what a screen needs (Row Heading,
   Puzzle Row, Hint Input, Player Hint, Prominent Hint, the hint skeleton).
   Epic 13's components aren't redesigned again here; a needed change to
@@ -251,6 +253,13 @@ The enter-hints dialog becomes "You sure?" with a one-sentence body and
 "Yes, create hints" / "Keep building", and opening it turns Preview on,
 which stays on unless the builder confirms. Added at S4's visual check and
 run after S4, before S5, so it is listed out of numeric order.
+
+### S11 — Keyboard focus ring
+
+Keyboard focus on a button, a link, the Preview toggle or a Radio option
+shows `outline: 2px solid #00f0ff`; mouse focus shows none. This
+supersedes epic 13's "No focus rings". Added at S10's visual check and run
+before S5, so it is listed out of numeric order.
 
 ### S5 — Build grid and hint skeleton
 

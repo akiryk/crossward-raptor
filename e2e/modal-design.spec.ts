@@ -362,7 +362,7 @@ test.describe('F4-3 header', () => {
     expect(c.y + c.height, 'close inside the header').toBeLessThanOrEqual(h.y + h.height);
   });
 
-  test('the close control is primary and turns muted on hover and Tab focus, with no outline', async ({ page }) => {
+  test('the close control is primary and turns muted on hover and Tab focus, with the focus ring on Tab focus only', async ({ page }) => {
     await openSample(page);
     const { close } = parts(page);
     const primary = await token(page, 'primary');
@@ -384,7 +384,8 @@ test.describe('F4-3 header', () => {
     await expect(close).toBeFocused();
     const focused = await styleOf(close);
     expectColor(focused.color, muted, 'close on Tab focus');
-    expect(focused.outline, 'no focus ring').toBe('none');
+    // 14-S11: Tab focus shows the focus ring.
+    expect(focused.outline, 'focus ring').toBe('solid 2px rgb(0, 240, 255)');
   });
 });
 

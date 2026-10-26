@@ -31,6 +31,8 @@ const VARIABLES: Record<string, string> = {
   'text-error': '#E2655F',
   'blue-bright': '#4BC0FF',
   'blue-medium': '#CFEEFF',
+  // 14-S11: the keyboard focus ring.
+  cyan: '#00F0FF',
 };
 
 const STYLES: Record<string, string> = {
@@ -73,6 +75,8 @@ const STYLES: Record<string, string> = {
   logo: 'gray-400',
   'logo-cell': 'white',
   masthead: 'white',
+  // 14-S11: the keyboard focus ring.
+  'focus-ring': 'cyan',
 };
 
 const BACKDROP = 'modal-backdrop';

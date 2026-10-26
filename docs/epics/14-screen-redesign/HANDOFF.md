@@ -269,14 +269,38 @@ implementation tree (the same content as the commit):
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 559
   passed.
 
+**S10's visual check passed** (human, 2026-10-26), so S10 is done.
+
+**S11 (Keyboard focus ring) is drafting** (2026-10-26). At S10's check,
+the human asked for `outline: 2px solid #00f0ff` on keyboard focus only,
+on buttons (including the toggle) and links, and chose to include Radio
+options. This supersedes the "No focus rings" decision in epics 13 and 14.
+The [story](stories/14-S11-focus-ring.md), the EPIC amendments (here and a
+pointer in epic 13), the new `e2e/focus-ring.spec.ts` (13 cases) and the
+proposed amendments to `buttons`, `masthead`, `modal-design` and
+`color-tokens` specs and `globals-css.test.ts` are uncommitted on `main`.
+No runtime file is changed. Against `main`, 10 of the 13 fail. A throwaway
+(`/tmp/crossward-drafts/14-S11-throwaway.patch`) passes all 13. With it,
+the full `npm run test:e2e` passed 572 and `npm run verify` exited 0.
+Drafting found a latent bug in `buttons.spec.ts`'s `look()` (an in-page
+call to the spec's `parseColor`), amended with the same meaning.
+
+**S11 is approved and frozen** (2026-10-26). The human approved its
+Decisions and acceptance, including the amendments ("I read and approve
+s11"), and chose to leave its implementation for later and draft S5 next.
+Frozen on `main` in a specification-only commit: the story, the EPIC
+amendments, `e2e/focus-ring.spec.ts` and the amended specs and
+`globals-css.test.ts`. No runtime file is changed; the throwaway patch is
+still in `/tmp/crossward-drafts/`.
+
 ## Next action
 
-1. The human's visual check of S10: open a build-phase puzzle, click
-   2 Create Hints, and check the dialog's copy and that the grid is in
-   Preview; close it ("Keep building", ×, Escape or the backdrop) and
-   check Preview stays on; confirm and check the hints grid.
-2. Then S5, only once the human authorizes it.
+1. Draft S5 (Build grid and hint skeleton) with the human's values and
+   mockups; nothing is drafted yet.
+2. S11 is frozen and waiting: implement it on `main` (no risk path) when
+   the human asks, run `npm run verify` and the full `npm run test:e2e`,
+   and ask for the human's visual check.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S10-enter-hints-dialog.md. S10 is implemented on main and awaiting the human's visual check; continue only with the story the human authorizes.
+Read docs/epics/14-screen-redesign/HANDOFF.md. S11 is frozen and awaits implementation when the human asks; S5 is next to draft, using the human's values and mockups.

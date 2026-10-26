@@ -192,7 +192,9 @@ option's label is `button-active`, an unselected one's `link-muted`.
 **No focus rings.** Inputs show keyboard focus through the underline color
 change; the grid shows it through the cursor highlight. Buttons, toggles,
 puzzle rows and radio options show their hover appearance on keyboard focus
-(`:focus-visible`) only, so mouse use is unaffected.
+(`:focus-visible`) only, so mouse use is unaffected. *(Superseded in
+part by epic 14's [S11](../14-screen-redesign/stories/14-S11-focus-ring.md),
+which adds a keyboard focus ring.)*
 
 ### Typography
 
@@ -270,7 +272,7 @@ test.
 - **No responsive or spacing work** (epic 15).
 - **No account or sign-in behavior change** (the username epic).
 - **No dark mode.**
-- **No focus rings** (see Decisions).
+- **No focus rings** (see Decisions; superseded in part by epic 14's S11).
 - **No two-label toggle**; Build/Play is a radio choice.
 - **No deletion of old tokens** (epic 14's last story).
 

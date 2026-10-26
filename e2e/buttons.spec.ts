@@ -9,7 +9,7 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 //
 // One Button in four types (normal, numbered, large, alternate), each with a
 // normal, hover and selected state. Hover's look also shows on keyboard
-// focus, never as a focus ring; pressing shows the selected look. Every
+// focus (plus the focus ring, since 14-S11); pressing shows the selected look. Every
 // button is a pill with a 1px stroke and is painted only through tokens,
 // asserted by color style. A numbered button's number sits in an inverse
 // circle drawn in the button's own current color. Alternate has one active
@@ -25,6 +25,9 @@ type ButtonType = (typeof TYPES)[number];
 const FILLED: ButtonType[] = ['normal', 'numbered', 'large'];
 
 const SENTINEL = '#123456';
+
+// 14-S11: keyboard focus's ring, as `look` reports it.
+const FOCUS_RING = 'solid 2px rgb(0, 240, 255)';
 
 type Rgba = { r: number; g: number; b: number; a: number };
 
@@ -88,7 +91,8 @@ function look(locator: Locator) {
       outline:
         s.outlineStyle === 'none' || parseFloat(s.outlineWidth) === 0
           ? 'none'
-          : parseColor(s.outlineColor).a === 0
+          : // 14-S11: tested in the page, where the spec's parseColor doesn't exist.
+            /rgba\(.*,\s*0\)$|transparent/.test(s.outlineColor)
             ? 'none'
             : `${s.outlineStyle} ${s.outlineWidth} ${s.outlineColor}`,
       boxShadow: s.boxShadow,
@@ -382,7 +386,8 @@ test.describe('F3-4 hover', () => {
 
 // --- F3-5: keyboard focus ---
 test.describe('F3-5 keyboard focus', () => {
-  test('keyboard focus shows exactly the hover look, with no focus ring', async ({ page }) => {
+  // 14-S11: keyboard focus adds the focus ring to the hover look.
+  test('keyboard focus shows the hover look plus the focus ring', async ({ page }) => {
     await catalog(page);
 
     for (const type of TYPES) {
@@ -393,8 +398,7 @@ test.describe('F3-5 keyboard focus', () => {
 
       await focusByKeyboard(page, button);
       const focused = await look(button);
-      expect(focused, `${type} keyboard focus looks like hover`).toEqual(hovered);
-      expect(focused.outline, `${type} focus outline`).toBe('none');
+      expect(focused, `${type} keyboard focus looks like hover plus the ring`).toEqual({ ...hovered, outline: FOCUS_RING });
     }
   });
 
@@ -448,7 +452,8 @@ test.describe('F3-6 selected', () => {
       expect(await look(button), `${type} selected under hover`).toEqual(selected);
       await parkMouse(page);
       await focusByKeyboard(page, button);
-      expect(await look(button), `${type} selected under keyboard focus`).toEqual(selected);
+      // 14-S11: plus the focus ring.
+      expect(await look(button), `${type} selected under keyboard focus`).toEqual({ ...selected, outline: FOCUS_RING });
     }
   });
 
