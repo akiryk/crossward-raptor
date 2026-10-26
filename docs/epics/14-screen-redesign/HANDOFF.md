@@ -227,20 +227,28 @@ so this test passed 30 times in a row. On the merged tree (`7d366c2` plus
 `aa5b4a2`, identical to `7755ea6`'s tree), `npm run verify` exited 0 (608
 tests) and the full `npm run test:e2e` exited 0 (549 passed).
 
-**Human requests for a later story** (2026-10-26, seen while clicking
-through S4):
+**S4's visual check passed** (human, 2026-10-26): the builder controls
+look good.
 
-- New copy for the enter-hints dialog. The human will supply the text.
-  14-S4-3 freezes today's copy, so it needs a specification change.
-- Turn Preview on when Create Hints is clicked, if it's off. Still to
-  decide: when the dialog opens, or only on confirm, and what Cancel does.
+**Human requests for a later story** (2026-10-26, seen while clicking
+through S4), now fully specified by the human:
+
+- **Enter-hints dialog copy:**
+  - **Title:** "You sure?"
+  - **Body:** "Creating hints will lock the black and white cells as they
+    are now."
+  - **Buttons:** "Yes, create hints" (confirm) / "Keep building" (cancel).
+  14-S4-3 freezes today's copy, so this needs a specification change.
+- **Preview:** clicking Create Hints turns Preview on immediately, as the
+  dialog opens, if it's off. It stays on after Cancel ("Keep building")
+  and after the dialog is closed any other way.
 
 ## Next action
 
-1. The human's visual check of the builder (S4).
-2. Then the next story only once the human authorizes it, folding in the
-   two human requests above where they fit.
+1. The human authorizes the story that carries the two requests above
+   (proposed: a small standalone story drafted next, before S5). Nothing
+   is drafted until then.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. S4 is merged; record the human's visual check result, then continue only with the story the human authorizes.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. S4 is merged and visually checked; continue only with the story the human authorizes.
