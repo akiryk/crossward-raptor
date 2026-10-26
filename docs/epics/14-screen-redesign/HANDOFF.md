@@ -293,14 +293,45 @@ amendments, `e2e/focus-ring.spec.ts` and the amended specs and
 `globals-css.test.ts`. No runtime file is changed; the throwaway patch is
 still in `/tmp/crossward-drafts/`.
 
+**S5 (Build grid and hint skeleton) is drafting** (2026-10-26). The
+human supplied a desktop mockup with exact values and answered every
+question (recorded in the [story](stories/14-S5-build-grid.md)'s
+Decisions): build-cell colors, 526px at most for every size, letters in
+`cell-letter` scaled with the cell, a new `preview-cell-border`, no '.'
+key, and the skeleton. Uncommitted on `main`: the story, the new
+`e2e/build-grid-design.spec.ts` (23 cases) and the proposed retirements
+and amendments (`phase-controls`, `published-lock`, `typography`,
+`color-tokens`, `globals-css.test.ts`, `keyboard-intent.test.ts`). Against
+`main`, 20 of the 23 fail (3 are guards). A throwaway
+(`/tmp/crossward-drafts/14-S5-throwaway.patch`) passes all 23; with it and
+S11's throwaway, `npm run verify` exited 0 and the full `npm run test:e2e`
+passed 589. No runtime file is changed. Nothing is approved or frozen.
+
+**S11 is implemented on `main`** (2026-10-26) in `b7984c2`, on top of
+freeze commit `ec5e786`: the drafting throwaway unchanged (`cyan`,
+`focus-ring` and the `:focus-visible` rule in `globals.css`, the row's
+`data-keyboard-focus-host`, the two catalog rows). No risk path changed,
+and the frozen acceptance is unchanged since `ec5e786`. S5's uncommitted
+draft was stashed during the checks. Verification on the implementation
+tree:
+
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 572
+  passed.
+
+S11 awaits the human's visual check (Tab through `/style-guide`, the
+library and the editor; clicks show no ring).
+
 ## Next action
 
-1. Draft S5 (Build grid and hint skeleton) with the human's values and
-   mockups; nothing is drafted yet.
-2. S11 is frozen and waiting: implement it on `main` (no risk path) when
-   the human asks, run `npm run verify` and the full `npm run test:e2e`,
-   and ask for the human's visual check.
+1. The human approves S5's Decisions and proposed acceptance, including
+   the retirements and amendments. Then freeze on `main` in a
+   specification-only commit with the EPIC amendment.
+2. The human's visual check of S11.
+3. Implement S5 on `main` with `npm run verify`, the full
+   `npm run test:e2e` and the human's visual check.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md. S11 is frozen and awaits implementation when the human asks; S5 is next to draft, using the human's values and mockups.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is drafted with proposed acceptance and awaits the human's approval; S11 is implemented on main and awaits the human's visual check.
