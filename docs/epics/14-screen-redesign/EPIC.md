@@ -106,7 +106,17 @@ never "clues". Each story changes the copy on its own screens.
 
 **Hint skeleton** *(human)*. Beside the grid during the build phase, a
 placeholder per hint: an 18×18px dot in `fill-muted`, a 12px gap, then a
-1px `line-muted` hairline.
+1px `line-muted` hairline. S5 settles its layout.
+
+**Build grid size and letters** *(human, 2026-10-26, S5)*. Every grid
+size fits the same 526px at most (a 15×15's 36px cells, lines shared).
+Letters use `cell-letter`, scaled with the cell; numbers stay
+`cell-number`. The '.' key does nothing and the geometry-locked message is
+gone: building has only on and off cells.
+
+**Preview legend** *(human, 2026-10-26, S5)*. In the build phase's
+Preview, a legend below the grid names the error and warning cells
+present, error first.
 
 **Hint Input** *(human)*. Builders, hint phase: the cell's number in
 `title-4` `primary`; an input (the hairline, built on F5's TextInput)
@@ -128,7 +138,8 @@ background.
 - **Build:** `build-cell-*` for on and off cells, the selected cell, the
   selected word's on cells (lettered or symmetric) and its off cells;
   border `build-cell-border` (gray-400). Preview keeps using the
-  `preview-cell-*` styles.
+  `preview-cell-*` styles, with a new `preview-cell-border` (gray-500) for
+  its lines; the palette's `cell-warning` is `#CEB55A` (S5).
 - **Hint phase, locked:** on cells `play-cell-on` (white), off cells
   `play-cell-off`, border `play-cell-border` (gray-500).
 - **Hint phase, EDIT GRID:** the locked colors, with the on cells
@@ -263,8 +274,9 @@ before S5, so it is listed out of numeric order.
 
 ### S5 — Build grid and hint skeleton
 
-The build-phase grid colors (including selection and preview) and the hint
-skeleton beside the grid. Replaces the style guide's build grid sample.
+The build-phase grid colors (including selection and preview), its 526px
+size, letters scaled with the cell, no '.' key, the Preview legend and the
+hint skeleton beside the grid. Replaces the style guide's build grid sample.
 
 ### S6 — Hint phase
 

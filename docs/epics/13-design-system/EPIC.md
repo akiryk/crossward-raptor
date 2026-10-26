@@ -125,7 +125,7 @@ The same color then serves text, background and border utilities.
 | yellow-bright | FCFF4D |
 | yellow-medium | FEFFB0 |
 | yellow-dull | E6E6D1 |
-| cell-warning | C9772E |
+| cell-warning | CEB55A |
 | cell-error | FF251A |
 | text-error | E2655F |
 | blue-bright | 4BC0FF |

@@ -293,19 +293,23 @@ amendments, `e2e/focus-ring.spec.ts` and the amended specs and
 `globals-css.test.ts`. No runtime file is changed; the throwaway patch is
 still in `/tmp/crossward-drafts/`.
 
-**S5 (Build grid and hint skeleton) is drafting** (2026-10-26). The
-human supplied a desktop mockup with exact values and answered every
-question (recorded in the [story](stories/14-S5-build-grid.md)'s
-Decisions): build-cell colors, 526px at most for every size, letters in
-`cell-letter` scaled with the cell, a new `preview-cell-border`, no '.'
-key, and the skeleton. Uncommitted on `main`: the story, the new
-`e2e/build-grid-design.spec.ts` (23 cases) and the proposed retirements
-and amendments (`phase-controls`, `published-lock`, `typography`,
-`color-tokens`, `globals-css.test.ts`, `keyboard-intent.test.ts`). Against
-`main`, 20 of the 23 fail (3 are guards). A throwaway
-(`/tmp/crossward-drafts/14-S5-throwaway.patch`) passes all 23; with it and
-S11's throwaway, `npm run verify` exited 0 and the full `npm run test:e2e`
-passed 589. No runtime file is changed. Nothing is approved or frozen.
+**S5 (Build grid and hint skeleton) is approved and frozen**
+(2026-10-26). The human supplied a desktop mockup with exact values and
+answered every question (recorded in the
+[story](stories/14-S5-build-grid.md)'s Decisions). After seeing the
+throwaway running on the dev server, they asked for a 40px gap between
+skeleton rows, the palette's `cell-warning` at `#CEB55A` and a Preview
+legend (second mockup), which they placed in S5, then approved the story
+and its acceptance, including the retirements and amendments ("Yes,
+approved"). Frozen on `main` in a specification-only commit: the story,
+the EPIC amendments (here and epic 13's palette table),
+`e2e/build-grid-design.spec.ts` (31 cases) and the retirements and
+amendments (`phase-controls`, `published-lock`, `typography`,
+`color-tokens`, `globals-css.test.ts`, `keyboard-intent.test.ts`).
+
+A browser showing the old grid after the patch was applied needed a dev
+server restart; the human's screen colors are Display P3, so on-screen
+picks differ from the sRGB token values.
 
 **S11 is implemented on `main`** (2026-10-26) in `b7984c2`, on top of
 freeze commit `ec5e786`: the drafting throwaway unchanged (`cyan`,
@@ -325,13 +329,10 @@ library and the editor; clicks show no ring).
 
 ## Next action
 
-1. The human approves S5's Decisions and proposed acceptance, including
-   the retirements and amendments. Then freeze on `main` in a
-   specification-only commit with the EPIC amendment.
-2. The human's visual check of S11.
-3. Implement S5 on `main` with `npm run verify`, the full
-   `npm run test:e2e` and the human's visual check.
+1. Implement S5 on `main` (frozen, no risk path) with `npm run verify`
+   and the full `npm run test:e2e`.
+2. The human's visual checks of S11 and S5.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is drafted with proposed acceptance and awaits the human's approval; S11 is implemented on main and awaits the human's visual check.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is approved and frozen and awaits implementation; S11 is implemented on main and awaits the human's visual check.

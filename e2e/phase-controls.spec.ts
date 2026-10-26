@@ -4,10 +4,6 @@ import type { Grid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
 import { waitForEditorReady } from './helpers/wait-for-ready';
 
-async function seedFullyActive3x3() {
-  return seedPuzzle({ grid: createGrid({ cols: 3, rows: 3 }), hints: {}, phase: 'grid' });
-}
-
 /**
  * Fully lettered so it needs no conversion to be a valid hints-phase grid --
  * seedPuzzle writes phase/grid exactly as given, bypassing enterHintsPhase
@@ -33,54 +29,9 @@ async function seedFullyLetteredHints3x3() {
 
 // --- P4-2: phase controls and geometry toggling ---
 test.describe('P4-2 phase controls and geometry toggling', () => {
-  test('toggling a cell black also blackens its symmetric counterpart', async ({ page }) => {
-    const { id } = await seedFullyActive3x3();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    await page.locator('[data-coord="0,0"]').click();
-    await page.keyboard.press('.');
-
-    await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-kind', 'black');
-    await expect(page.locator('[data-coord="2,2"]')).toHaveAttribute('data-kind', 'black');
-  });
-
-  test('toggling the same cell again turns it back active', async ({ page }) => {
-    const { id } = await seedFullyActive3x3();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    await page.locator('[data-coord="1,1"]').click();
-    await page.keyboard.press('.');
-    await expect(page.locator('[data-coord="1,1"]')).toHaveAttribute('data-kind', 'black');
-
-    await page.keyboard.press('.');
-    await expect(page.locator('[data-coord="1,1"]')).toHaveAttribute('data-kind', 'active');
-  });
-
-  test('geometry edits are rejected in hints phase, with a visible message', async ({ page }) => {
-    const { id } = await seedFullyLetteredHints3x3();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    await page.locator('[data-coord="0,0"]').click();
-    await page.keyboard.press('.');
-
-    await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-kind', 'active');
-    await expect(page.getByTestId('geometry-locked-message')).toBeVisible();
-  });
-
-  test('the rejection message auto-dismisses', async ({ page }) => {
-    const { id } = await seedFullyLetteredHints3x3();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    await page.locator('[data-coord="0,0"]').click();
-    await page.keyboard.press('.');
-
-    await expect(page.getByTestId('geometry-locked-message')).toBeVisible();
-    await expect(page.getByTestId('geometry-locked-message')).toBeHidden({ timeout: 4000 });
-  });
+  // 14-S5 retired the four '.' cases here (toggling a cell black and back;
+  // the hints-phase rejection message and its dismissal): building has only
+  // on and off cells, and '.' does nothing (e2e/build-grid-design.spec.ts).
 
   test('letter editing still works normally in hints phase', async ({ page }) => {
     const { id } = await seedFullyLetteredHints3x3();

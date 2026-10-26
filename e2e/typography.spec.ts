@@ -24,17 +24,6 @@ function asPx(page: Page, raw: string) {
   }, raw);
 }
 
-function asRgb(page: Page, raw: string) {
-  return page.evaluate((value) => {
-    const probe = document.createElement('div');
-    probe.style.color = value;
-    document.body.appendChild(probe);
-    const resolved = getComputedStyle(probe).color;
-    probe.remove();
-    return resolved;
-  }, raw);
-}
-
 function fontSizeOf(locator: ReturnType<Page['locator']>) {
   return locator.evaluate((el) => getComputedStyle(el).fontSize);
 }
@@ -80,25 +69,8 @@ test.describe('D9-1 type tokens', () => {
 // copied value": the library now uses the redesign's text styles
 // (e2e/puzzle-library.spec.ts). The old-token checks elsewhere stay for S8.
 test.describe('D9-3 the app uses the type scale', () => {
-  test('help text uses the help size and secondary ink', async ({ page }) => {
-    const { id } = await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'hints' });
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    // 14-S4: the stepper's reason is gone, so the geometry-locked message
-    // stands in as the builder's remaining help text.
-    await page.locator('[data-coord="1,1"]').click();
-    await page.keyboard.press('.');
-    const reason = page.getByTestId('geometry-locked-message');
-    await expect(reason).toBeVisible();
-
-    expect(await fontSizeOf(reason)).toBe(
-      await asPx(page, await tokenValue(page, '--text-help'))
-    );
-
-    const color = await reason.evaluate((el) => getComputedStyle(el).color);
-    expect(color).toBe(await asRgb(page, await tokenValue(page, '--color-ink-2')));
-  });
+  // 14-S5 retired "help text uses the help size and secondary ink": its
+  // stand-in, the geometry-locked message, is gone, and no help text is left.
 
   test('a hint-row label uses the label size', async ({ page }) => {
     const { id } = await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'hints' });

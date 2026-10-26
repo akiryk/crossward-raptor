@@ -39,10 +39,11 @@ describe('P3-1 keyToIntent', () => {
   });
 });
 
-// --- P4-1: keyToIntent toggleBlack ---
+// --- P4-1: keyToIntent '.' ---
+// 14-S5 amended this: '.' no longer toggles a black cell; it is unhandled.
 describe('P4-1 keyToIntent toggleBlack', () => {
-  it("'.' maps to a toggleBlack intent", () => {
-    expect(keyToIntent('.')).toEqual({ type: 'toggleBlack' });
+  it("'.' is unhandled", () => {
+    expect(keyToIntent('.')).toBeNull();
   });
 
   it('purity: two calls with "." are deep-equal', () => {

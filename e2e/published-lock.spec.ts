@@ -90,17 +90,9 @@ test.describe('PB4-1 a published puzzle is read-only', () => {
     await expect(cell(page, '1,1')).toContainText('A');
   });
 
-  test('a geometry toggle is rejected by the existing hints-phase path', async ({ page }) => {
-    const { id } = await seedHintsPhase();
-    await openEditor(page, id);
-    await publish(page);
+  // 14-S5 retired "a geometry toggle is rejected by the existing hints-phase
+  // path": '.' does nothing and the geometry-locked message is gone.
 
-    await cell(page, '1,1').click();
-    await page.keyboard.press('.');
-
-    await expect(cell(page, '1,1')).toHaveAttribute('data-kind', 'active');
-    await expect(page.getByTestId('geometry-locked-message')).toBeVisible();
-  });
 });
 
 // --- PB4-2: retired by 14-S4 (publishing is final; there is no Unpublish) ---
