@@ -35,18 +35,18 @@ export function NewPuzzleDialog({
   const canCreate = title.trim() !== '' && !isSubmitting;
   const sizeLabelId = useId();
 
-  // While the generated name is untouched, focusing or clicking the field
-  // selects all of it, so typing or Backspace replaces it.
+  // The field opens with the caret after the generated name. While the
+  // name is untouched, a click in the field selects all of it, so typing
+  // replaces it.
   const touchedRef = useRef(false);
   const nameRef = useRef<HTMLDivElement>(null);
 
-  function selectUntouchedName() {
-    if (touchedRef.current) return;
-    nameRef.current?.querySelector('input')?.select();
-  }
-
-  // autoFocus runs before the value is in the field, so select once mounted.
-  useEffect(selectUntouchedName, []);
+  // autoFocus runs before the value is in the field, so place the caret
+  // once mounted.
+  useEffect(() => {
+    const input = nameRef.current?.querySelector('input');
+    input?.setSelectionRange(input.value.length, input.value.length);
+  }, []);
 
   function handleNameMouseDown(event: MouseEvent) {
     if (touchedRef.current) return;
@@ -96,7 +96,6 @@ export function NewPuzzleDialog({
               touchedRef.current = true;
               setTitle(value);
             }}
-            onFocus={selectUntouchedName}
             autoFocus
           />
         </div>

@@ -109,12 +109,29 @@ commit):
   pre-existing lint warning in `request-logger/render.ts`).
 - `npm run test:e2e` (full suite, standing reset grant): 548 passed.
 
+**S3 corrected after the human's visual check** (2026-10-25). The human
+asked that the generated name not be selected at open, only on a click.
+They chose: focused, with the caret after the name. The correction (story
+Correction section, three 14-S3-3 cases) was reviewed independently by a
+subagent with no blockers, and frozen in `bd2d1ae`, a specification-only
+commit. The runtime fix is in `NewPuzzleDialog.tsx` only. On the fixed
+tree, `npm run verify` exited 0 (610 tests) and the full `npm run test:e2e`
+suite passed (548).
+
+**S9 (Modal entrance) is drafting** (2026-10-25). At the same check, the
+human asked for a subtle open animation. They chose a fade plus a slight
+grow (0.97 to 1, 150ms ease-out), an instant close and a separate story.
+The [story](stories/14-S9-modal-entrance.md) is uncommitted on `main`,
+with proposed acceptance (`e2e/modal-entrance.spec.ts`, and the suite
+running with `reducedMotion: 'reduce'`) not yet written or observed.
+
 ## Next action
 
-The human's visual check of the dialog at desktop width against the
-mockup (`/style-guide` → New-puzzle dialog, or Create A Puzzle on
-`/puzzles`). After that, S3 is done; S4 needs separate authorization.
+1. The human's visual check of the corrected S3 dialog.
+2. The human's approval of S9's Decisions, and its place in the story
+   order. Then write and observe its acceptance, get approval, freeze and
+   implement.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md. S3 is implemented on main and awaits the human's visual check; record its result, then write the S4 story specification only if authorized.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Record the human's S3 visual check. Get the human's approval of S9's Decisions, then write and observe its acceptance and stop for approval before freezing or implementing.
