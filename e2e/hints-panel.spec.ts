@@ -52,19 +52,9 @@ test.describe('P5-2 hints panel', () => {
     );
   });
 
-  test('arrow key navigation updates the active hint row', async ({ page }) => {
-    const { id } = await seedHintsPhasePuzzle();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    await page.keyboard.press('ArrowDown'); // (0,0) -> (0,1), orientation 'down'
-
-    await expect(page.locator('[data-hint-key="1-down"]')).toHaveAttribute('data-active', 'true');
-    await expect(page.locator('[data-hint-key="1-across"]')).not.toHaveAttribute(
-      'data-active',
-      'true'
-    );
-  });
+  // 14-S6 retired "arrow key navigation updates the active hint row": the
+  // locked grid takes no focus, so no key reaches it. Replaced by
+  // e2e/hint-phase-design.spec.ts (14-S6-1).
 
   test('typing highlights the exact cursor cell and the rest of its slot', async ({ page }) => {
     const { id } = await seedHintsPhasePuzzle();

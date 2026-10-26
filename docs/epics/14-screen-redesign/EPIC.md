@@ -123,6 +123,13 @@ present, error first.
 whose text is `body-normal` `primary`; the slot's word in `label` `muted`,
 right-aligned below the line, letter-spaced, turning `primary` while the
 input has focus (F5's description, confirmed by the human 2026-10-25).
+S6 *(human, 2026-10-26)*: the number on the input text's baseline in a
+fixed 18px column; no placeholder; the answer letter-spaced 10%, 4px below
+the line, right-aligned; no active background; the build skeleton's frame,
+so nothing moves at Create Hints, with the labels `primary`.
+
+**Cell letters and numbers** *(human, 2026-10-26, S6)* are `primary` in
+every phase: build, Preview, the hints phase and play.
 
 **Prominent Hint** *(human, 2026-10-25)*. Play: an NYT-style bar directly
 above the grid showing the selected word's number and hint. Its exact
@@ -140,11 +147,18 @@ background.
   border `build-cell-border` (gray-400). Preview keeps using the
   `preview-cell-*` styles, with a new `preview-cell-border` (gray-500) for
   its lines; the palette's `cell-warning` is `#CEB55A` (S5).
-- **Hint phase, locked:** on cells `play-cell-on` (white), off cells
-  `play-cell-off`, border `play-cell-border` (gray-500).
+- **Hint phase, locked:** on cells `hint-cell-on` (white), off cells
+  `hint-cell-off` (gray-700), border `hint-cell-border` (gray-500); while
+  a hint input has focus, its word's cells are `hint-cell-selected`
+  (blue-medium). The locked grid takes no focus: no Tab stop, no focus on
+  a click, no keys (S6).
 - **Hint phase, EDIT GRID:** the locked colors, with the on cells
-  editable; the selected cell is `build-cell-selected-cell` and the
-  selected word's cells `build-cell-selected-row-on` (yellow-medium).
+  editable; the selected cell is `hint-cell-edit-selected-cell`
+  (yellow-bright) and the selected word's cells
+  `hint-cell-edit-selected-row` (yellow-medium).
+- **Each phase has its own cell styles** *(human, 2026-10-26, S6)*, even
+  where they share a palette value, so one phase's colors can change
+  without touching another's.
 - **Play:** the `play-cell-*` styles, including `play-cell-selected-cell`
   and `play-cell-selected-row`.
 

@@ -336,13 +336,24 @@ tracing on. So it is an existing timing-margin flake, made more likely by
 heavy machine load. If it recurs, it may need a timeout correction through
 STORY's frozen-test correction procedure. The test was not changed.
 
+**S6 (Hint phase) is approved and frozen** by the human (2026-10-26) on
+`main` in the specification-only commit "Freeze S6: hint phase, Hint Input
+and hint-cell tokens": the [story](stories/14-S6-hint-phase.md), the EPIC
+amendment, `e2e/hint-phase-design.spec.ts` (22 cases), the retirements in
+`e2e/style-guide.spec.ts` (D8-3) and `e2e/hints-panel.spec.ts` (P5-2) and
+the token-list amendments in `e2e/color-tokens.spec.ts` and
+`src/app/globals-css.test.ts`. No runtime file is changed. Against
+`main`, 17 of 22 fail (5 guards pass). A throwaway
+(`/tmp/crossward-drafts/14-S6-throwaway.patch`, not committed; if it is
+gone, implement from the story) passed the full suite, 617 of 617, with
+`npm run verify` exiting 0.
+
 ## Next action
 
-The human's visual check of S5 (the build grid at each size, the
-skeleton beside it, Preview's border and legend; '.' no longer blackens a
-cell). Next in the epic's order: draft S6 (Hint phase) from its
-`EPIC.md` section. Specification only, until the human approves and freezes it.
+Implement S6 on `main` (no risk path) per its story; the frozen
+acceptance stays unchanged. Separately, the human's visual check of S5 is
+still pending.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and the "S6 — Hint phase" section of docs/epics/14-screen-redesign/EPIC.md. Draft S6's specification on main; no implementation before the human approves and freezes it.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S6-hint-phase.md. Implement S6 on main; deliver per CODE-REVIEW, no next story.

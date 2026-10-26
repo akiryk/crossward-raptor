@@ -54,7 +54,13 @@ const STYLES: Record<string, string> = {
   'play-cell-border': 'gray-500',
   'play-cell-selected-cell': 'yellow-bright',
   'play-cell-selected-row': 'blue-medium',
+  // 14-S6: the hints phase's own cell styles.
+  'hint-cell-on': 'white',
+  'hint-cell-off': 'gray-700',
+  'hint-cell-border': 'gray-500',
   'hint-cell-selected': 'blue-medium',
+  'hint-cell-edit-selected-cell': 'yellow-bright',
+  'hint-cell-edit-selected-row': 'yellow-medium',
   primary: 'black',
   muted: 'gray-500',
   'link-muted': 'interactive-light',

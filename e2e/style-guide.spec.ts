@@ -81,10 +81,6 @@ function cellIn(page: Page, sample: string, state: string) {
   return page.getByTestId(sample).locator(`[data-cell-state="${state}"]`);
 }
 
-function bgOf(locator: ReturnType<Page['locator']>) {
-  return locator.evaluate((el) => getComputedStyle(el).backgroundColor);
-}
-
 async function measureSample(page: Page, sample: string) {
   return page.evaluate((testid) => {
     const section = document.querySelector(`[data-testid="${testid}"]`);
@@ -208,16 +204,9 @@ test.describe('D8-3 real grid samples', () => {
     }
   });
 
-  test('the two hints samples differ only in their lettered-cell state', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    const lockedBg = await bgOf(cellIn(page, 'sg-grid-hints', 'locked-letter').first());
-    const editingBg = await bgOf(
-      cellIn(page, 'sg-grid-hints-editing', 'editable-letter').first()
-    );
-
-    expect(lockedBg).not.toBe(editingBg);
-  });
+  // 14-S6 retired "the two hints samples differ only in their lettered-cell
+  // state": locked and EDIT GRID letters are both play-cell-on now. The
+  // samples' colors are checked by e2e/hint-phase-design.spec.ts (14-S6-6).
 
   for (const sample of GRID_SAMPLES) {
     test(`${sample}: geometry holds (measured)`, async ({ page }) => {
