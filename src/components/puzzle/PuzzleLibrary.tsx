@@ -15,6 +15,8 @@ const VIEW_KEY = 'crossward:library-view';
 export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; userId: string }) {
   const [view, setView] = useState<View>('build');
   const [ready, setReady] = useState(false);
+  // The puzzle just deleted, until its row is gone and the heading has focus.
+  const [deletedId, setDeletedId] = useState<string | null>(null);
 
   useEffect(() => {
     let stored: string | null = null;
@@ -27,6 +29,17 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
     setView(stored === 'play' ? 'play' : 'build');
     setReady(true);
   }, []);
+
+  // Focus the heading only once the deleted row has left the list. By then
+  // the delete dialog's Modal can no longer return focus to the row's
+  // Delete button, so nothing moves focus after this. (A timed focus raced
+  // that return and could leave focus on the removed button.)
+  useEffect(() => {
+    if (deletedId === null || puzzles.some((p) => p.id === deletedId)) return;
+    document.getElementById('puzzle-library-heading')?.focus();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDeletedId(null);
+  }, [deletedId, puzzles]);
 
   function choose(next: View) {
     setView(next);
@@ -86,8 +99,7 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
                   key={puzzle.id}
                   puzzle={puzzle}
                   view={view}
-                  // After the Modal restores focus to the removed row's Delete.
-                  onDeleted={() => requestAnimationFrame(() => document.getElementById('puzzle-library-heading')?.focus())}
+                  onDeleted={() => setDeletedId(puzzle.id)}
                 />
               ))}
             </ul>
