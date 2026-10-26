@@ -48,7 +48,12 @@
   --color-play-cell-border: var(--palette-gray-500);
   --color-play-cell-selected-cell: var(--palette-yellow-bright);
   --color-play-cell-selected-row: var(--palette-blue-medium);
+  --color-hint-cell-on: var(--palette-white);
+  --color-hint-cell-off: var(--palette-gray-700);
+  --color-hint-cell-border: var(--palette-gray-500);
   --color-hint-cell-selected: var(--palette-blue-medium);
+  --color-hint-cell-edit-selected-cell: var(--palette-yellow-bright);
+  --color-hint-cell-edit-selected-row: var(--palette-yellow-medium);
 
   /* text */
   --color-primary: var(--palette-black);

@@ -11,7 +11,7 @@ export function LetterCell({
 }) {
   return (
     <div
-      className="text-cell-letter relative flex h-full w-full items-center justify-center uppercase"
+      className="text-cell-letter text-primary relative flex h-full w-full items-center justify-center uppercase"
       style={{ fontSize: 'var(--cell-letter-size)', lineHeight: 1 }}
       onClick={onClick}
     >

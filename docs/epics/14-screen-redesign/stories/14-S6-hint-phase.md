@@ -6,9 +6,13 @@ shows its word in blue. EDIT GRID adds yellow for the cursor and its
 word. Each hint is a Hint Input in the build skeleton's frame, so nothing
 moves when the builder creates hints.
 
-**Status: approved and frozen** (2026-10-26). The human approved the
+**Status: implemented on `main`** (2026-10-26), on top of freeze commit
+`53e28fe`. It is the drafting throwaway unchanged. Next: the human's
+visual check.
+
+Approved and frozen earlier the same day: the human approved the
 Decisions and acceptance, including the D8-3 and P5-2 retirements and the
-token-list amendments. Next: implement on `main` from the throwaway.
+token-list amendments.
 
 Earlier: drafted the same day. The human answered the questions and
 supplied a desktop mockup (hints phase, locked, 1 Across focused). On

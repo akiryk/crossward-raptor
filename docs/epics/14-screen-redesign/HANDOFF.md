@@ -348,12 +348,31 @@ the token-list amendments in `e2e/color-tokens.spec.ts` and
 gone, implement from the story) passed the full suite, 617 of 617, with
 `npm run verify` exiting 0.
 
+**S5's visual check passed** (human, 2026-10-26), so S5 is done.
+
+**S6 is implemented on `main`** (2026-10-26), on top of freeze commit
+`53e28fe`. It is the drafting throwaway unchanged. It adds the five
+`hint-cell-*` styles and their swatches; the locked grid's colors, with a
+focused hint's word in blue; the EDIT GRID yellows; `primary` cell letters
+and numbers; Hint Inputs in the skeleton's frame; and a locked grid with
+no `tabindex`. A click on the locked grid returns before focusing it. The
+changed paths are the story's declared runtime paths. No risk path
+changed, and the frozen acceptance (`e2e/`, `*.test.ts`) is unchanged
+since `53e28fe`. Verification on the implementation tree (the same content
+as the commit):
+
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 617
+  passed.
+
 ## Next action
 
-Implement S6 on `main` (no risk path) per its story; the frozen
-acceptance stays unchanged. Separately, the human's visual check of S5 is
-still pending.
+The human's visual check of S6: the hints phase (locked grid, a focused
+hint's word, EDIT GRID), Hint Inputs, and the style guide's
+`sg-hint-rows`, `sg-grid-hints` and color catalog. Then, in epic
+order, draft S7 (Play).
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S6-hint-phase.md. Implement S6 on main; deliver per CODE-REVIEW, no next story.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/EPIC.md. Draft story S7 (Play, the EPIC's S7 section) with proposed acceptance for approval on main; do not freeze or implement it.

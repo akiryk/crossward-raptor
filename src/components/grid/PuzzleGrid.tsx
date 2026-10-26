@@ -44,6 +44,22 @@ const BUILD_BG: Partial<Record<CellAppearance, string>> = {
   'slot-required': 'bg-build-cell-selected-row-on',
 };
 
+// The hints phase's own colors (14-S6), locked and in EDIT GRID, and in
+// EDIT GRID the cursor and its word. A locked cell in the highlighted word
+// (a hint input has focus) is hint-cell-selected; see HINTS_WORD_BG.
+const HINTS_BG: Partial<Record<CellAppearance, string>> = {
+  black: 'bg-hint-cell-off',
+  empty: 'bg-hint-cell-on',
+  'locked-letter': 'bg-hint-cell-on',
+  'editable-letter': 'bg-hint-cell-on',
+  'symmetric-hint': 'bg-hint-cell-on',
+  selected: 'bg-hint-cell-edit-selected-cell',
+  slot: 'bg-hint-cell-edit-selected-row',
+  'slot-letter': 'bg-hint-cell-edit-selected-row',
+  'slot-required': 'bg-hint-cell-edit-selected-row',
+};
+const HINTS_WORD_BG = 'bg-hint-cell-selected';
+
 const PREVIEW_BG: Partial<Record<CellAppearance, string>> = {
   black: 'bg-preview-cell-off',
   letter: 'bg-preview-cell-on',
@@ -54,8 +70,8 @@ const PREVIEW_BG: Partial<Record<CellAppearance, string>> = {
 const GRID_LINES: Record<string, string> = {
   build: 'bg-build-cell-border',
   preview: 'bg-preview-cell-border',
-  hints: 'bg-grid-line-build',
-  'hints-editing': 'bg-grid-line-build',
+  hints: 'bg-hint-cell-border',
+  'hints-editing': 'bg-hint-cell-border',
   play: 'bg-grid-line-play',
 };
 
@@ -90,7 +106,14 @@ export function PuzzleGrid({
   // Preview and play take precedence over the builder's hints-phase flags.
   const gridMode =
     mode !== 'build' ? mode : isHintsPhase ? (isEditingGrid ? 'hints-editing' : 'hints') : 'build';
-  const modeBg = gridMode === 'build' ? BUILD_BG : gridMode === 'preview' ? PREVIEW_BG : {};
+  const modeBg =
+    gridMode === 'build'
+      ? BUILD_BG
+      : gridMode === 'preview'
+        ? PREVIEW_BG
+        : gridMode === 'play'
+          ? {}
+          : HINTS_BG;
 
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
@@ -118,7 +141,11 @@ export function PuzzleGrid({
           data-selected={highlight === 'selected' ? 'true' : undefined}
           data-highlight={highlight}
           data-cell-state={appearance}
-          className={modeBg[appearance] ?? APPEARANCE_BG[appearance]}
+          className={
+            gridMode === 'hints' && highlight && cell.kind === 'active'
+              ? HINTS_WORD_BG
+              : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
+          }
           style={mode === 'play' && cell.kind === 'active' && highlight ? {
             boxShadow: highlight === 'selected'
               ? 'inset 0 0 0 3px var(--color-accent)'

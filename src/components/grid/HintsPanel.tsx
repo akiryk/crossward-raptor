@@ -9,6 +9,12 @@ const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] =
   { orientation: 'down', heading: 'Down' },
 ];
 
+// The hints phase keeps the build skeleton's frame (14-S6): the number
+// takes the dot's 18px (wider only for three digits), 12px before the
+// line, the first line 45px below the label and the lines 58px apart.
+const NUMBER_MIN_PX = 18;
+
+/** Hint Inputs, one per word, in the hint skeleton's frame (14-S6). */
 export function HintsPanel({
   grid,
   slots,
@@ -27,67 +33,63 @@ export function HintsPanel({
   onHintFocus: (key: string) => void;
 }) {
   const entries = Array.from(slots.entries());
-  // Both columns share these widths (Decisions: "measured across every
-  // slot in the puzzle"), so every input's left edge lands at the same x
-  // regardless of which column or row it's in.
+  // One width for every number in both columns, so every line starts at
+  // the same x.
   const maxNumberDigits = Math.max(1, ...entries.map(([, slot]) => String(slot.number).length));
-  const maxAnswerLength = Math.max(
-    1,
-    ...entries.map(([, slot]) => slotAnswer(grid, slot).length)
-  );
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-8">
       {COLUMNS.map(({ orientation, heading }) => (
         <div
           key={orientation}
           data-testid="hint-column"
           data-orientation={orientation}
-          className="flex-1"
+          className="min-w-0 max-w-[350px] flex-1"
         >
-          <h3 data-testid="hint-column-heading" className="text-label text-ink-3 mb-2">
+          <h3 data-testid="hint-column-heading" className="text-title-4 text-primary pt-2">
             {heading}
           </h3>
-          {entries
-            .filter(([, slot]) => slot.orientation === orientation)
-            .map(([key, slot]) => {
-              const label = `${slot.number} ${slot.orientation === 'across' ? 'Across' : 'Down'}`;
-              return (
-                <div
-                  key={key}
-                  data-testid="hint-row"
-                  data-hint-key={key}
-                  data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
-                  data-active={activeKey === key ? 'true' : undefined}
-                  className="mb-3 flex items-baseline gap-2"
-                >
-                  <span
-                    data-testid="hint-label"
-                    className="text-label text-ink-3 shrink-0 text-right"
-                    style={{ width: `${maxNumberDigits}ch` }}
+          <div className="mt-[17px]">
+            {entries
+              .filter(([, slot]) => slot.orientation === orientation)
+              .map(([key, slot]) => {
+                const label = `${slot.number} ${slot.orientation === 'across' ? 'Across' : 'Down'}`;
+                return (
+                  <div
+                    key={key}
+                    data-testid="hint-row"
+                    data-hint-key={key}
+                    data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
+                    data-active={activeKey === key ? 'true' : undefined}
+                    className="group flex items-baseline gap-3 not-first:mt-[5px]"
                   >
-                    {slot.number}
-                  </span>
-                  <span
-                    data-testid="hint-answer"
-                    className="text-label text-foreground shrink-0 text-left"
-                    style={{ width: `${maxAnswerLength}ch` }}
-                  >
-                    {slotAnswer(grid, slot)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <TextInput
-                      data-testid="hint-input"
-                      aria-label={`${label} clue`}
-                      value={hints[key] ?? ''}
-                      onChange={(text) => onHintChange(key, text)}
-                      onFocus={() => onHintFocus(key)}
-                      disabled={disabled}
-                    />
+                    <span
+                      data-testid="hint-label"
+                      className="text-title-4 text-primary shrink-0"
+                      style={{ minWidth: `max(${NUMBER_MIN_PX}px, ${maxNumberDigits}ch)` }}
+                    >
+                      {slot.number}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <TextInput
+                        data-testid="hint-input"
+                        aria-label={`${label} hint`}
+                        value={hints[key] ?? ''}
+                        onChange={(text) => onHintChange(key, text)}
+                        onFocus={() => onHintFocus(key)}
+                        disabled={disabled}
+                      />
+                      <p
+                        data-testid="hint-answer"
+                        className="text-label text-muted group-focus-within:text-primary mt-1 text-right tracking-[0.1em]"
+                      >
+                        {slotAnswer(grid, slot)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+          </div>
         </div>
       ))}
     </div>

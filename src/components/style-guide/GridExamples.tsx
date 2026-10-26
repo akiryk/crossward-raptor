@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { createGrid, withLetter } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
@@ -6,6 +7,7 @@ import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { PuzzleGrid } from '../grid/PuzzleGrid';
 import { HintSkeleton } from '../grid/HintSkeleton';
 import { PreviewLegend } from '../grid/PreviewLegend';
+import { HintsPanel } from '../grid/HintsPanel';
 
 // A 10x10 with two crossing words (row 2 across, col 3 down, sharing (3,2)).
 // The cursor sits mid-run in the down slot so that slot spans both lettered
@@ -32,6 +34,10 @@ const CURSOR: CursorState = { current: { col: 3, row: 5 }, orientation: 'down' }
 // (rows 0-3; row 4 onward is unfilled and becomes black), so the sample
 // shows selected, slot-letter, editable-letter and black together.
 const EDITING_CURSOR: CursorState = { current: { col: 3, row: 1 }, orientation: 'down' };
+
+// The locked sample shows the word of a focused hint input: GRID, across
+// row 2 (14-S6).
+const LOCKED_HINT_CURSOR: CursorState = { current: { col: 2, row: 2 }, orientation: 'across' };
 
 function buildSampleGrid() {
   let grid = createGrid({ cols: 10, rows: 10 });
@@ -65,6 +71,7 @@ export function GridExamples() {
   // a state that cannot occur.
   const hintsGrid = convertEmptyCellsToBlack(grid);
   const editingHighlights = highlightsFor(hintsGrid, EDITING_CURSOR);
+  const lockedHighlights = highlightsFor(hintsGrid, LOCKED_HINT_CURSOR);
 
   return (
     <>
@@ -101,7 +108,7 @@ export function GridExamples() {
           Grid (hints phase, locked)
         </h2>
         <div className="max-w-sm">
-          <PuzzleGrid grid={hintsGrid} isHintsPhase />
+          <PuzzleGrid grid={hintsGrid} highlights={lockedHighlights} isHintsPhase />
         </div>
       </section>
 
@@ -119,5 +126,25 @@ export function GridExamples() {
         </div>
       </section>
     </>
+  );
+}
+
+/** Hint Inputs for the converted sample grid, one hint written (14-S6). */
+export function HintInputExample() {
+  const hintsGrid = convertEmptyCellsToBlack(buildSampleGrid());
+  const slots = buildSlotLookup(hintsGrid);
+  const [hints, setHints] = useState<Record<string, string>>({ '2-across': 'Network of squares' });
+
+  return (
+    <div className="max-w-[732px]">
+      <HintsPanel
+        grid={hintsGrid}
+        slots={slots}
+        hints={hints}
+        activeKey={null}
+        onHintChange={(key, text) => setHints((prev) => ({ ...prev, [key]: text }))}
+        onHintFocus={() => {}}
+      />
+    </div>
   );
 }

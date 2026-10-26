@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ColorSwatches } from '@/components/style-guide/ColorSwatches';
-import { GridExamples } from '@/components/style-guide/GridExamples';
+import { GridExamples, HintInputExample } from '@/components/style-guide/GridExamples';
 import { TextStyles } from '@/components/style-guide/TextStyles';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -309,22 +309,9 @@ export default function StyleGuidePage() {
 
         <section data-testid="sg-hint-rows" className="space-y-2">
           <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
-            Hint rows
+            Hint Input (hints phase)
           </h2>
-          <div
-            data-testid="hint-row"
-            data-complete="true"
-            className="border-l-4 border-accent bg-ok-tint px-3 py-2 text-foreground"
-          >
-            1 Across — Complete example clue
-          </div>
-          <div
-            data-testid="hint-row"
-            data-complete="false"
-            className="border-l-4 border-incomplete bg-background px-3 py-2 text-ink-2"
-          >
-            2 Down — Incomplete example clue
-          </div>
+          <HintInputExample />
         </section>
 
         <section data-testid="sg-confirmation" className="space-y-2">

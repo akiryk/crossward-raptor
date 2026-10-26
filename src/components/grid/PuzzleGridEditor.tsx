@@ -194,8 +194,8 @@ export function PuzzleGridEditor({
     // listener now establishes focus instead; onKeyDown below only ever
     // fires while the grid actually has it. isReady still flips exactly
     // when the grid can respond to input, so tests can wait for it rather
-    // than racing hydration.
-    gridRegionRef.current?.focus();
+    // than racing hydration. The locked grid takes no focus (14-S6).
+    if (gridRegionRef.current?.hasAttribute("tabindex")) gridRegionRef.current.focus();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsReady(true);
   }, []);
@@ -238,16 +238,14 @@ export function PuzzleGridEditor({
   }
 
   function handleCellClick(coord: Coord) {
+    // The locked grid can't take focus, and clicking it selects nothing
+    // (Story H4, 14-S6).
+    if (state.phase === "hints" && !isEditingGrid) return;
     // A plain click on a non-focusable cell doesn't move DOM focus to its
     // focusable ancestor by itself -- without this, clicking a cell after
     // focus had moved elsewhere (a button, the title) would update the
     // cursor but leave the grid still visually and functionally blurred.
     gridRegionRef.current?.focus();
-    // Clicking does not move the cursor while the grid is locked (Story
-    // H4) -- otherwise the clicked cell would read as selected via
-    // PuzzleGridEditor's own highlights map, independently of
-    // cellAppearance's own hints-phase-locked branch ignoring selection.
-    if (state.phase === "hints" && !isEditingGrid) return;
     setState((prev) => ({
       ...prev,
       cursor: moveTo(prev.grid, prev.cursor, coord),
@@ -443,7 +441,7 @@ export function PuzzleGridEditor({
       </div>
       <div
         data-testid="editor-layout"
-        className={`flex flex-col gap-6 lg:flex-row lg:items-start ${phase === "grid" ? "lg:gap-[72px]" : ""}`}
+        className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-[72px]"
         onFocus={handleEditorFocus}
         onBlur={handleEditorBlur}
       >
@@ -456,7 +454,9 @@ export function PuzzleGridEditor({
           <div
             ref={gridRegionRef}
             data-testid="grid-region"
-            tabIndex={0}
+            // The locked grid takes no focus: no Tab stop, no click focus,
+            // no keys (14-S6). A hint input's focus still shows its word.
+            tabIndex={phase === "hints" && !isEditingGrid ? undefined : 0}
             onKeyDown={handleGridKeyDown}
             className="w-full outline-none"
           >
@@ -475,7 +475,7 @@ export function PuzzleGridEditor({
         {phase === "hints" && (
           <div
             data-testid="hints-region"
-            className="flex-1 overflow-y-auto"
+            className="min-w-0 flex-1 overflow-y-auto"
             style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
           >
             <HintsPanel
