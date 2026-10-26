@@ -3,7 +3,11 @@
 Keyboard focus on a button, a link, the Preview toggle or a Radio option
 shows a 2px cyan outline. Mouse focus shows none.
 
-**Status: approved and frozen** (2026-10-26). The human asked for it at
+**Status: done** (2026-10-26). The human's visual check passed ("I
+checked s11 and it looks good, approved"). Implemented on `main` in
+`b7984c2`, frozen in `ec5e786`.
+
+Earlier: approved and frozen (2026-10-26). The human asked for it at
 S10's visual check and placed it as a small change before S5. The human
 approved its Decisions and acceptance, including the amendments
 ("I read and approve s11"), and chose to implement it later, after S5 is

@@ -5,7 +5,10 @@ cell (every grid size fits 526px), letters in `cell-letter` scale with
 the cell, Preview gets its own border color and a legend, the '.' key
 goes away, and a skeleton of the hints to come sits beside the grid.
 
-**Status: approved and frozen** (2026-10-26). The human supplied a
+**Status: implemented on `main`** in `70c678c` (2026-10-26); awaits the
+human's visual check.
+
+Earlier: approved and frozen (2026-10-26). The human supplied a
 desktop mockup (Preview off) with exact values and answered seven
 questions the same day. After seeing the throwaway running, they asked
 for a 40px gap between skeleton rows, `cell-warning` at `#CEB55A` and a

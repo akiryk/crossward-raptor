@@ -311,48 +311,38 @@ A browser showing the old grid after the patch was applied needed a dev
 server restart; the human's screen colors are Display P3, so on-screen
 picks differ from the sRGB token values.
 
-**S11 is implemented on `main`** (2026-10-26) in `b7984c2`, on top of
-freeze commit `ec5e786`: the drafting throwaway unchanged (`cyan`,
-`focus-ring` and the `:focus-visible` rule in `globals.css`, the row's
-`data-keyboard-focus-host`, the two catalog rows). No risk path changed,
-and the frozen acceptance is unchanged since `ec5e786`. S5's uncommitted
-draft was stashed during the checks. Verification on the implementation
-tree:
+**S11 is done** (2026-10-26). Implemented on `main` in `b7984c2`, frozen in
+`ec5e786`. The human's visual check passed ("I checked s11 and it looks
+good, approved").
 
-- `npm run verify`: exit 0 (46 files, 608 Vitest tests; the one
-  pre-existing lint warning in `request-logger/render.ts`).
-- `npm run test:e2e` (full suite, standing reset grant): exit 0, 572
-  passed.
+**S5 is implemented on `main`** (2026-10-26) in `70c678c`, on top of
+freeze commit `7a2087a`. It contains the drafting throwaway plus the 40px gap,
+`#CEB55A` and the new `PreviewLegend.tsx`. No risk path changed, and the
+frozen acceptance (`e2e/`, `*.test.ts`) is unchanged since `7a2087a`.
+Verification on the committed tree (tested uncommitted, then committed
+unchanged):
 
-S11 awaits the human's visual check (Tab through `/style-guide`, the
-library and the editor; clicks show no ring).
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 597
+  passed, in 7.3m. Another project's Playwright suite and a Docker VM
+  were loading the machine (load average about 20 on 8 cores).
 
-**S5's implementation is in progress, uncommitted on `main`** (on top of
-freeze commit `7a2087a`; a copy is in
-`/tmp/crossward-drafts/14-S5-impl-wip.patch`). It is the drafting
-throwaway plus the 40px gap, `#CEB55A` and the new `PreviewLegend.tsx`
-(the grid region is wrapped in a column that carries its width, the legend
-below). Checks on that tree:
-
-- `npm run verify`: exit 0 (608 Vitest tests).
-- S5's spec with `editor-layout`, `focus-ring`, `preview`, `style-guide`
-  and `color-tokens`: all passed.
-- **The full `npm run test:e2e` failed 9 (588 passed)**, in 11.8m (a
-  normal run is about 3m, so the machine was loaded). The failures are
-  outside the grid: `new-puzzle` D6-3 and the rapid-resubmit case,
-  `modal` M1-1, `modal-a11y` M2-1 (disabled button not a Tab stop) and
-  five `library-play` P5 cases. Not yet diagnosed: rerun them alone on
-  this tree and on `main` at `7a2087a`'s runtime to tell flakes from an
-  S5 regression (the grid-region wrapper is the likeliest S5 cause).
+The earlier run's 9 failures were caused by load, not by S5. Rerun alone,
+`new-puzzle`, `modal` and `modal-a11y` passed. Only `library-play` P5
+"clicking anywhere on a row…" still failed under parallel load. That
+frozen test makes about seven navigations within the default 30s budget.
+On the pre-S5 runtime it took 25.6s and 28.2s, and failed at 33.1s with
+tracing on. So it is an existing timing-margin flake, made more likely by
+heavy machine load. If it recurs, it may need a timeout correction through
+STORY's frozen-test correction procedure. The test was not changed.
 
 ## Next action
 
-1. Diagnose the 9 failures above, fix if S5 caused them, then pass
-   `npm run verify` and the full `npm run test:e2e`, and commit S5's
-   implementation on `main`. The frozen acceptance must stay unchanged
-   since `7a2087a`.
-2. The human's visual checks of S11 and S5.
+The human's visual check of S5 (the build grid at each size, the
+skeleton beside it, Preview's border and legend; '.' no longer blackens a
+cell). Next in the epic's order: draft S6 (Hint phase) from its
+`EPIC.md` section. Specification only, until the human approves and freezes it.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is frozen and its implementation is uncommitted on main with 9 undiagnosed browser failures; S11 is implemented on main and awaits the human's visual check.
+Read docs/epics/14-screen-redesign/HANDOFF.md and the "S6 — Hint phase" section of docs/epics/14-screen-redesign/EPIC.md. Draft S6's specification on main; no implementation before the human approves and freezes it.
