@@ -18,12 +18,24 @@ const PUBLIC_SPECS = [
   '**/shell.spec.ts',
 ];
 
+// Story 14-S9: the suite runs with reduced motion, because a dialog's
+// entrance scale would move the boxes frozen tests measure right after it
+// opens; reduced motion leaves only its fade. The confetti hides under
+// reduced motion, so the specs that check it run with full motion instead.
+// modal-entrance.spec.ts sets full motion itself.
+const FULL_MOTION_SPECS = [
+  '**/play-completion.spec.ts',
+  '**/play-reset.spec.ts',
+  '**/play-reset-settling.spec.ts',
+];
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3100',
+    contextOptions: { reducedMotion: 'reduce' },
   },
   projects: [
     {
@@ -38,11 +50,21 @@ export default defineConfig({
     },
     {
       name: 'authenticated',
-      testIgnore: PUBLIC_SPECS,
+      testIgnore: [...PUBLIC_SPECS, ...FULL_MOTION_SPECS],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'e2e/.auth/user.json',
+      },
+    },
+    {
+      name: 'authenticated-full-motion',
+      testMatch: FULL_MOTION_SPECS,
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json',
+        contextOptions: { reducedMotion: 'no-preference' },
       },
     },
   ],

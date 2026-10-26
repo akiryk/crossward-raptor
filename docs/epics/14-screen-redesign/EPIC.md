@@ -217,6 +217,13 @@ adopted in F6), laid out from the mockups, with "Name it!" and "And pick a
 size!" `title-4` headings and a generated default name. (The display-name
 dialog is removed by S1.)
 
+### S9 — Modal entrance
+
+Every dialog fades and grows slightly into place when it opens (0.97 to 1,
+150ms ease-out), in the shared Modal; closing stays instant. Added at S3's
+visual check and run after S3, before S4, so it is listed out of numeric
+order.
+
 ### S4 — Builder controls
 
 Removes the stepper for numbered buttons ("3 Publish" included), places

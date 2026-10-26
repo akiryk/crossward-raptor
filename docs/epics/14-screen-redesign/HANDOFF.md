@@ -118,20 +118,37 @@ commit. The runtime fix is in `NewPuzzleDialog.tsx` only. On the fixed
 tree, `npm run verify` exited 0 (610 tests) and the full `npm run test:e2e`
 suite passed (548).
 
-**S9 (Modal entrance) is drafting** (2026-10-25). At the same check, the
+**S3's visual check passed** (human, 2026-10-25): the corrected dialog is
+accepted, so S3 is done.
+
+**S9 (Modal entrance) is drafting** (2026-10-25). At the S3 check, the
 human asked for a subtle open animation. They chose a fade plus a slight
 grow (0.97 to 1, 150ms ease-out), an instant close and a separate story.
-The [story](stories/14-S9-modal-entrance.md) is uncommitted on `main`,
-with proposed acceptance (`e2e/modal-entrance.spec.ts`, and the suite
-running with `reducedMotion: 'reduce'`) not yet written or observed.
+**The human approved S9's Decisions** (2026-10-25) and placed it after
+S3, before S4. The [story](stories/14-S9-modal-entrance.md) and the EPIC
+amendment are uncommitted on `main`.
+
+**S9's proposed acceptance is written and observed** (2026-10-25),
+uncommitted: `e2e/modal-entrance.spec.ts` (5 cases) and the
+`playwright.config.ts` motion settings. It discriminates against `main`
+and six wrong variants. A throwaway implementation passed the full suite
+(553) and was reverted, so no runtime file is changed. The story's
+"Observed" section has the results. Drafting found that the confetti reads
+reduced motion, so its three specs run in a full-motion project. This
+changes an agent Decision the human had already approved.
+
+**S9 is approved and frozen** (2026-10-25). The human approved the
+acceptance and the full-motion project, and chose to keep the confetti
+checks (asked whether they earn their place). Frozen on `main` in a
+specification-only commit: the story, `e2e/modal-entrance.spec.ts`,
+`playwright.config.ts` and the EPIC amendment.
 
 ## Next action
 
-1. The human's visual check of the corrected S3 dialog.
-2. The human's approval of S9's Decisions, and its place in the story
-   order. Then write and observe its acceptance, get approval, freeze and
-   implement.
+1. Implement S9 (`Modal.tsx`, `globals.css`), run `npm run verify` and the
+   full `npm run test:e2e`, deliver on `main`, then the human's visual check
+   of a dialog opening.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Record the human's S3 visual check. Get the human's approval of S9's Decisions, then write and observe its acceptance and stop for approval before freezing or implementing.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Implement the frozen S9, verify it, deliver it on main, and stop for the human's visual check of a dialog opening.
