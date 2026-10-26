@@ -245,6 +245,13 @@ title and the enter-hints dialog, and adds the published state. Publishing
 needs every hint and is final (no Unpublish). Removes Clear all letters
 and the builder's Delete.
 
+### S10 — Enter-hints dialog copy and Preview
+
+The enter-hints dialog becomes "You sure?" with a one-sentence body and
+"Yes, create hints" / "Keep building", and opening it turns Preview on,
+which stays on unless the builder confirms. Added at S4's visual check and
+run after S4, before S5, so it is listed out of numeric order.
+
 ### S5 — Build grid and hint skeleton
 
 The build-phase grid colors (including selection and preview) and the hint

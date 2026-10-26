@@ -398,13 +398,15 @@ test.describe('14-S4-3 what each click does', () => {
     await step(page, 'hints').click();
     const dialog = page.getByTestId('enter-hints-dialog');
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByTestId('modal-title')).toHaveText('Ready to create hints?');
-    await expect(dialog.getByTestId('modal-confirm')).toHaveText('Create hints');
+    // 14-S10: the dialog's copy is "You sure?" / "Yes, create hints", and
+    // Preview turns on as it opens.
+    await expect(dialog.getByTestId('modal-title')).toHaveText('You sure?');
+    await expect(dialog.getByTestId('modal-confirm')).toHaveText('Yes, create hints');
     await expect(dialog.getByTestId('modal-cancel')).toHaveText('Keep building');
     const body = await dialog.getByTestId('modal-content').innerText();
-    expect(body.startsWith('Creating hints locks your grid.'), body).toBe(true);
+    expect(body.startsWith('Creating hints will lock the black and white cells'), body).toBe(true);
     expect(body).not.toMatch(/clue/i);
-    await expect(gridMode(page)).toHaveAttribute('data-grid-mode', 'build');
+    await expect(gridMode(page)).toHaveAttribute('data-grid-mode', 'preview');
 
     await dialog.getByTestId('modal-confirm').click();
     await expect(dialog).toHaveCount(0);

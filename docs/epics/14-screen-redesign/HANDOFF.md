@@ -243,12 +243,25 @@ through S4), now fully specified by the human:
   dialog opens, if it's off. It stays on after Cancel ("Keep building")
   and after the dialog is closed any other way.
 
+**S10 (Enter-hints dialog copy and Preview) was drafted** (2026-10-26).
+The [story](stories/14-S10-enter-hints-dialog.md) adds the EPIC amendment
+(S10 after S4, before S5), the new `e2e/enter-hints-preview.spec.ts` (10
+cases) and the 14-S4-3 amendment in `e2e/builder-controls.spec.ts`.
+Drafting found that confirming with Preview on leaves the hints-phase grid
+in Preview; the story's agent Decision turns Preview off on confirm.
+Against `main`, 8 of the 10 new cases fail; a throwaway passed all 10.
+
+**S10 is approved and frozen** (2026-10-26). The human approved its
+Decisions and acceptance ("I'm happy with S10"), including the 14-S4-3
+amendment. Frozen on `main` in a specification-only commit: the story,
+the EPIC amendment, `e2e/enter-hints-preview.spec.ts` and the amended
+`e2e/builder-controls.spec.ts`.
+
 ## Next action
 
-1. The human authorizes the story that carries the two requests above
-   (proposed: a small standalone story drafted next, before S5). Nothing
-   is drafted until then.
+1. Implement S10 on `main` (no risk path), run `npm run verify` and the
+   full `npm run test:e2e`, and ask for the human's visual check.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. S4 is merged and visually checked; continue only with the story the human authorizes.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S10-enter-hints-dialog.md. S10 is approved and frozen; implement it on main.
