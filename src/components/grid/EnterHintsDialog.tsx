@@ -15,12 +15,12 @@ export function EnterHintsDialog({
   return (
     <Modal
       open={open}
-      title="Ready to write clues?"
+      title="Ready to create hints?"
       onClose={onCancel}
       testId="enter-hints-dialog"
       footer={
         <ModalActions
-          confirmLabel="Write clues"
+          confirmLabel="Create hints"
           cancelLabel="Keep building"
           onConfirm={onConfirm}
           onCancel={onCancel}
@@ -28,7 +28,7 @@ export function EnterHintsDialog({
       }
     >
       <p>
-        Writing clues locks your grid. Every empty square becomes a
+        Creating hints locks your grid. Every empty square becomes a
         black square, and the black-and-white pattern is fixed from
         then on — you won&rsquo;t be able to add or remove black
         squares, or change how long any word is.

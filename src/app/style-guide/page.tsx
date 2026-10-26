@@ -17,6 +17,9 @@ import { Masthead, MastheadAction } from '@/components/layout/Masthead';
 import { PuzzleRow, type LibraryPuzzle } from '@/components/puzzle/PuzzleRow';
 import { RowHeading } from '@/components/puzzle/RowHeading';
 import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
+import { BuilderSteps, PublishedState } from '@/components/grid/BuilderSteps';
+import { TooEarlyDialog, type TooEarlyKind } from '@/components/grid/TooEarlyDialog';
+import { PublishDialog } from '@/components/grid/PublishDialog';
 
 const SAMPLE_ROW: LibraryPuzzle = {
   id: 'sg-sample',
@@ -55,6 +58,8 @@ export default function StyleGuidePage() {
   const [errorValue, setErrorValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [newPuzzleOpen, setNewPuzzleOpen] = useState(false);
+  const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [toggleOff, setToggleOff] = useState(false);
   const [toggleOn, setToggleOn] = useState(true);
   const [formChoice, setFormChoice] = useState('mini');
@@ -359,26 +364,42 @@ export default function StyleGuidePage() {
           </div>
         </section>
 
-        <section data-testid="sg-stepper">
+        <section data-testid="sg-builder-steps" className="space-y-3">
           <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
-            Stepper
+            Builder steps
           </h2>
-          <ol className="flex items-center gap-2 text-sm">
-            {['Build the grid', 'Write clues', 'Publish'].map((label, index) => (
-              <li key={label} className="flex items-center gap-2">
-                <span
-                  className={
-                    index === 0
-                      ? 'flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white'
-                      : 'flex h-6 w-6 items-center justify-center rounded-full border border-rule-strong text-ink-2'
-                  }
-                >
-                  {index + 1}
-                </span>
-                <span className={index === 0 ? 'text-foreground' : 'text-ink-2'}>{label}</span>
-              </li>
-            ))}
-          </ol>
+          <BuilderSteps phase="grid" isEditingGrid={false} onStep={() => {}} />
+          <BuilderSteps phase="hints" isEditingGrid={false} onStep={() => {}} />
+          <BuilderSteps phase="hints" isEditingGrid onStep={() => {}} />
+          <PublishedState puzzleId="sg-sample" />
+        </section>
+
+        <section data-testid="sg-too-early-dialog">
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            Too-early dialog
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => setTooEarly('lol')}>Open “Lol.”</Button>
+            <Button onClick={() => setTooEarly('nope')}>Open “Nope.”</Button>
+            <Button onClick={() => setTooEarly('not-quite')}>Open “Not quite!”</Button>
+          </div>
+          <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
+        </section>
+
+        <section data-testid="sg-publish-dialog">
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            Publish dialog
+          </h2>
+          <Button onClick={() => setPublishOpen(true)}>Open the Publish dialog</Button>
+          {publishOpen && (
+            <PublishDialog
+              findings={[
+                { kind: 'short-answers', count: 2, message: '2 answers are shorter than three letters.' },
+              ]}
+              onPublish={async () => setPublishOpen(false)}
+              onCancel={() => setPublishOpen(false)}
+            />
+          )}
         </section>
 
         <GridExamples />

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { Coord, Grid } from "../../engine/grid";
-import { clearLetters } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
@@ -23,26 +22,23 @@ import {
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey } from "../../lib/hint-lookup";
 import { keyToIntent } from "../../lib/keyboard-intent";
-import type { StepId } from "../../lib/stepper";
+import { publishReadiness } from "../../lib/publish-readiness";
 import {
   saveGrid,
   saveHints,
   saveTitle,
   publishPuzzle,
-  unpublishPuzzle,
   enterHints,
 } from "../../app/puzzles/actions";
 import type { Visibility } from "../../app/puzzles/actions";
 import { PuzzleGrid } from "./PuzzleGrid";
-import { PhaseControls } from "./PhaseControls";
 import { HintsPanel } from "./HintsPanel";
-import { ClearLettersButton } from "./ClearLettersButton";
 import { PreviewToggle } from "./PreviewToggle";
-import { EditGridToggle } from "./EditGridToggle";
-import { PublishedLockMessage } from "./PublishedLockMessage";
 import { EnterHintsDialog } from "./EnterHintsDialog";
+import { BuilderSteps, PublishedState, type BuilderStepId } from "./BuilderSteps";
+import { TooEarlyDialog, type TooEarlyKind } from "./TooEarlyDialog";
+import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
-import { DeletePuzzleButton } from "../puzzle/DeletePuzzleButton";
 
 const SAVE_DEBOUNCE_MS = 500;
 const LOCKED_MESSAGE_MS = 2000;
@@ -142,6 +138,11 @@ export function PuzzleGridEditor({
   const [isFocused, setIsFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
+  const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  // Build-phase clicks on 3 Publish since the page loaded: the first says
+  // "Lol.", every later one "Nope." (14-S4). Not persisted.
+  const buildPublishClicks = useRef(0);
 
   useEffect(() => {
     if (lastSavedGridRef.current === state.grid) return;
@@ -273,10 +274,6 @@ export function PuzzleGridEditor({
     }));
   }
 
-  function handleClearLetters() {
-    setState((prev) => ({ ...prev, grid: clearLetters(prev.grid) }));
-  }
-
   // Cancels any pending debounced saves and re-issues them immediately
   // with the current in-memory values, so an edit made just before
   // publishing is persisted before publishPuzzle's guard would otherwise
@@ -301,12 +298,25 @@ export function PuzzleGridEditor({
     ]);
   }
 
-  // Only the 'clues' step opens the dialog -- Stepper already routes
-  // unavailable steps and the publish step to its own reveal behavior, so
-  // 'build' and 'publish' should never actually reach here, but the guard
-  // doesn't assume that.
-  function handleStepClick(id: StepId) {
-    if (id === "clues") setIsEnterHintsDialogOpen(true);
+  // BuilderSteps never reports the selected button, so each click here
+  // is a real change (14-S4).
+  function handleStep(id: BuilderStepId) {
+    if (id === "publish") {
+      if (state.phase === "grid") {
+        setTooEarly(buildPublishClicks.current === 0 ? "lol" : "nope");
+        buildPublishClicks.current += 1;
+      } else if (!hintsComplete(state)) {
+        setTooEarly("not-quite");
+      } else {
+        setIsPublishDialogOpen(true);
+      }
+      return;
+    }
+    if (state.phase === "grid") {
+      if (id === "hints") setIsEnterHintsDialogOpen(true);
+      return;
+    }
+    setIsEditingGrid(id === "build");
   }
 
   function handleCancelEnterHints() {
@@ -333,33 +343,20 @@ export function PuzzleGridEditor({
       });
   }
 
-  function handlePublish(visibility: Visibility) {
-    flushPendingSaves()
+  // The Publish dialog shows its own failure line, so a rejection is
+  // passed back to it.
+  function handlePublish(visibility: Visibility): Promise<void> {
+    return flushPendingSaves()
       .then(() => publishPuzzle(puzzleId, visibility))
       .then(({ publishedAt, visibility }) => {
+        setIsPublishDialogOpen(false);
+        setIsEditingGrid(false);
         setState((prev) => ({ ...prev, publishedAt, visibility }));
-      })
-      .catch((error) => {
-        console.error("Failed to publish puzzle", error);
       });
-  }
-
-  function handleEditGridToggle() {
-    setIsEditingGrid((prev) => !prev);
   }
 
   function handleTitleChange(title: string) {
     setState((prev) => ({ ...prev, title }));
-  }
-
-  function handleUnpublish() {
-    unpublishPuzzle(puzzleId)
-      .then(() => {
-        setState((prev) => ({ ...prev, publishedAt: null }));
-      })
-      .catch((error) => {
-        console.error("Failed to unpublish puzzle", error);
-      });
   }
 
   function handleHintChange(key: string, text: string) {
@@ -386,7 +383,6 @@ export function PuzzleGridEditor({
     title,
     geometryLocked,
     publishedAt,
-    visibility,
   } = state;
   const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
@@ -427,40 +423,38 @@ export function PuzzleGridEditor({
         onChange={handleTitleChange}
         disabled={isPublished}
       />
-      <PhaseControls
-        phase={phase}
-        hintsComplete={hintsComplete({ grid, hints, phase })}
-        puzzle={{ grid, hints, phase }}
-        isPublished={isPublished}
-        visibility={visibility}
-        onStepClick={handleStepClick}
-        onPublish={handlePublish}
-        onUnpublish={handleUnpublish}
-      />
+      {isPublished ? (
+        <PublishedState puzzleId={puzzleId} />
+      ) : (
+        <BuilderSteps
+          phase={phase}
+          isEditingGrid={isEditingGrid}
+          onStep={handleStep}
+        />
+      )}
       <EnterHintsDialog
         open={isEnterHintsDialogOpen}
         onConfirm={handleConfirmEnterHints}
         onCancel={handleCancelEnterHints}
       />
-      <div
-        data-testid="editor-actions"
-        className="my-6 flex flex-wrap items-center gap-3"
-      >
+      <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
+      {isPublishDialogOpen && (
+        <PublishDialog
+          findings={publishReadiness({ grid, hints, phase })}
+          onPublish={handlePublish}
+          onCancel={() => setIsPublishDialogOpen(false)}
+        />
+      )}
+      {/* The Preview toggle's row stays, empty, outside the build phase, so
+          the grid doesn't move when the phase changes (14-S4). */}
+      <div className="mt-[27px] mb-3 flex h-6 items-center">
         {phase === "grid" && (
           <PreviewToggle
             isPreviewing={isPreviewing}
             onToggle={() => setIsPreviewing((prev) => !prev)}
           />
         )}
-        {phase === "hints" && (
-          <EditGridToggle
-            isEditingGrid={isEditingGrid}
-            disabled={isPublished}
-            onToggle={handleEditGridToggle}
-          />
-        )}
       </div>
-      {isPublished && <PublishedLockMessage />}
       {geometryLocked && (
         <p
           data-testid="geometry-locked-message"
@@ -511,13 +505,6 @@ export function PuzzleGridEditor({
             />
           </div>
         )}
-      </div>
-      <div
-        data-testid="danger-zone"
-        className="mt-8 flex items-center gap-3 border-t border-rule pt-4"
-      >
-        <DeletePuzzleButton puzzleId={puzzleId} />
-        {!isPublished && <ClearLettersButton onConfirm={handleClearLetters} />}
       </div>
     </div>
   );
