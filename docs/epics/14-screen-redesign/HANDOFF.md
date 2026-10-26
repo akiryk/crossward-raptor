@@ -209,12 +209,38 @@ Verification on the implementation tree (the same content as the commit):
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 549
   passed.
 
+**S4 is merged.** PR #27 (head `aa5b4a2`) was independently reviewed and
+merged into `main` as `7755ea6` (2026-10-26), with no blocking findings.
+The reviewer confirmed the read-then-write condition in `publishPuzzle`,
+and that the changed paths match the declared ones, with no test changes
+since `548e7dd`. Non-blocking: the Publish dialog's Cancel still works
+while a publish is pending, which the Decision allows.
+
+**A flaky S2 test was fixed first.** 14-S2-6 "confirming deletes the
+puzzle… focuses the heading" failed in all three full runs on S4's head
+and in 1 of 10 isolated runs on `main`. The library focused its heading one
+animation frame after a delete. Under load the Modal's close committed
+after that frame and returned focus to the row's Delete button, which the
+refreshed list then removed. `7d366c2` on `main` focuses the heading once
+the deleted row has left the list (`PuzzleLibrary.tsx`, no test changes),
+so this test passed 30 times in a row. On the merged tree (`7d366c2` plus
+`aa5b4a2`, identical to `7755ea6`'s tree), `npm run verify` exited 0 (608
+tests) and the full `npm run test:e2e` exited 0 (549 passed).
+
+**Human requests for a later story** (2026-10-26, seen while clicking
+through S4):
+
+- New copy for the enter-hints dialog. The human will supply the text.
+  14-S4-3 freezes today's copy, so it needs a specification change.
+- Turn Preview on when Create Hints is clicked, if it's off. Still to
+  decide: when the dialog opens, or only on confirm, and what Cancel does.
+
 ## Next action
 
-1. Independent review of S4 PR #27 per [REVIEW](../../process/REVIEW.md);
-   the reviewer checks the read-then-write condition in `publishPuzzle`.
-2. After merge, the human's visual check of the builder.
+1. The human's visual check of the builder (S4).
+2. Then the next story only once the human authorizes it, folding in the
+   two human requests above where they fit.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. Independently review S4 PR #27 (branch story/14-S4-builder-controls) per docs/process/REVIEW.md, and merge it if there are no blockers.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. S4 is merged; record the human's visual check result, then continue only with the story the human authorizes.
