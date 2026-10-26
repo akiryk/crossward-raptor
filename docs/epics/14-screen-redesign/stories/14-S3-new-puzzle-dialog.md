@@ -123,9 +123,11 @@ Inside the Modal's content (16px below the header, 16px side insets):
 - **Create is enabled at open,** because the name isn't blank. The blank
   rule is kept: emptying the field, or leaving only spaces, disables
   Create, and typing a name re-enables it.
-- **Selecting the name** *(human: select-all while untouched)*:
-  - At open, the field has focus and the whole name is selected, so typing
-    replaces it and Backspace empties it.
+- **Selecting the name** *(human: select-all while untouched; corrected
+  after the visual check, see [Correction](#correction-2026-10-25))*:
+  - At open, the field has focus with the caret after the name and nothing
+    selected, so typing adds to it and Backspace removes one letter.
+    Clicking in the field is how a builder says they want their own name.
   - While the name is still the generated one, untouched, every click in
     the field selects all of it.
   - After the first edit, clicks place the caret normally.
@@ -240,12 +242,14 @@ Three new files, plus the amendments above:
      Create start on its left edge, 16px inside `modal-content`.
 3. **14-S3-3 generated name** (5 cases)
    - At open: three title-case words with two different nouns, at most 80
-     characters, wholly selected, and Create enabled.
+     characters, focused with a collapsed caret at its end, and Create
+     enabled.
    - Three openings give more than one name. There's no mocked random:
      three equal draws from about a million names is a one-in-10¹² event.
-   - Typing replaces the name. Backspace then empties it and disables
-     Create, and typing enables it again. Backspace at open empties the
-     whole name.
+   - After a click in the field, typing replaces the name. Backspace then
+     empties it and disables Create, and typing enables it again.
+   - At open, typing adds to the name, and Backspace removes one letter,
+     leaving Create enabled.
    - While untouched, a click in the middle of the drawn name selects all
      of it, both while the field is focused and after focus has moved to
      the panel. After an edit, a click there leaves a collapsed caret inside
@@ -310,7 +314,8 @@ The module exports `PUZZLE_NAME_ADJECTIVES`, `PUZZLE_NAME_NOUNS` and
     the check, then passed 9 of 9 on the same implementation.
   - Two details it surfaced for the implementer:
     - `autoFocus` runs before the value is in the field, so the name is
-      selected in an effect after mount.
+      selected in an effect after mount (superseded by the
+      [Correction](#correction-2026-10-25)).
     - Chrome collapses the selection when a click lands inside it, so
       while the name is untouched, the field's `mousedown` is prevented
       and the input is focused and selected by hand.
@@ -321,6 +326,40 @@ The module exports `PUZZLE_NAME_ADJECTIVES`, `PUZZLE_NAME_NOUNS` and
   - `aria-label` instead of `aria-labelledby`: 14-S3-1 failed.
   - An empty default name: 4 of 14-S3-3's cases and 14-S3-4 failed.
   - No select-all on click: 14-S3-3's click case failed.
+
+## Correction (2026-10-25)
+
+**The human's visual check** of the implementation (`4139b8d`): "Don't
+auto select it. If the user clicks in the input, that means they want to
+create their own name and that is when to select the entire name." Asked
+how the dialog should open, the human chose: focused, with nothing
+selected.
+
+**Decision:** at open, the name field keeps focus (kept behavior), with
+the caret after the generated name and nothing selected. While the name is
+untouched, a click in the field still selects all of it. After the first
+edit, clicks place the caret. Everything else is unchanged.
+
+**Amended acceptance** in `e2e/new-puzzle-dialog.spec.ts`, 14-S3-3:
+
+- the header comment;
+- "the dialog opens with a generated name …": the name is focused with a
+  collapsed caret at its end, instead of wholly selected;
+- "typing replaces the name …": clicks in the field before typing;
+- "Backspace at open empties the whole name" becomes "at open, typing adds
+  to the name and Backspace removes one letter".
+
+The click case, the fresh-name case and the create case are unchanged. No
+other frozen test asserts the opening selection: the other dialog tests
+fill the name with `fill()`.
+
+**Review:** an independent subagent review approved the correction with no
+blocking findings (2026-10-25). Before the change, the two amended opening
+cases fail on `4139b8d`, and the other 8 cases pass.
+
+**Runtime:** `NewPuzzleDialog.tsx` only. It drops the select on mount and
+on focus and puts the caret at the end once mounted. It keeps the
+mousedown select-all.
 
 ## Repo paths
 
