@@ -139,7 +139,7 @@ export function Modal({
       <div
         data-testid="modal-backdrop"
         onClick={() => { if (!dismissalDisabled) onClose(); }}
-        className="absolute inset-0 bg-modal-backdrop"
+        className="modal-backdrop-enter absolute inset-0 bg-modal-backdrop"
       />
       <div className="pointer-events-none relative flex h-full items-center justify-center p-4">
         <div
@@ -149,7 +149,7 @@ export function Modal({
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          className="pointer-events-auto relative max-h-full min-w-[min(300px,100%)] max-w-[min(500px,100%)] overflow-hidden rounded-modal border-2 border-modal-background bg-modal-background outline-hidden"
+          className="modal-panel-enter pointer-events-auto relative max-h-full min-w-[min(300px,100%)] max-w-[min(500px,100%)] overflow-hidden rounded-modal border-2 border-modal-background bg-modal-background outline-hidden"
         >
           <div
             data-testid="modal-header"

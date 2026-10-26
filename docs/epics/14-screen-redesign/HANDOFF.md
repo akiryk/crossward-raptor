@@ -143,12 +143,22 @@ checks (asked whether they earn their place). Frozen on `main` in a
 specification-only commit: the story, `e2e/modal-entrance.spec.ts`,
 `playwright.config.ts` and the EPIC amendment.
 
+**S9 is implemented on `main`** (2026-10-25), on top of freeze commit
+`6a098d5`: two keyframes and two classes in `globals.css` (a
+reduced-motion rule swaps the panel to the fade), applied to Modal's
+backdrop and panel. No risk path changed, and the frozen acceptance is
+unchanged since `6a098d5`. Verification on the implementation tree:
+
+- `npm run verify`: exit 0 (46 files, 610 Vitest tests).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 553
+  passed.
+
 ## Next action
 
-1. Implement S9 (`Modal.tsx`, `globals.css`), run `npm run verify` and the
-   full `npm run test:e2e`, deliver on `main`, then the human's visual check
-   of a dialog opening.
+1. The human's visual check of a dialog opening (for example Create A
+   Puzzle on `/puzzles`), at full motion and, if they wish, with the
+   system's reduce-motion setting on.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Implement the frozen S9, verify it, deliver it on main, and stop for the human's visual check of a dialog opening.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Record the human's visual check of S9's dialog entrance. If they ask for a change, follow the story's correction procedure; otherwise S9 is done.
