@@ -153,12 +153,14 @@ unchanged since `6a098d5`. Verification on the implementation tree:
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 553
   passed.
 
+**S9's visual check passed** (human, 2026-10-25): the dialog entrance is
+accepted with no change, so S9 is done.
+
 ## Next action
 
-1. The human's visual check of a dialog opening (for example Create A
-   Puzzle on `/puzzles`), at full motion and, if they wish, with the
-   system's reduce-motion setting on.
+1. Draft the S4 (Builder controls) specification from its EPIC section,
+   for the human's approval. There is no story file yet.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S9-modal-entrance.md. Record the human's visual check of S9's dialog entrance. If they ask for a change, follow the story's correction procedure; otherwise S9 is done.
+Read docs/epics/14-screen-redesign/HANDOFF.md and the "S4 — Builder controls" section of docs/epics/14-screen-redesign/EPIC.md. Draft the S4 story specification and proposed acceptance on main for the human's approval; do not freeze or implement before approval.

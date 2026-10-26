@@ -5,8 +5,9 @@ appearing abruptly. The change is in epic 13's shared Modal, so every
 dialog gets it: new puzzle, enter hints, play reset, the style guide's
 sample, and the S4/S7 dialogs once they exist.
 
-**Status: implemented on `main`, awaiting the human's visual check**
-(2026-10-25). Frozen in `6a098d5`. The human approved the
+**Status: done** (2026-10-25). The human's visual check passed: they
+tested the dialog entrance and accepted it with no change. Implemented on
+`main` in `c48f176`, frozen in `6a098d5`. The human approved the
 observed acceptance, including the full-motion project, and chose to keep
 the confetti checks. Earlier the same day, the human chose the motion,
 the instant close and a separate story at S3's visual check, and approved
