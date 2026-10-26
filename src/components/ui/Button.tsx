@@ -46,6 +46,7 @@ export function Button({
   onClick,
   children,
   'data-testid': dataTestId,
+  'data-step-id': dataStepId,
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -58,6 +59,8 @@ export function Button({
   onClick?: () => void;
   children: ReactNode;
   'data-testid'?: string;
+  /** Names a builder step (14-S4). */
+  'data-step-id'?: string;
 }) {
   const numbered = number !== undefined;
   const buttonType =
@@ -79,6 +82,7 @@ export function Button({
       type={type}
       form={form}
       data-testid={dataTestId}
+      data-step-id={dataStepId}
       data-button-type={buttonType}
       aria-current={selected ? 'true' : undefined}
       onClick={onClick}

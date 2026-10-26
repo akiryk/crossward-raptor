@@ -190,11 +190,31 @@ in the story's "Discrimination" section. S4 touches the risk path
 `publishPuzzle` in `src/app/puzzles/actions.ts`, so it is a reviewed
 branch story (`story/14-S4-builder-controls`).
 
+**S4 is implemented** (2026-10-26) on branch
+`story/14-S4-builder-controls`, on top of freeze commit `548e7dd`, and is
+awaiting independent review in a PR. It is the drafting throwaway, with
+`publishPuzzle`'s comments tidied. The changed paths are the story's
+declared runtime paths and this handoff. Only the risk path
+`src/app/puzzles/actions.ts` changes: `publishPuzzle` reads the eligible
+puzzle, rejects it unless `hintsComplete`, then publishes with
+`updateMany` whose `where` repeats the eligibility and adds
+`hints: { equals: <hints read> }`. Every rejection throws the same error.
+`unpublishPuzzle` stays with no caller (removal noted for S8). The frozen
+acceptance is unchanged since `548e7dd`.
+
+Verification on the implementation tree (the same content as the commit):
+
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 549
+  passed.
+
 ## Next action
 
-1. Implement S4 on branch `story/14-S4-builder-controls` from the frozen
-   `main`, per the story's Repo paths; open a PR for independent review.
+1. Independent review of the S4 PR per [REVIEW](../../process/REVIEW.md);
+   the reviewer checks the read-then-write condition in `publishPuzzle`.
+2. After merge, the human's visual check of the builder.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. Implement S4 on branch story/14-S4-builder-controls from the frozen main and open a PR for independent review.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. Independently review the open S4 PR (branch story/14-S4-builder-controls) per docs/process/REVIEW.md, and merge it if there are no blockers.

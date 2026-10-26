@@ -14,6 +14,7 @@ import {
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
 import { enterHintsPhase } from '@/engine/phase';
+import { hintsComplete } from '@/engine/hints';
 import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
@@ -401,10 +402,11 @@ export async function enterHints(
 }
 
 /** Publishes the puzzle with the given visibility, stamping publishedAt now.
- *  Requires the puzzle to be in hints phase and not already published --
- *  enforced in the single update's WHERE clause, not a separate check, so a
- *  concurrent call can't slip a grid-phase or already-published puzzle
- *  through between a check and a write. */
+ *  Requires the puzzle to be the caller's, in hints phase, not already
+ *  published, and (14-S4) to have every required hint written. Each
+ *  condition is repeated in the update's WHERE clause, the hints by value,
+ *  so a concurrent save can't slip an ineligible puzzle through between
+ *  the check and the write. Every rejection throws the same error. */
 export async function publishPuzzle(
   id: string,
   visibility: Visibility
@@ -414,14 +416,33 @@ export async function publishPuzzle(
     throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
   }
 
+  const notEligible = new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
+  const eligible = { id, builderId: session.user.id, phase: 'hints', publishedAt: null };
+  const record = await prisma.puzzle.findUnique({
+    where: eligible,
+    select: { grid: true, hints: true, phase: true },
+  });
+  if (
+    !record ||
+    !hintsComplete(
+      deserializePuzzle({
+        grid: record.grid as unknown as SerializedGrid,
+        hints: record.hints as Record<string, string>,
+        phase: record.phase as Puzzle['phase'],
+      })
+    )
+  ) {
+    throw notEligible;
+  }
+
+  // Conditioned on the hints just checked: a save that blanks one in
+  // between makes the update match nothing rather than publish over it.
   const publishedAt = new Date();
   const { count } = await prisma.puzzle.updateMany({
-    where: { id, builderId: session.user.id, phase: 'hints', publishedAt: null },
+    where: { ...eligible, hints: { equals: record.hints as Prisma.InputJsonValue } },
     data: { publishedAt, visibility },
   });
-  if (count === 0) {
-    throw new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
-  }
+  if (count === 0) throw notEligible;
 
   return { publishedAt, visibility };
 }

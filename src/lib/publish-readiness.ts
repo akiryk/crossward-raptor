@@ -55,7 +55,7 @@ export function publishReadiness(puzzle: Puzzle): readonly Finding[] {
     findings.push({
       kind: 'unwritten-hints',
       count: unwrittenCount,
-      message: `${unwrittenCount} ${plural(unwrittenCount, 'clue is', 'clues are')} missing.`,
+      message: `${unwrittenCount} ${plural(unwrittenCount, 'hint is', 'hints are')} missing.`,
     });
   }
 
