@@ -94,14 +94,27 @@ Acceptance:
   `src/components/ui/input-source.test.ts` and
   `src/components/ui/radio-source.test.ts`.
 
-A throwaway implementation from drafting is in `/tmp/S3-throwaway/`.
+**S3 is implemented on `main`** (2026-10-25), on top of freeze commit
+`f82367c`: `NewPuzzleDialog.tsx`, the new `src/lib/puzzle-name.ts`,
+`Radio.tsx` (`form` at `body-small`, optional `labelledBy`) and the
+`sg-new-puzzle-dialog` style-guide sample. It's based on the drafting
+throwaway, tidied, with one noun swapped ("Schedule" became "Snowflake").
+No risk path changed, and the frozen acceptance is unchanged since
+`f82367c`.
+
+Verification (precommit tree, the same content as the implementation
+commit):
+
+- `npm run verify`: exit 0 (46 files, 610 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): 548 passed.
 
 ## Next action
 
-Implement S3 on `main` (low-medium blast radius, no risk path) against the
-frozen acceptance, run `npm run verify` and the full `npm run test:e2e`,
-then deliver on `main`.
+The human's visual check of the dialog at desktop width against the
+mockup (`/style-guide` → New-puzzle dialog, or Create A Puzzle on
+`/puzzles`). After that, S3 is done; S4 needs separate authorization.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S3-new-puzzle-dialog.md. S3 is approved and frozen on main; implement it on main against the frozen acceptance, verify and deliver.
+Read docs/epics/14-screen-redesign/HANDOFF.md. S3 is implemented on main and awaits the human's visual check; record its result, then write the S4 story specification only if authorized.

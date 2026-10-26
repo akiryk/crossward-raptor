@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type MouseEvent } from 'react';
+import { generatePuzzleName } from '../../lib/puzzle-name';
 import { DEFAULT_SIZE, type PuzzleSize } from '../../lib/puzzle-size';
 import { Modal } from '../ui/Modal';
 import { ModalActions } from '../ui/ModalActions';
@@ -21,7 +22,7 @@ export function NewPuzzleDialog({
   onCancel: () => void;
   onCreate: (input: { title: string; size: PuzzleSize }) => void;
 }) {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(() => generatePuzzleName());
   const [size, setSize] = useState<PuzzleSize>(DEFAULT_SIZE);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // A ref, not just the state above: two clicks dispatched in the same
@@ -32,6 +33,30 @@ export function NewPuzzleDialog({
   const hasSubmittedRef = useRef(false);
 
   const canCreate = title.trim() !== '' && !isSubmitting;
+  const sizeLabelId = useId();
+
+  // While the generated name is untouched, focusing or clicking the field
+  // selects all of it, so typing or Backspace replaces it.
+  const touchedRef = useRef(false);
+  const nameRef = useRef<HTMLDivElement>(null);
+
+  function selectUntouchedName() {
+    if (touchedRef.current) return;
+    nameRef.current?.querySelector('input')?.select();
+  }
+
+  // autoFocus runs before the value is in the field, so select once mounted.
+  useEffect(selectUntouchedName, []);
+
+  function handleNameMouseDown(event: MouseEvent) {
+    if (touchedRef.current) return;
+    // A click inside a selection collapses it, so keep the browser from
+    // placing a caret and focus and select the name by hand.
+    event.preventDefault();
+    const input = nameRef.current?.querySelector('input');
+    input?.focus();
+    input?.select();
+  }
 
   function handleCreate() {
     if (hasSubmittedRef.current) return;
@@ -43,7 +68,7 @@ export function NewPuzzleDialog({
   return (
     <Modal
       open
-      title="New puzzle"
+      title="A New Puzzle!"
       onClose={onCancel}
       testId="new-puzzle-dialog"
       footer={
@@ -58,29 +83,39 @@ export function NewPuzzleDialog({
         />
       }
     >
-      <div data-modal-initial-focus>
-        <TextInput
-          data-testid="new-puzzle-name"
-          label="Puzzle name"
-          aria-label="Puzzle name"
-          placeholder="e.g. Monday Puzzle"
-          value={title}
-          onChange={setTitle}
-          autoFocus
+      {/* One child, so the Modal content's sibling spacing doesn't apply. */}
+      <div>
+        <div ref={nameRef} data-modal-initial-focus onMouseDown={handleNameMouseDown}>
+          <TextInput
+            data-testid="new-puzzle-name"
+            label="Name it!"
+            aria-label="Name it!"
+            placeholder="Add name here..."
+            value={title}
+            onChange={(value) => {
+              touchedRef.current = true;
+              setTitle(value);
+            }}
+            onFocus={selectUntouchedName}
+            autoFocus
+          />
+        </div>
+        <p id={sizeLabelId} data-testid="new-puzzle-size-label" className="mt-8 mb-3 text-title-4 text-primary">
+          And pick a size!
+        </p>
+        <RadioGroup
+          data-testid="new-puzzle-size"
+          name="new-puzzle-size"
+          labelledBy={sizeLabelId}
+          options={SIZES.map(({ id, label }) => ({
+            value: id,
+            label,
+            attributes: { 'data-size': id, 'data-selected': size === id ? 'true' : 'false' },
+          }))}
+          value={size}
+          onChange={setSize}
         />
       </div>
-      <RadioGroup
-        data-testid="new-puzzle-size"
-        name="new-puzzle-size"
-        label="Puzzle size"
-        options={SIZES.map(({ id, label }) => ({
-          value: id,
-          label,
-          attributes: { 'data-size': id, 'data-selected': size === id ? 'true' : 'false' },
-        }))}
-        value={size}
-        onChange={setSize}
-      />
     </Modal>
   );
 }

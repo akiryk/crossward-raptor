@@ -16,6 +16,7 @@ import { Logo } from '@/components/ui/Logo';
 import { Masthead, MastheadAction } from '@/components/layout/Masthead';
 import { PuzzleRow, type LibraryPuzzle } from '@/components/puzzle/PuzzleRow';
 import { RowHeading } from '@/components/puzzle/RowHeading';
+import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
 
 const SAMPLE_ROW: LibraryPuzzle = {
   id: 'sg-sample',
@@ -53,6 +54,7 @@ export default function StyleGuidePage() {
   const [largeValue, setLargeValue] = useState('');
   const [errorValue, setErrorValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [newPuzzleOpen, setNewPuzzleOpen] = useState(false);
   const [toggleOff, setToggleOff] = useState(false);
   const [toggleOn, setToggleOn] = useState(true);
   const [formChoice, setFormChoice] = useState('mini');
@@ -143,6 +145,16 @@ export default function StyleGuidePage() {
           >
             <p>A short sample of a dialog&rsquo;s content.</p>
           </Modal>
+        </section>
+
+        <section data-testid="sg-new-puzzle-dialog">
+          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+            New-puzzle dialog
+          </h2>
+          <Button onClick={() => setNewPuzzleOpen(true)}>Open the new-puzzle dialog</Button>
+          {newPuzzleOpen && (
+            <NewPuzzleDialog onCancel={() => setNewPuzzleOpen(false)} onCreate={() => setNewPuzzleOpen(false)} />
+          )}
         </section>
 
         <section data-testid="sg-inputs" className="space-y-3">

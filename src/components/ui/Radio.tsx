@@ -21,7 +21,7 @@ const RING = {
 };
 
 const LABEL = {
-  form: { selected: 'text-body-normal text-primary', unselected: 'text-body-normal text-primary' },
+  form: { selected: 'text-body-small text-primary', unselected: 'text-body-small text-primary' },
   nav: {
     selected: 'text-title-4 text-button-active group-has-[:focus-visible]:text-button-hover',
     unselected:
@@ -32,6 +32,7 @@ const LABEL = {
 export function RadioGroup<V extends string>({
   name,
   label,
+  labelledBy,
   variant = 'form',
   options,
   value,
@@ -39,8 +40,10 @@ export function RadioGroup<V extends string>({
   'data-testid': dataTestId,
 }: {
   name: string;
-  /** The group's accessible name. */
-  label: string;
+  /** The group's accessible name, when no visible heading names it. */
+  label?: string;
+  /** The id of a visible heading that names the group, used instead of `label`. */
+  labelledBy?: string;
   variant?: RadioVariant;
   options: RadioOption<V>[];
   value: V;
@@ -50,7 +53,8 @@ export function RadioGroup<V extends string>({
   return (
     <div
       role="radiogroup"
-      aria-label={label}
+      aria-label={labelledBy ? undefined : label}
+      aria-labelledby={labelledBy}
       data-testid={dataTestId}
       data-variant={variant}
       className={variant === 'nav' ? 'flex flex-wrap items-center gap-6' : 'flex flex-col gap-3'}
