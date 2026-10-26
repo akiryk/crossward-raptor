@@ -327,12 +327,32 @@ tree:
 S11 awaits the human's visual check (Tab through `/style-guide`, the
 library and the editor; clicks show no ring).
 
+**S5's implementation is in progress, uncommitted on `main`** (on top of
+freeze commit `7a2087a`; a copy is in
+`/tmp/crossward-drafts/14-S5-impl-wip.patch`). It is the drafting
+throwaway plus the 40px gap, `#CEB55A` and the new `PreviewLegend.tsx`
+(the grid region is wrapped in a column that carries its width, the legend
+below). Checks on that tree:
+
+- `npm run verify`: exit 0 (608 Vitest tests).
+- S5's spec with `editor-layout`, `focus-ring`, `preview`, `style-guide`
+  and `color-tokens`: all passed.
+- **The full `npm run test:e2e` failed 9 (588 passed)**, in 11.8m (a
+  normal run is about 3m, so the machine was loaded). The failures are
+  outside the grid: `new-puzzle` D6-3 and the rapid-resubmit case,
+  `modal` M1-1, `modal-a11y` M2-1 (disabled button not a Tab stop) and
+  five `library-play` P5 cases. Not yet diagnosed: rerun them alone on
+  this tree and on `main` at `7a2087a`'s runtime to tell flakes from an
+  S5 regression (the grid-region wrapper is the likeliest S5 cause).
+
 ## Next action
 
-1. Implement S5 on `main` (frozen, no risk path) with `npm run verify`
-   and the full `npm run test:e2e`.
+1. Diagnose the 9 failures above, fix if S5 caused them, then pass
+   `npm run verify` and the full `npm run test:e2e`, and commit S5's
+   implementation on `main`. The frozen acceptance must stay unchanged
+   since `7a2087a`.
 2. The human's visual checks of S11 and S5.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is approved and frozen and awaits implementation; S11 is implemented on main and awaits the human's visual check.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S5-build-grid.md. S5 is frozen and its implementation is uncommitted on main with 9 undiagnosed browser failures; S11 is implemented on main and awaits the human's visual check.
