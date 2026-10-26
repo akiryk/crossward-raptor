@@ -99,6 +99,6 @@ describe('F5 Input source', () => {
     expect(signIn).toHaveLength(2);
     for (const tag of signIn) expect(tag).toMatch(/\bsize="large"/);
     expect(newPuzzle).toHaveLength(1);
-    expect(newPuzzle[0]).toMatch(/\blabel="Puzzle name"/);
+    expect(newPuzzle[0]).toMatch(/\blabel="Name it!"/);
   });
 });

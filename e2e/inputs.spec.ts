@@ -334,10 +334,10 @@ test.describe('F5-6 call sites', () => {
     await page.getByTestId('new-puzzle-button').click();
     const input = page.getByTestId('new-puzzle-name');
     const label = page.getByTestId('new-puzzle-name-label');
-    await expect(label).toHaveText('Puzzle name');
+    await expect(label).toHaveText('Name it!');
     await expectTextStyle(page, label, 'title-4', 14, 600, 'new-puzzle label');
     expect((await box(label)).y).toBeLessThan((await box(input)).y);
-    await expect(page.getByRole('textbox', { name: 'Puzzle name', exact: true })).toBeFocused();
+    await expect(page.getByRole('textbox', { name: 'Name it!', exact: true })).toBeFocused();
     await expectTextStyle(page, input, 'body-normal', 14, 400, 'new-puzzle field');
     await expectUnderline(page, input, 'line-highlight', 'new-puzzle focused');
   });

@@ -72,9 +72,13 @@ test.describe('D6-3 new-puzzle dialog', () => {
     await expect(sizeOption(page, 'daily')).not.toBeChecked();
   });
 
-  test('create is disabled until a name is typed', async ({ page }) => {
+  // Amended by 14-S3: the dialog opens with a generated name.
+  test('create is enabled with the generated name, disabled once it is cleared, and enabled again by typing', async ({ page }) => {
     await openDialog(page);
 
+    await expect(page.getByTestId('new-puzzle-create')).toBeEnabled();
+
+    await page.getByTestId('new-puzzle-name').fill('');
     await expect(page.getByTestId('new-puzzle-create')).toBeDisabled();
 
     await page.getByTestId('new-puzzle-name').fill('Has a name');

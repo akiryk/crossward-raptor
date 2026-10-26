@@ -14,7 +14,7 @@ import { waitForNewPuzzleReady } from './helpers/wait-for-ready';
 // A Radio option is a 16px round 2px ring with an 8px dot inside when
 // selected, and its label sits 8px right of the ring. The `form` variant
 // (stacked, the puzzle size) has `line-dark` unselected rings and
-// `body-normal` `primary` labels. The `nav` variant (a row, Build/Play) has
+// `body-small` `primary` labels (14-S3). The `nav` variant (a row, Build/Play) has
 // `link-muted` unselected rings and labels and `title-4` labels that are
 // `button-active` when selected. A selected ring and dot are
 // `button-active`. Hovering an unselected option shows `button-hover`
@@ -367,7 +367,7 @@ test.describe('F6-2 Preview toggle', () => {
 
 // --- F6-3: the form Radio ---
 test.describe('F6-3 form Radio', () => {
-  test('stacked options; selected is a button-active ring and dot, unselected a line-dark ring; labels are body-normal primary', async ({ page }) => {
+  test('stacked options; selected is a button-active ring and dot, unselected a line-dark ring; labels are body-small primary', async ({ page }) => {
     await catalog(page);
     const options = radioOptions(page, 'sg-radio-form');
     const boxes = [];
@@ -387,7 +387,7 @@ test.describe('F6-3 form Radio', () => {
         await expectRing(page, o, 'line-dark', `option ${i}`);
         await expect(o.dot, `option ${i} dot`).toBeHidden();
       }
-      await expectTextStyle(page, o.label, 'body-normal', 14, 400, `option ${i} label`);
+      await expectTextStyle(page, o.label, 'body-small', 12, 400, `option ${i} label`);
       await expectLabelColor(page, o, 'primary', `option ${i}`);
       await expectLabelBeside(o, `option ${i}`);
     }
@@ -535,7 +535,7 @@ test.describe('F6-5 size picker', () => {
     await openDialog(page);
     const group = page.getByTestId('new-puzzle-size');
     await expect(group).toHaveAttribute('role', 'radiogroup');
-    await expect(group).toHaveAttribute('aria-label', 'Puzzle size');
+    await expect(group).toHaveAccessibleName('And pick a size!');
     const options = radioOptions(page, 'new-puzzle-size');
     await expect(options.locator('[data-radio-label]')).toHaveText([
       'Mini (5×5)',
@@ -554,7 +554,7 @@ test.describe('F6-5 size picker', () => {
         await expectRing(page, o, 'line-dark', sizes[i]);
         await expect(o.dot, `${sizes[i]} dot`).toBeHidden();
       }
-      await expectTextStyle(page, o.label, 'body-normal', 14, 400, `${sizes[i]} label`);
+      await expectTextStyle(page, o.label, 'body-small', 12, 400, `${sizes[i]} label`);
       await expectLabelColor(page, o, 'primary', sizes[i]);
       await expectLabelBeside(o, sizes[i]);
     }

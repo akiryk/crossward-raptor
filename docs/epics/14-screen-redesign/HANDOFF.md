@@ -81,11 +81,27 @@ The reviewer's runs on PR head `9441b26`:
   [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)): exit 0, 539 passed.
 - CI: Vercel and Vercel Preview Comments passed; there are no other checks.
 
+**S3 is approved and frozen** by the human (2026-10-25): the
+[story](stories/14-S3-new-puzzle-dialog.md), its acceptance, the amendments
+under its "Retired and amended acceptance" and the EPIC amendment (the
+generated default name), frozen on `main` in a specification-only commit.
+Acceptance:
+
+- new: `e2e/new-puzzle-dialog.spec.ts`, `src/lib/puzzle-name.test.ts` and
+  `src/components/puzzle/new-puzzle-source.test.ts`;
+- amended: `e2e/new-puzzle.spec.ts`, `e2e/modal-a11y.spec.ts`,
+  `e2e/inputs.spec.ts`, `e2e/toggle-radio.spec.ts`,
+  `src/components/ui/input-source.test.ts` and
+  `src/components/ui/radio-source.test.ts`.
+
+A throwaway implementation from drafting is in `/tmp/S3-throwaway/`.
+
 ## Next action
 
-Write the S3 specification (the [EPIC](EPIC.md)'s "S3 — New-puzzle dialog"
-section) per [STORY](../../process/STORY.md), for the human's approval.
+Implement S3 on `main` (low-medium blast radius, no risk path) against the
+frozen acceptance, run `npm run verify` and the full `npm run test:e2e`,
+then deliver on `main`.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and the S3 section of docs/epics/14-screen-redesign/EPIC.md. Write the S3 story specification on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S3-new-puzzle-dialog.md. S3 is approved and frozen on main; implement it on main against the frozen acceptance, verify and deliver.

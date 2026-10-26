@@ -88,7 +88,7 @@ describe('F6 Preview toggle and Radio source', () => {
       'border-button-hover',
       'bg-button-active',
       'bg-button-hover',
-      'text-body-normal',
+      'text-body-small',
       'text-primary',
       'text-title-4',
       'text-button-active',

@@ -142,6 +142,8 @@ test.describe('M2-1 focus', () => {
 
   test('a disabled button is never a Tab stop', async ({ page }) => {
     await openNewPuzzleDialog(page);
+    // 14-S3: the dialog opens with a generated name; clearing it disables Create.
+    await page.getByTestId('new-puzzle-name').fill('');
     await expect(page.getByTestId('new-puzzle-create')).toBeDisabled();
 
     const visited = new Set<string>();

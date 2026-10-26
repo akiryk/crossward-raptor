@@ -67,7 +67,8 @@ implementation diff.
 screens look and where controls sit. Saving, publishing, play persistence,
 ownership checks and the grid engine keep their behavior. Each departure
 (the username at sign-in, the stepper's removal, delete in a dialog,
-Build/Play) is named in its story.
+Build/Play, the new-puzzle dialog's generated default name) is named in its
+story.
 
 **No stepper** *(human)*. F3's numbered buttons ("1 Edit the Grid /
 2 Create Hints") replace it. The `Stepper` component, `src/lib/stepper.ts`
@@ -175,7 +176,8 @@ whose screen it's on; the story either fixes it or says why not.
   link; no passwords or account pages.
 - **No grid-engine change.** `src/engine/**` is untouched.
 - **No new puzzle, publishing or play behavior** beyond the named control
-  moves (stepper, delete dialog, Build/Play's list filter).
+  moves (stepper, delete dialog, Build/Play's list filter) and the
+  new-puzzle dialog's generated default name (S3).
 - **No dark mode, no focus rings, no two-label toggle.**
 - **No new shared components** beyond what a screen needs (Row Heading,
   Puzzle Row, Hint Input, Player Hint, Prominent Hint, the hint skeleton).
@@ -211,8 +213,9 @@ Build/Play splits the list client-side per its Decision.
 ### S3 — New-puzzle dialog
 
 The new-puzzle modal (name Input with its label, the size Radio already
-adopted in F6), laid out from the mockups. (The display-name dialog is
-removed by S1.)
+adopted in F6), laid out from the mockups, with "Name it!" and "And pick a
+size!" `title-4` headings and a generated default name. (The display-name
+dialog is removed by S1.)
 
 ### S4 — Builder controls
 
