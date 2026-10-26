@@ -24,6 +24,7 @@
   --palette-text-error: #e2655f;
   --palette-blue-bright: #4bc0ff;
   --palette-blue-medium: #cfeeff;
+  --palette-cyan: #00f0ff;
 }
 
 /* --- color styles (Story F1) --- */
@@ -78,6 +79,8 @@
   --color-logo: var(--palette-gray-400);
   --color-logo-cell: var(--palette-white);
   --color-masthead: var(--palette-white);
+  /* keyboard focus (Story 14-S11) */
+  --color-focus-ring: var(--palette-cyan);
 }
 
 /* --- shape (Story F3) --- */
@@ -237,4 +240,16 @@
   .modal-panel-enter {
     animation-name: modal-fade-in;
   }
+}
+
+/* Story 14-S11: keyboard focus shows a ring on buttons, links, the Preview
+   toggle and Radio options; mouse focus doesn't (:focus-visible). The
+   toggle and a Radio option are ringed as a whole, by their label; a
+   marked container (a puzzle row) is ringed instead of its link. Unlayered,
+   so it wins over a component's outline-none. */
+:is(button, a):focus-visible:not([data-keyboard-focus-host] a),
+label:has(input:is([type="checkbox"], [type="radio"]):focus-visible),
+[data-keyboard-focus-host]:has(a:focus-visible) {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 0;
 }

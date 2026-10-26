@@ -53,6 +53,7 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
       data-visibility={puzzle.visibility}
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
+      data-keyboard-focus-host
       className="relative flex h-[66px] items-center rounded-modal bg-puzzle-row pl-[10px] transition-colors duration-150 ease-out hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover"
     >
       <CrosswordIcon />

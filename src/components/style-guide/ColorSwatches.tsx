@@ -23,6 +23,7 @@ const VARIABLES: { name: string; hex: string }[] = [
   { name: 'text-error', hex: '#E2655F' },
   { name: 'blue-bright', hex: '#4BC0FF' },
   { name: 'blue-medium', hex: '#CFEEFF' },
+  { name: 'cyan', hex: '#00F0FF' },
 ];
 
 // Utility class names are written out in full so Tailwind generates them.
@@ -103,6 +104,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'logo', variable: 'gray-400', swatch: 'bg-logo' },
   { name: 'logo-cell', variable: 'white', swatch: 'bg-logo-cell' },
   { name: 'masthead', variable: 'white', swatch: 'bg-masthead' },
+  { name: 'focus-ring', variable: 'cyan', swatch: 'bg-focus-ring' },
 ];
 
 // line-muted border keeps white and translucent swatches visible.
