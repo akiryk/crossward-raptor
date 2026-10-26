@@ -177,8 +177,7 @@ including keeping `unpublishPuzzle` with no caller until S8.
 proposed acceptance, including the narrower read-then-write rule: the
 publish must be a write conditioned on what was read (for example `hints`
 or `updatedAt` in the update's `where`); a plain transaction isn't enough.
-The freeze is a specification-only commit on `main` (see `git log` for
-"Freeze S4"): the [story](stories/14-S4-builder-controls.md), the EPIC
+The freeze is the specification-only commit `548e7dd` on `main`: the [story](stories/14-S4-builder-controls.md), the EPIC
 amendment, the new `e2e/builder-controls.spec.ts` (24 cases) and
 `src/app/puzzles/actions.publish-hints.test.ts` (10 cases), four retired
 spec files plus `src/lib/stepper.test.ts`, and the amendments to 20
