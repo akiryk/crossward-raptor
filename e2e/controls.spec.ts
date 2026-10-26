@@ -46,8 +46,10 @@ test.describe('D2-1 buttons', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    for (const testid of ['clear-letters-button', 'delete-puzzle-button']) {
-      const button = page.getByTestId(testid);
+    // 14-S4: Clear all letters and Delete are gone; the unselected numbered
+    // buttons stand in.
+    for (const testid of ['hints', 'publish']) {
+      const button = page.locator(`[data-testid="builder-steps"] [data-step-id="${testid}"]`);
       const cursor = await button.evaluate((el) => getComputedStyle(el).cursor);
       const bg = await button.evaluate((el) => getComputedStyle(el).backgroundColor);
 
@@ -196,40 +198,5 @@ test.describe('D2-3 inputs', () => {
   });
 });
 
-// --- D2-4: delete is separated ---
-test.describe('D2-4 delete separation', () => {
-  // Superseded (visual-polish-02): clear-letters moved from editor-actions
-  // into the danger zone, next to delete, at the builder's request -- both
-  // are maintenance/destructive actions on the puzzle's content, distinct
-  // from editor-actions' remaining ordinary control (preview).
-  test('delete and clear-letters live together in a danger zone, apart from the ordinary editor controls', async ({
-    page,
-  }) => {
-    const { id } = await seedForControls();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    const dangerZone = page.getByTestId('danger-zone');
-    await expect(dangerZone).toBeVisible();
-    await expect(dangerZone.getByTestId('delete-puzzle-button')).toBeVisible();
-    await expect(dangerZone.getByTestId('clear-letters-button')).toBeVisible();
-
-    const editorActions = page.getByTestId('editor-actions');
-    await expect(editorActions).toBeVisible();
-    await expect(editorActions.getByTestId('clear-letters-button')).toHaveCount(0);
-    await expect(editorActions.getByTestId('delete-puzzle-button')).toHaveCount(0);
-  });
-
-  test('editor controls do not sit flush against each other', async ({ page }) => {
-    const { id } = await seedForControls();
-    await page.goto(`/puzzles/${id}`);
-    await waitForEditorReady(page);
-
-    const gap = await page.getByTestId('editor-actions').evaluate((el) => {
-      const s = getComputedStyle(el);
-      return parseFloat(s.columnGap || s.gap || '0');
-    });
-
-    expect(gap).toBeGreaterThan(0);
-  });
-});
+// --- D2-4: retired by 14-S4 (the builder's Delete, Clear all letters and
+// editor-actions row are removed) ---

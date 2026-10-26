@@ -54,7 +54,8 @@ const SECTIONS = [
   'sg-confirmation',
   'sg-error',
   'sg-tooltip',
-  'sg-stepper',
+  // 14-S4: the stepper sample is replaced by the builder-steps sample.
+  'sg-builder-steps',
   'sg-grid-build',
   'sg-grid-preview',
   'sg-grid-hints',

@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createGrid, withLetter } from '@/engine/grid';
 import { serializePuzzle } from '@/lib/puzzle-storage';
@@ -25,6 +26,8 @@ for (let row = 0; row < 3; row++) {
   for (let col = 0; col < 3; col++) grid = withLetter(grid, { col, row }, 'A');
 }
 const stored = serializePuzzle({ grid, hints: {}, phase: 'grid' });
+// 14-S4: publishing needs every hint, so a puzzle published here has them all.
+const ALL_HINTS = Object.fromEntries(['1-across', '4-across', '5-across', '1-down', '2-down', '3-down'].map((key) => [key, 'A hint']));
 const replacement = serializePuzzle({ grid: withLetter(grid, { col: 0, row: 0 }, 'Z'), hints: {}, phase: 'grid' }).grid;
 type Row = {
   id: string; builderId: string; title: string; phase: string;
@@ -48,7 +51,7 @@ function matches(row: Row, where: Where): boolean {
     if (value instanceof Date) return actual instanceof Date && actual.getTime() === value.getTime();
     if (value !== null && typeof value === 'object') {
       const filter = value as Record<string, unknown>;
-      if ('equals' in filter) return actual === filter.equals;
+      if ('equals' in filter) return isDeepStrictEqual(actual, filter.equals);
       if ('in' in filter) return (filter.in as unknown[]).includes(actual);
       if ('not' in filter) return actual !== filter.not;
       throw new Error(`Unsupported acceptance-store filter: ${key}`);
@@ -131,7 +134,7 @@ describe('O3 builder-only mutation authority', () => {
   });
 
   it.each(calls)('%s preserves owner success and constrains every write to the trusted builder and ID', async (name, call) => {
-    if (name === 'publishPuzzle') own().phase = 'hints';
+    if (name === 'publishPuzzle') { own().phase = 'hints'; own().hints = ALL_HINTS; }
     if (name === 'unpublishPuzzle') own().publishedAt = new Date('2026-10-01T00:00:00Z');
     const original = structuredClone(own());
     const decoy = structuredClone(rows[1]);
@@ -178,6 +181,7 @@ describe('O3 builder-only mutation authority', () => {
 
   it.each(['private', 'public'] as const)('publishes an eligible owner puzzle as %s', async (visibility) => {
     own().phase = 'hints';
+    own().hints = ALL_HINTS;
     const result = await actions.publishPuzzle('target', visibility);
     expect(result).toEqual({ publishedAt: own().publishedAt, visibility });
     expect(own().visibility).toBe(visibility);

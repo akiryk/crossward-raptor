@@ -10,7 +10,7 @@ for the tokens, text styles and component Decisions this epic builds on;
 its [stories](../13-design-system/stories/) for a component's settled
 details.
 
-## Current state (2026-10-25)
+## Current state (2026-10-26)
 
 **The EPIC is approved** by the human (2026-10-25) and committed on `main`
 in `22e0737`. Its pending questions are answered and recorded in its
@@ -156,11 +156,46 @@ unchanged since `6a098d5`. Verification on the implementation tree:
 **S9's visual check passed** (human, 2026-10-25): the dialog entrance is
 accepted with no change, so S9 is done.
 
+**S4 (Builder controls)**: the human's answers and three mockups are
+recorded in the [story](stories/14-S4-builder-controls.md)'s Decisions:
+
+- numbered buttons, 1 doubling as the Edit the Grid toggle;
+- cheeky too-early Publish dialogs and a Publish dialog;
+- publishing needs every hint, enforced in `publishPuzzle` (a risk path,
+  so S4 is a reviewed branch story);
+- a "Published" + "Play it!" state, with no Unpublish (publishing is
+  final) and no published message;
+- Clear letters and the builder's Delete removed;
+- "hints" throughout;
+- one closing rule for every dialog.
+
+Its pending questions were answered by the human (2026-10-26); the title
+is `title-1`. **The human approved the Decisions** (2026-10-26),
+including keeping `unpublishPuzzle` with no caller until S8.
+
+**S4 is approved and frozen** (2026-10-26). The human approved the
+proposed acceptance, including the narrower read-then-write rule: the
+publish must be a write conditioned on what was read (for example `hints`
+or `updatedAt` in the update's `where`); a plain transaction isn't enough.
+The freeze is a specification-only commit on `main` (see `git log` for
+"Freeze S4"): the [story](stories/14-S4-builder-controls.md), the EPIC
+amendment, the new `e2e/builder-controls.spec.ts` (24 cases) and
+`src/app/puzzles/actions.publish-hints.test.ts` (10 cases), four retired
+spec files plus `src/lib/stepper.test.ts`, and the amendments to 20
+browser specs and two Vitest files listed in the story's "Retired and
+amended acceptance".
+
+A throwaway implementation, used while drafting to find every frozen test
+the Decisions break, is kept as a patch outside the repo; its results are
+in the story's "Discrimination" section. S4 touches the risk path
+`publishPuzzle` in `src/app/puzzles/actions.ts`, so it is a reviewed
+branch story (`story/14-S4-builder-controls`).
+
 ## Next action
 
-1. Draft the S4 (Builder controls) specification from its EPIC section,
-   for the human's approval. There is no story file yet.
+1. Implement S4 on branch `story/14-S4-builder-controls` from the frozen
+   `main`, per the story's Repo paths; open a PR for independent review.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and the "S4 — Builder controls" section of docs/epics/14-screen-redesign/EPIC.md. Draft the S4 story specification and proposed acceptance on main for the human's approval; do not freeze or implement before approval.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S4-builder-controls.md. Implement S4 on branch story/14-S4-builder-controls from the frozen main and open a PR for independent review.

@@ -51,12 +51,14 @@ async function seedBlank(cols: number, rows: number, title: string) {
   return seedPuzzle({ grid: createGrid({ cols, rows }), hints: {}, phase: 'grid' }, title);
 }
 
+// 14-S4: publishing goes through 3 Publish and the Publish dialog, and a
+// published puzzle shows "Published" instead of an Unpublish button.
 async function publish(page: Page, id: string) {
   await page.goto(`/puzzles/${id}`);
   await waitForEditorReady(page);
-  await page.locator('[data-testid="step"][data-step-id="publish"]').click();
-  await page.getByTestId('publish-button').click();
-  await expect(page.getByTestId('unpublish-button')).toBeVisible();
+  await page.locator('[data-testid="builder-steps"] [data-step-id="publish"]').click();
+  await page.getByTestId('publish-dialog').getByTestId('modal-confirm').click();
+  await expect(page.getByTestId('publish-state')).toHaveText('Published');
 }
 
 test.describe('L3-2 grouped library', () => {

@@ -156,3 +156,12 @@ describe('PB2-1 the clean case and general properties', () => {
     expect(p.grid.at(1, 1)).toEqual({ kind: 'active', letter: null });
   });
 });
+
+describe('14-S4 the builder says "hints"', () => {
+  it('words the unwritten-hints finding as hints, singular and plural', () => {
+    const grid = fillAll(createGrid({ cols: 3, rows: 3 }));
+    const fiveHints = { ...ALL_HINTS, '1-across': '' };
+    expect(find(publishReadiness(puzzle(grid, fiveHints)), 'unwritten-hints')?.message).toBe('1 hint is missing.');
+    expect(find(publishReadiness(puzzle(grid)), 'unwritten-hints')?.message).toBe('6 hints are missing.');
+  });
+});

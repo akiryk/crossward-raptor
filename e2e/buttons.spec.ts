@@ -542,25 +542,22 @@ test.describe('F3-9 adoption', () => {
     expect(await button.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBe(14);
   });
 
-  test('builder actions: delete and confirm are normal, clear-letters and cancel are alternate', async ({ page }) => {
+  // 14-S4: the builder's Delete and Clear all letters are removed; its
+  // actions are the numbered buttons and the enter-hints dialog's footer.
+  test('builder actions: the steps are numbered, the dialog confirm normal and cancel alternate', async ({ page }) => {
     const { id } = await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' }, uniqueTitle('adoption'));
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
     await parkMouse(page);
 
-    await expectFilled(page, page.getByTestId('delete-puzzle-button'), 'delete');
-    await expectAlternate(page, page.getByTestId('clear-letters-button'), 'clear-letters');
+    for (const step of ['build', 'hints', 'publish']) {
+      await expect(page.locator(`[data-testid="builder-steps"] [data-step-id="${step}"]`)).toHaveAttribute('data-button-type', 'numbered');
+    }
 
-    await page.getByTestId('delete-puzzle-button').click();
+    await page.locator('[data-testid="builder-steps"] [data-step-id="hints"]').click();
     await parkMouse(page);
-    await expectFilled(page, page.getByTestId('delete-confirm-button'), 'delete confirm');
-    await expectAlternate(page, page.getByTestId('delete-cancel-button'), 'delete cancel');
-    await page.getByTestId('delete-cancel-button').click();
-
-    await page.getByTestId('clear-letters-button').click();
-    await parkMouse(page);
-    await expectFilled(page, page.getByTestId('clear-letters-confirm-button'), 'clear confirm');
-    await expectAlternate(page, page.getByTestId('clear-letters-cancel-button'), 'clear cancel');
+    await expectFilled(page, page.getByTestId('modal-confirm'), 'enter-hints confirm');
+    await expectAlternate(page, page.getByTestId('modal-cancel'), 'enter-hints cancel');
   });
 
   test('the new-puzzle dialog: confirm is normal, cancel is alternate', async ({ page }) => {

@@ -66,7 +66,7 @@ implementation diff.
 **Behavior is kept unless a story says otherwise.** This epic changes how
 screens look and where controls sit. Saving, publishing, play persistence,
 ownership checks and the grid engine keep their behavior. Each departure
-(the username at sign-in, the stepper's removal, delete in a dialog,
+(the username at sign-in, the stepper's removal, the builder controls,
 Build/Play, the new-puzzle dialog's generated default name) is named in its
 story.
 
@@ -77,9 +77,13 @@ and the `sg-stepper` sample are removed, retiring their expectations
 commit.
 
 **Publish is a third numbered button** *(human, 2026-10-25)*. "3 Publish"
-sits after "1 Edit the Grid / 2 Create Hints" and reveals the readiness
-findings, visibility and publish/unpublish controls, as the stepper's
-Publish step does today.
+sits after "1 Build the Grid / 2 Create Hints" (1 reads "Edit the Grid" in
+the hints phase). Before the puzzle can be published it opens a cheeky
+too-early dialog; otherwise it opens a Publish dialog with the readiness
+notes and the visibility choice. A published puzzle shows "Published" and
+a "Play it!" link instead of the buttons. Publishing is final: there is no
+Unpublish *(human, 2026-10-26)*. Publishing needs every required hint,
+enforced in `publishPuzzle` (S4).
 
 **Build/Play on `/puzzles`** *(human, 2026-10-25)*. Build lists your own
 puzzles, in any phase, to edit. Play lists every published puzzle you can
@@ -88,9 +92,16 @@ see, your own included, to solve. The choice is remembered per browser in
 change; `listPuzzles` stops returning other builders' unpublished puzzles
 and adds each builder's username (S2).
 
-**Delete moves into a dialog** *(carried from epic 13)*. The builder's
-inline delete confirmation becomes a Modal, which also ends its touching
-buttons.
+**The builder's Delete and Clear all letters are removed** *(human,
+2026-10-25)*. This supersedes epic 13's "Delete moves into a dialog".
+Puzzles are deleted from the library's delete dialog (S2).
+
+**Closing dialogs** *(human, 2026-10-25)*. Every dialog closes the same
+ways: a click on the backdrop, the ×, Escape, or its dismissing footer
+button. A busy dialog, like a pending publish, may disable dismissal.
+
+**One word: "hints"** *(human, 2026-10-25)*. The builder says "hints",
+never "clues". Each story changes the copy on its own screens.
 
 **Hint skeleton** *(human)*. Beside the grid during the build phase, a
 placeholder per hint: an 18×18px dot in `fill-muted`, a 12px gap, then a
@@ -150,8 +161,8 @@ Seen during epic 13, outside its scope. Each is assigned to the story
 whose screen it's on; the story either fixes it or says why not.
 
 - **Sign-in:** the button sits right against the email line. (Sign-in.)
-- **Delete confirmation buttons touch.** Resolved by the delete dialog.
-  (Builder controls.)
+- **Delete confirmation buttons touch.** Resolved by removing the
+  builder's Delete (Builder controls).
 - **375px clipping:** a long puzzle title in the editor clips at the right
   edge, and play's "Puzzle options" button runs past the right edge.
   Deferred to epic 15 (responsive layout) *(human, 2026-10-25)*; no story
@@ -176,8 +187,10 @@ whose screen it's on; the story either fixes it or says why not.
   link; no passwords or account pages.
 - **No grid-engine change.** `src/engine/**` is untouched.
 - **No new puzzle, publishing or play behavior** beyond the named control
-  moves (stepper, delete dialog, Build/Play's list filter) and the
-  new-puzzle dialog's generated default name (S3).
+  moves (stepper, Build/Play's list filter), the new-puzzle dialog's
+  generated default name (S3), and S4's publishing changes: publishing
+  needs every hint, and Unpublish, Clear all letters and the builder's
+  Delete are removed.
 - **No dark mode, no focus rings, no two-label toggle.**
 - **No new shared components** beyond what a screen needs (Row Heading,
   Puzzle Row, Hint Input, Player Hint, Prominent Hint, the hint skeleton).
@@ -226,9 +239,11 @@ order.
 
 ### S4 — Builder controls
 
-Removes the stepper for numbered buttons ("3 Publish" included), places
-the Preview toggle, Edit grid and clear letters, moves delete into a
-dialog, and restyles the title and the enter-hints dialog.
+Replaces the stepper with numbered buttons ("3 Publish" included, with
+its too-early and Publish dialogs), places the Preview toggle, restyles the
+title and the enter-hints dialog, and adds the published state. Publishing
+needs every hint and is final (no Unpublish). Removes Clear all letters
+and the builder's Delete.
 
 ### S5 — Build grid and hint skeleton
 

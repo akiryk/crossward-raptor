@@ -30,9 +30,10 @@ test.describe('P1-2 persistence', () => {
     await createViaDialog(page, title);
 
     await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
+    // 14-S4: the build step is the selected numbered button.
     await expect(
-      page.locator('[data-testid="step"][data-step-id="build"]')
-    ).toHaveAttribute('data-step-status', 'current');
+      page.locator('[data-testid="builder-steps"] [data-step-id="build"]')
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   test('reloading the detail page shows the same puzzle (persisted, not in-memory)', async ({
@@ -49,9 +50,10 @@ test.describe('P1-2 persistence', () => {
 
     await expect(page).toHaveURL(url);
     await expect(page.getByTestId('puzzle-title')).toHaveValue(title);
+    // 14-S4: the build step is the selected numbered button.
     await expect(
-      page.locator('[data-testid="step"][data-step-id="build"]')
-    ).toHaveAttribute('data-step-status', 'current');
+      page.locator('[data-testid="builder-steps"] [data-step-id="build"]')
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   test('a created puzzle appears in the list', async ({ page }) => {

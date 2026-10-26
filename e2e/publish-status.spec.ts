@@ -42,17 +42,19 @@ async function seedReady(title: string) {
   );
 }
 
-/** Publishes through the real UI, so no seeding of published state is needed. */
+/** Publishes through the real UI, so no seeding of published state is needed.
+ *  14-S4: through 3 Publish and the Publish dialog's Private/Public choice. */
 async function publishVia(page: Page, id: string, visibility: 'private' | 'public') {
   await page.goto(`/puzzles/${id}`);
   await waitForEditorReady(page);
-  await page.locator('[data-testid="step"][data-step-id="publish"]').click();
+  await page.locator('[data-testid="builder-steps"] [data-step-id="publish"]').click();
 
+  const dialog = page.getByTestId('publish-dialog');
   if (visibility === 'public') {
-    await page.getByTestId('private-checkbox').uncheck();
+    await dialog.getByRole('radio', { name: 'Public' }).check();
   }
-  await page.getByTestId('publish-button').click();
-  await expect(page.getByTestId('unpublish-button')).toBeVisible();
+  await dialog.getByTestId('modal-confirm').click();
+  await expect(page.getByTestId('publish-state')).toHaveText('Published');
 }
 
 // --- PB5-2: the list ---
@@ -98,20 +100,8 @@ test.describe('PB5-2 published status in the list', () => {
     await expect(item).toContainText('[published]');
   });
 
-  test('unpublishing returns the row to unpublished', async ({ page }) => {
-    const title = uniqueTitle('reverted');
-    const { id } = await seedReady(title);
-    await publishVia(page, id, 'private');
-
-    await page.getByTestId('unpublish-button').click();
-    await expect(page.getByTestId('publish-button')).toBeVisible();
-
-    await page.goto('/puzzles');
-
-    const item = row(page, title);
-    await expect(item).toHaveAttribute('data-published', 'false');
-    expect(await item.getAttribute('data-published-at')).toBeNull();
-  });
+  // 14-S4: "unpublishing returns the row to unpublished" is retired, since
+  // there is no Unpublish.
 
   test("Story M3's attributes are still present and correct", async ({ page }) => {
     const title = uniqueTitle('m3');

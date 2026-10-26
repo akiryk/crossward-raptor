@@ -156,7 +156,8 @@ async function openHintsDialog(page: Page) {
   const { id } = await seedPuzzle({ grid: catGrid(), hints: {}, phase: 'grid' });
   await page.goto(`/puzzles/${id}`);
   await waitForEditorReady(page);
-  await page.locator('[data-testid="step"][data-step-id="clues"]').click();
+  // 14-S4: the stepper's "clues" step is now 2 Create Hints.
+  await page.locator('[data-testid="builder-steps"] [data-step-id="hints"]').click();
   await expect(page.getByTestId('enter-hints-dialog')).toBeVisible();
   await page.mouse.move(1, 1);
 }

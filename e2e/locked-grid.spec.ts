@@ -30,6 +30,11 @@ async function openPuzzle(page: Page, phase: 'grid' | 'hints' = 'hints') {
 }
 
 const cell = (page: Page, coord: string) => page.locator(`[data-coord="${coord}"]`);
+// 14-S4: the edit-grid toggle became the numbered buttons: 1 Edit the Grid
+// turns EDIT GRID on (and is then the selected button), 2 Create Hints
+// turns it off.
+const step = (page: Page, id: 'build' | 'hints') =>
+  page.locator(`[data-testid="builder-steps"] [data-step-id="${id}"]`);
 const grid = (page: Page) => page.getByTestId('puzzle-grid');
 
 test.describe('H4-2 the locked grid', () => {
@@ -40,11 +45,11 @@ test.describe('H4-2 the locked grid', () => {
     await expect(cell(page, '0,0')).toHaveAttribute('data-cell-state', 'locked-letter');
   });
 
-  test('the preview toggle is replaced by the edit-grid toggle', async ({ page }) => {
+  test('the preview toggle is replaced by the Edit the Grid button', async ({ page }) => {
     await openPuzzle(page);
 
     await expect(page.getByTestId('preview-toggle')).toHaveCount(0);
-    await expect(page.getByTestId('edit-grid-toggle')).toHaveText('Edit grid');
+    await expect(step(page, 'build')).toHaveText(/Edit the Grid/);
   });
 
   test('build phase is unaffected', async ({ page }) => {
@@ -52,7 +57,7 @@ test.describe('H4-2 the locked grid', () => {
 
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'build');
     await expect(page.getByTestId('preview-toggle')).toBeVisible();
-    await expect(page.getByTestId('edit-grid-toggle')).toHaveCount(0);
+    await expect(step(page, 'build')).toHaveText(/Build the Grid/);
   });
 
   test('typing a letter does nothing while locked', async ({ page }) => {
@@ -85,15 +90,15 @@ test.describe('H4-2 the locked grid', () => {
 
 test.describe('H4-2 EDIT GRID mode', () => {
   async function enterEditMode(page: Page) {
-    await page.getByTestId('edit-grid-toggle').click();
+    await step(page, 'build').click();
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints-editing');
   }
 
-  test('the toggle opens edit mode and renames itself', async ({ page }) => {
+  test('Edit the Grid opens edit mode and becomes the selected button', async ({ page }) => {
     await openPuzzle(page);
     await enterEditMode(page);
 
-    await expect(page.getByTestId('edit-grid-toggle')).toHaveText('Edit hints');
+    await expect(step(page, 'build')).toHaveAttribute('aria-current', 'true');
     await expect(cell(page, '0,0')).toHaveAttribute('data-cell-state', 'editable-letter');
   });
 
@@ -130,10 +135,10 @@ test.describe('H4-2 EDIT GRID mode', () => {
     await openPuzzle(page);
     await enterEditMode(page);
 
-    await page.getByTestId('edit-grid-toggle').click();
+    await step(page, 'hints').click();
 
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints');
-    await expect(page.getByTestId('edit-grid-toggle')).toHaveText('Edit grid');
+    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
     await expect(page.getByTestId('hint-input').first()).toBeEnabled();
   });
 

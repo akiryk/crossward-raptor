@@ -31,8 +31,9 @@ async function openPuzzle(page: Page) {
   return id;
 }
 
+// 14-S4: the stepper's "clues" step is now 2 Create Hints.
 async function transition(page: Page) {
-  await page.locator('[data-testid="step"][data-step-id="clues"]').click();
+  await page.locator('[data-testid="builder-steps"] [data-step-id="hints"]').click();
   await expect(page.getByTestId('enter-hints-dialog')).toBeVisible();
   await page.getByTestId('modal-confirm').click();
   await expect(page.getByTestId('hints-region')).toBeVisible();

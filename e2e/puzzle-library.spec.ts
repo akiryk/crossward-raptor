@@ -731,7 +731,8 @@ test.describe('14-S2-3 Build', () => {
     await page.mouse.up();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${published.id}$`));
     await waitForEditorReady(page);
-    await expect(page.getByTestId('published-lock-message')).toBeVisible();
+    // 14-S4: the locked editor shows "Published" instead of the lock message.
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
   });
 
   test('orders unpublished before published, newest first, and a completed own puzzle does not sink', async ({ page }) => {

@@ -14,8 +14,9 @@ function catGrid(): Grid {
   return grid;
 }
 
+// 14-S4: the stepper's "clues" step is now 2 Create Hints.
 const cluesStep = (page: Page) =>
-  page.locator('[data-testid="step"][data-step-id="clues"]');
+  page.locator('[data-testid="builder-steps"] [data-step-id="hints"]');
 
 async function openHintsDialog(page: Page) {
   const { id } = await seedPuzzle({ grid: catGrid(), hints: {}, phase: 'grid' });
@@ -164,7 +165,7 @@ test.describe('M2-1 focus', () => {
     expect(await focusedId(page)).toBe('new-puzzle-button');
   });
 
-  test('closing the hints dialog returns focus to the clues step', async ({ page }) => {
+  test('closing the hints dialog returns focus to the hints step', async ({ page }) => {
     await openHintsDialog(page);
 
     await page.keyboard.press('Escape');
@@ -173,7 +174,7 @@ test.describe('M2-1 focus', () => {
     const stepId = await page.evaluate(
       () => document.activeElement?.getAttribute('data-step-id') ?? ''
     );
-    expect(stepId).toBe('clues');
+    expect(stepId).toBe('hints');
   });
 });
 

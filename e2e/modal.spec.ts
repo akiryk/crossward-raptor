@@ -21,20 +21,21 @@ async function openPuzzle(page: Page) {
   return id;
 }
 
+// 14-S4: the stepper's "clues" step is now 2 Create Hints.
 const step = (page: Page, id: string) =>
-  page.locator(`[data-testid="step"][data-step-id="${id}"]`);
+  page.locator(`[data-testid="builder-steps"] [data-step-id="${id}"]`);
 
 /** The hints confirmation is the modal's only consumer, so it stands in
  *  for "a dialog" throughout -- these tests are about the shell, not the
  *  transition. enter-hints.spec.ts covers the transition itself. */
 async function openDialog(page: Page) {
-  await step(page, 'clues').click();
+  await step(page, 'hints').click();
   await expect(page.getByTestId('enter-hints-dialog')).toBeVisible();
 }
 
 async function expectDismissedWithoutTransition(page: Page) {
   await expect(page.getByTestId('modal')).toHaveCount(0);
-  await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'current');
+  await expect(step(page, 'build')).toHaveAttribute('aria-current', 'true');
   await expect(page.getByTestId('hints-region')).toHaveCount(0);
 }
 

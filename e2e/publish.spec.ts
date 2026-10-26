@@ -4,6 +4,7 @@ import { createGrid, withLetter } from '../src/engine/grid';
 import type { Grid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
 import { waitForEditorReady } from './helpers/wait-for-ready';
+import { builderEditSnapshot } from './helpers/builder-edits';
 
 function fillAll(grid: Grid, letter = 'A'): Grid {
   let filled = grid;
@@ -26,10 +27,18 @@ const ALL_HINTS: Record<string, string> = {
   '3-down': 'f',
 };
 
+// 14-S4: 3 Publish opens the Publish dialog (or a too-early dialog), whose
+// Private/Public radio replaces the "Keep private" checkbox. A published
+// puzzle shows "Published", with no Unpublish, so visibility is read from
+// the database.
+const publishStep = (page: Page) =>
+  page.locator('[data-testid="builder-steps"] [data-step-id="publish"]');
+const dialog = (page: Page) => page.getByTestId('publish-dialog');
+
 async function openPublishStep(page: Page, id: string) {
   await page.goto(`/puzzles/${id}`);
   await waitForEditorReady(page);
-  await page.locator('[data-testid="step"][data-step-id="publish"]').click();
+  await publishStep(page).click();
 }
 
 async function seedReady(hints: Record<string, string> = ALL_HINTS) {
@@ -41,79 +50,61 @@ async function seedReady(hints: Record<string, string> = ALL_HINTS) {
 }
 
 // --- PB3-2: publishing ---
-test.describe('PB3-2 publish and unpublish', () => {
+test.describe('PB3-2 publish', () => {
   test('an unpublished puzzle offers publishing, private by default', async ({ page }) => {
     const { id } = await seedReady();
     await openPublishStep(page, id);
 
-    await expect(page.getByTestId('publish-button')).toBeVisible();
-    await expect(page.getByTestId('private-checkbox')).toBeChecked();
+    await expect(dialog(page).getByTestId('modal-confirm')).toBeVisible();
+    await expect(dialog(page).getByRole('radio', { name: 'Private' })).toBeChecked();
     await expect(page.getByTestId('unpublish-button')).toHaveCount(0);
-
-    const state = page.getByTestId('publish-state');
-    await expect(state).toBeVisible();
-    expect((await state.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
+    await expect(page.getByTestId('publish-state')).toHaveCount(0);
   });
 
-  test('publishing with the box checked stores it private', async ({ page }) => {
+  test('publishing with Private chosen stores it private', async ({ page }) => {
     const { id } = await seedReady();
     await openPublishStep(page, id);
 
-    await page.getByTestId('publish-button').click();
+    await dialog(page).getByTestId('modal-confirm').click();
 
-    const state = page.getByTestId('publish-state');
-    await expect(state).toContainText(/published/i);
-    await expect(state).toContainText(/private/i);
-
-    await expect(page.getByTestId('publish-button')).toHaveCount(0);
-    await expect(page.getByTestId('private-checkbox')).toHaveCount(0);
-    await expect(page.getByTestId('unpublish-button')).toBeVisible();
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(publishStep(page)).toHaveCount(0);
+    await expect(page.getByTestId('unpublish-button')).toHaveCount(0);
+    const stored = await builderEditSnapshot(id);
+    expect(stored.publishedAt).toBeInstanceOf(Date);
+    expect(stored.visibility).toBe('private');
   });
 
   test('the published state survives a reload', async ({ page }) => {
     const { id } = await seedReady();
     await openPublishStep(page, id);
-    await page.getByTestId('publish-button').click();
-    await expect(page.getByTestId('publish-state')).toContainText(/private/i);
+    await dialog(page).getByTestId('modal-confirm').click();
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
 
     await page.reload();
     await waitForEditorReady(page);
-    await page.locator('[data-testid="step"][data-step-id="publish"]').click();
 
-    await expect(page.getByTestId('publish-state')).toContainText(/private/i);
-    await expect(page.getByTestId('unpublish-button')).toBeVisible();
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
+    await expect(publishStep(page)).toHaveCount(0);
+    expect((await builderEditSnapshot(id)).visibility).toBe('private');
   });
 
-  test('unchecking the box publishes it public', async ({ page }) => {
+  test('choosing Public publishes it public', async ({ page }) => {
     const { id } = await seedReady();
     await openPublishStep(page, id);
 
-    await page.getByTestId('private-checkbox').uncheck();
-    await page.getByTestId('publish-button').click();
+    await dialog(page).getByRole('radio', { name: 'Public' }).check();
+    await dialog(page).getByTestId('modal-confirm').click();
 
-    await expect(page.getByTestId('publish-state')).toContainText(/public/i);
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
+    expect((await builderEditSnapshot(id)).visibility).toBe('public');
   });
 
-  test('unpublishing returns it to the unpublished state, and that persists', async ({
-    page,
-  }) => {
-    const { id } = await seedReady();
-    await openPublishStep(page, id);
-    await page.getByTestId('publish-button').click();
-    await expect(page.getByTestId('unpublish-button')).toBeVisible();
-
-    await page.getByTestId('unpublish-button').click();
-
-    await expect(page.getByTestId('publish-button')).toBeVisible();
-    await expect(page.getByTestId('private-checkbox')).toBeChecked();
-
-    await page.reload();
-    await waitForEditorReady(page);
-    await page.locator('[data-testid="step"][data-step-id="publish"]').click();
-
-    await expect(page.getByTestId('publish-button')).toBeVisible();
-    await expect(page.getByTestId('unpublish-button')).toHaveCount(0);
-  });
+  // 14-S4: "unpublishing returns it to the unpublished state" is retired,
+  // since there is no Unpublish; "outstanding readiness findings do not
+  // block publishing" is retired, since a blank hint now blocks it
+  // (builder-controls.spec.ts covers both rules).
 
   test('a grid-phase puzzle cannot be published', async ({ page }) => {
     const { id } = await seedPuzzle({
@@ -123,23 +114,8 @@ test.describe('PB3-2 publish and unpublish', () => {
     });
     await openPublishStep(page, id);
 
-    await expect(
-      page.locator('[data-testid="step"][data-step-id="publish"]')
-    ).toHaveAttribute('data-step-status', 'unavailable');
-    await expect(page.getByTestId('publish-button')).toHaveCount(0);
-  });
-
-  test('outstanding readiness findings do not block publishing', async ({ page }) => {
-    // no hints authored at all -- the panel will report it
-    const { id } = await seedReady({});
-    await openPublishStep(page, id);
-
-    await expect(
-      page.locator('[data-testid="finding"][data-finding-kind="unwritten-hints"]')
-    ).toBeVisible();
-
-    await page.getByTestId('publish-button').click();
-
-    await expect(page.getByTestId('publish-state')).toContainText(/published/i);
+    await expect(page.getByTestId('too-early-dialog')).toBeVisible();
+    await expect(dialog(page)).toHaveCount(0);
+    expect((await builderEditSnapshot(id)).publishedAt).toBeNull();
   });
 });

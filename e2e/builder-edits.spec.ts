@@ -92,25 +92,21 @@ test('O3 own editing persists through the real editor', async ({ page }) => {
   expect((await builderEditSnapshot(id)).title).toBe(changed);
 });
 
-test('O3 an own published puzzle opens locked and can be unpublished and edited again', async ({ page }) => {
+// 14-S4: publishing is final, so the published puzzle opens locked with
+// "Published" and no Unpublish, rather than being unpublished and edited.
+test('O3 an own published puzzle opens locked, with no Unpublish', async ({ page }) => {
   const { id } = await seedBuilderEditPuzzle(title('owned published'), await currentBuilderId(page), 'public published');
   await page.goto('/puzzles');
   await page.locator(`[data-testid="puzzle-edit-link"][href="/puzzles/${id}"]`).click();
   await waitForEditorReady(page);
-  await expect(page.getByTestId('published-lock-message')).toBeVisible();
+  await expect(page.getByTestId('publish-state')).toHaveText('Published');
   await expect(page.getByTestId('puzzle-title')).toBeDisabled();
-  await page.locator('[data-testid="step"][data-step-id="publish"]').click();
-  await page.getByTestId('unpublish-button').click();
-  await expect(page.getByTestId('publish-button')).toBeVisible();
-  await expect(page.getByTestId('puzzle-title')).toBeEnabled();
-  const changed = title('unpublished and saved');
-  const saved = page.waitForResponse((response) => response.request().method() === 'POST' && response.request().headers()['next-action'] !== undefined);
-  await page.getByTestId('puzzle-title').fill(changed);
-  await saved;
+  await expect(page.getByTestId('unpublish-button')).toHaveCount(0);
+  await expect(page.locator('[data-step-id]')).toHaveCount(0);
+  const before = await builderEditSnapshot(id);
   await page.reload();
   await waitForEditorReady(page);
-  await expect(page.getByTestId('puzzle-title')).toHaveValue(changed);
   const row = await builderEditSnapshot(id);
-  expect(row.publishedAt).toBeNull();
-  expect(row.title).toBe(changed);
+  expect(row.publishedAt).toEqual(before.publishedAt);
+  expect(row.title).toBe(before.title);
 });

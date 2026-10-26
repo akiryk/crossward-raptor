@@ -92,7 +92,8 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
     // -- the cursor starts at (0,0), and moveTo toggles orientation
     // rather than moving when you click the current cell (Story F2r) --
     // so click (1,1) instead.
-    await page.getByTestId('edit-grid-toggle').click();
+    // 14-S4: 1 Edit the Grid replaced the edit-grid toggle.
+    await page.locator('[data-testid="builder-steps"] [data-step-id="build"]').click();
     await page.locator('[data-coord="1,1"]').click();
     await page.keyboard.press('x');
 

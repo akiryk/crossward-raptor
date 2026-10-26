@@ -78,7 +78,8 @@ test.describe('P5-2 hints panel', () => {
     // cell (Story F2r), which would leave the ArrowDown below parallel
     // rather than perpendicular. The cursor starts at (0,0), so click
     // (1,0) -- a plain move, orientation still 'across'.
-    await page.getByTestId('edit-grid-toggle').click();
+    // 14-S4: 1 Edit the Grid replaced the edit-grid toggle.
+    await page.locator('[data-testid="builder-steps"] [data-step-id="build"]').click();
     await page.locator('[data-coord="1,0"]').click();
 
     // ArrowDown from (1,0) 'across' is perpendicular: orientation flips to

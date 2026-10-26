@@ -93,9 +93,10 @@ test.describe('L2b-1 the library page', () => {
 
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
-    await page.locator('[data-testid="step"][data-step-id="publish"]').click();
-    await page.getByTestId('publish-button').click();
-    await expect(page.getByTestId('unpublish-button')).toBeVisible();
+    // 14-S4: publishing goes through 3 Publish and the Publish dialog.
+    await page.locator('[data-testid="builder-steps"] [data-step-id="publish"]').click();
+    await page.getByTestId('publish-dialog').getByTestId('modal-confirm').click();
+    await expect(page.getByTestId('publish-state')).toHaveText('Published');
 
     await page.goto('/puzzles');
 

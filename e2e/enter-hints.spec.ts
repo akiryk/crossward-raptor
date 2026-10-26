@@ -21,28 +21,33 @@ async function openPuzzle(page: Page, grid: Grid = catGrid()) {
   return id;
 }
 
+// 14-S4: the stepper became the builder's numbered buttons; 2 Create Hints
+// (data-step-id "hints") opens the dialog, and the selected button carries
+// aria-current. 1 reads "Edit the Grid" once the grid is locked.
 const step = (page: Page, id: string) =>
-  page.locator(`[data-testid="step"][data-step-id="${id}"]`);
+  page.locator(`[data-testid="builder-steps"] [data-step-id="${id}"]`);
 
 async function openDialog(page: Page) {
-  await step(page, 'clues').click();
+  await step(page, 'hints').click();
   await expect(page.getByTestId('enter-hints-dialog')).toBeVisible();
 }
 
 async function expectStillGridPhase(page: Page) {
-  await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'current');
+  await expect(step(page, 'build')).toHaveAttribute('aria-current', 'true');
+  await expect(step(page, 'build')).toContainText('Build the Grid');
   await expect(page.getByTestId('hints-region')).toHaveCount(0);
 }
 
 test.describe('H1-1 entering hints phase', () => {
-  test('grid phase offers the clues step with no dialog showing', async ({ page }) => {
+  test('grid phase offers the hints step with no dialog showing', async ({ page }) => {
     await openPuzzle(page);
 
-    await expect(step(page, 'clues')).toHaveAttribute('data-step-status', 'available');
+    await expect(step(page, 'hints')).toBeEnabled();
+    await expect(step(page, 'hints')).not.toHaveAttribute('aria-current', 'true');
     await expect(page.getByTestId('enter-hints-dialog')).toHaveCount(0);
   });
 
-  test('clicking the clues step opens the dialog without transitioning', async ({ page }) => {
+  test('clicking the hints step opens the dialog without transitioning', async ({ page }) => {
     await openPuzzle(page);
     await openDialog(page);
 
@@ -87,8 +92,8 @@ test.describe('H1-1 entering hints phase', () => {
 
     await expect(page.getByTestId('enter-hints-dialog')).toHaveCount(0);
     await expect(page.getByTestId('hints-region')).toBeVisible();
-    await expect(step(page, 'clues')).toHaveAttribute('data-step-status', 'current');
-    await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'unavailable');
+    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
+    await expect(step(page, 'build')).toHaveText(/Edit the Grid/);
   });
 
   test('the transition survives a reload', async ({ page }) => {
@@ -101,7 +106,7 @@ test.describe('H1-1 entering hints phase', () => {
     await waitForEditorReady(page);
 
     await expect(page.getByTestId('hints-region')).toBeVisible();
-    await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'unavailable');
+    await expect(step(page, 'build')).toHaveText(/Edit the Grid/);
   });
 
   test('the build step cannot take you back afterward', async ({ page }) => {
@@ -110,11 +115,16 @@ test.describe('H1-1 entering hints phase', () => {
     await page.getByTestId('modal-confirm').click();
     await expect(page.getByTestId('hints-region')).toBeVisible();
 
+    // 14-S4: 1 Edit the Grid only unlocks the letters; the grid's shape
+    // stays locked and the puzzle stays in hints phase.
     await step(page, 'build').click();
 
-    await expect(page.getByTestId('step-reason')).toBeVisible();
+    await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'hints-editing');
     await expect(page.getByTestId('hints-region')).toBeVisible();
-    await expect(step(page, 'build')).toHaveAttribute('data-step-status', 'unavailable');
+    await expect(step(page, 'build')).toHaveText(/Edit the Grid/);
+    await page.reload();
+    await waitForEditorReady(page);
+    await expect(page.getByTestId('hints-region')).toBeVisible();
   });
 
   test('empty cells become black at the transition', async ({ page }) => {
