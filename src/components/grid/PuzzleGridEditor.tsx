@@ -313,7 +313,12 @@ export function PuzzleGridEditor({
       return;
     }
     if (state.phase === "grid") {
-      if (id === "hints") setIsEnterHintsDialogOpen(true);
+      if (id === "hints") {
+        // Preview turns on as the dialog opens and stays on unless the
+        // builder confirms (14-S10).
+        setIsPreviewing(true);
+        setIsEnterHintsDialogOpen(true);
+      }
       return;
     }
     setIsEditingGrid(id === "build");
@@ -325,6 +330,8 @@ export function PuzzleGridEditor({
 
   function handleConfirmEnterHints() {
     setIsEnterHintsDialogOpen(false);
+    // The hints phase has no Preview, so its grid starts in its own look.
+    setIsPreviewing(false);
     // enterHints reloads the puzzle from the database, so a letter typed
     // within the last debounce window has to be flushed first or the
     // conversion would read that cell as empty and blacken it.

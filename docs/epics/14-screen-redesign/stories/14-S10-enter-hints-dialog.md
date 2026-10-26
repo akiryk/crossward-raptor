@@ -8,7 +8,10 @@ changes while clicking through S4 and specified them the same day
 (recorded in the [handoff](../HANDOFF.md)). On 2026-10-26 they authorized
 this story, placed after S4 and before S5, then approved its Decisions and
 acceptance ("I'm happy with S10"), including the 14-S4-3 amendment. It is
-frozen on `main` in a specification-only commit.
+frozen on `main` in the specification-only commit `7e3bb41`. Implemented
+on `main` the same day; `npm run verify` exited 0 (608 tests) and the full
+`npm run test:e2e` exited 0 (559 passed). Awaiting the human's visual
+check.
 
 **Blast radius: low.** Two client components (`EnterHintsDialog.tsx`,
 `PuzzleGridEditor.tsx`) and one frozen case's amendment. No server, schema

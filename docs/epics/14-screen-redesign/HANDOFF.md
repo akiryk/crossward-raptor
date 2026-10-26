@@ -257,11 +257,26 @@ amendment. Frozen on `main` in a specification-only commit: the story,
 the EPIC amendment, `e2e/enter-hints-preview.spec.ts` and the amended
 `e2e/builder-controls.spec.ts`.
 
+**S10 is implemented on `main`** (2026-10-26), on top of freeze commit
+`7e3bb41`: the new copy in `EnterHintsDialog.tsx`; in
+`PuzzleGridEditor.tsx`, Preview turns on as the dialog opens and off on
+confirm. It is the drafting throwaway unchanged. No risk path changed, and
+the frozen acceptance is unchanged since `7e3bb41`. Verification on the
+implementation tree (the same content as the commit):
+
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 559
+  passed.
+
 ## Next action
 
-1. Implement S10 on `main` (no risk path), run `npm run verify` and the
-   full `npm run test:e2e`, and ask for the human's visual check.
+1. The human's visual check of S10: open a build-phase puzzle, click
+   2 Create Hints, and check the dialog's copy and that the grid is in
+   Preview; close it ("Keep building", ×, Escape or the backdrop) and
+   check Preview stays on; confirm and check the hints grid.
+2. Then S5, only once the human authorizes it.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S10-enter-hints-dialog.md. S10 is approved and frozen; implement it on main.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S10-enter-hints-dialog.md. S10 is implemented on main and awaiting the human's visual check; continue only with the story the human authorizes.

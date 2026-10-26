@@ -15,12 +15,12 @@ export function EnterHintsDialog({
   return (
     <Modal
       open={open}
-      title="Ready to create hints?"
+      title="You sure?"
       onClose={onCancel}
       testId="enter-hints-dialog"
       footer={
         <ModalActions
-          confirmLabel="Create hints"
+          confirmLabel="Yes, create hints"
           cancelLabel="Keep building"
           onConfirm={onConfirm}
           onCancel={onCancel}
@@ -28,15 +28,7 @@ export function EnterHintsDialog({
       }
     >
       <p>
-        Creating hints locks your grid. Every empty square becomes a
-        black square, and the black-and-white pattern is fixed from
-        then on — you won&rsquo;t be able to add or remove black
-        squares, or change how long any word is.
-      </p>
-      <p>You&rsquo;ll still be able to change letters afterward.</p>
-      <p>
-        If you haven&rsquo;t already, preview your grid first to see
-        how it will look.
+        Creating hints will lock the black and white cells as they are now.
       </p>
     </Modal>
   );
