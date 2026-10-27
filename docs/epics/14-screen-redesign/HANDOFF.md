@@ -429,38 +429,33 @@ implementation tree, S12's draft tests stashed out:
 
 S7's visual check by the human is pending.
 
-**S12 (Letters and hints together) is drafting** (2026-10-27),
+**S12 (Letters and hints together) is drafting, revised** (2026-10-27),
 uncommitted on `main`: the [story](stories/14-S12-letters-and-hints.md),
-the new `e2e/hints-grid-editing.spec.ts` (14 cases), 23 retired and 19
-amended frozen cases and two styles lists, across 12 test files (listed
-in the story). No runtime file is changed. The human asked for it while
-reviewing S7: the hints phase loses EDIT GRID, letters stay editable
-beside the hints, the shape stays locked and 1 Build the Grid is
-disabled. They accepted the agent's proposals (the hints phase's colors
-with the cursor in yellow, no fade, the selected word's hint filled
-yellow, "Build the Grid", EDIT GRID's styles removed here). It runs after
-S7, before S8. Against `main`, 31 browser cases fail, 13 of the 14 new
-ones among them (one guard passes). A throwaway
-(`/tmp/crossward-drafts/14-S12-throwaway.patch`, reverted) passes them.
-With it, the full `npm run test:e2e` passed 617 and failed only S7's 21
-draft cases.
-
-**Two drafts share the worktree.** S7's files are `14-S7-play.md`,
-`e2e/play-design.spec.ts`, `src/components/play/play-source.test.ts` and
-`e2e/play-entries.spec.ts`; everything else uncommitted is S12's. Freeze
-each in its own specification-only commit. S12's amended tests fail
-against S7's runtime, so while S7 is implemented and verified, keep S12's
-uncommitted test files out of the tree (`git stash push -- <S12's
-paths>`) and restore them afterwards.
+the new `e2e/hints-grid-editing.spec.ts` (21 cases), and 23 retired and 20
+amended frozen cases plus styles and section lists across 12 test files
+(listed in the story). No runtime file is changed. The human asked for it
+while reviewing S7: no EDIT GRID, letters editable beside the hints, the
+shape locked. **The human didn't approve the first draft** (2026-10-27)
+and asked for two changes, now in the story: in the hints phase 1 is a
+done button (gray-400 `button-done`, 70px, the "1" gray, a Material check
+fading in as the label fades out), and a "Lock Grid Letters" toggle
+replaces Preview (on: on cells `hint-cell-locked-on` gray-200, no grid
+focus, a focused hint's word still blue). Agent choices to review: the
+150ms+150ms fades with a 300ms fill/width change, instant under reduced
+motion and on load; 1 stays disabled and named "Build the Grid"; the
+toggle is off on every load and absent once published. Against S7's
+`main`, 40 browser cases fail, 20 of the 21 new among them (the published
+guard passes). The revised throwaway
+(`/tmp/crossward-drafts/14-S12-throwaway-v2.patch`, reverted) passed
+`npm run verify` (604 Vitest tests) and the full `npm run test:e2e`, 646
+of 646.
 
 ## Next action
 
-The human reviews S7's draft (Decisions, the *(agent)* choices and the
-proposed acceptance, including the P2 amendment) and S12's draft
-(Decisions, the *(agent)* choices, the retirements and amendments). On
-S7's approval, freeze and implement it on `main`; then, on S12's
-approval, freeze and implement S12, rebasing its throwaway onto S7.
+The human visually checks S7 (play) and reviews S12's revised draft.
+On S12's approval, freeze it on `main` in its own specification-only
+commit with the EPIC amendment, then implement it from the v2 throwaway.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md, docs/epics/14-screen-redesign/stories/14-S7-play.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Revise the uncommitted S7 and S12 drafts per the human's review; freeze and implement each on main once the human approves it, S7 first; do not start S8.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Record S7's visual check; revise the uncommitted S12 draft per the human's review, or freeze and implement it on main once the human approves it; do not start S8.
