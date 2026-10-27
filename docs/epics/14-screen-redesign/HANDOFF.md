@@ -468,14 +468,14 @@ story lists). No risk path; the frozen acceptance is unchanged since
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 646
   passed.
 
-S12's visual check by the human is pending.
+**S12's visual check passed** (human, 2026-10-27: "I approve S12. It
+looks good!"), so S12 is done.
 
 ## Next action
 
-The human visually checks S12 on the dev server: in the hints phase,
-button 1 done (gray, check), Lock Grid Letters in Preview's place, and
-letters editable beside the hints. S8 is not authorized yet.
+S8 (old-token cleanup) is next in the epic's order, but it isn't
+authorized yet: wait for the human to authorize drafting it.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Record S12's visual check, or draft a correction per the human's review; do not start S8.
+Read docs/epics/14-screen-redesign/HANDOFF.md and the S8 section of docs/epics/14-screen-redesign/EPIC.md. Draft S8 (old-token cleanup) for the human's review once they authorize it; do not freeze or implement it before their approval.

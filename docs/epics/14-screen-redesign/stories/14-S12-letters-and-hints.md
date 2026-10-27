@@ -11,7 +11,9 @@ toggle takes the Preview toggle's place.
 revised draft, its acceptance and its retirements and amendments ("I
 approve the revised S12 draft"), frozen on `main` in a
 specification-only commit with the EPIC amendment. Implemented on `main`
-on top of freeze commit `2b61fd2`: the v2 throwaway unchanged.
+on top of freeze commit `2b61fd2`: the v2 throwaway unchanged. The human's visual
+check passed (2026-10-27: "I approve S12. It looks good!"), so S12 is
+done.
 
 The human asked for it while reviewing S7's draft (2026-10-27): "Say I
 click 'Create Hints.' Now I can write in a hint for the words. Say the
