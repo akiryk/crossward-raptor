@@ -458,12 +458,24 @@ letters and hints together"): the story, the EPIC amendment,
 the 12 test files the story lists. Next it is implemented from the v2
 throwaway.
 
+**S12 is implemented on `main`** (2026-10-27), on top of freeze commit
+`2b61fd2`: the v2 drafting throwaway unchanged (the 11 runtime files the
+story lists). No risk path; the frozen acceptance is unchanged since
+`2b61fd2`. Verification on the implementation tree:
+
+- `npm run verify`: exit 0 (47 files, 604 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 646
+  passed.
+
+S12's visual check by the human is pending.
+
 ## Next action
 
-Implement S12 on `main` from `/tmp/crossward-drafts/14-S12-throwaway-v2.patch`
-(or from the story if it is gone), run `npm run verify` and the full
-`npm run test:e2e`, commit and push; then the human's visual check.
+The human visually checks S12 on the dev server: in the hints phase,
+button 1 done (gray, check), Lock Grid Letters in Preview's place, and
+letters editable beside the hints. S8 is not authorized yet.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Implement the frozen S12 on main and get the human's visual check; do not start S8.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Record S12's visual check, or draft a correction per the human's review; do not start S8.

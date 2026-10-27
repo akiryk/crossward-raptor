@@ -14,11 +14,9 @@ const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] =
 // line, the first line 45px below the label and the lines 58px apart.
 const NUMBER_MIN_PX = 18;
 
-// In EDIT GRID the hints fade to 0.4 in place of the disabled input's own
-// 50%, except the selected word's hint, its input filled like the cursor
-// cell (the 14-S6 correction).
-const EDIT_FADED = 'opacity-40 [&_input:disabled]:opacity-100';
-const EDIT_SELECTED = '[&_input:disabled]:opacity-100 [&_input]:bg-hint-cell-edit-selected-cell';
+// While the grid has focus, its cursor word's hint input is filled like
+// the cursor cell (14-S12).
+const SELECTED = '[&_input]:bg-hint-cell-cursor';
 
 /** Hint Inputs, one per word, in the hint skeleton's frame (14-S6). */
 export function HintsPanel({
@@ -27,7 +25,6 @@ export function HintsPanel({
   hints,
   activeKey,
   disabled,
-  isEditingGrid = false,
   selectedKey = null,
   onHintChange,
   onHintFocus,
@@ -39,8 +36,7 @@ export function HintsPanel({
   disabled?: boolean;
   onHintChange: (key: string, text: string) => void;
   onHintFocus: (key: string) => void;
-  isEditingGrid?: boolean;
-  /** In EDIT GRID, the hint of the grid's selected word, if it shows one. */
+  /** While the grid has focus, the hint of its cursor's word. */
   selectedKey?: string | null;
 }) {
   const entries = Array.from(slots.entries());
@@ -59,7 +55,7 @@ export function HintsPanel({
         >
           <h3
             data-testid="hint-column-heading"
-            className={`text-title-4 text-primary pt-2 ${isEditingGrid ? 'opacity-40' : ''}`}
+            className="text-title-4 text-primary pt-2"
           >
             {heading}
           </h3>
@@ -76,7 +72,7 @@ export function HintsPanel({
                     data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
                     data-active={activeKey === key ? 'true' : undefined}
                     className={`group flex items-baseline gap-3 not-first:mt-[5px] ${
-                      !isEditingGrid ? '' : selectedKey === key ? EDIT_SELECTED : EDIT_FADED
+                      selectedKey === key ? SELECTED : ''
                     }`}
                   >
                     <span

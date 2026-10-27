@@ -6,19 +6,18 @@ import { Button } from '../ui/Button';
 export type BuilderStepId = 'build' | 'hints' | 'publish';
 
 /** Story 14-S4. The builder's three numbered buttons. One is selected: 1 in
- *  the build phase or while editing the grid, 2 while writing hints. */
+ *  the build phase, 2 in the hints phase, where 1 is done: gray, with a
+ *  check, and it does nothing (14-S12). */
 export function BuilderSteps({
   phase,
-  isEditingGrid,
   onStep,
 }: {
   phase: Phase;
-  isEditingGrid: boolean;
   onStep: (id: BuilderStepId) => void;
 }) {
-  const selected: BuilderStepId = phase === 'hints' && !isEditingGrid ? 'hints' : 'build';
+  const selected: BuilderStepId = phase === 'hints' ? 'hints' : 'build';
   const steps: { id: BuilderStepId; label: string }[] = [
-    { id: 'build', label: phase === 'hints' ? 'Edit the Grid' : 'Build the Grid' },
+    { id: 'build', label: 'Build the Grid' },
     { id: 'hints', label: 'Create Hints' },
     { id: 'publish', label: 'Publish' },
   ];
@@ -29,6 +28,8 @@ export function BuilderSteps({
           key={step.id}
           number={index + 1}
           selected={step.id === selected}
+          done={step.id === 'build' ? phase === 'hints' : undefined}
+          disabled={phase === 'hints' && step.id === 'build'}
           data-step-id={step.id}
           onClick={() => {
             if (step.id !== selected) onStep(step.id);

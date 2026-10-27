@@ -22,7 +22,6 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
   required: 'bg-required',
   recommended: 'bg-recommended',
   'locked-letter': 'bg-locked-letter',
-  'editable-letter': 'bg-editable-letter',
   slot: 'bg-slot',
   // Both point at the same token for now (one color for "has a letter" and
   // "needs one for symmetry" within the active slot). Splitting them later
@@ -33,7 +32,7 @@ const APPEARANCE_BG: Record<CellAppearance, string> = {
 };
 
 // The build phase's own colors (14-S5). Selection and slot appearances
-// only occur there and in EDIT GRID, which keeps APPEARANCE_BG until S6.
+// only occur there.
 const BUILD_BG: Partial<Record<CellAppearance, string>> = {
   empty: 'bg-build-cell-off',
   letter: 'bg-build-cell-on',
@@ -44,30 +43,30 @@ const BUILD_BG: Partial<Record<CellAppearance, string>> = {
   'slot-required': 'bg-build-cell-selected-row-on',
 };
 
-// The hints phase's own colors (14-S6). Locked: a cell in the highlighted
-// word (a hint input has focus) is hint-cell-selected; see HINTS_WORD_BG.
+// The hints phase's own colors (14-S6). A highlighted cell takes its
+// color from what has focus; see hintsHighlightBg.
 const HINTS_BG: Partial<Record<CellAppearance, string>> = {
   black: 'bg-hint-cell-off',
   empty: 'bg-hint-cell-on',
   'locked-letter': 'bg-hint-cell-on',
-  'editable-letter': 'bg-hint-cell-on',
   'symmetric-hint': 'bg-hint-cell-on',
 };
-const HINTS_WORD_BG = 'bg-hint-cell-selected';
 
-// EDIT GRID takes the build grid's look, so the grid reads as editable
-// (the 14-S6 correction), with the cursor and its word in yellow.
-const HINTS_EDIT_BG: Partial<Record<CellAppearance, string>> = {
-  black: 'bg-hint-cell-edit-off',
-  empty: 'bg-hint-cell-edit-on',
-  'locked-letter': 'bg-hint-cell-edit-on',
-  'editable-letter': 'bg-hint-cell-edit-on',
-  'symmetric-hint': 'bg-hint-cell-edit-on',
-  selected: 'bg-hint-cell-edit-selected-cell',
-  slot: 'bg-hint-cell-edit-selected-row',
-  'slot-letter': 'bg-hint-cell-edit-selected-row',
-  'slot-required': 'bg-hint-cell-edit-selected-row',
+// Lock Grid Letters (14-S12): the on cells turn gray, and only a focused
+// hint input's word is highlighted, in the same blue.
+const HINTS_LOCKED_BG: Partial<Record<CellAppearance, string>> = {
+  ...HINTS_BG,
+  empty: 'bg-hint-cell-locked-on',
+  'locked-letter': 'bg-hint-cell-locked-on',
+  'symmetric-hint': 'bg-hint-cell-locked-on',
 };
+
+// The grid's own focus shows the cursor and its word in yellow; a hint
+// input's focus shows its word in blue (14-S6, 14-S12).
+function hintsHighlightBg(highlight: 'selected' | 'slot', isGridFocused: boolean) {
+  if (!isGridFocused) return 'bg-hint-cell-selected';
+  return highlight === 'selected' ? 'bg-hint-cell-cursor' : 'bg-hint-cell-cursor-word';
+}
 
 // Play's own colors (14-S7): the cursor cell and the rest of its word.
 const PLAY_BG: Partial<Record<CellAppearance, string>> = {
@@ -90,7 +89,7 @@ const GRID_LINES: Record<string, string> = {
   build: 'bg-build-cell-border',
   preview: 'bg-preview-cell-border',
   hints: 'bg-hint-cell-border',
-  'hints-editing': 'bg-hint-cell-edit-border',
+  'hints-locked': 'bg-hint-cell-border',
   play: 'bg-play-cell-border',
 };
 
@@ -104,7 +103,8 @@ export function PuzzleGrid({
   highlights,
   mode = 'build',
   isHintsPhase = false,
-  isEditingGrid = false,
+  isGridFocused = false,
+  isLettersLocked = false,
   onCellClick,
 }: {
   grid: Grid;
@@ -112,7 +112,10 @@ export function PuzzleGrid({
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   mode?: GridMode;
   isHintsPhase?: boolean;
-  isEditingGrid?: boolean;
+  /** Hints phase: the grid itself has focus, not a hint input. */
+  isGridFocused?: boolean;
+  /** Hints phase: Lock Grid Letters is on. */
+  isLettersLocked?: boolean;
   onCellClick?: (coord: Coord) => void;
 }) {
   // Builder empties are undecided geometry; player empties are fixed active
@@ -124,7 +127,13 @@ export function PuzzleGrid({
   );
   // Preview and play take precedence over the builder's hints-phase flags.
   const gridMode =
-    mode !== 'build' ? mode : isHintsPhase ? (isEditingGrid ? 'hints-editing' : 'hints') : 'build';
+    mode !== 'build'
+      ? mode
+      : isHintsPhase
+        ? isLettersLocked
+          ? 'hints-locked'
+          : 'hints'
+        : 'build';
   const modeBg =
     gridMode === 'build'
       ? BUILD_BG
@@ -132,8 +141,8 @@ export function PuzzleGrid({
         ? PREVIEW_BG
         : gridMode === 'hints'
           ? HINTS_BG
-          : gridMode === 'hints-editing'
-            ? HINTS_EDIT_BG
+          : gridMode === 'hints-locked'
+            ? HINTS_LOCKED_BG
             : PLAY_BG;
 
   const cells = [];
@@ -150,7 +159,6 @@ export function PuzzleGrid({
         isSymmetricHint: hints.has(key),
         isRecommended: recommended.has(key),
         isHintsPhase,
-        isEditingGrid,
         mode,
       });
       cells.push(
@@ -164,10 +172,12 @@ export function PuzzleGrid({
           data-cell-state={appearance}
           className={
             gridMode === 'hints' && highlight && cell.kind === 'active'
-              ? HINTS_WORD_BG
-              : gridMode === 'play' && highlight && cell.kind === 'active'
-                ? PLAY_HIGHLIGHT_BG[highlight]
-                : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
+              ? hintsHighlightBg(highlight, isGridFocused)
+              : gridMode === 'hints-locked' && highlight && cell.kind === 'active'
+                ? 'bg-hint-cell-selected'
+                : gridMode === 'play' && highlight && cell.kind === 'active'
+                  ? PLAY_HIGHLIGHT_BG[highlight]
+                  : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
           }
         >
           <GridCell

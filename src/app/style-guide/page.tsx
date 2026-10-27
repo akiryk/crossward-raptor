@@ -355,9 +355,8 @@ export default function StyleGuidePage() {
           <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
             Builder steps
           </h2>
-          <BuilderSteps phase="grid" isEditingGrid={false} onStep={() => {}} />
-          <BuilderSteps phase="hints" isEditingGrid={false} onStep={() => {}} />
-          <BuilderSteps phase="hints" isEditingGrid onStep={() => {}} />
+          <BuilderSteps phase="grid" onStep={() => {}} />
+          <BuilderSteps phase="hints" onStep={() => {}} />
           <PublishedState puzzleId="sg-sample" />
         </section>
 

@@ -18,10 +18,13 @@ export function PreviewToggle({
   isPreviewing,
   onToggle,
   'data-testid': dataTestId = 'preview-toggle',
+  label = 'Preview',
 }: {
   isPreviewing: boolean;
   onToggle: () => void;
   'data-testid'?: string;
+  /** The hints phase's Lock Grid Letters uses the same toggle (14-S12). */
+  label?: string;
 }) {
   const state = isPreviewing ? 'on' : 'off';
   return (
@@ -47,7 +50,7 @@ export function PreviewToggle({
         data-toggle-label
         className={`text-label transition-colors duration-150 ease-out ${isPreviewing ? 'text-button-active' : 'text-link-muted'}`}
       >
-        Preview
+        {label}
       </span>
     </label>
   );

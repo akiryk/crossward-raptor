@@ -127,9 +127,9 @@ export function PuzzleGridEditor({
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
   const [isPreviewing, setIsPreviewing] = useState(false);
-  // Same reasoning as preview (D4): a way of looking at the puzzle, not a
-  // property of it. Not persisted -- a reload returns to the locked grid.
-  const [isEditingGrid, setIsEditingGrid] = useState(false);
+  // Lock Grid Letters (14-S12): the hints phase's guard against changing a
+  // letter by accident. A way of working, like Preview, so not persisted.
+  const [isLettersLocked, setIsLettersLocked] = useState(false);
   // Whether the grid (or something that logically belongs to it, like a
   // hint input -- see the onFocus/onBlur on editor-layout below) currently
   // holds keyboard focus. Drives both whether the cursor/slot highlight
@@ -137,6 +137,10 @@ export function PuzzleGridEditor({
   // button or the title moves real focus away, which should blur the grid
   // rather than leave it looking (and acting) selected forever.
   const [isFocused, setIsFocused] = useState(false);
+  // Whether the grid itself has focus, rather than a hint input: in the
+  // hints phase it decides between the cursor's yellow and the focused
+  // hint's blue, and fills the cursor word's hint (14-S12).
+  const [isGridFocused, setIsGridFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
   const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
@@ -194,33 +198,31 @@ export function PuzzleGridEditor({
     // listener now establishes focus instead; onKeyDown below only ever
     // fires while the grid actually has it. isReady still flips exactly
     // when the grid can respond to input, so tests can wait for it rather
-    // than racing hydration. The locked grid takes no focus (14-S6).
-    if (gridRegionRef.current?.hasAttribute("tabindex")) gridRegionRef.current.focus();
+    // than racing hydration. In the hints phase nothing has focus on load
+    // (14-S6, kept by 14-S12).
+    if (initialPhase === "grid") gridRegionRef.current?.focus();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsReady(true);
-  }, []);
+  }, [initialPhase]);
 
   function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     const intent = keyToIntent(event.key);
-    if (!intent) return;
+    if (!intent || isLettersLocked) return;
     event.preventDefault();
 
     setState((prev) => {
       // Letters/deletion are the content a published puzzle freezes
-      // (PB4); cursor movement and the reject-only geometry path below
-      // are unaffected -- geometry is already frozen by hints phase
-      // (Story E), which every published puzzle is already in (PB3).
+      // (PB4); cursor movement is unaffected. Geometry is frozen by the
+      // hints phase (Story E): the cursor only reaches on cells, so a
+      // letter there overtypes and never changes the shape (14-S12).
       if (intent.type === "letter") {
         if (prev.publishedAt !== null) return prev;
-        // Hints phase locks letters too, except inside EDIT GRID mode
-        // (Story H4) -- geometry stays frozen either way.
-        if (prev.phase === "hints" && !isEditingGrid) return prev;
         const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
         return { ...prev, grid, cursor };
       }
       if (intent.type === "delete") {
         if (prev.publishedAt !== null) return prev;
-        // Deletion stays blocked even in EDIT GRID mode (Story H4): every
+        // Deletion stays blocked in the hints phase (Story H4): every
         // legal repair is an overtype once geometry is frozen, so a
         // cleared cell could only ever leave a hole.
         if (prev.phase === "hints") return prev;
@@ -238,9 +240,9 @@ export function PuzzleGridEditor({
   }
 
   function handleCellClick(coord: Coord) {
-    // The locked grid can't take focus, and clicking it selects nothing
-    // (Story H4, 14-S6).
-    if (state.phase === "hints" && !isEditingGrid) return;
+    // A published puzzle's grid, or one with its letters locked, takes no
+    // focus, and a click selects nothing (14-S12).
+    if (state.publishedAt !== null || isLettersLocked) return;
     // A plain click on a non-focusable cell doesn't move DOM focus to its
     // focusable ancestor by itself -- without this, clicking a cell after
     // focus had moved elsewhere (a button, the title) would update the
@@ -290,16 +292,14 @@ export function PuzzleGridEditor({
       }
       return;
     }
-    if (state.phase === "grid") {
-      if (id === "hints") {
-        // Preview turns on as the dialog opens and stays on unless the
-        // builder confirms (14-S10).
-        setIsPreviewing(true);
-        setIsEnterHintsDialogOpen(true);
-      }
-      return;
+    // In the hints phase 1 is disabled and 2 selected, so only the build
+    // phase's 2 reaches here (14-S12).
+    if (state.phase === "grid" && id === "hints") {
+      // Preview turns on as the dialog opens and stays on unless the
+      // builder confirms (14-S10).
+      setIsPreviewing(true);
+      setIsEnterHintsDialogOpen(true);
     }
-    setIsEditingGrid(id === "build");
   }
 
   function handleCancelEnterHints() {
@@ -335,7 +335,6 @@ export function PuzzleGridEditor({
       .then(() => publishPuzzle(puzzleId, visibility))
       .then(({ publishedAt, visibility }) => {
         setIsPublishDialogOpen(false);
-        setIsEditingGrid(false);
         setState((prev) => ({ ...prev, publishedAt, visibility }));
       });
   }
@@ -410,11 +409,7 @@ export function PuzzleGridEditor({
       {isPublished ? (
         <PublishedState puzzleId={puzzleId} />
       ) : (
-        <BuilderSteps
-          phase={phase}
-          isEditingGrid={isEditingGrid}
-          onStep={handleStep}
-        />
+        <BuilderSteps phase={phase} onStep={handleStep} />
       )}
       <EnterHintsDialog
         open={isEnterHintsDialogOpen}
@@ -429,13 +424,22 @@ export function PuzzleGridEditor({
           onCancel={() => setIsPublishDialogOpen(false)}
         />
       )}
-      {/* The Preview toggle's row stays, empty, outside the build phase, so
-          the grid doesn't move when the phase changes (14-S4). */}
+      {/* The toggle row: Preview in the build phase, Lock Grid Letters in
+          the hints phase (14-S12). It stays, empty, once published, so the
+          grid doesn't move (14-S4). */}
       <div className="mt-[27px] mb-3 flex h-6 items-center">
         {phase === "grid" && (
           <PreviewToggle
             isPreviewing={isPreviewing}
             onToggle={() => setIsPreviewing((prev) => !prev)}
+          />
+        )}
+        {phase === "hints" && !isPublished && (
+          <PreviewToggle
+            data-testid="lock-letters-toggle"
+            label="Lock Grid Letters"
+            isPreviewing={isLettersLocked}
+            onToggle={() => setIsLettersLocked((prev) => !prev)}
           />
         )}
       </div>
@@ -454,10 +458,12 @@ export function PuzzleGridEditor({
           <div
             ref={gridRegionRef}
             data-testid="grid-region"
-            // The locked grid takes no focus: no Tab stop, no click focus,
-            // no keys (14-S6). A hint input's focus still shows its word.
-            tabIndex={phase === "hints" && !isEditingGrid ? undefined : 0}
+            // A published puzzle's grid, or one with its letters locked,
+            // takes no focus: no Tab stop, no click focus, no keys (14-S12).
+            tabIndex={isPublished || isLettersLocked ? undefined : 0}
             onKeyDown={handleGridKeyDown}
+            onFocus={() => setIsGridFocused(true)}
+            onBlur={() => setIsGridFocused(false)}
             className="w-full outline-none"
           >
             <PuzzleGrid
@@ -465,7 +471,8 @@ export function PuzzleGridEditor({
               highlights={highlights}
               mode={isPreviewing ? "preview" : "build"}
               isHintsPhase={phase === "hints"}
-              isEditingGrid={isEditingGrid}
+              isGridFocused={isGridFocused}
+              isLettersLocked={phase === "hints" && isLettersLocked}
               onCellClick={handleCellClick}
             />
           </div>
@@ -483,9 +490,8 @@ export function PuzzleGridEditor({
               slots={slotLookup}
               hints={hints}
               activeKey={activeKey}
-              disabled={isPublished || isEditingGrid}
-              isEditingGrid={isEditingGrid}
-              selectedKey={isEditingGrid && isFocused ? activeKey : null}
+              disabled={isPublished}
+              selectedKey={isGridFocused ? activeKey : null}
               onHintChange={handleHintChange}
               onHintFocus={handleHintFocus}
             />

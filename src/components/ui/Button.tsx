@@ -27,6 +27,37 @@ const ALTERNATE = {
   selected: ALTERNATE_ACTIVE,
 };
 
+// A numbered button whose step is done (14-S12): gray, 70px wide, the
+// label giving way to a check. When it becomes done, the label fades out
+// over 150ms, then the check fades in over 150ms, while the fill, border,
+// width and number change over 300ms; under reduced motion it changes at
+// once.
+const DONE = {
+  button:
+    'w-[70px] overflow-hidden border-button-done bg-button-done ' +
+    'transition-[background-color,border-color,width] duration-300 ease-out motion-reduce:transition-none',
+  number: 'text-button-done transition-colors duration-300 ease-out motion-reduce:transition-none',
+  label: 'opacity-0 transition-opacity duration-150 ease-out motion-reduce:transition-none',
+  check: 'opacity-100 transition-opacity delay-150 duration-150 ease-out motion-reduce:transition-none',
+};
+
+// Material Icons' "check", its viewBox cropped to the glyph.
+function Check({ className }: { className: string }) {
+  return (
+    <svg
+      data-button-check
+      aria-hidden="true"
+      viewBox="3.41 5.59 17.59 13.41"
+      width="16"
+      height="12.2"
+      fill="currentColor"
+      className={className}
+    >
+      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+    </svg>
+  );
+}
+
 // The number's color follows the button's fill in every state.
 const NUMBER = {
   base: 'text-button-fill',
@@ -39,6 +70,7 @@ export function Button({
   variant = 'normal',
   size = 'normal',
   number,
+  done,
   selected = false,
   type = 'button',
   form,
@@ -54,6 +86,8 @@ export function Button({
   variant?: ButtonVariant;
   size?: ButtonSize;
   number?: number;
+  /** A numbered step that can be done: false until it is (14-S12). */
+  done?: boolean;
   selected?: boolean;
   type?: 'button' | 'submit' | 'reset';
   /** Ties a submit button to a form it sits outside, as in a modal footer. */
@@ -75,7 +109,7 @@ export function Button({
   const look = variant === 'alternate' ? ALTERNATE : FILLED;
   // Disabled buttons get no hover, focus or press response, and a selected
   // button keeps its look in every state.
-  const interactive = !disabled && !selected;
+  const interactive = !disabled && !selected && !done;
 
   const layout =
     size === 'large'
@@ -93,16 +127,19 @@ export function Button({
       data-step-id={dataStepId}
       data-button-type={buttonType}
       aria-current={selected ? 'true' : undefined}
+      data-done={done ? 'true' : undefined}
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
       onClick={onClick}
       disabled={disabled}
       className={[
-        'group inline-flex items-center justify-center whitespace-nowrap rounded-pill border outline-hidden transition-colors duration-150 ease-out',
+        'group relative inline-flex items-center whitespace-nowrap rounded-pill border outline-hidden [interpolate-size:allow-keywords]',
         layout,
-        selected ? look.selected : look.base,
+        // Done, the faded label overflows the 70px, so the row packs from
+        // the start to keep the number in place.
+        done ? `justify-start ${DONE.button}` : `justify-center transition-colors duration-150 ease-out ${selected ? look.selected : look.base}`,
         interactive ? `${look.hover} ${look.pressed}` : '',
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        done ? 'cursor-default' : disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       ].join(' ')}
     >
       {numbered ? (
@@ -110,14 +147,25 @@ export function Button({
           <span
             data-button-number
             className={[
-              'inline-flex size-6 items-center justify-center rounded-pill bg-inverse transition-colors duration-150 ease-out',
-              selected ? NUMBER.selected : NUMBER.base,
+              'inline-flex size-6 shrink-0 items-center justify-center rounded-pill bg-inverse',
+              done ? DONE.number : `transition-colors duration-150 ease-out ${selected ? NUMBER.selected : NUMBER.base}`,
               interactive ? `${NUMBER.hover} ${NUMBER.pressed}` : '',
             ].join(' ')}
           >
             {number}
           </span>
-          <span>{children}</span>
+          {/* Faded out when done, it stays the button's name. */}
+          <span data-button-label className={done ? DONE.label : 'transition-opacity duration-150 ease-out'}>
+            {children}
+          </span>
+          {done !== undefined && (
+            // 12px from the number's circle, centred in the 40px beside it.
+            <Check
+              className={`absolute top-1/2 left-[40px] -translate-y-1/2 text-inverse ${
+                done ? DONE.check : 'opacity-0'
+              }`}
+            />
+          )}
         </>
       ) : (
         children

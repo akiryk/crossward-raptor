@@ -9,8 +9,7 @@ export type CellAppearance =
   | 'symmetric-hint'
   | 'required' // preview only
   | 'recommended' // preview only
-  | 'locked-letter' // hints phase, grid not being edited
-  | 'editable-letter' // hints phase, EDIT GRID mode
+  | 'locked-letter' // hints phase: the shape is locked
   | 'slot'
   | 'slot-letter'
   | 'slot-required'
@@ -42,7 +41,6 @@ export function cellAppearance(args: {
   isSymmetricHint: boolean;
   isRecommended?: boolean;
   isHintsPhase?: boolean;
-  isEditingGrid?: boolean;
   mode?: GridMode;
 }): CellAppearance {
   const {
@@ -52,7 +50,6 @@ export function cellAppearance(args: {
     isSymmetricHint,
     isRecommended = false,
     isHintsPhase = false,
-    isEditingGrid = false,
     mode = 'build',
   } = args;
 
@@ -67,10 +64,9 @@ export function cellAppearance(args: {
     return isSymmetricHint ? 'required' : 'black';
   }
 
-  // isEditingGrid only means anything once isHintsPhase is true -- there is
-  // no such thing as editing the grid outside hints phase, and the build
-  // branch below already allows everything edit mode would.
-  if (isHintsPhase && !isEditingGrid) {
+  // The hints phase ignores selection here: its highlight colors come from
+  // what has focus, not the appearance (14-S12).
+  if (isHintsPhase) {
     if (cell.letter !== null) return 'locked-letter';
     return 'empty';
   }
@@ -80,7 +76,7 @@ export function cellAppearance(args: {
     if (cell.letter !== null) return 'slot-letter';
     return isSymmetricHint ? 'slot-required' : 'slot';
   }
-  if (cell.letter !== null) return isHintsPhase ? 'editable-letter' : 'letter';
+  if (cell.letter !== null) return 'letter';
   return isSymmetricHint ? 'symmetric-hint' : 'empty';
 }
 

@@ -52,11 +52,9 @@
   --color-hint-cell-off: var(--palette-gray-700);
   --color-hint-cell-border: var(--palette-gray-500);
   --color-hint-cell-selected: var(--palette-blue-medium);
-  --color-hint-cell-edit-on: var(--palette-white);
-  --color-hint-cell-edit-off: var(--palette-gray-200);
-  --color-hint-cell-edit-border: var(--palette-gray-400);
-  --color-hint-cell-edit-selected-cell: var(--palette-yellow-bright);
-  --color-hint-cell-edit-selected-row: var(--palette-yellow-medium);
+  --color-hint-cell-cursor: var(--palette-yellow-bright);
+  --color-hint-cell-cursor-word: var(--palette-yellow-medium);
+  --color-hint-cell-locked-on: var(--palette-gray-200);
 
   /* text */
   --color-primary: var(--palette-black);
@@ -79,6 +77,7 @@
   --color-button-active: var(--palette-interactive-dark);
   --color-button-alternate-border: var(--palette-gray-500);
   --color-button-alternate-hover: var(--palette-gray-500);
+  --color-button-done: var(--palette-gray-400);
   --color-puzzle-row: var(--palette-interactive-faint);
   --color-puzzle-row-hover: var(--palette-interactive-faint-hover);
   --color-modal-background: var(--palette-white);

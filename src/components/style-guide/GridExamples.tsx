@@ -32,11 +32,11 @@ const LETTERS: { col: number; row: number; letter: string }[] = [
 const CURSOR: CursorState = { current: { col: 3, row: 5 }, orientation: 'down' };
 
 // The build sample's cursor (3,5) is empty, so after conversion it's black
-// and produces no highlight at all -- the editing sample needs its own
+// and produces no highlight at all -- the focused-grid sample needs its own
 // cursor, inside the four-cell down slot conversion leaves at column 3
 // (rows 0-3; row 4 onward is unfilled and becomes black), so the sample
-// shows selected, slot-letter, editable-letter and black together.
-const EDITING_CURSOR: CursorState = { current: { col: 3, row: 1 }, orientation: 'down' };
+// shows the cursor, its word, other on cells and off cells together.
+const GRID_FOCUS_CURSOR: CursorState = { current: { col: 3, row: 1 }, orientation: 'down' };
 
 // The locked sample shows the word of a focused hint input: GRID, across
 // row 2 (14-S6).
@@ -73,13 +73,13 @@ export function GridExamples() {
   // hints-phase puzzle has no empty cells, and showing one would document
   // a state that cannot occur.
   const hintsGrid = convertEmptyCellsToBlack(grid);
-  const editingHighlights = highlightsFor(hintsGrid, EDITING_CURSOR);
+  const gridFocusHighlights = highlightsFor(hintsGrid, GRID_FOCUS_CURSOR);
   const lockedHighlights = highlightsFor(hintsGrid, LOCKED_HINT_CURSOR);
   // The play sample: the converted grid as a player sees it, with the
   // cursor in STOP, down (14-S7).
-  const playHighlights = highlightsFor(hintsGrid, EDITING_CURSOR);
+  const playHighlights = highlightsFor(hintsGrid, GRID_FOCUS_CURSOR);
   const playSlots = slotsWithNumbers(hintsGrid);
-  const playKey = activeHintKey(buildSlotLookup(hintsGrid), EDITING_CURSOR);
+  const playKey = activeHintKey(buildSlotLookup(hintsGrid), GRID_FOCUS_CURSOR);
   const playSlot = playSlots.find((slot) => `${slot.number}-${slot.orientation}` === playKey)!;
   const playHints = Object.fromEntries(
     playSlots.map((slot) => [`${slot.number}-${slot.orientation}`, `Sample hint for ${slot.number} ${slot.orientation}`])
@@ -117,23 +117,32 @@ export function GridExamples() {
 
       <section data-testid="sg-grid-hints">
         <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
-          Grid (hints phase, locked)
+          Grid (hints phase, a hint focused)
         </h2>
         <div className="max-w-sm">
           <PuzzleGrid grid={hintsGrid} highlights={lockedHighlights} isHintsPhase />
         </div>
       </section>
 
-      <section data-testid="sg-grid-hints-editing">
+      <section data-testid="sg-grid-hints-locked">
         <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
-          Grid (hints phase, EDIT GRID mode)
+          Grid (hints phase, letters locked, a hint focused)
+        </h2>
+        <div className="max-w-sm">
+          <PuzzleGrid grid={hintsGrid} highlights={lockedHighlights} isHintsPhase isLettersLocked />
+        </div>
+      </section>
+
+      <section data-testid="sg-grid-hints-selected">
+        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          Grid (hints phase, grid focused)
         </h2>
         <div className="max-w-sm">
           <PuzzleGrid
             grid={hintsGrid}
-            highlights={editingHighlights}
+            highlights={gridFocusHighlights}
             isHintsPhase
-            isEditingGrid
+            isGridFocused
           />
         </div>
       </section>
