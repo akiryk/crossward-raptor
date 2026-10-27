@@ -3,7 +3,7 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md), especially its [Pending questions](EPIC.md#pending-questions).
+2. The [EPIC](EPIC.md).
 
 **Only if needed:** epic 14's [Open at closeout](../14-screen-redesign/EPIC.md#open-at-closeout-2026-10-27)
 for the carried items' original wording.
@@ -25,9 +25,9 @@ Findings from the code that shaped the draft:
   threshold; the human approved moving it to 1440px wide in S1's freeze
   commit.
 
-The human answered four of the first draft's ten questions on
-2026-10-27 (recorded in the EPIC's Decisions). Six remain, each with a
-recommendation, before approval.
+The human answered all ten of the first draft's questions on 2026-10-27
+(recorded in the EPIC's Decisions). The epic awaits only the human's
+approval.
 
 ## Verification
 
@@ -35,10 +35,10 @@ Documentation only; no checks run.
 
 ## Next action
 
-Settle the EPIC's pending questions with the human, record the answers
-in its Decisions, and get the epic approved. Approval doesn't approve any
-story; S1's specification is drafted next, on `main`.
+Get the human's approval of the EPIC and record it in its status line.
+Approval doesn't approve any story; S1's specification is drafted next,
+on `main`.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/EPIC.md. Settle the EPIC's pending questions with the human and revise it for approval on main; don't draft a story until the epic is approved.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/EPIC.md. Get the human's approval of the EPIC, record it on main, then draft S1's specification for approval.

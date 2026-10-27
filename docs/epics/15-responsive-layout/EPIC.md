@@ -1,10 +1,9 @@
 # Epic: Responsive layout
 
 **Status: draft, 2026-10-27.** Not approved. Drafted from the human's
-details and two mockups of 2026-10-27. Four of the first draft's
-questions were answered the same day and are recorded in Decisions; the
-remaining [pending questions](#pending-questions) need answers before
-approval. Stories are
+details and two mockups of 2026-10-27. Every pending question was
+answered the same day *(human)* and is recorded in Decisions; the epic
+awaits the human's approval. Stories are
 drafted and approved one at a time.
 
 The third of the redesign epics outlined in the
@@ -124,6 +123,20 @@ commit as approved acceptance infrastructure; new tests name narrow
 viewports explicitly. *(Height 900 is proposed; the human approved the
 1440px width.)*
 
+**The narrow layout's own title and toggle** *(human, 2026-10-27)*. The
+`title-3` title, the toggle to the right of the numbered buttons and the
+tighter spacing apply only below about 1000px; wider, the builder keeps
+the `title-1` title and the toggle row above the grid.
+
+**Narrow build phase: the legend only** *(human, 2026-10-27)*. Below about
+1000px in the build phase, nothing shows below the grid except Preview's
+legend (the error and warning cells present) while Preview is on. The Hint
+Box is the hints phase's.
+
+**No separate spacing pass** *(human, 2026-10-27)*. Epic 13's programme
+listed "spacing refinement" for this epic; spacing changes only where a
+story names them, like the narrow layout's tightening.
+
 **Thresholds are set by content, not by device** *(proposed)*. The
 breakpoints are the widths the human gave, measured on the editor's and
 play's own layout container with CSS container queries (Tailwind v4's
@@ -137,13 +150,20 @@ grid, in a box with a 1px border (a new color style on gray-700). Inside, a
 left arrow, the slot's word in the Hint Input's answer style (`label`,
 letter-spaced, `muted`), an input filled blue-medium (a new style) holding
 the hint, and a right arrow. The arrows step through the words in reading
-order: every Across word by number, then every Down word.
+order: every Across word by number, then every Down word, and wrap at
+the ends (the last Down's right arrow goes to the first Across, and back)
+*(human, 2026-10-27)*. *Proposed:* an arrow selects its word in the grid
+and focuses the box's input.
+
+**A 4px rule above the box and the bar** *(human, 2026-10-27)*. In both
+narrow mockups, a 4px gray-700 line (a new color style) runs along the
+grid's bottom edge, the top of the Hint Box and the play hint bar.
 
 **Play hint bar** *(human)*. Play, narrow: one hint at a time in a bar
 below the grid, filled blue-medium (a new style) across the grid's width,
 with the same arrows and order. It shows the hint of the word at the
-cursor in the cursor's direction. In mockup 2 the hint text is centered
-and has no number.
+cursor in the cursor's direction. The hint text is centered, with no
+number or direction ("14A") *(human, 2026-10-27)*.
 
 **Play, wide is unchanged** *(human)*. With room for the hints beside the
 grid (about 1290px and up), play keeps 14-S7's layout: the Prominent Hint
@@ -210,13 +230,14 @@ Preview's legend.
 
 Below about 1000px: one centered column at the grid's width, the title in
 `title-3`, the toggle to the right of the numbered buttons, tighter
-spacing (values from the human), and the Hint Box's place below the
-grid. The
+spacing (values from the human), and below the grid only Preview's
+legend in the build phase and the Hint Box's place in the hints phase. The
 published state's "Published" and "Play it!" fit the same column.
 
 ### S4 — Builder Hint Box
 
-The Hint Box below the narrow grid, its arrows and reading order, and how
+The Hint Box below the narrow grid in the hints phase, its 4px top rule,
+its wrapping arrows and reading order, and how
 it follows the grid's cursor and the hint input's focus. Adds the
 `sg-hint-box` style guide sample.
 
@@ -224,7 +245,8 @@ it follows the grid's cursor and the hint input's focus. Adds the
 
 Below about 1290px: only the masthead's logo above the grid (no title,
 no "Puzzle options"), the grid centered, the Prominent Hint and Player
-Hints replaced by the play hint bar below the grid, following the cursor.
+Hints replaced by the play hint bar (its 4px top rule, centered hint, no
+number, wrapping arrows) below the grid, following the cursor.
 Adds
 the play hint bar's style guide sample.
 
@@ -238,29 +260,7 @@ narrow play no longer shows "Puzzle options") and any dialog taller than a 375×
 
 ## Pending questions
 
-To answer before approval; each has a recommendation. The first draft's
-questions 1, 6, 8 and 9 were answered 2026-10-27 *(human)* and are in
-Decisions: one hint at a time below the grid, only the logo above narrow
-play, no height term, and a 1440px default test viewport.
-
-1. **Does the title/toggle/spacing change apply only in the narrow
-   layout?** *Recommended:* yes; wide keeps the `title-1` title and the
-   toggle row above the grid.
-2. **The build phase, narrow.** In the build phase there are no hints to
-   enter, and the skeleton is hidden below 1024px today. *Recommended:*
-   nothing below the grid in the build phase (Preview's legend still
-   shows); the Hint Box appears in the hints phase.
-3. **The heavy rule between grid and box.** Both mockups show a thick dark
-   line along the grid's bottom edge, above the box. *Recommended:* treat
-   it as the box's top border, 3px `primary`, unless it's a mockup
-   artifact.
-4. **Arrows at the ends.** *Recommended:* wrap: the last Down's right
-   arrow goes to 1 Across and vice versa, as NYT does. An arrow selects
-   the word in the grid and, in the builder, focuses the box's input.
-5. **The play bar's number.** Mockup 2 shows the hint centered with no
-   "14A". *Recommended:* follow the mockup (no number); keep it only if the
-   human wants the Prominent Hint's "14A" carried over.
-6. **Spacing refinement.** The programme listed "spacing refinement" for
-   this epic. Beyond the narrow layout's tightening, is any spacing pass
-   wanted? *Recommended:* no; spacing changes only where a story names
-   them.
+None. The first draft's ten questions were answered 2026-10-27 *(human)*
+and are recorded in Decisions. Two details stay *proposed* for their
+stories: an arrow focusing the Hint Box's input (S4), and the test
+viewport's 900px height (S1).
