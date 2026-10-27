@@ -6,12 +6,14 @@ shows its word in blue. EDIT GRID adds yellow for the cursor and its
 word. Each hint is a Hint Input in the build skeleton's frame, so nothing
 moves when the builder creates hints.
 
-**Status: correction implemented on `main`** (2026-10-26), on top of its
+**Status: done.** The human's visual check of the correction passed
+(2026-10-27).
+
+Correction implemented on `main` (2026-10-26), on top of its
 specification-only freeze `2da5a9d`, after the human's visual check of the
 implementation (`b9c920a`); see [Correction](#correction-2026-10-26),
 independently reviewed. `npm run verify` exited 0 and the full
-`npm run test:e2e` passed 621 of 621. Next: the human's visual check of
-the correction.
+`npm run test:e2e` passed 621 of 621.
 
 Implemented on `main` earlier the same day, on top of freeze commit
 `53e28fe`, as the drafting throwaway unchanged.

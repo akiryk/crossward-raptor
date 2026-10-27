@@ -392,12 +392,12 @@ since the freeze. Verification:
   800ms wait for the 500ms autosave); it then passed 5 of 5 alone and in
   the full rerun.
 
+**S6's visual check passed** (human, 2026-10-27: "I looked at the latest
+work and I approve"), so S6 is done.
+
 ## Next action
 
-The human's visual check of the S6 correction: EDIT GRID's build-grid
-colors, the hints faded to 0.4, and the selected word's hint at full
-opacity with its yellow-bright input, following the cursor's word. Then,
-in epic order, draft S7 (Play).
+In epic order, draft S7 (Play).
 
 ## Resume prompt
 
