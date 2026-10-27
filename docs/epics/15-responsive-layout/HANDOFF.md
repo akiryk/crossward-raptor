@@ -11,9 +11,9 @@ for the carried items' original wording.
 ## Current state (2026-10-27)
 
 **The EPIC is approved** (by the human, 2026-10-27). It was drafted
-on `main` from the human's details and two narrow mockups (Build/Hint/Preview and play) of
-2026-10-27, which it records in "The human's details". No story exists.
-No story is drafted or approved yet.
+on `main` from the human's details and two narrow mockups
+(Build/Hint/Preview and play) of 2026-10-27, which it records in "The
+human's details". No story is drafted or approved yet.
 
 Findings from the code that shaped the draft:
 
