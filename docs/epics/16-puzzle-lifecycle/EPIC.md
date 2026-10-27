@@ -2,9 +2,11 @@
 
 **Draft, not approved (2026-10-27).** Rewritten from an outside proposal
 (`CROSSWARD-PUZZLE-LIFECYCLE-EPIC.md`, written without access to this repo)
-against the code and the approved Decisions of epics 11 and 14. Nothing
-here is approved until the human approves the EPIC; each story is then
-drafted and approved on its own. Queued after epic 15.
+against the code and the approved Decisions of epics 11 and 14. The
+human answered the first draft's five questions the same day; they are
+recorded in Decisions. Nothing here is approved until the human approves
+the EPIC; each story is then drafted and approved on its own. Queued after
+epic 15 *(human)*.
 
 Today a builder can publish a puzzle but can't do much with it afterwards.
 They can't change who sees it, remove it from the library, or fix a
@@ -58,11 +60,13 @@ otherwise in several places.
 
 ## Scope
 
-1. **Private means unlisted.** Other users' private puzzles leave the Play
-   view; the link still works for anyone signed in.
-2. **Change visibility after publishing.** The builder switches a
-   published puzzle between Private and Public. Its ID, URL, content and
-   play sessions are unchanged.
+1. **Private becomes Unlisted.** Other users' unlisted puzzles leave the
+   Play view, which today shows them; the link still works for anyone
+   signed in.
+2. **A row menu and changing visibility.** Each Build row gets a
+   three-dot button opening a menu of the puzzle's actions. From it the
+   builder switches a published puzzle between Unlisted and Public. Its
+   ID, URL, content and play sessions are unchanged.
 3. **Delete published puzzles from the library,** with a confirmation that
    says other players lose their progress, and a clear page for a link to
    a deleted puzzle.
@@ -80,7 +84,7 @@ its specification-only freeze commit; tests assert structural properties.
 published puzzle's grid, letters, hints or title. A fix is a duplicate with
 its own ID and URL; existing play sessions stay with the original.
 
-**No Unpublish** *(human, epic 14)*. Making a puzzle Private takes it out
+**No Unpublish** *(human, epic 14)*. Making a puzzle Unlisted takes it out
 of discovery and keeps links and progress. Deleting it removes it.
 
 **Deletion is hard and cascades** *(epic 11)*. No soft delete, tombstone,
@@ -88,17 +92,41 @@ recycle bin or recovery. Deleting a published puzzle deletes every
 player's session for it. This epic only adds the library control and the
 wording.
 
+**"Private" is renamed "Unlisted"** *(human, 2026-10-27)*. The Publish
+dialog's choice and the status labels read Unlisted and Public. The stored
+value stays `'private'`, so no migration is needed *(proposed)*.
+
+**Unlisted hides a puzzle from other people's Play view** *(human,
+2026-10-27)*. Today a Private puzzle shows in everyone's Play view, as if
+it were Public. That's the defect S1 fixes. The builder still sees their
+own unlisted puzzles in both views.
+
+**An unlisted puzzle's link works for anyone signed in** *(proposed,
+pending the human's confirmation)*. Sending the link is the way to share
+a puzzle with testers, and it matches epic 11's "PB3's private means
+unlisted, not owner-only". The alternative is owner-only: nobody but the
+builder can open it, so there's no way to share it before making it
+Public.
+
 **Sign-in stays required** *(proposed)*. Unlisted means hidden from the
 Play view, not readable without an account. The outside proposal's
 anonymous link access is a Non-goal.
 
 **No draft test-solve** *(proposed)*. Epic 11's "plays their own puzzle
 exactly as anyone else does" stands. To test before sharing, the builder
-publishes Private, plays and resets. The outside proposal's L2 is dropped.
+publishes Unlisted, plays and resets. The outside proposal's L2 is dropped.
 
 **A duplicate is a new puzzle, not a revision** *(proposed)*. It gets a
 new ID, the caller as builder and `publishedAt: null`. It copies the
-source's grid, letters, hints, phase and `gridBeforeHints`. It copies no
+source's grid, letters, hints, phase and `gridBeforeHints`.
+
+**A duplicate keeps its source's phase** *(human, 2026-10-27, for
+published puzzles; proposed for the rest)*. A published puzzle is always
+in the hints phase, so its copy opens there with the shape locked and
+letters and hints editable. Going back to grid building would defeat the
+point of copying it *(human)*. Any puzzle can be duplicated, including one
+still in grid building: the rule stays "Duplicate copies the puzzle as it
+is", and the menu needn't hide Duplicate on some rows. It copies no
 play sessions, published date or visibility (the default applies). Only
 the source's builder can duplicate it. The source is never changed. The
 copy's title is distinguishable (e.g. "<title> (copy)"; story detail). The
@@ -108,6 +136,14 @@ state.
 **Keep Build / Play** *(human, epic 14)*. Owner actions live in the Build
 view's rows. Other users never see them. No third view and no separate
 management page.
+
+**A three-dot row menu** *(human, 2026-10-27)*. Each Build row gets a
+button with three dots that opens a contextual menu of the puzzle's
+actions. *Proposed:* the menu replaces the row's trailing Delete button,
+and its items are Duplicate, then "Make public" or "Make unlisted" on a
+published puzzle, then Delete, which opens the existing delete dialog. It's
+keyboard-operable, and it's a new component with its own style-guide
+sample. The Play view's rows are unchanged.
 
 **No grid-engine change.** Duplication and visibility are server actions
 over stored puzzles; `src/engine/**` is untouched.
@@ -127,8 +163,8 @@ stale-link or delete handling touches the actions.
   duplicate, or linking the two (no version graph, no "replaced by").
 - Version history, revert, soft delete or recovery.
 - Shared editing, roles, moderation or admin overrides of ownership.
-- A route from the hints phase back to grid building (see Pending
-  question 3).
+- A route from the hints phase back to grid building, for a duplicate or
+  any other puzzle.
 - Grid-engine changes.
 
 ---
@@ -138,26 +174,30 @@ stale-link or delete handling touches the actions.
 Order as listed. Story files are `stories/16-S<n>-<slug>.md`. Each lists
 the frozen tests it supersedes.
 
-### S1 — Private means unlisted
+### S1 — Unlisted
 
-`listPuzzles` stops returning other builders' private published puzzles.
-The Play view then shows your own puzzles in either visibility and other
-builders' public ones. Play by URL is unchanged: any signed-in user can
-still open a private puzzle's link. Existing private puzzles in the
-database become unlisted when this ships. Supersedes 14-S2's "Play lists
-every published puzzle" tests. Settles the Build view's visibility marker
-and whether "Private" is relabelled "Unlisted" (Pending question 1).
+`listPuzzles` stops returning other builders' unlisted (stored
+`'private'`) published puzzles. The Play view then shows your own puzzles
+in either visibility and other builders' public ones. Play by URL follows
+the link-access Decision. Existing private puzzles in the database become
+unlisted when this ships. "Private" reads "Unlisted" in the Publish dialog
+and the status labels. Supersedes 14-S2's "Play lists every published
+puzzle" tests and 14-S4's "Private" label expectations. Settles whether
+the Build view marks visibility.
 
-### S2 — Change visibility
+### S2 — Row menu and visibility
 
-An owner-only action switches a published puzzle between Private and
-Public. The write is guarded on `builderId`, `publishedAt: not null` and a
-valid value. Nothing else changes: not the ID, URL, content, `publishedAt`
-or play sessions. Settles where the control lives (Pending question 4).
+The three-dot menu on every Build row, replacing the trailing Delete
+button (Delete moves into the menu, still unpublished rows only until
+S3). On a published puzzle the menu offers "Make public" or "Make
+unlisted". The owner-only write is guarded on `builderId`,
+`publishedAt: not null` and a valid value. Nothing else changes: not the
+ID, URL, content, `publishedAt` or play sessions. Adds the menu's
+style-guide sample. Supersedes 14-S2's row Delete button tests.
 
 ### S3 — Delete published puzzles
 
-The library's Delete is offered on published rows too, with a confirmation
+The menu's Delete is offered on published rows too, with a confirmation
 that, for a published puzzle, says other players' progress is deleted.
 Declining deletes nothing. A link to a deleted puzzle shows a "no longer
 available" message with a way back to `/puzzles`, in play and the editor.
@@ -167,7 +207,7 @@ having no Delete.
 
 ### S4 — Duplicate a puzzle
 
-A Duplicate action on Build rows, in any phase, creates the copy described
+The menu's Duplicate, on every Build row, creates the copy described
 in Decisions and opens it in the editor. Tests cover a new ID and owner,
 unpublished, identical grid, letters and hints, the source unchanged, no
 sessions copied, and another user's puzzle refused.
@@ -176,24 +216,6 @@ sessions copied, and another user's puzzle refused.
 
 ## Pending questions
 
-1. **The word "Private."** Once S1 ships, Private means unlisted:
-   link-playable, not owner-only. Keep the label "Private" (and the
-   Publish dialog's "Who can play it?"), or rename it "Unlisted" in the
-   dialog and status labels? The stored value can stay `'private'` either
-   way. *Proposed:* rename to "Unlisted"; "Private" suggests owner-only.
-2. **Is S1 a change the human wants?** It changes 14-S2's approved "Play
-   lists every published puzzle" to match epic 11's intent. The
-   alternative is keeping Private and Public identical and dropping S1, but
-   then the visibility choice means nothing.
-3. **A duplicate of a hints-phase puzzle has a locked shape.** Nothing
-   moves a puzzle back to grid building today. Accept that (fix letters
-   and hints only), or add a route back (e.g. a duplicate restored from
-   `gridBeforeHints` in the grid phase, losing its hints)? *Proposed:*
-   accept it here; a route back is its own epic or story.
-4. **Where the owner actions go.** A Build row has room for one trailing
-   control today. Duplicate, visibility and Delete together suggest a row
-   menu (a new component and style-guide sample) or a new place, like the
-   builder's published state for visibility. Values from the human per
-   epic 13/14's Decisions.
-5. **Order against epic 15.** Queued after it. Say if any story should go
-   first.
+1. **Who can open an unlisted puzzle's link?** *Proposed:* anyone signed
+   in, so the builder can share it with testers. The alternative is the
+   builder only.
