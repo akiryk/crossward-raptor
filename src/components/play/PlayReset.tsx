@@ -4,9 +4,6 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 
-const QUIET_CONTROL = 'rounded-btn border border-rule-strong px-3 py-1 text-help text-ink-2 '
-  + 'enabled:cursor-pointer enabled:hover:bg-hover-tint disabled:cursor-not-allowed disabled:opacity-50';
-
 /** Every player's Puzzle options disclosure, plus the builder's visible shortcut. */
 export function PlayResetControls({
   enabled,
@@ -41,10 +38,9 @@ export function PlayResetControls({
   return (
     <div className="flex items-center gap-2">
       {isBuilder && (
-        <button
-          type="button"
+        <Button
+          variant="alternate"
           data-testid="play-reset-button"
-          className={QUIET_CONTROL}
           disabled={!enabled}
           // Some browsers do not focus a clicked button; Modal restores focus
           // to whatever was focused when it opened.
@@ -54,14 +50,13 @@ export function PlayResetControls({
           }}
         >
           Reset puzzle
-        </button>
+        </Button>
       )}
       <div ref={container} className="relative" onKeyDown={handleKeyDown}>
-        <button
+        <Button
           ref={optionsButton}
-          type="button"
+          variant="alternate"
           data-testid="play-options"
-          className={QUIET_CONTROL}
           aria-expanded={expanded}
           aria-controls={expanded ? menuId : undefined}
           disabled={!enabled}
@@ -71,16 +66,16 @@ export function PlayResetControls({
           }}
         >
           Puzzle options
-        </button>
+        </Button>
         {expanded && (
           <div
             id={menuId}
-            className="absolute right-0 z-10 mt-1 min-w-full rounded-md border border-rule-strong bg-background p-1"
+            className="absolute left-0 z-10 mt-1 min-w-full rounded-modal border border-line-muted bg-modal-background p-1"
           >
             <button
               type="button"
               data-testid="play-reset-option"
-              className="w-full cursor-pointer whitespace-nowrap rounded-btn px-3 py-1 text-left text-help hover:bg-hover-tint"
+              className="w-full cursor-pointer whitespace-nowrap rounded-modal px-3 py-1 text-left text-body-normal text-primary transition-colors duration-150 ease-out hover:bg-puzzle-row-hover"
               onClick={() => {
                 // Focus the disclosure button first so the dialog restores it.
                 setOpen(false);
@@ -139,13 +134,13 @@ export function PlayResetDialog({
       ) : (
         <p>
           This clears your entries and your completion record for{' '}
-          <span className="text-foreground [font-weight:var(--weight-bold)]">{puzzleTitle}</span>,
+          <span className="font-semibold text-primary">{puzzleTitle}</span>,
           and starts the puzzle over. It cannot be undone.
         </p>
       )}
       {pending && <p data-testid="play-reset-pending" role="status">Resetting your puzzle…</p>}
       {failed && !pending && (
-        <p data-testid="play-reset-error" role="alert" className="text-required">
+        <p data-testid="play-reset-error" role="alert" className="text-error">
           We couldn’t reset your puzzle. Please try again.
         </p>
       )}

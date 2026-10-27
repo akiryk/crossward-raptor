@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode, Ref } from 'react';
 
 export type ButtonVariant = 'normal' | 'alternate';
 export type ButtonSize = 'normal' | 'large';
@@ -47,6 +47,9 @@ export function Button({
   children,
   'data-testid': dataTestId,
   'data-step-id': dataStepId,
+  'aria-expanded': ariaExpanded,
+  'aria-controls': ariaControls,
+  ref,
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -56,11 +59,15 @@ export function Button({
   /** Ties a submit button to a form it sits outside, as in a modal footer. */
   form?: string;
   disabled?: boolean;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   children: ReactNode;
   'data-testid'?: string;
   /** Names a builder step (14-S4). */
   'data-step-id'?: string;
+  /** A disclosure's state, as play's Puzzle options (14-S7). */
+  'aria-expanded'?: boolean;
+  'aria-controls'?: string;
+  ref?: Ref<HTMLButtonElement>;
 }) {
   const numbered = number !== undefined;
   const buttonType =
@@ -79,12 +86,15 @@ export function Button({
 
   return (
     <button
+      ref={ref}
       type={type}
       form={form}
       data-testid={dataTestId}
       data-step-id={dataStepId}
       data-button-type={buttonType}
       aria-current={selected ? 'true' : undefined}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       onClick={onClick}
       disabled={disabled}
       className={[

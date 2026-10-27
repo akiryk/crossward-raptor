@@ -9,7 +9,8 @@ take the new text styles and Buttons.
 
 **Status: approved and frozen** (2026-10-27). The human approved the
 Decisions, the *(agent)* choices and the acceptance, including the P2
-amendment ("I approve S7").
+amendment ("I approve S7"). Implemented on `main` on top of freeze commit `5f2afc2`: the
+drafting throwaway unchanged.
 
 **Blast radius: medium.** Client components `PlayPuzzle`, `PlayReset`,
 `PuzzleGrid` (play's colors) and the style guide's `GridExamples`; two

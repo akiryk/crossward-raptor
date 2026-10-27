@@ -8,6 +8,9 @@ import { PuzzleGrid } from '../grid/PuzzleGrid';
 import { HintSkeleton } from '../grid/HintSkeleton';
 import { PreviewLegend } from '../grid/PreviewLegend';
 import { HintsPanel } from '../grid/HintsPanel';
+import { slotsWithNumbers } from '../../engine/numbering';
+import { PlayerHints } from '../play/PlayerHints';
+import { ProminentHint } from '../play/ProminentHint';
 
 // A 10x10 with two crossing words (row 2 across, col 3 down, sharing (3,2)).
 // The cursor sits mid-run in the down slot so that slot spans both lettered
@@ -72,6 +75,15 @@ export function GridExamples() {
   const hintsGrid = convertEmptyCellsToBlack(grid);
   const editingHighlights = highlightsFor(hintsGrid, EDITING_CURSOR);
   const lockedHighlights = highlightsFor(hintsGrid, LOCKED_HINT_CURSOR);
+  // The play sample: the converted grid as a player sees it, with the
+  // cursor in STOP, down (14-S7).
+  const playHighlights = highlightsFor(hintsGrid, EDITING_CURSOR);
+  const playSlots = slotsWithNumbers(hintsGrid);
+  const playKey = activeHintKey(buildSlotLookup(hintsGrid), EDITING_CURSOR);
+  const playSlot = playSlots.find((slot) => `${slot.number}-${slot.orientation}` === playKey)!;
+  const playHints = Object.fromEntries(
+    playSlots.map((slot) => [`${slot.number}-${slot.orientation}`, `Sample hint for ${slot.number} ${slot.orientation}`])
+  );
 
   return (
     <>
@@ -123,6 +135,21 @@ export function GridExamples() {
             isHintsPhase
             isEditingGrid
           />
+        </div>
+      </section>
+
+      <section data-testid="sg-grid-play">
+        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          Play: Prominent Hint, grid and Player Hints
+        </h2>
+        <div className="flex flex-wrap items-start gap-x-[66px] gap-y-4">
+          <div className="w-full max-w-sm space-y-4">
+            <ProminentHint label={`${playSlot.number}D`} hint={playHints[playKey!]} />
+            <PuzzleGrid grid={hintsGrid} mode="play" highlights={playHighlights} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <PlayerHints slots={playSlots} hints={playHints} selectedKey={playKey} />
+          </div>
         </div>
       </section>
     </>

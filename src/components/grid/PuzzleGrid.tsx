@@ -69,6 +69,16 @@ const HINTS_EDIT_BG: Partial<Record<CellAppearance, string>> = {
   'slot-required': 'bg-hint-cell-edit-selected-row',
 };
 
+// Play's own colors (14-S7): the cursor cell and the rest of its word.
+const PLAY_BG: Partial<Record<CellAppearance, string>> = {
+  black: 'bg-play-cell-off',
+  letter: 'bg-play-cell-on',
+};
+const PLAY_HIGHLIGHT_BG = {
+  selected: 'bg-play-cell-selected-cell',
+  slot: 'bg-play-cell-selected-row',
+} as const;
+
 const PREVIEW_BG: Partial<Record<CellAppearance, string>> = {
   black: 'bg-preview-cell-off',
   letter: 'bg-preview-cell-on',
@@ -81,7 +91,7 @@ const GRID_LINES: Record<string, string> = {
   preview: 'bg-preview-cell-border',
   hints: 'bg-hint-cell-border',
   'hints-editing': 'bg-hint-cell-edit-border',
-  play: 'bg-grid-line-play',
+  play: 'bg-play-cell-border',
 };
 
 // cell-letter's size in a 35px cell (a 15×15 at its 526px maximum); a
@@ -124,7 +134,7 @@ export function PuzzleGrid({
           ? HINTS_BG
           : gridMode === 'hints-editing'
             ? HINTS_EDIT_BG
-            : {};
+            : PLAY_BG;
 
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
@@ -155,13 +165,10 @@ export function PuzzleGrid({
           className={
             gridMode === 'hints' && highlight && cell.kind === 'active'
               ? HINTS_WORD_BG
-              : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
+              : gridMode === 'play' && highlight && cell.kind === 'active'
+                ? PLAY_HIGHLIGHT_BG[highlight]
+                : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
           }
-          style={mode === 'play' && cell.kind === 'active' && highlight ? {
-            boxShadow: highlight === 'selected'
-              ? 'inset 0 0 0 3px var(--color-accent)'
-              : 'inset 0 0 0 1px var(--color-ink-3)',
-          } : undefined}
         >
           <GridCell
             cell={cell}
@@ -178,10 +185,9 @@ export function PuzzleGrid({
       data-testid="puzzle-grid"
       data-grid-mode={gridMode}
       // Hairlines use the container-background technique (D1c): painted
-      // --color-grid-line-build or --color-grid-line-play depending on
-      // mode, with gap and padding both --grid-line-width so the same
-      // one-pixel division surrounds the outside too, not just between
-      // cells.
+      // in the phase's border style, with gap and padding both
+      // --grid-line-width so the same one-pixel division surrounds the
+      // outside too, not just between cells.
       className={`grid w-full ${GRID_LINES[gridMode]}`}
       style={{
         // The letters size against the grid's own width (14-S5): 100cqw is

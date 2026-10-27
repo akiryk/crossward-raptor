@@ -415,6 +415,20 @@ EPIC amendment, `e2e/play-design.spec.ts`,
 `src/components/play/play-source.test.ts` and the amended
 `e2e/play-entries.spec.ts`.
 
+**S7 is implemented on `main`** (2026-10-27), on top of freeze commit
+`5f2afc2`: the drafting throwaway unchanged (`PuzzleGrid.tsx`,
+`PlayPuzzle.tsx`, `PlayReset.tsx`, the new `PlayerHints.tsx` and
+`ProminentHint.tsx`, `Button.tsx`, `GridExamples.tsx`). No risk path;
+the frozen acceptance is unchanged since `5f2afc2`. Verification on the
+implementation tree, S12's draft tests stashed out:
+
+- `npm run verify`: exit 0 (47 files, 610 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 641
+  passed.
+
+S7's visual check by the human is pending.
+
 **S12 (Letters and hints together) is drafting** (2026-10-27),
 uncommitted on `main`: the [story](stories/14-S12-letters-and-hints.md),
 the new `e2e/hints-grid-editing.spec.ts` (14 cases), 23 retired and 19

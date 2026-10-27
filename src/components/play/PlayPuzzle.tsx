@@ -17,7 +17,14 @@ import { keyToIntent } from '@/lib/keyboard-intent';
 import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
 import { createPlayAutosave, playDraftKey, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
+import { PlayerHints } from './PlayerHints';
 import { PlayResetControls, PlayResetDialog } from './PlayReset';
+import { ProminentHint } from './ProminentHint';
+
+// The grid's width allows for the masthead, the title, the controls and the
+// Prominent Hint above it; at most 526px, as the build grid (14-S7).
+const VERTICAL_ALLOWANCE_PX = 370;
+const GRID_MAX_PX = 526;
 
 export function PlayPuzzle({
   initialPuzzle,
@@ -131,15 +138,18 @@ export function PlayPuzzle({
   const editable = ready && !locked && !checking && !resetOpen;
   const grid = deserializeGrid(view.entries);
   const slots = slotsWithNumbers(grid);
+  const lookup = buildSlotLookup(grid);
   const highlights = new Map<string, 'selected' | 'slot'>();
+  let selectedKey: string | null = null;
   if (ready && !locked && isFocused && cursor) {
-    const lookup = buildSlotLookup(grid);
-    const key = activeHintKey(lookup, cursor);
-    if (key) {
-      for (const coord of lookup.get(key)!.cells) highlights.set(cellNumberKey(coord), 'slot');
+    selectedKey = activeHintKey(lookup, cursor);
+    if (selectedKey) {
+      for (const coord of lookup.get(selectedKey)!.cells) highlights.set(cellNumberKey(coord), 'slot');
     }
     highlights.set(cellNumberKey(cursor.current), 'selected');
   }
+  const selectedSlot = selectedKey ? lookup.get(selectedKey)! : null;
+  const gridWidth = `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${grid.cols / grid.rows}), ${GRID_MAX_PX}px)`;
 
   function openReset() {
     // P3 feedback dialogs are modal; never stack the reset dialog with them.
@@ -226,6 +236,20 @@ export function PlayPuzzle({
     }
   }
 
+  // A click on a Player Hint selects its word: the cursor goes to the word's
+  // first empty cell, or its first cell when it's full (14-S7).
+  function handleHintClick(key: string) {
+    const slot = lookup.get(key);
+    if (!editable || !slot) return;
+    const empty = slot.cells.find((coord) => {
+      const cell = grid.at(coord.col, coord.row);
+      return cell.kind === 'active' && cell.letter === null;
+    });
+    gridRegion.current?.focus();
+    setIsFocused(true);
+    setCursor({ current: empty ?? slot.cells[0], orientation: slot.orientation });
+  }
+
   function handleCellClick(coord: Coord) {
     if (!editable || grid.at(coord.col, coord.row).kind !== 'active') return;
     gridRegion.current?.focus();
@@ -235,34 +259,17 @@ export function PlayPuzzle({
 
   return (
     <div data-testid="play-puzzle" data-session-state={displayedSessionState} className="p-6">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <h1 data-testid="play-title" className="font-display text-headline font-bold">
-          {view.title}
-        </h1>
+      <h1 data-testid="play-title" className="mb-8 text-title-1 text-primary">
+        {view.title}
+      </h1>
+      <div className="flex h-8 items-center gap-3">
         <PlayResetControls enabled={ready} isBuilder={isBuilder} onReset={openReset} />
-      </div>
-      {displayedSessionState === 'starting' && <p role="status" className="mb-4 text-ink-2">Starting your puzzle…</p>}
-      {displayedSessionState === 'error' && (
-        <div role="alert" className="mb-4">
-          <p>We couldn’t start your puzzle. Please try again.</p>
-          <button
-            type="button"
-            className="mt-2 rounded-btn border border-rule-strong px-4 py-2"
-            onClick={() => {
-              setSessionState('starting');
-              setAttempt((previous) => previous + 1);
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      )}
-      {ready && (
-        <div className="mb-4 text-help text-ink-2">
+        {ready && (
           <div
             data-testid="play-save-status"
             data-save-state={saveState}
             role={saveState === 'error' ? 'alert' : 'status'}
+            className={`ml-auto text-body-small ${saveState === 'error' ? 'text-error' : 'text-muted'}`}
           >
             {saveState === 'saved' && 'Saved'}
             {saveState === 'pending' && 'Waiting to save…'}
@@ -272,7 +279,7 @@ export function PlayPuzzle({
                 {completionError ? 'We couldn’t verify your entries.' : 'We couldn’t save your entries.'}{' '}
                 <button
                   type="button"
-                  className="underline"
+                  className="cursor-pointer text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover"
                   onClick={() => autosave.current?.retry()}
                 >
                   Retry
@@ -280,25 +287,52 @@ export function PlayPuzzle({
               </>
             )}
           </div>
-          {completionError && (
-            <p data-testid="play-completion-error" role="alert" className="mt-2">
-              Completion verification failed. Retry to check your saved entries before continuing.
-            </p>
-          )}
-          {localWarning && (
-            <p data-testid="play-local-save-warning" className="mt-2">
-              Pending edits can’t be kept on this device. They may be lost if you leave before saving finishes.
-            </p>
-          )}
+        )}
+      </div>
+      {displayedSessionState === 'starting' && (
+        <p role="status" className="mt-3 text-body-normal text-muted">Starting your puzzle…</p>
+      )}
+      {displayedSessionState === 'error' && (
+        <div role="alert" className="mt-3 space-y-3">
+          <p className="text-body-normal text-error">We couldn’t start your puzzle. Please try again.</p>
+          <Button
+            onClick={() => {
+              setSessionState('starting');
+              setAttempt((previous) => previous + 1);
+            }}
+          >
+            Retry
+          </Button>
         </div>
+      )}
+      {ready && completionError && (
+        <p data-testid="play-completion-error" role="alert" className="mt-3 text-body-small text-error">
+          Completion verification failed. Retry to check your saved entries before continuing.
+        </p>
+      )}
+      {ready && localWarning && (
+        <p data-testid="play-local-save-warning" className="mt-3 text-body-small text-muted">
+          Pending edits can’t be kept on this device. They may be lost if you leave before saving finishes.
+        </p>
       )}
       {ready && locked && (
-        <div className="mb-4 flex items-center gap-3">
-          <span data-testid="play-completed-mark" role="img" aria-label="Completed" className="text-2xl text-accent">✓</span>
-          <p data-testid="play-lock-message" className="text-ink-2">This puzzle is complete. Your entries are read-only.</p>
+        <div className="mt-3 flex items-center gap-2">
+          <span data-testid="play-completed-mark" role="img" aria-label="Completed" className="text-title-3 text-highlight">✓</span>
+          <p data-testid="play-lock-message" className="text-body-normal text-primary">
+            This puzzle is complete. Your entries are read-only.
+          </p>
         </div>
       )}
-      <div className="flex items-start gap-8">
+      <div
+        className="mt-[27px] grid grid-cols-1 gap-x-[66px] gap-y-4 lg:grid-cols-[var(--play-grid-width)_minmax(0,1fr)]"
+        style={{ ['--play-grid-width' as string]: gridWidth }}
+      >
+        <div className="w-full max-w-(--play-grid-width)">
+          <ProminentHint
+            label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
+            hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
+          />
+        </div>
         <div
           ref={gridRegion}
           data-testid="play-grid-region"
@@ -306,32 +340,19 @@ export function PlayPuzzle({
           tabIndex={0}
           aria-label="Puzzle entries"
           aria-busy={checking || undefined}
-          className="w-full max-w-xl shrink-0 outline-none"
+          className="w-full max-w-(--play-grid-width) outline-none lg:col-start-1 lg:row-start-2"
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         >
           <PuzzleGrid grid={grid} mode="play" highlights={highlights} onCellClick={handleCellClick} />
         </div>
-        <div data-testid="play-clues" className="grid flex-1 grid-cols-2 gap-8">
-          {(['across', 'down'] as const).map((orientation) => (
-            <section key={orientation} data-testid="play-clue-column" data-orientation={orientation}>
-              <h2 className="mb-4 font-display text-body font-bold">
-                {orientation === 'across' ? 'Across' : 'Down'}
-              </h2>
-              <ol className="space-y-3">
-                {slots.filter((slot) => slot.orientation === orientation).map((slot) => {
-                  const key = `${slot.number}-${orientation}`;
-                  return (
-                    <li key={key} data-testid="play-clue" data-clue-key={key} className="flex gap-2">
-                      <span className="font-bold">{slot.number}</span>{' '}
-                      <span>{view.hints[key] ?? ''}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ))}
+        <div
+          data-testid="play-clues"
+          className="min-w-0 overflow-y-auto lg:col-start-2 lg:row-start-2"
+          style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
+        >
+          <PlayerHints slots={slots} hints={view.hints} selectedKey={selectedKey} onSelect={handleHintClick} />
         </div>
       </div>
       <Modal
