@@ -3,15 +3,17 @@
 The enter-hints dialog gets shorter copy, and opening it shows the grid in
 Preview, so the builder sees exactly what will lock before confirming.
 
-**Status: approved and frozen** (2026-10-26). The human asked for both
+**Status: done** (2026-10-26). The human's visual check passed.
+Implemented on `main` in `973eb23`, frozen in `7e3bb41`.
+
+Earlier: approved and frozen (2026-10-26). The human asked for both
 changes while clicking through S4 and specified them the same day
 (recorded in the [handoff](../HANDOFF.md)). On 2026-10-26 they authorized
 this story, placed after S4 and before S5, then approved its Decisions and
 acceptance ("I'm happy with S10"), including the 14-S4-3 amendment. It is
 frozen on `main` in the specification-only commit `7e3bb41`. Implemented
 on `main` the same day; `npm run verify` exited 0 (608 tests) and the full
-`npm run test:e2e` exited 0 (559 passed). Awaiting the human's visual
-check.
+`npm run test:e2e` exited 0 (559 passed).
 
 **Blast radius: low.** Two client components (`EnterHintsDialog.tsx`,
 `PuzzleGridEditor.tsx`) and one frozen case's amendment. No server, schema

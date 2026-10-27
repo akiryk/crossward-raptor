@@ -5,8 +5,8 @@ cell (every grid size fits 526px), letters in `cell-letter` scale with
 the cell, Preview gets its own border color and a legend, the '.' key
 goes away, and a skeleton of the hints to come sits beside the grid.
 
-**Status: implemented on `main`** in `70c678c` (2026-10-26); awaits the
-human's visual check.
+**Status: done** (2026-10-26). The human's visual check passed.
+Implemented on `main` in `70c678c`, frozen in `7a2087a`.
 
 Earlier: approved and frozen (2026-10-26). The human supplied a
 desktop mockup (Preview off) with exact values and answered seven

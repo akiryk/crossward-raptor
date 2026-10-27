@@ -7,7 +7,10 @@ Player Hints, the selected word's hint is blue, and a click on a hint
 selects its word. The title, controls, save status and completion line
 take the new text styles and Buttons.
 
-**Status: approved and frozen** (2026-10-27). The human approved the
+**Status: done** (2026-10-27). Implemented on `main` in `32e2e8a`,
+frozen in `5f2afc2`; the human's visual check passed.
+
+Earlier: approved and frozen (2026-10-27). The human approved the
 Decisions, the *(agent)* choices and the acceptance, including the P2
 amendment ("I approve S7"). Implemented on `main` on top of freeze commit `5f2afc2`: the
 drafting throwaway unchanged. The human's visual check passed

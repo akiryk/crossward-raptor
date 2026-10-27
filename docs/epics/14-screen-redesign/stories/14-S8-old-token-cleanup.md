@@ -5,7 +5,11 @@ their last uses onto the redesign's tokens or removes them, and removes
 three dead pieces of code: `google-font.ts`, the Masthead's `home-link`
 branch and the uncalled `unpublishPuzzle` action.
 
-**Status: approved and frozen** (2026-10-27). The human answered the
+**Status: done** (2026-10-27). Merged into `main` as `5da9538` (PR #28,
+independently reviewed, no findings), frozen in `32e5134`. The human's
+visual check passed.
+
+Earlier: approved and frozen (2026-10-27). The human answered the
 two questions this draft raised (below) and approved the Decisions and
 acceptance, including the retirements and amendments ("I approve S8").
 Frozen on `main` in a specification-only commit with the EPIC amendment.

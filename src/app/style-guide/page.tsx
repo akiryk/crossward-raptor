@@ -72,7 +72,6 @@ export default function StyleGuidePage() {
 
         <TextStyles />
 
-
         <section data-testid="sg-buttons">
           <h2 className="mb-3 text-title-2 text-primary">
             Buttons
@@ -86,7 +85,7 @@ export default function StyleGuidePage() {
               Normal
             </Button>
             <Button data-testid="sg-button" number={1}>
-              Edit the Grid
+              Build the Grid
             </Button>
             <Button data-testid="sg-button" number={2} selected>
               Create Hints

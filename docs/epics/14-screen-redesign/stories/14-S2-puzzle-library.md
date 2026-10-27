@@ -5,7 +5,11 @@ library: **Build** lists your own puzzles to work on, **Play** lists every
 published puzzle to solve. Rows become simple, hoverable Puzzle Rows under
 size headings (Row Heading).
 
-**Status: approved and frozen** (2026-10-25). The human approved the
+**Status: done** (2026-10-25). Merged into `main` as `8fbc96a` (PR #26,
+independently reviewed, no blocking findings), with the visual-check
+correction (see Correction). Frozen in `ba9d99e`.
+
+Earlier: approved and frozen (2026-10-25). The human approved the
 Decisions as written, *(agent)* choices included, then the Acceptance, the
 retired and amended acceptance and the *(drafting)* additions. They
 accepted the lost-acknowledgement delete gap (see Acceptance choices).

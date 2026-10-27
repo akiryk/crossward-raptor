@@ -4,7 +4,10 @@ Redesign the front door (`/`) from the human's mockups. A sign-in now asks for a
 **username** and an email. The first username an account gets is kept for good,
 so the builder-name dialog before a first puzzle goes away.
 
-**Status:** approved by the human (2026-10-25) and frozen on `main`
+**Status: done** (2026-10-25). Merged into `main` as `d75e82e` (PR #25,
+independently reviewed, no blocking findings), frozen in `a225e88`.
+
+Earlier: approved by the human (2026-10-25) and frozen on `main`
 (2026-10-25). The approval covers the Decisions (*(agent)* items included), the proposed acceptance and
 its acceptance choices, and the retired and amended acceptance.
 **Blast radius: medium.** Sign-in's form and copy, one auth hook, and removing

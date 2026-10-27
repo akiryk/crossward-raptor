@@ -9,10 +9,10 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, approved
-  2026-10-25)
+- [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, closed
+  2026-10-27; open items for epic 15, not yet created, listed there)
 - [Design system](13-design-system/HANDOFF.md) (closed 2026-10-24; first of
-  the redesign epics, which continue with epic 14, outlined there)
+  the redesign epics, outlined there)
 - [Play](11-play/HANDOFF.md) (closed 2026-10-20; open follow-ups listed there)
 - [Project workflow](12-project-workflow/HANDOFF.md)
 - [Accounts](09-accounts/HANDOFF.md) and [Ownership](10-ownership/HANDOFF.md)

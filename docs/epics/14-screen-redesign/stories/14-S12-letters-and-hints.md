@@ -7,7 +7,10 @@ writing it, with no mode to switch. In the hints phase "1 Build the
 Grid" turns into a done button, gray with a check, and a Lock Grid Letters
 toggle takes the Preview toggle's place.
 
-**Status: approved and frozen** (2026-10-27). The human approved the
+**Status: done** (2026-10-27). Implemented on `main` in `b93794c`,
+frozen in `2b61fd2`; the human's visual check passed.
+
+Earlier: approved and frozen (2026-10-27). The human approved the
 revised draft, its acceptance and its retirements and amendments ("I
 approve the revised S12 draft"), frozen on `main` in a
 specification-only commit with the EPIC amendment. Implemented on `main`

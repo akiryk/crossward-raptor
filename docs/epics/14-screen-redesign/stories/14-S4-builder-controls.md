@@ -9,7 +9,11 @@ Delete puzzle are removed. A published puzzle shows "Published" and a
 "Play it!" link instead of the buttons. Publishing is final: there is no
 Unpublish.
 
-**Status: approved and frozen** (2026-10-26). The Decisions below come
+**Status: done** (2026-10-26). Merged into `main` as `7755ea6` (PR #27,
+independently reviewed, no blocking findings), frozen in `548e7dd`. The
+human's visual check passed.
+
+Earlier: approved and frozen (2026-10-26). The Decisions below come
 from the human's answers and three mockups of 2026-10-25 and 2026-10-26.
 The pending questions are answered (2026-10-26). **The human approved the
 Decisions** (2026-10-26), including keeping `unpublishPuzzle` with no

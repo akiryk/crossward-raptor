@@ -1,6 +1,10 @@
 # Epic: Screen redesign
 
-**Status: approved by the human 2026-10-25** (drafted 2026-10-24; the
+**Status: closed 2026-10-27.** Every story is done and on `main`; the
+independent closeout audit found no blockers (see
+[HISTORY](HISTORY.md#closeout-audit-2026-10-27)).
+
+**Approved by the human 2026-10-25** (drafted 2026-10-24; the
 pending questions were answered the same day as approval). Stories are
 drafted and approved one at a time. **Amended 2026-10-25** *(human)*: the
 username moves into S1 (see [Username at sign-in](#username-at-sign-in-human-2026-10-25)),
@@ -25,11 +29,13 @@ Screens, in story order:
    Heading and Puzzle Row.
 3. **New-puzzle dialog.**
 4. **Builder controls**: numbered buttons in place of the stepper, the
-   Preview toggle, the title, Edit grid, clear letters and delete (moved
-   into a dialog), publishing.
+   Preview toggle, the title and publishing. Clear letters and the
+   builder's Delete are removed, superseding the first draft's Edit grid
+   and delete-in-a-dialog (S4).
 5. **Build grid and hint skeleton.**
-6. **Hint phase**: Hint Input and the hint-phase grid, locked and in EDIT
-   GRID.
+6. **Hint phase**: Hint Input and the hint-phase grid. S6's locked grid
+   and EDIT GRID were superseded by S12: letters stay editable beside the
+   hints, with no EDIT GRID.
 7. **Play**: Prominent Hint, Player Hint, the play grid and play's
    controls.
 8. **Old-token cleanup.**
@@ -71,8 +77,8 @@ ownership checks and the grid engine keep their behavior. Each departure
 Build/Play, the new-puzzle dialog's generated default name) is named in its
 story.
 
-**No stepper** *(human)*. F3's numbered buttons ("1 Edit the Grid /
-2 Create Hints") replace it. The `Stepper` component, `src/lib/stepper.ts`
+**No stepper** *(human)*. F3's numbered buttons ("1 Build the Grid /
+2 Create Hints", first drafted as "1 Edit the Grid") replace it. The `Stepper` component, `src/lib/stepper.ts`
 and the `sg-stepper` sample are removed, retiring their expectations
 (including `e2e/style-guide.spec.ts`'s) through the builder story's freeze
 commit.
@@ -202,18 +208,36 @@ whose screen it's on; the story either fixes it or says why not.
 - **375px clipping:** a long puzzle title in the editor clips at the right
   edge, and play's "Puzzle options" button runs past the right edge.
   Deferred to epic 15 (responsive layout) *(human, 2026-10-25)*; no story
-  here is asked to fix it.
+  here is asked to fix it. **Open at closeout**, carried to epic 15.
 - **Modal panel clips content taller than the viewport.** No current
   dialog is that tall. A story whose dialog would be fixes it; otherwise
-  it stays open.
+  it stays open. **Open at closeout.**
 - **Modal close button has no color transition.** If a story gives it
   one, `e2e/modal-design.spec.ts`'s close-button focus read must first
-  wait for transitions, as the other style readers do.
+  wait for transitions, as the other style readers do. **Open at
+  closeout.**
 - **`Masthead.tsx` sets `home-link` only when its test id is
   `app-header`**, a caller-specific branch no story specified. Resolved
   by S8: `Header` passes the test id as a prop.
 - **`src/lib/google-font.ts` and its test are unused since F2.** Resolved
   by S8: removed.
+
+### Open at closeout (2026-10-27)
+
+Found or still open when the epic closed; none is assigned to a story.
+
+- **Epic 15 (responsive layout) isn't created yet.** It owns the 375px
+  clipping above and the scaling of cell letters and numbers (see
+  Non-goals). Nothing authorizes creating it.
+- **The Modal's panel clipping and its close button's missing
+  transition** stay open, as above.
+- **`applyGeometryEdit` (`src/engine/phase.ts`) has no app caller.** The
+  hints phase locks the shape (S12), so nothing in the app calls it now.
+  It's left in place; removing it needs its own scoped task.
+- **"'Edit the Grid' appears nowhere"** (S12) is checked only on the
+  builder page. The style guide's sample read "Edit the Grid" until the
+  closeout fixed it; covering other pages would mean changing frozen
+  acceptance, so it was left unenforced.
 
 ## Non-goals
 
@@ -226,7 +250,10 @@ whose screen it's on; the story either fixes it or says why not.
   moves (stepper, Build/Play's list filter), the new-puzzle dialog's
   generated default name (S3), S4's publishing changes (publishing
   needs every hint, and Unpublish, Clear all letters and the builder's
-  Delete are removed) and S7's hint click in play, which selects its word.
+  Delete are removed), S10's Preview (on as the enter-hints dialog
+  opens, off on confirm), S7's hint click in play, which selects its
+  word, and S12's hints phase (no EDIT GRID, letters editable beside the
+  hints, Lock Grid Letters, a published grid takes no focus).
 - **No dark mode, no two-label toggle.** No focus rings, except S11's
   keyboard focus ring.
 - **No new shared components** beyond what a screen needs (Row Heading,
@@ -304,8 +331,8 @@ hint skeleton beside the grid. Replaces the style guide's build grid sample.
 
 ### S6 — Hint phase
 
-Hint Input and the hint-phase grid colors, locked and in EDIT GRID.
-Replaces the style guide's hint-row and hint-phase grid samples.
+Hint Input and the hint-phase grid colors. Its locked grid and EDIT GRID
+were superseded by S12. Replaces the style guide's hint-row and hint-phase grid samples.
 
 ### S7 — Play
 

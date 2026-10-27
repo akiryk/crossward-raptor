@@ -7,7 +7,9 @@ word. Each hint is a Hint Input in the build skeleton's frame, so nothing
 moves when the builder creates hints.
 
 **Status: done.** The human's visual check of the correction passed
-(2026-10-27).
+(2026-10-27). Its locked grid and EDIT GRID were later superseded by
+[S12](14-S12-letters-and-hints.md): the hints phase has no EDIT GRID and
+keeps letters editable.
 
 Correction implemented on `main` (2026-10-26), on top of its
 specification-only freeze `2da5a9d`, after the human's visual check of the

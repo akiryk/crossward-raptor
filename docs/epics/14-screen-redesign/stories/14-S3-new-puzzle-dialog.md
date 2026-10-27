@@ -6,7 +6,11 @@ heading, inside epic 13's Modal. The name field opens with a generated,
 playful name ("Purple Crepe Bunny"), so a builder can create a puzzle
 without typing one.
 
-**Status: Decisions approved** by the human (2026-10-25). From their
+**Status: done** (2026-10-25). The human's visual check of the corrected
+dialog passed. Implemented on `main` in `4139b8d` (frozen in `f82367c`),
+corrected in `be24999` (frozen in `bd2d1ae`).
+
+Earlier: **Decisions approved** by the human (2026-10-25). From their
 Figma screenshot, they also set the title to "A New Puzzle!" and the gap
 above "And pick a size!" to 32px, and confirmed `body-small` options. **Acceptance approved** by the human
 (2026-10-25), with its amendments and the EPIC amendment, and frozen on
