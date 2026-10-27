@@ -38,13 +38,11 @@ test.describe('P4-2 phase controls and geometry toggling', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    // Typing in hints phase requires EDIT GRID mode since Story H4. The
-    // refocusing click must land on a cell the cursor isn't already on
+    // The focusing click must land on a cell the cursor isn't already on
     // -- the cursor starts at (0,0), and moveTo toggles orientation
     // rather than moving when you click the current cell (Story F2r) --
     // so click (1,1) instead.
-    // 14-S4: 1 Edit the Grid replaced the edit-grid toggle.
-    await page.locator('[data-testid="builder-steps"] [data-step-id="build"]').click();
+    // 14-S12: no EDIT GRID mode to turn on first; the grid takes letters.
     await page.locator('[data-coord="1,1"]').click();
     await page.keyboard.press('x');
 

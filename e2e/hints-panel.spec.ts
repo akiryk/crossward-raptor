@@ -61,15 +61,12 @@ test.describe('P5-2 hints panel', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    // Typing in hints phase requires EDIT GRID mode since Story H4.
-    // Clicking the toggle moves DOM focus off the grid, so click a cell
-    // afterwards to give it back. It must be a cell the cursor is NOT
-    // already on: moveTo toggles orientation when you click the current
-    // cell (Story F2r), which would leave the ArrowDown below parallel
-    // rather than perpendicular. The cursor starts at (0,0), so click
-    // (1,0) -- a plain move, orientation still 'across'.
-    // 14-S4: 1 Edit the Grid replaced the edit-grid toggle.
-    await page.locator('[data-testid="builder-steps"] [data-step-id="build"]').click();
+    // 14-S12: no EDIT GRID mode to turn on first; a click on a cell
+    // focuses the grid. It must be a cell the cursor is NOT already on:
+    // moveTo toggles orientation when you click the current cell (Story
+    // F2r), which would leave the ArrowDown below parallel rather than
+    // perpendicular. The cursor starts at (0,0), so click (1,0) -- a plain
+    // move, orientation still 'across'.
     await page.locator('[data-coord="1,0"]').click();
 
     // ArrowDown from (1,0) 'across' is perpendicular: orientation flips to

@@ -59,14 +59,20 @@ const SECTIONS = [
   'sg-grid-build',
   'sg-grid-preview',
   'sg-grid-hints',
-  'sg-grid-hints-editing',
+  // 14-S12: the EDIT GRID sample became the focused-grid sample, and the
+  // locked-letters sample is new.
+  'sg-grid-hints-locked',
+  'sg-grid-hints-selected',
 ];
 
 const GRID_SAMPLES = [
   'sg-grid-build',
   'sg-grid-preview',
   'sg-grid-hints',
-  'sg-grid-hints-editing',
+  // 14-S12: the EDIT GRID sample became the focused-grid sample, and the
+  // locked-letters sample is new.
+  'sg-grid-hints-locked',
+  'sg-grid-hints-selected',
 ];
 const TOLERANCE = 0.5;
 
@@ -193,16 +199,10 @@ test.describe('D8-3 real grid samples', () => {
     }
   });
 
-  test('the editing sample shows the EDIT GRID states together', async ({ page }) => {
-    await page.goto('/style-guide');
-
-    for (const state of ['black', 'editable-letter', 'selected', 'slot-letter']) {
-      await expect(
-        cellIn(page, 'sg-grid-hints-editing', state).first(),
-        `expected a ${state} cell`
-      ).toBeVisible();
-    }
-  });
+  // 14-S12 retired "the editing sample shows the EDIT GRID states
+  // together": there is no EDIT GRID mode. Its replacement,
+  // sg-grid-hints-selected, is checked by e2e/hints-grid-editing.spec.ts
+  // (14-S12-7).
 
   // 14-S6 retired "the two hints samples differ only in their lettered-cell
   // state": locked and EDIT GRID letters are both play-cell-on now. The

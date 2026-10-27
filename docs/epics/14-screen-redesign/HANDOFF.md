@@ -427,7 +427,8 @@ implementation tree, S12's draft tests stashed out:
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 641
   passed.
 
-S7's visual check by the human is pending.
+**S7's visual check passed** (human, 2026-10-27: "I approve S7"), so S7
+is done.
 
 **S12 (Letters and hints together) is drafting, revised** (2026-10-27),
 uncommitted on `main`: the [story](stories/14-S12-letters-and-hints.md),
@@ -450,12 +451,19 @@ guard passes). The revised throwaway
 `npm run verify` (604 Vitest tests) and the full `npm run test:e2e`, 646
 of 646.
 
+**S12 is approved and frozen** (human, 2026-10-27: "I approve the revised
+S12 draft"), on `main` in a specification-only commit ("Freeze S12:
+letters and hints together"): the story, the EPIC amendment,
+`e2e/hints-grid-editing.spec.ts` and the retirements and amendments in
+the 12 test files the story lists. Next it is implemented from the v2
+throwaway.
+
 ## Next action
 
-The human visually checks S7 (play) and reviews S12's revised draft.
-On S12's approval, freeze it on `main` in its own specification-only
-commit with the EPIC amendment, then implement it from the v2 throwaway.
+Implement S12 on `main` from `/tmp/crossward-drafts/14-S12-throwaway-v2.patch`
+(or from the story if it is gone), run `npm run verify` and the full
+`npm run test:e2e`, commit and push; then the human's visual check.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Record S7's visual check; revise the uncommitted S12 draft per the human's review, or freeze and implement it on main once the human approves it; do not start S8.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S12-letters-and-hints.md. Implement the frozen S12 on main and get the human's visual check; do not start S8.

@@ -107,10 +107,8 @@ test.describe('PB4-3 an unpublished puzzle is unaffected', () => {
     await expect(page.getByTestId('puzzle-title')).toBeEnabled();
     await expect(page.getByTestId('hint-input').first()).toBeEnabled();
 
-    // Story H4: hints phase locks the grid, so typing goes through EDIT
-    // GRID mode. Nothing about being unpublished changes that. 14-S4: Clear
-    // all letters is removed; 1 Edit the Grid replaced the toggle.
-    await page.locator('[data-testid="builder-steps"] [data-step-id="build"]').click();
+    // 14-S4: Clear all letters is removed. 14-S12: the hints-phase grid
+    // takes letters, with no EDIT GRID mode to turn on first.
     await cell(page, '1,1').click();
     await page.keyboard.press('z');
     await expect(cell(page, '1,1')).toContainText('Z');

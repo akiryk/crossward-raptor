@@ -183,20 +183,6 @@ function locked(
   });
 }
 
-function editing(
-  cell: Cell,
-  flags: Partial<{ isSelected: boolean; isInSlot: boolean; isSymmetricHint: boolean }> = {}
-) {
-  return cellAppearance({
-    cell,
-    isSelected: flags.isSelected ?? false,
-    isInSlot: flags.isInSlot ?? false,
-    isSymmetricHint: flags.isSymmetricHint ?? false,
-    isHintsPhase: true,
-    isEditingGrid: true,
-  });
-}
-
 // --- H4-1: cellAppearance in hints phase ---
 describe('H4-1 cellAppearance hints phase, grid locked', () => {
   it('a lettered cell reads as locked-letter', () => {
@@ -222,28 +208,11 @@ describe('H4-1 cellAppearance hints phase, grid locked', () => {
   });
 });
 
-describe('H4-1 cellAppearance hints phase, EDIT GRID mode', () => {
-  it('a lettered cell reads as editable-letter', () => {
-    expect(editing(LETTER)).toBe('editable-letter');
-  });
-
-  it('a black cell still reads as black', () => {
-    expect(editing(BLACK)).toBe('black');
-  });
-
-  it('selection still outranks content, as in build mode', () => {
-    expect(editing(LETTER, { isSelected: true })).toBe('selected');
-  });
-
-  it('a lettered cell inside the cursor slot is still slot-letter', () => {
-    expect(editing(LETTER, { isInSlot: true })).toBe('slot-letter');
-  });
-
-  it('an empty cell behaves as in build mode', () => {
-    expect(editing(EMPTY)).toBe('empty');
-    expect(editing(EMPTY, { isSymmetricHint: true })).toBe('symmetric-hint');
-  });
-});
+// 14-S12 retired "H4-1 cellAppearance hints phase, EDIT GRID mode" (five
+// cases) and, below, "isEditingGrid alone, without isHintsPhase, changes
+// nothing": there is no EDIT GRID mode or isEditingGrid flag. A hints-phase
+// cell keeps the locked appearances above; the focused grid's colors come
+// from its highlight (e2e/hints-grid-editing.spec.ts, 14-S12-3).
 
 describe('H4-1 flag precedence', () => {
   it('preview outranks the hints flags', () => {
@@ -259,22 +228,10 @@ describe('H4-1 flag precedence', () => {
     ).toBe('letter');
   });
 
-  it('isEditingGrid alone, without isHintsPhase, changes nothing', () => {
-    const args = {
-      cell: LETTER,
-      isSelected: false,
-      isInSlot: false,
-      isSymmetricHint: false,
-    };
-    expect(cellAppearance({ ...args, isEditingGrid: true })).toBe(cellAppearance(args));
-    expect(cellAppearance({ ...args, isEditingGrid: true })).toBe('letter');
-  });
-
-  it('omitting both flags behaves exactly as build mode', () => {
+  // 14-S12: "omitting both flags" lost isEditingGrid, which no longer exists.
+  it('omitting isHintsPhase behaves exactly as build mode', () => {
     const args = { cell: EMPTY, isSelected: false, isInSlot: false, isSymmetricHint: true };
-    expect(cellAppearance(args)).toBe(
-      cellAppearance({ ...args, isHintsPhase: false, isEditingGrid: false })
-    );
+    expect(cellAppearance(args)).toBe(cellAppearance({ ...args, isHintsPhase: false }));
     expect(cellAppearance(args)).toBe('symmetric-hint');
   });
 });

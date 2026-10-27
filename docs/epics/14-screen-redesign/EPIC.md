@@ -78,8 +78,9 @@ and the `sg-stepper` sample are removed, retiring their expectations
 commit.
 
 **Publish is a third numbered button** *(human, 2026-10-25)*. "3 Publish"
-sits after "1 Build the Grid / 2 Create Hints" (1 reads "Edit the Grid" in
-the hints phase). Before the puzzle can be published it opens a cheeky
+sits after "1 Build the Grid / 2 Create Hints" (in the hints phase 1 is
+done: gray (`button-done`), 70px, a check in place of its label, and
+disabled (S12)). Before the puzzle can be published it opens a cheeky
 too-early dialog; otherwise it opens a Publish dialog with the readiness
 notes and the visibility choice. A published puzzle shows "Published" and
 a "Play it!" link instead of the buttons. Publishing is final: there is no
@@ -153,20 +154,16 @@ word.
   border `build-cell-border` (gray-400). Preview keeps using the
   `preview-cell-*` styles, with a new `preview-cell-border` (gray-500) for
   its lines; the palette's `cell-warning` is `#CEB55A` (S5).
-- **Hint phase, locked:** on cells `hint-cell-on` (white), off cells
-  `hint-cell-off` (gray-700), border `hint-cell-border` (gray-500); while
-  a hint input has focus, its word's cells are `hint-cell-selected`
-  (blue-medium). The locked grid takes no focus: no Tab stop, no focus on
-  a click, no keys (S6).
-- **Hint phase, EDIT GRID:** the build grid's look *(human, S6
-  correction)*: on cells `hint-cell-edit-on` (white), off cells
-  `hint-cell-edit-off` (gray-200), border `hint-cell-edit-border`
-  (gray-400); the selected cell is `hint-cell-edit-selected-cell`
-  (yellow-bright) and the selected word's cells
-  `hint-cell-edit-selected-row` (yellow-medium). The hints and their
-  labels fade to 0.4, except, while the grid has focus, the selected
-  word's hint, at full opacity with its input filled
-  `hint-cell-edit-selected-cell`.
+- **Hint phase** *(S12, replacing S6's locked and EDIT GRID looks)*: on
+  cells `hint-cell-on` (white), off cells `hint-cell-off` (gray-700),
+  border `hint-cell-border` (gray-500). With the grid focused, the cursor
+  is `hint-cell-cursor` (yellow-bright) and its word
+  `hint-cell-cursor-word` (yellow-medium), and that word's hint input is
+  filled `hint-cell-cursor`; with a hint input focused, its word is
+  `hint-cell-selected` (blue-medium). The grid takes focus and letters,
+  the shape stays locked, and nothing fades. With Lock Grid Letters on,
+  on cells are `hint-cell-locked-on` (gray-200) and the grid takes no
+  focus; a published puzzle's grid takes no focus.
 - **Each phase has its own cell styles** *(human, 2026-10-26, S6)*, even
   where they share a palette value, so one phase's colors can change
   without touching another's.
@@ -314,6 +311,12 @@ Prominent Hint (the bar above the grid), Player Hint
 with its selected background, the play grid colors and play's title, save
 status, options and completion dialogs. Adds the style guide's play-state
 grid sample.
+
+### S12 — Letters and hints together
+
+The hints phase loses EDIT GRID; letters stay editable beside the hints,
+the shape stays locked, 1 is done, and Lock Grid Letters replaces Preview.
+Added at S7's review and run after S7, before S8.
 
 ### S8 — Old-token cleanup
 

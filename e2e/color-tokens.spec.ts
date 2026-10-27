@@ -59,11 +59,11 @@ const STYLES: Record<string, string> = {
   'hint-cell-off': 'gray-700',
   'hint-cell-border': 'gray-500',
   'hint-cell-selected': 'blue-medium',
-  'hint-cell-edit-on': 'white',
-  'hint-cell-edit-off': 'gray-200',
-  'hint-cell-edit-border': 'gray-400',
-  'hint-cell-edit-selected-cell': 'yellow-bright',
-  'hint-cell-edit-selected-row': 'yellow-medium',
+  // 14-S12: EDIT GRID's five styles are gone; the focused grid's cursor
+  // and its word, and the on cells while Lock Grid Letters is on.
+  'hint-cell-cursor': 'yellow-bright',
+  'hint-cell-cursor-word': 'yellow-medium',
+  'hint-cell-locked-on': 'gray-200',
   primary: 'black',
   muted: 'gray-500',
   'link-muted': 'interactive-light',
@@ -80,6 +80,8 @@ const STYLES: Record<string, string> = {
   'button-active': 'interactive-dark',
   'button-alternate-border': 'gray-500',
   'button-alternate-hover': 'gray-500',
+  // 14-S12: a numbered button whose step is done (1 in the hints phase).
+  'button-done': 'gray-400',
   'puzzle-row': 'interactive-faint',
   'puzzle-row-hover': 'interactive-faint-hover',
   'modal-background': 'white',

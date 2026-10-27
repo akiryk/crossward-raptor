@@ -30,9 +30,11 @@ async function openPuzzle(page: Page, phase: 'grid' | 'hints' = 'hints') {
 }
 
 const cell = (page: Page, coord: string) => page.locator(`[data-coord="${coord}"]`);
-// 14-S4: the edit-grid toggle became the numbered buttons: 1 Edit the Grid
-// turns EDIT GRID on (and is then the selected button), 2 Create Hints
-// turns it off.
+// 14-S4: the edit-grid toggle became the numbered buttons. 14-S12: there
+// is no EDIT GRID mode; in the hints phase 1 is done (disabled, its label
+// "Build the Grid" faded behind a check), Lock Grid Letters takes
+// Preview's place, and the grid takes letters
+// (e2e/hints-grid-editing.spec.ts).
 const step = (page: Page, id: 'build' | 'hints') =>
   page.locator(`[data-testid="builder-steps"] [data-step-id="${id}"]`);
 const grid = (page: Page) => page.getByTestId('puzzle-grid');
@@ -45,11 +47,14 @@ test.describe('H4-2 the locked grid', () => {
     await expect(cell(page, '0,0')).toHaveAttribute('data-cell-state', 'locked-letter');
   });
 
-  test('the preview toggle is replaced by the Edit the Grid button', async ({ page }) => {
+  test('the preview toggle is replaced by Lock Grid Letters and 1 is done', async ({ page }) => {
     await openPuzzle(page);
 
     await expect(page.getByTestId('preview-toggle')).toHaveCount(0);
-    await expect(step(page, 'build')).toHaveText(/Edit the Grid/);
+    await expect(page.getByTestId('lock-letters-toggle')).toBeVisible();
+    await expect(step(page, 'build')).toHaveAccessibleName(/Build the Grid/);
+    await expect(step(page, 'build')).toBeDisabled();
+    await expect(step(page, 'build')).toHaveAttribute('data-done', 'true');
   });
 
   test('build phase is unaffected', async ({ page }) => {
@@ -60,14 +65,8 @@ test.describe('H4-2 the locked grid', () => {
     await expect(step(page, 'build')).toHaveText(/Build the Grid/);
   });
 
-  test('typing a letter does nothing while locked', async ({ page }) => {
-    await openPuzzle(page);
-
-    await cell(page, '0,0').click();
-    await page.keyboard.press('z');
-
-    await expect(cell(page, '0,0')).toContainText('C');
-  });
+  // 14-S12 retired "typing a letter does nothing while locked": the
+  // hints-phase grid takes letters. Replaced by 14-S12-4.
 
   test('Backspace does nothing while locked', async ({ page }) => {
     await openPuzzle(page);
@@ -78,77 +77,11 @@ test.describe('H4-2 the locked grid', () => {
     await expect(cell(page, '0,0')).toContainText('C');
   });
 
-  test('clicking a cell selects nothing while locked', async ({ page }) => {
-    await openPuzzle(page);
-
-    await cell(page, '1,1').click();
-
-    await expect(cell(page, '1,1')).not.toHaveAttribute('data-selected', 'true');
-    await expect(cell(page, '1,1')).toHaveAttribute('data-cell-state', 'locked-letter');
-  });
+  // 14-S12 retired "clicking a cell selects nothing while locked": a click
+  // focuses the grid and selects the cell. Replaced by 14-S12-4.
 });
 
-test.describe('H4-2 EDIT GRID mode', () => {
-  async function enterEditMode(page: Page) {
-    await step(page, 'build').click();
-    await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints-editing');
-  }
-
-  test('Edit the Grid opens edit mode and becomes the selected button', async ({ page }) => {
-    await openPuzzle(page);
-    await enterEditMode(page);
-
-    await expect(step(page, 'build')).toHaveAttribute('aria-current', 'true');
-    await expect(cell(page, '0,0')).toHaveAttribute('data-cell-state', 'editable-letter');
-  });
-
-  test('clue inputs are disabled while editing the grid', async ({ page }) => {
-    await openPuzzle(page);
-    await expect(page.getByTestId('hint-input').first()).toBeEnabled();
-
-    await enterEditMode(page);
-
-    await expect(page.getByTestId('hint-input').first()).toBeDisabled();
-  });
-
-  test('typing replaces a letter in edit mode', async ({ page }) => {
-    await openPuzzle(page);
-    await enterEditMode(page);
-
-    await cell(page, '0,0').click();
-    await page.keyboard.press('b');
-
-    await expect(cell(page, '0,0')).toContainText('B');
-  });
-
-  test('Backspace still does nothing in edit mode', async ({ page }) => {
-    await openPuzzle(page);
-    await enterEditMode(page);
-
-    await cell(page, '0,0').click();
-    await page.keyboard.press('Backspace');
-
-    await expect(cell(page, '0,0')).toContainText('C');
-  });
-
-  test('toggling back locks the grid and re-enables the clue inputs', async ({ page }) => {
-    await openPuzzle(page);
-    await enterEditMode(page);
-
-    await step(page, 'hints').click();
-
-    await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints');
-    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
-    await expect(page.getByTestId('hint-input').first()).toBeEnabled();
-  });
-
-  test('edit mode does not survive a reload', async ({ page }) => {
-    await openPuzzle(page);
-    await enterEditMode(page);
-
-    await page.reload();
-    await waitForEditorReady(page);
-
-    await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints');
-  });
-});
+// 14-S12 retired "H4-2 EDIT GRID mode" (six cases): there is no EDIT GRID
+// mode. Letters overtype and Backspace does nothing in the hints phase
+// itself (14-S12-4, and "Backspace does nothing while locked" above); the
+// hint inputs stay enabled (14-S12-4, 14-S12-6); 1 is done (14-S12-1).

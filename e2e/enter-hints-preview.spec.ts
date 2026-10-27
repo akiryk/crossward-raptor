@@ -192,8 +192,7 @@ test.describe('14-S10-4 confirming', () => {
     await expect(page.getByTestId('hints-region')).toBeVisible();
     await expect(gridMode(page)).toHaveAttribute('data-grid-mode', 'hints');
     await expect(page.getByTestId('preview-toggle')).toHaveCount(0);
-    // EDIT GRID shows the hints-phase grid too, not Preview.
-    await step(page, 'build').click();
-    await expect(gridMode(page)).toHaveAttribute('data-grid-mode', 'hints-editing');
+    // 14-S12 removed "EDIT GRID shows the hints-phase grid too, not
+    // Preview": there is no EDIT GRID mode.
   });
 });
