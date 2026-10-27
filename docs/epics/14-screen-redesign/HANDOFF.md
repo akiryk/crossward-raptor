@@ -377,14 +377,28 @@ throwaway runtime in the same worktree (also saved as
 independent subagent review found one blocker: the story's original S6
 text contradicted the Correction. It is now marked superseded, the three
 non-blocking notes are taken, and the correction is frozen on `main` in a
-specification-only commit ("Freeze S6 correction").
+specification-only commit ("Freeze S6 correction", `2da5a9d`).
+
+**S6's correction is implemented on `main`** (2026-10-26), on top of
+`2da5a9d`: the throwaway runtime unchanged (`globals.css`,
+`ColorSwatches.tsx`, `PuzzleGrid.tsx`, `HintsPanel.tsx`,
+`PuzzleGridEditor.tsx`). No risk path; the frozen acceptance is unchanged
+since the freeze. Verification:
+
+- `npm run verify`: exit 0 (46 files, 608 Vitest tests).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 621
+  passed. A first run failed only `editing.spec.ts` P3-2 "an edit survives
+  a reload once the debounce window has passed" (build phase, a fixed
+  800ms wait for the 500ms autosave); it then passed 5 of 5 alone and in
+  the full rerun.
 
 ## Next action
 
-Fix the review blocker, then freeze the S6 correction in a
-specification-only commit (story, EPIC, the amended specs) and deliver
-the runtime fix on `main`. Details in the session handoff file.
+The human's visual check of the S6 correction: EDIT GRID's build-grid
+colors, the hints faded to 0.4, and the selected word's hint at full
+opacity with its yellow-bright input, following the cursor's word. Then,
+in epic order, draft S7 (Play).
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S6-hint-phase.md, then handoffs/02-handoff-s6-edit-grid-correction.md. Finish the S6 correction on main: freeze it, then deliver the runtime fix per CODE-REVIEW; no next story.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/EPIC.md. Draft story S7 (Play, the EPIC's S7 section) with proposed acceptance for approval on main; do not freeze or implement it.

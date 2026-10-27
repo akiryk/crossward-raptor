@@ -68,6 +68,9 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'hint-cell-off', variable: 'gray-700', swatch: 'bg-hint-cell-off' },
   { name: 'hint-cell-border', variable: 'gray-500', swatch: 'bg-hint-cell-border' },
   { name: 'hint-cell-selected', variable: 'blue-medium', swatch: 'bg-hint-cell-selected' },
+  { name: 'hint-cell-edit-on', variable: 'white', swatch: 'bg-hint-cell-edit-on' },
+  { name: 'hint-cell-edit-off', variable: 'gray-200', swatch: 'bg-hint-cell-edit-off' },
+  { name: 'hint-cell-edit-border', variable: 'gray-400', swatch: 'bg-hint-cell-edit-border' },
   {
     name: 'hint-cell-edit-selected-cell',
     variable: 'yellow-bright',

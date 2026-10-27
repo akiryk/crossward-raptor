@@ -484,6 +484,8 @@ export function PuzzleGridEditor({
               hints={hints}
               activeKey={activeKey}
               disabled={isPublished || isEditingGrid}
+              isEditingGrid={isEditingGrid}
+              selectedKey={isEditingGrid && isFocused ? activeKey : null}
               onHintChange={handleHintChange}
               onHintFocus={handleHintFocus}
             />

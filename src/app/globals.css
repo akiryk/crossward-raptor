@@ -52,6 +52,9 @@
   --color-hint-cell-off: var(--palette-gray-700);
   --color-hint-cell-border: var(--palette-gray-500);
   --color-hint-cell-selected: var(--palette-blue-medium);
+  --color-hint-cell-edit-on: var(--palette-white);
+  --color-hint-cell-edit-off: var(--palette-gray-200);
+  --color-hint-cell-edit-border: var(--palette-gray-400);
   --color-hint-cell-edit-selected-cell: var(--palette-yellow-bright);
   --color-hint-cell-edit-selected-row: var(--palette-yellow-medium);
 

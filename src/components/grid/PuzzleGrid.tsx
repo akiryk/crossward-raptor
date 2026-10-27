@@ -44,21 +44,30 @@ const BUILD_BG: Partial<Record<CellAppearance, string>> = {
   'slot-required': 'bg-build-cell-selected-row-on',
 };
 
-// The hints phase's own colors (14-S6), locked and in EDIT GRID, and in
-// EDIT GRID the cursor and its word. A locked cell in the highlighted word
-// (a hint input has focus) is hint-cell-selected; see HINTS_WORD_BG.
+// The hints phase's own colors (14-S6). Locked: a cell in the highlighted
+// word (a hint input has focus) is hint-cell-selected; see HINTS_WORD_BG.
 const HINTS_BG: Partial<Record<CellAppearance, string>> = {
   black: 'bg-hint-cell-off',
   empty: 'bg-hint-cell-on',
   'locked-letter': 'bg-hint-cell-on',
   'editable-letter': 'bg-hint-cell-on',
   'symmetric-hint': 'bg-hint-cell-on',
+};
+const HINTS_WORD_BG = 'bg-hint-cell-selected';
+
+// EDIT GRID takes the build grid's look, so the grid reads as editable
+// (the 14-S6 correction), with the cursor and its word in yellow.
+const HINTS_EDIT_BG: Partial<Record<CellAppearance, string>> = {
+  black: 'bg-hint-cell-edit-off',
+  empty: 'bg-hint-cell-edit-on',
+  'locked-letter': 'bg-hint-cell-edit-on',
+  'editable-letter': 'bg-hint-cell-edit-on',
+  'symmetric-hint': 'bg-hint-cell-edit-on',
   selected: 'bg-hint-cell-edit-selected-cell',
   slot: 'bg-hint-cell-edit-selected-row',
   'slot-letter': 'bg-hint-cell-edit-selected-row',
   'slot-required': 'bg-hint-cell-edit-selected-row',
 };
-const HINTS_WORD_BG = 'bg-hint-cell-selected';
 
 const PREVIEW_BG: Partial<Record<CellAppearance, string>> = {
   black: 'bg-preview-cell-off',
@@ -71,7 +80,7 @@ const GRID_LINES: Record<string, string> = {
   build: 'bg-build-cell-border',
   preview: 'bg-preview-cell-border',
   hints: 'bg-hint-cell-border',
-  'hints-editing': 'bg-hint-cell-border',
+  'hints-editing': 'bg-hint-cell-edit-border',
   play: 'bg-grid-line-play',
 };
 
@@ -111,9 +120,11 @@ export function PuzzleGrid({
       ? BUILD_BG
       : gridMode === 'preview'
         ? PREVIEW_BG
-        : gridMode === 'play'
-          ? {}
-          : HINTS_BG;
+        : gridMode === 'hints'
+          ? HINTS_BG
+          : gridMode === 'hints-editing'
+            ? HINTS_EDIT_BG
+            : {};
 
   const cells = [];
   for (let row = 0; row < grid.rows; row++) {
