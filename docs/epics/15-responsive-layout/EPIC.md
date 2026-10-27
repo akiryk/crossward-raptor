@@ -1,9 +1,8 @@
 # Epic: Responsive layout
 
-**Status: draft, 2026-10-27.** Not approved. Drafted from the human's
-details and two mockups of 2026-10-27. Every pending question was
-answered the same day *(human)* and is recorded in Decisions; the epic
-awaits the human's approval. Stories are
+**Approved by the human 2026-10-27.** Drafted the same day from the
+human's details and two mockups; every pending question was answered
+before approval *(human)* and is recorded in Decisions. Stories are
 drafted and approved one at a time.
 
 The third of the redesign epics outlined in the

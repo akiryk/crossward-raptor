@@ -10,10 +10,10 @@ for the carried items' original wording.
 
 ## Current state (2026-10-27)
 
-**The EPIC is a draft, not approved.** It was drafted on `main` from the
-human's details and two narrow mockups (Build/Hint/Preview and play) of
+**The EPIC is approved** (by the human, 2026-10-27). It was drafted
+on `main` from the human's details and two narrow mockups (Build/Hint/Preview and play) of
 2026-10-27, which it records in "The human's details". No story exists.
-The draft is committed on `main`, awaiting the human's approval.
+No story is drafted or approved yet.
 
 Findings from the code that shaped the draft:
 
@@ -26,8 +26,7 @@ Findings from the code that shaped the draft:
   commit.
 
 The human answered all ten of the first draft's questions on 2026-10-27
-(recorded in the EPIC's Decisions). The epic awaits only the human's
-approval.
+(recorded in the EPIC's Decisions).
 
 ## Verification
 
@@ -35,10 +34,10 @@ Documentation only; no checks run.
 
 ## Next action
 
-Get the human's approval of the EPIC and record it in its status line.
-Approval doesn't approve any story; S1's specification is drafted next,
-on `main`.
+Draft S1 (560px grid) per its EPIC section, with proposed acceptance, on
+`main`, for the human's approval. The epic's approval doesn't approve any
+story; nothing is frozen or implemented until S1 is approved.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/EPIC.md. Get the human's approval of the EPIC, record it on main, then draft S1's specification for approval.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/EPIC.md. Draft S1's specification (EPIC.md's "S1 — 560px grid") with proposed acceptance on main, for the human's approval; don't freeze or implement it.

@@ -9,8 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, draft
-  2026-10-27, not approved)
+- [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, approved
+  2026-10-27; S1 to draft)
 - [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, closed
   2026-10-27; open items carried to epic 15 listed there)
 - [Design system](13-design-system/HANDOFF.md) (closed 2026-10-24; first of
