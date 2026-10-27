@@ -48,14 +48,9 @@ test.describe('D9-1 type tokens', () => {
   test('the scale resolves and the old eyebrow token is gone', async ({ page }) => {
     await page.goto('/puzzles');
 
-    for (const token of [
-      '--text-headline',
-      '--text-body',
-      '--text-help',
-      '--text-label',
-      '--weight-normal',
-      '--weight-bold',
-    ]) {
+    // 14-S8 deleted the old type and weight tokens; e2e/old-tokens.spec.ts
+    // checks they're gone. The label style remains.
+    for (const token of ['--text-label']) {
       expect(await tokenValue(page, token), `expected ${token}`).not.toBe('');
     }
 

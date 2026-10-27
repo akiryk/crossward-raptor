@@ -188,6 +188,8 @@ Design system EPIC, which won't be created.
 **Old tokens are deleted last** *(human)*. The final story deletes every
 pre-redesign token, `--font-display` and the old radii, and reports any
 old token still in use with no replacement rather than inventing one.
+`--font-body` (the one typeface) and `--grid-line-width` (the grid's
+hairline) stay (S8).
 
 ## Carried observations
 
@@ -208,10 +210,10 @@ whose screen it's on; the story either fixes it or says why not.
   one, `e2e/modal-design.spec.ts`'s close-button focus read must first
   wait for transitions, as the other style readers do.
 - **`Masthead.tsx` sets `home-link` only when its test id is
-  `app-header`**, a caller-specific branch no story specified. (Old-token
-  cleanup, or the first story touching the Masthead.)
-- **`src/lib/google-font.ts` and its test are unused since F2.** Removed
-  by the old-token cleanup.
+  `app-header`**, a caller-specific branch no story specified. Resolved
+  by S8: `Header` passes the test id as a prop.
+- **`src/lib/google-font.ts` and its test are unused since F2.** Resolved
+  by S8: removed.
 
 ## Non-goals
 
@@ -323,7 +325,9 @@ Added at S7's review and run after S7, before S8.
 Deletes the old tokens and `--font-display`, retires the old radii,
 removes `google-font.ts` and its test and the Masthead `home-link` branch
 if still present. Reports each old token still in use without a
-replacement. Retires frozen tests that only pin old tokens.
+replacement. Retires frozen tests that only pin old tokens. Removes the
+uncalled `unpublishPuzzle` (S4), so it's a reviewed story on a branch.
+Keeps `--font-body` and `--grid-line-width`.
 
 ---
 

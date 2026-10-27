@@ -471,11 +471,27 @@ story lists). No risk path; the frozen acceptance is unchanged since
 **S12's visual check passed** (human, 2026-10-27: "I approve S12. It
 looks good!"), so S12 is done.
 
+**S8 (Old-token cleanup) is approved and frozen** (2026-10-27). The
+human answered both questions (remove `unpublishPuzzle` here, so S8 is a
+reviewed branch story; draw a legacy build-phase black cell as
+`build-cell-off`) and approved the
+[story](stories/14-S8-old-token-cleanup.md) and its acceptance, including
+the retirements and amendments ("I approve S8"). Frozen on `main` in a
+specification-only commit: the story, the EPIC amendment, the new
+`e2e/old-tokens.spec.ts` (7 cases) and
+`src/app/old-tokens-source.test.ts` (6), and the amended `color-tokens`,
+`style-guide`, `shell`, `typography` and `text-styles` specs,
+`globals-css.test.ts` and two `actions.*.test.ts` files, with
+`google-font.test.ts` deleted. Against `main` all 13 new cases fail; a
+throwaway (`/tmp/crossward-drafts/14-S8-throwaway.patch`) passed
+`npm run verify` (595 Vitest tests) and the full `npm run test:e2e`, 652.
+
 ## Next action
 
-S8 (old-token cleanup) is next in the epic's order, but it isn't
-authorized yet: wait for the human to authorize drafting it.
+Implement S8 on `story/14-S8-old-token-cleanup` from the freeze commit
+(from the throwaway; if it's gone, implement from the story) and open a
+PR for independent review. The author does not merge it.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and the S8 section of docs/epics/14-screen-redesign/EPIC.md. Draft S8 (old-token cleanup) for the human's review once they authorize it; do not freeze or implement it before their approval.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S8-old-token-cleanup.md. S8 is approved and frozen; implement it on story/14-S8-old-token-cleanup from the freeze commit and open a PR for independent review; do not merge your own PR.

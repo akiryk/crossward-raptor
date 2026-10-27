@@ -7,7 +7,7 @@ import { seedPuzzle } from './helpers/seed-puzzle';
 // Story F2 — typography: Inter only, and the redesign's text styles.
 //
 // Inter is the only typeface, loaded at 400 and 600; Space Grotesk is gone
-// and old `font-display` uses render in Inter. Each text style is a Tailwind
+// and headings render in Inter. Each text style is a Tailwind
 // `--text-<name>` token carrying a size, a weight and a line height. Sizes and
 // weights are exact; line heights are defaults the user tunes later, so only
 // their presence and sanity are asserted. `/style-guide` catalogs the styles.
@@ -140,15 +140,9 @@ test.describe('F2-2 Inter only', () => {
     });
   }
 
-  test('old display-font uses render in Inter', async ({ page }) => {
+  test('headings render in Inter', async ({ page }) => {
     await seedPuzzle({ grid: letteredGrid(), hints: {}, phase: 'grid' });
     await page.goto('/puzzles');
-
-    const display = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue('--font-display')
-    );
-    expect(display.trim()).not.toBe('');
-    expect(display).not.toMatch(/grotesk/i);
 
     for (const testid of ['page-heading', 'app-header']) {
       const family = await page

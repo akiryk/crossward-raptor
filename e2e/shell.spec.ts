@@ -56,18 +56,9 @@ test.describe('P0-3 design tokens', () => {
 
     const tokens = await page.evaluate(() => {
       const style = getComputedStyle(document.documentElement);
-      const names = [
-        '--color-background',
-        '--color-foreground',
-        '--color-selected',
-        '--color-incomplete',
-        '--color-grid-line-build',
-        '--color-grid-line-play',
-        '--font-display',
-        '--font-body',
-        '--font-data',
-        '--grid-line-width',
-      ];
+      // 14-S8 deleted the old color tokens, --font-display and --font-data;
+      // these two remain.
+      const names = ['--font-body', '--grid-line-width'];
       const result: Record<string, string> = {};
       for (const name of names) {
         result[name] = style.getPropertyValue(name).trim();

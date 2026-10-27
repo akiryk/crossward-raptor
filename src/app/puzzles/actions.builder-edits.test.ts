@@ -67,7 +67,6 @@ const calls: Array<[string, (id: string) => Promise<unknown>]> = [
   ['saveTitle', (id) => actions.saveTitle(id, '  Changed title  ')],
   ['enterHints', (id) => actions.enterHints(id)],
   ['publishPuzzle', (id) => actions.publishPuzzle(id, 'public')],
-  ['unpublishPuzzle', (id) => actions.unpublishPuzzle(id)],
   ['deletePuzzle', (id) => actions.deletePuzzle(id)],
 ];
 
@@ -119,7 +118,6 @@ describe('O3 builder-only mutation authority', () => {
   it.each(calls)('%s cannot mutate another builder’s puzzle, even with an admin role', async (name, call) => {
     own().builderId = 'other-builder';
     if (name === 'publishPuzzle') own().phase = 'hints';
-    if (name === 'unpublishPuzzle') own().publishedAt = new Date('2026-10-01T00:00:00Z');
     const before = structuredClone(rows);
     await expect(call('target')).rejects.toThrow();
     expect(rows).toEqual(before);
@@ -135,7 +133,6 @@ describe('O3 builder-only mutation authority', () => {
 
   it.each(calls)('%s preserves owner success and constrains every write to the trusted builder and ID', async (name, call) => {
     if (name === 'publishPuzzle') { own().phase = 'hints'; own().hints = ALL_HINTS; }
-    if (name === 'unpublishPuzzle') own().publishedAt = new Date('2026-10-01T00:00:00Z');
     const original = structuredClone(own());
     const decoy = structuredClone(rows[1]);
     const result = await call('target');
@@ -163,7 +160,6 @@ describe('O3 builder-only mutation authority', () => {
       expect(own().visibility).toBe('public');
       expect(result).toEqual({ publishedAt: own().publishedAt, visibility: 'public' });
     }
-    if (name === 'unpublishPuzzle') expect(own().publishedAt).toBeNull();
     if (name === 'deletePuzzle') {
       expect(rows.some((row) => row.id === 'target')).toBe(false);
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/puzzles');
@@ -220,12 +216,8 @@ describe('O3 builder-only mutation authority', () => {
     expect(rows.map((row) => row.id)).toEqual(['decoy']);
   });
 
-  it('allows an owner to unpublish an already unpublished puzzle without changing its visibility', async () => {
-    own().visibility = 'public';
-    await actions.unpublishPuzzle('target');
-    expect(own().publishedAt).toBeNull();
-    expect(own().visibility).toBe('public');
-  });
+  // 14-S8 retired "allows an owner to unpublish an already unpublished
+  // puzzle without changing its visibility": unpublishPuzzle is removed.
 });
 
 describe('O3 editor loader refusal', () => {

@@ -1,59 +1,18 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const COLOR_TOKENS = [
-  '--color-background',
-  '--color-foreground',
-  '--color-ink-2',
-  '--color-ink-3',
-  '--color-rule',
-  '--color-rule-strong',
-  '--color-hover-tint',
-  '--color-panel-tint',
-  '--color-accent',
-  '--color-accent-hover',
-  '--color-ok-tint',
-  '--color-grid-empty',
-  '--color-grid-line-build',
-  '--color-grid-line-play',
-  '--color-cell-fill',
-  '--color-selected',
-  '--color-slot',
-  '--color-slot-content',
-  '--color-required',
-  '--color-recommended',
-  '--color-locked-letter',
-  '--color-editable-letter',
-  '--color-incomplete',
-];
+// 14-S8 deleted the old color tokens, the old radii, --font-display,
+// --font-data and the old type and weight tokens (e2e/old-tokens.spec.ts).
+const OTHER_TOKENS = ['--font-body', '--grid-line-width', '--text-label'];
 
-const OTHER_TOKENS = [
-  '--font-display',
-  '--font-body',
-  '--font-data',
-  '--radius-btn',
-  '--radius-md',
-  '--radius-lg',
-  '--radius-grid',
-  '--grid-line-width',
-  '--text-headline',
-  '--text-body',
-  '--text-help',
-  '--text-label',
-  '--weight-normal',
-  '--weight-bold',
-];
-
+// 14-S8 removed the old-token samples: sg-text, sg-confirmation, sg-error
+// and sg-tooltip.
 const SECTIONS = [
-  'sg-text',
   'sg-buttons',
   'sg-hover',
   'sg-inputs',
   'sg-links',
   'sg-hint-rows',
-  'sg-confirmation',
-  'sg-error',
-  'sg-tooltip',
   // 14-S4: the stepper sample is replaced by the builder-steps sample.
   'sg-builder-steps',
   'sg-grid-build',
@@ -123,7 +82,7 @@ test.describe('D8-1 structure', () => {
   test('every token still resolves, including the newly registered one', async ({ page }) => {
     await page.goto('/style-guide');
 
-    for (const token of [...COLOR_TOKENS, ...OTHER_TOKENS]) {
+    for (const token of OTHER_TOKENS) {
       expect(await tokenValue(page, token), `expected ${token}`).not.toBe('');
     }
   });

@@ -62,7 +62,6 @@ describe('Server Action session boundary', () => {
     ['saveTitle', () => actions.saveTitle('existing', 'Changed')],
     ['enterHints', () => actions.enterHints('existing')],
     ['publishPuzzle', () => actions.publishPuzzle('existing', 'public')],
-    ['unpublishPuzzle', () => actions.unpublishPuzzle('existing')],
     ['deletePuzzle', () => actions.deletePuzzle('existing')],
   ];
 
