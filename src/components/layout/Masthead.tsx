@@ -7,13 +7,21 @@ import { Logo } from '@/components/ui/Logo';
 // and the hairline; `action` (Sign out, when signed in) sits 20px from the
 // right, centred on the logo.
 
-export function Masthead({ action, 'data-testid': testId }: { action?: ReactNode; 'data-testid'?: string }) {
+export function Masthead({
+  action,
+  homeLinkTestId,
+  'data-testid': testId,
+}: {
+  action?: ReactNode;
+  homeLinkTestId?: string;
+  'data-testid'?: string;
+}) {
   return (
     <header
       data-testid={testId}
       className="flex w-full items-center justify-between border-b border-line-muted bg-masthead p-5"
     >
-      <Link href="/" data-testid={testId === 'app-header' ? 'home-link' : undefined} className="group/logo flex outline-none">
+      <Link href="/" data-testid={homeLinkTestId} className="group/logo flex outline-none">
         <Logo interactive />
       </Link>
       {action}

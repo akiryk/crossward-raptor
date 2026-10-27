@@ -146,77 +146,12 @@
   --text-cell-number--line-height: 0.625rem;
 }
 
+/* --- typeface and grid lines --- */
+/* The app's one typeface (Inter, Story F2) and the grid's hairline width.
+   The pre-redesign tokens were deleted by Story 14-S8. */
 @theme {
-  /* --- typefaces --- */
-  --font-display: var(--font-inter), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-data: var(--font-inter), system-ui, sans-serif; /* grid letters */
-
-  /* --- surfaces and text (P0 names kept) --- */
-  --color-background: #ffffff;
-  --color-foreground: #14151b;
-
-  /* --- text weights --- */
-  --color-ink-2: #565b67; /* secondary text, captions */
-  --color-ink-3: #9ba1ad; /* tertiary: cell numbers, eyebrows */
-
-  /* --- structure --- */
-  --color-rule: #ecedf1; /* hairline dividers */
-  --color-rule-strong: #dee0e6;
-  --color-hover-tint: #f3f4f7;
-  --color-panel-tint: #f6faf8;
-
-  /* --- accent --- */
-  --color-accent: #1f9d6b;
-  --color-accent-hover: #178257;
-  --color-ok-tint: #e4f6ee;
-
-  /* --- grid (P0 names kept where they existed) --- */
-  --color-grid-empty: #dde0e6; /* unfilled cell, build phase */
-  --color-grid-line-build: #c2c2c2; /* grid hairline, build phase */
-  --color-grid-line-play: #616161; /* grid hairline, preview and play phases */
-  --color-cell-fill: #dff3ea; /* cell holding a letter */
-  --color-selected: #fcff5c; /* the cursor cell */
-  --color-slot: #f1f1ea; /* other cells in the cursor's active row/column */
-  --color-slot-content: #ffffe2; /* active-row/column cells that hold a letter
-    or need one for symmetry, distinct from plain undecided slot space */
-  --color-required: #ff251a; /* preview: unfilled symmetric counterpart */
-  /* A separate token from --color-required on purpose (Story D6) -- the
-     builder wants the option to recolor "needs a word for symmetry"
-     independently from "part of a two-letter word" later, without a code
-     change. Distinct value now too: the D6-2 acceptance test requires
-     recommended's rendered background to actually differ from
-     required's, not just be independently reconfigurable in principle. */
-  --color-recommended: #c9772e; /* preview: cell in a length-2 slot */
-  --color-locked-letter: #e7e9ee; /* hints phase, grid locked (Story H4) */
-  --color-editable-letter: #fff1c2; /* hints phase, EDIT GRID mode (Story H4) */
-
-  /* --- hint status (P0 names kept) --- */
-  /* --color-complete removed: identical value to --color-accent, which
-     hint completeness now uses directly (Story D1b) */
-  --color-incomplete: #9ba1ad;
-
-  /* --- shape --- */
-  --radius-btn: 999px;
-  --radius-sm: 10px; /* stepper number badges */
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-grid: 8px;
-
-  /* --- misc --- */
   --grid-line-width: 1px;
-
-  /* --- type scale (Story D9) --- */
-  --text-headline: 1.75rem;
-  --text-body: 1rem;
-  --text-help: 0.875rem;
-  /* --text-label is now a text style above (Story F2) */
-  /* Fluid: a clamp(), not a single rem value. */
-  --text-title: clamp(34px, 5vw, 46px);
-
-  /* --- weights (Story D9) --- */
-  --weight-normal: 400;
-  --weight-bold: 700;
 }
 
 /* Story 14-S9: a dialog's entrance. The panel fades and grows from 0.97

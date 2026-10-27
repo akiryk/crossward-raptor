@@ -486,12 +486,26 @@ specification-only commit: the story, the EPIC amendment, the new
 throwaway (`/tmp/crossward-drafts/14-S8-throwaway.patch`) passed
 `npm run verify` (595 Vitest tests) and the full `npm run test:e2e`, 652.
 
+**S8 is implemented** (2026-10-27) on branch
+`story/14-S8-old-token-cleanup`, on top of freeze commit `32e5134`, and is
+awaiting independent review in its PR. It is the drafting throwaway, with
+one comment in `PuzzleGrid.tsx` merged. The changed paths are the story's
+declared runtime paths and this handoff. The only risk path is
+`src/app/puzzles/actions.ts`, where `unpublishPuzzle` is removed and
+nothing else changes. The frozen acceptance is unchanged since `32e5134`.
+Verification on the implementation tree (the same content as the commit):
+
+- `npm run verify`: exit 0 (47 files, 595 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (full suite, standing reset grant): exit 0, 652
+  passed.
+
 ## Next action
 
-Implement S8 on `story/14-S8-old-token-cleanup` from the freeze commit
-(from the throwaway; if it's gone, implement from the story) and open a
-PR for independent review. The author does not merge it.
+Independent review of S8's PR per REVIEW and CODE-REVIEW; the author
+does not merge it. After the merge, the human's visual check (the page
+text color, the style guide).
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S8-old-token-cleanup.md. S8 is approved and frozen; implement it on story/14-S8-old-token-cleanup from the freeze commit and open a PR for independent review; do not merge your own PR.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S8-old-token-cleanup.md. Independently review S8's PR (story/14-S8-old-token-cleanup) per docs/process/REVIEW.md, and merge it if no blockers remain and verification passes.
