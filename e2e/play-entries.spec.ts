@@ -152,27 +152,23 @@ test.describe('P2 — typing and resuming', () => {
       await expect(page.locator(`[data-coord="${coord}"]`).getByTestId('cell-number')).toHaveText(number);
     }
     await expect(page.getByTestId('cell-number')).toHaveCount(3);
-    for (const cell of await page.locator('[data-testid="grid-cell"][data-kind="active"]').all()) {
-      await expect(cell).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    // 14-S7: active cells outside the selected word stay white.
+    for (const coord of ['0,1', '2,1', '0,2', '1,2', '2,2']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveCSS('background-color', 'rgb(255, 255, 255)');
     }
     await expect(page.locator('[data-coord="1,1"]')).toHaveAttribute('data-kind', 'black');
     await expect(page.locator('[data-coord="1,1"]')).toHaveCSS('background-color', 'rgb(20, 21, 27)');
     await expect(page.locator('[data-cell-state="required"], [data-cell-state="recommended"], [data-cell-state="symmetric-hint"]')).toHaveCount(0);
     // A data attribute alone is insufficient: focused selection must paint an
-    // actual inset outline/ring, without replacing P1's white cell background.
-    const indicator = await page.locator('[data-coord="2,0"]').evaluate((element) => {
-      const styles = getComputedStyle(element);
-      return styles.boxShadow !== 'none' || (styles.outlineStyle !== 'none' && parseFloat(styles.outlineWidth) > 0);
-    });
-    expect(indicator).toBe(true);
+    // actual indicator. 14-S7: the cursor cell is play-cell-selected-cell
+    // (yellow-bright) and the rest of its word play-cell-selected-row
+    // (blue-medium), in place of the inset rings.
+    await expect(page.locator('[data-coord="2,0"]')).toHaveCSS('background-color', 'rgb(252, 255, 77)');
     await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-highlight', 'slot');
     await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-highlight', 'slot');
-    const wordIndicator = await page.locator('[data-coord="1,0"]').evaluate((element) => {
-      const styles = getComputedStyle(element);
-      return styles.boxShadow !== 'none' || (styles.outlineStyle !== 'none' && parseFloat(styles.outlineWidth) > 0)
-        || parseFloat(styles.borderTopWidth) > 0;
-    });
-    expect(wordIndicator).toBe(true);
+    for (const coord of ['0,0', '1,0']) {
+      await expect(page.locator(`[data-coord="${coord}"]`)).toHaveCSS('background-color', 'rgb(207, 238, 255)');
+    }
   });
 
   test('arrows, space and cell clicks use the existing one-action cursor rules', async ({ page }) => {

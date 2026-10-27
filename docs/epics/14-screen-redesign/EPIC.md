@@ -132,13 +132,19 @@ so nothing moves at Create Hints, with the labels `primary`.
 every phase: build, Preview, the hints phase and play.
 
 **Prominent Hint** *(human, 2026-10-25)*. Play: an NYT-style bar directly
-above the grid showing the selected word's number and hint. Its exact
-style comes from the human when S7 is drafted, the mockups otherwise.
+above the grid showing the selected word's number and hint. S7
+*(human, 2026-10-27)*: the grid's width, 16px above it, filled
+`play-cell-selected-row`, 10px corners; the number and direction ("14A")
+in `title-4`, the hint in `body-large`, `primary`; empty, at its one-line
+height, with no word selected.
 
 **Player Hint** *(human)*. Play: the number in `title-4` `primary`, the hint
-in `body-normal` `primary`. While a word (complete or incomplete) is
-selected in the grid, its hint has a `hint-cell-selected` (`blue-medium`)
-background.
+in `body-normal` `primary`. S7 *(human, 2026-10-27)*: a compact list (rows
+32px apart, numbers 72px right of the grid, hints 24px after the number,
+columns up to 270px); while a word (complete or incomplete) is selected in
+the grid, its hint has a `play-cell-selected-row` (`blue-medium`)
+background, replacing `hint-cell-selected`. A click on a hint selects its
+word.
 
 **Grid colors per phase** *(human)*:
 
@@ -219,9 +225,9 @@ whose screen it's on; the story either fixes it or says why not.
 - **No grid-engine change.** `src/engine/**` is untouched.
 - **No new puzzle, publishing or play behavior** beyond the named control
   moves (stepper, Build/Play's list filter), the new-puzzle dialog's
-  generated default name (S3), and S4's publishing changes: publishing
+  generated default name (S3), S4's publishing changes (publishing
   needs every hint, and Unpublish, Clear all letters and the builder's
-  Delete are removed.
+  Delete are removed) and S7's hint click in play, which selects its word.
 - **No dark mode, no two-label toggle.** No focus rings, except S11's
   keyboard focus ring.
 - **No new shared components** beyond what a screen needs (Row Heading,
