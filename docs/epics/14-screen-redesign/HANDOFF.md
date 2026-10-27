@@ -500,12 +500,23 @@ Verification on the implementation tree (the same content as the commit):
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 652
   passed.
 
+**S8 is merged.** PR #28 (head `8ab0b80`) was independently reviewed and
+merged into `main` as `5da9538` (2026-10-27), with no findings. The
+reviewer confirmed that the risk path `actions.ts` only loses the uncalled
+`unpublishPuzzle`, that the changed paths match the declared ones, with no
+test changes since `32e5134`, and that every grid mode's map covers each
+appearance `cellAppearance` returns for it, so removing the fallback
+leaves no cell without a background. The reviewer's runs on `8ab0b80`:
+`npm run verify` exit 0 (47 files, 595 Vitest tests; the pre-existing lint
+warning) and the full `npm run test:e2e` exit 0, 652 passed. CI: Vercel and
+Vercel Preview Comments passed.
+
 ## Next action
 
-Independent review of S8's PR per REVIEW and CODE-REVIEW; the author
-does not merge it. After the merge, the human's visual check (the page
-text color, the style guide).
+The human's visual check of S8 (the page text color, the style guide).
+S8 is the epic's last story; once it passes, the epic closes with an
+independent, report-only audit per the [epic index](../README.md#close-an-epic).
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S8-old-token-cleanup.md. Independently review S8's PR (story/14-S8-old-token-cleanup) per docs/process/REVIEW.md, and merge it if no blockers remain and verification passes.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/EPIC.md. Once S8's visual check has passed, independently audit epic 14 (report-only) per docs/process/AUDIT.md; do not edit files.
