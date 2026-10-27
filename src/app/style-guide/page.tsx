@@ -72,19 +72,9 @@ export default function StyleGuidePage() {
 
         <TextStyles />
 
-        <section data-testid="sg-text" className="space-y-2">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
-            Text
-          </h2>
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
-            Display heading sample
-          </h2>
-          <p className="text-body text-foreground">Body text sample, the default reading color.</p>
-          <p className="text-help text-ink-2">Secondary text (ink-2) — captions and metadata.</p>
-        </section>
 
         <section data-testid="sg-buttons">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-3 text-title-2 text-primary">
             Buttons
           </h2>
           {/* sg-hover wraps the interactive elements hover states are
@@ -126,7 +116,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-modal">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-3 text-title-2 text-primary">
             Modal
           </h2>
           <Button data-testid="sg-modal-open" onClick={() => setModalOpen(true)}>
@@ -153,7 +143,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-new-puzzle-dialog">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-3 text-title-2 text-primary">
             New-puzzle dialog
           </h2>
           <Button onClick={() => setNewPuzzleOpen(true)}>Open the new-puzzle dialog</Button>
@@ -163,7 +153,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-inputs" className="space-y-3">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Inputs</h2>
+          <h2 className="text-title-2 text-primary">Inputs</h2>
           <TextInput
             data-testid="sg-input-regular"
             aria-label="Regular input"
@@ -199,7 +189,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-toggles" className="space-y-3">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Toggle</h2>
+          <h2 className="text-title-2 text-primary">Toggle</h2>
           <div className="flex flex-wrap items-center gap-6">
             <PreviewToggle
               data-testid="sg-toggle-off"
@@ -215,7 +205,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-radios" className="space-y-6">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Radio</h2>
+          <h2 className="text-title-2 text-primary">Radio</h2>
           <RadioGroup
             data-testid="sg-radio-form"
             name="sg-radio-form"
@@ -244,7 +234,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-titles" className="space-y-3">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Titles</h2>
+          <h2 className="text-title-2 text-primary">Titles</h2>
           <Title size={1} data-testid="sg-title-1">Title 1</Title>
           <Title size={2} data-testid="sg-title-2">Title 2</Title>
           <Title size={3} data-testid="sg-title-3">Title 3</Title>
@@ -268,12 +258,12 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-logo">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">Logo</h2>
+          <h2 className="mb-3 text-title-2 text-primary">Logo</h2>
           <Logo />
         </section>
 
         <section data-testid="sg-masthead" className="space-y-3">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Masthead</h2>
+          <h2 className="text-title-2 text-primary">Masthead</h2>
           <div data-testid="sg-masthead-signed-out">
             <Masthead />
           </div>
@@ -283,12 +273,12 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-row-heading">
-          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">Row Heading</h2>
+          <h2 className="mb-2 text-title-2 text-primary">Row Heading</h2>
           <RowHeading label="Mini" dimensions="5 × 5" />
         </section>
 
         <section data-testid="sg-puzzle-row">
-          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">Puzzle Row</h2>
+          <h2 className="mb-2 text-title-2 text-primary">Puzzle Row</h2>
           {/* Rows are drawn at the library's 679px content width. */}
           <div className="overflow-x-auto">
             <ul className="flex w-[679px] flex-col gap-1">
@@ -299,7 +289,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-links">
-          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-2 text-title-2 text-primary">
             Links
           </h2>
           <a href="#" className="cursor-pointer text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover">
@@ -308,51 +298,17 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-hint-rows" className="space-y-2">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="text-title-2 text-primary">
             Hint Input (hints phase)
           </h2>
           <HintInputExample />
         </section>
 
-        <section data-testid="sg-confirmation" className="space-y-2">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">
-            Confirmation
-          </h2>
-          <div className="rounded-md border border-rule-strong bg-panel-tint px-4 py-3">
-            <p className="text-help text-ink-2">This cannot be undone.</p>
-            <div className="mt-2 flex gap-2">
-              <Button>Confirm</Button>
-              <Button variant="alternate">Cancel</Button>
-            </div>
-          </div>
-        </section>
 
-        <section data-testid="sg-error" className="space-y-1">
-          <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Error</h2>
-          <p className="rounded-md border border-required bg-background px-3 py-2 text-required">
-            Example error message.
-          </p>
-        </section>
 
-        <section data-testid="sg-tooltip">
-          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
-            Tooltip
-          </h2>
-          <div className="relative inline-block">
-            <button
-              type="button"
-              className="cursor-pointer rounded-btn border border-rule-strong px-3 py-1 text-sm"
-            >
-              Hover target
-            </button>
-            <div className="absolute left-0 top-full z-10 mt-1 rounded-md border border-rule-strong bg-panel-tint px-2 py-1 text-xs text-ink-2 shadow-sm">
-              Tooltip example
-            </div>
-          </div>
-        </section>
 
         <section data-testid="sg-builder-steps" className="space-y-3">
-          <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-2 text-title-2 text-primary">
             Builder steps
           </h2>
           <BuilderSteps phase="grid" onStep={() => {}} />
@@ -361,7 +317,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-too-early-dialog">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-3 text-title-2 text-primary">
             Too-early dialog
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -373,7 +329,7 @@ export default function StyleGuidePage() {
         </section>
 
         <section data-testid="sg-publish-dialog">
-          <h2 className="mb-3 font-display text-headline [font-weight:var(--weight-bold)]">
+          <h2 className="mb-3 text-title-2 text-primary">
             Publish dialog
           </h2>
           <Button onClick={() => setPublishOpen(true)}>Open the Publish dialog</Button>

@@ -447,16 +447,6 @@ export async function publishPuzzle(
   return { publishedAt, visibility };
 }
 
-/** Unpublishes the puzzle by clearing publishedAt. Visibility is left as-is
- *  for if it's published again. */
-export async function unpublishPuzzle(id: string): Promise<void> {
-  const session = await requireSession();
-  await prisma.puzzle.update({
-    where: { id, builderId: session.user.id },
-    data: { publishedAt: null },
-  });
-}
-
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   const session = await requireSession();

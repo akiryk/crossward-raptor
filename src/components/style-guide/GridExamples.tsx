@@ -88,7 +88,7 @@ export function GridExamples() {
   return (
     <>
       <section data-testid="sg-grid-build">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Grid (build phase)
         </h2>
         <div className="max-w-sm">
@@ -97,7 +97,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-grid-preview">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Grid (hints-transition preview)
         </h2>
         <div className="max-w-sm">
@@ -107,7 +107,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-hint-skeleton">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Hint skeleton (build phase, wide screens)
         </h2>
         <div className="flex">
@@ -116,7 +116,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-grid-hints">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Grid (hints phase, a hint focused)
         </h2>
         <div className="max-w-sm">
@@ -125,7 +125,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-grid-hints-locked">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Grid (hints phase, letters locked, a hint focused)
         </h2>
         <div className="max-w-sm">
@@ -134,7 +134,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-grid-hints-selected">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Grid (hints phase, grid focused)
         </h2>
         <div className="max-w-sm">
@@ -148,7 +148,7 @@ export function GridExamples() {
       </section>
 
       <section data-testid="sg-grid-play">
-        <h2 className="mb-2 font-display text-headline [font-weight:var(--weight-bold)]">
+        <h2 className="mb-2 text-title-2 text-primary">
           Play: Prominent Hint, grid and Player Hints
         </h2>
         <div className="flex flex-wrap items-start gap-x-[66px] gap-y-4">

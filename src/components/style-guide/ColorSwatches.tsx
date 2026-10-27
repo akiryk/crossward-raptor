@@ -116,17 +116,17 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
 ];
 
 // line-muted border keeps white and translucent swatches visible.
-const SWATCH = 'h-8 w-8 shrink-0 rounded-md border border-line-muted';
+const SWATCH = 'h-8 w-8 shrink-0 rounded-modal border border-line-muted';
 const ROW = 'flex min-w-0 items-center gap-3';
 const GRID = 'grid gap-3 sm:grid-cols-2 lg:grid-cols-3';
 
 export function ColorSwatches() {
   return (
     <section data-testid="sg-colors" className="space-y-6">
-      <h2 className="font-display text-headline [font-weight:var(--weight-bold)]">Colors</h2>
+      <h2 className="text-title-2 text-primary">Colors</h2>
 
       <div className="space-y-3">
-        <h3 className="text-body text-primary [font-weight:var(--weight-bold)]">Variables</h3>
+        <h3 className="text-title-3 text-primary">Variables</h3>
         <ul className={GRID}>
           {VARIABLES.map(({ name, hex }) => (
             <li key={name} data-testid="sg-color-variable" data-variable={name} className={ROW}>
@@ -136,8 +136,8 @@ export function ColorSwatches() {
                 style={{ backgroundColor: `var(--palette-${name})` }}
               />
               <span className="min-w-0 break-words">
-                <span className="block text-help text-primary">{name}</span>
-                <span className="block text-help text-muted">{hex}</span>
+                <span className="block text-body-normal text-primary">{name}</span>
+                <span className="block text-body-normal text-muted">{hex}</span>
               </span>
             </li>
           ))}
@@ -145,14 +145,14 @@ export function ColorSwatches() {
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-body text-primary [font-weight:var(--weight-bold)]">Styles</h3>
+        <h3 className="text-title-3 text-primary">Styles</h3>
         <ul className={GRID}>
           {STYLES.map(({ name, variable, swatch }) => (
             <li key={name} data-testid="sg-color-style" data-style={name} className={ROW}>
               <span data-testid="sg-swatch" className={`${SWATCH} ${swatch}`} />
               <span className="min-w-0 break-words">
-                <span className="block text-help text-primary">{name}</span>
-                <span className="block text-help text-muted">{variable}</span>
+                <span className="block text-body-normal text-primary">{name}</span>
+                <span className="block text-body-normal text-muted">{variable}</span>
               </span>
             </li>
           ))}

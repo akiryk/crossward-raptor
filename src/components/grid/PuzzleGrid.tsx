@@ -11,29 +11,15 @@ import {
 } from '../../lib/cell-appearance';
 import { GridCell } from './GridCell';
 
-// The cell wrapper -- not GridCell's inner leaf -- carries the background,
-// since it's what the hairline technique's gap/padding surrounds, and the
-// only element background/geometry assertions have any reason to inspect.
-const APPEARANCE_BG: Record<CellAppearance, string> = {
-  black: 'bg-foreground',
-  empty: 'bg-grid-empty',
-  letter: 'bg-background',
-  'symmetric-hint': 'bg-background',
-  required: 'bg-required',
-  recommended: 'bg-recommended',
-  'locked-letter': 'bg-locked-letter',
-  slot: 'bg-slot',
-  // Both point at the same token for now (one color for "has a letter" and
-  // "needs one for symmetry" within the active slot). Splitting them later
-  // -- e.g. keeping slot-letter white -- is a one-line change here.
-  'slot-letter': 'bg-slot-content',
-  'slot-required': 'bg-slot-content',
-  selected: 'bg-selected',
-};
-
+// The cell wrapper -- not GridCell's inner leaf -- carries each mode's
+// background, since it's what the hairline technique's gap/padding
+// surrounds.
+//
 // The build phase's own colors (14-S5). Selection and slot appearances
-// only occur there.
+// only occur there. A black cell, only in a build-phase grid saved before
+// 14-S5 removed '.', is an off cell (14-S8).
 const BUILD_BG: Partial<Record<CellAppearance, string>> = {
+  black: 'bg-build-cell-off',
   empty: 'bg-build-cell-off',
   letter: 'bg-build-cell-on',
   'symmetric-hint': 'bg-build-cell-on',
@@ -177,7 +163,7 @@ export function PuzzleGrid({
                 ? 'bg-hint-cell-selected'
                 : gridMode === 'play' && highlight && cell.kind === 'active'
                   ? PLAY_HIGHLIGHT_BG[highlight]
-                  : (modeBg[appearance] ?? APPEARANCE_BG[appearance])
+                  : modeBg[appearance]
           }
         >
           <GridCell

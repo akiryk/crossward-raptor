@@ -10,6 +10,7 @@ export async function Header() {
   return (
     <Masthead
       data-testid="app-header"
+      homeLinkTestId="home-link"
       action={
         session && (
           <>
