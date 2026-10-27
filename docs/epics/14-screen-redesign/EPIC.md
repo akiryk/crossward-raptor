@@ -152,10 +152,15 @@ background.
   a hint input has focus, its word's cells are `hint-cell-selected`
   (blue-medium). The locked grid takes no focus: no Tab stop, no focus on
   a click, no keys (S6).
-- **Hint phase, EDIT GRID:** the locked colors, with the on cells
-  editable; the selected cell is `hint-cell-edit-selected-cell`
+- **Hint phase, EDIT GRID:** the build grid's look *(human, S6
+  correction)*: on cells `hint-cell-edit-on` (white), off cells
+  `hint-cell-edit-off` (gray-200), border `hint-cell-edit-border`
+  (gray-400); the selected cell is `hint-cell-edit-selected-cell`
   (yellow-bright) and the selected word's cells
-  `hint-cell-edit-selected-row` (yellow-medium).
+  `hint-cell-edit-selected-row` (yellow-medium). The hints and their
+  labels fade to 0.4, except, while the grid has focus, the selected
+  word's hint, at full opacity with its input filled
+  `hint-cell-edit-selected-cell`.
 - **Each phase has its own cell styles** *(human, 2026-10-26, S6)*, even
   where they share a palette value, so one phase's colors can change
   without touching another's.

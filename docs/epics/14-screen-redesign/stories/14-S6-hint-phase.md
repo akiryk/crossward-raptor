@@ -6,9 +6,14 @@ shows its word in blue. EDIT GRID adds yellow for the cursor and its
 word. Each hint is a Hint Input in the build skeleton's frame, so nothing
 moves when the builder creates hints.
 
-**Status: implemented on `main`** (2026-10-26), on top of freeze commit
-`53e28fe`. It is the drafting throwaway unchanged. Next: the human's
-visual check.
+**Status: correction frozen** (2026-10-26), after the human's visual
+check of the implementation (`b9c920a`), on the human's request quoted in
+the [Correction](#correction-2026-10-26), which was independently reviewed.
+Next: the runtime fix on `main`, then the human's visual check of the
+correction.
+
+Implemented on `main` earlier the same day, on top of freeze commit
+`53e28fe`, as the drafting throwaway unchanged.
 
 Approved and frozen earlier the same day: the human approved the
 Decisions and acceptance, including the D8-3 and P5-2 retirements and the
@@ -87,10 +92,12 @@ The color catalog gains a swatch for each new style.
   (yellow-bright) and the rest of its word `hint-cell-edit-selected-row`
   (yellow-medium). Lines stay `hint-cell-border`. A hints-phase word has
   no off cells (geometry is frozen), so there is no `-row-on`/`-row-off`
-  pair.
+  pair. *(Locked colors and lines superseded by the
+  [Correction](#correction-2026-10-26): EDIT GRID takes the build grid's
+  colors.)*
 - Selection shows while the grid has focus, as today.
 - **The hint inputs stay disabled at 50% opacity** *(human)*, TextInput's
-  disabled look, as today.
+  disabled look, as today (superseded by the [Correction](#correction-2026-10-26)).
 
 ### Cell letters and numbers *(human, 2026-10-26)*
 
@@ -221,13 +228,16 @@ the style guide).
   the grid or the title.
 - **14-S6-3 EDIT GRID (1):** the cursor cell yellow-bright, its word
   yellow-medium, an on cell outside it white, an off cell gray-700, lines
-  gray-500, letters `primary`.
+  gray-500, letters `primary` (superseded by the
+  [Correction](#correction-2026-10-26): off cells gray-200, lines
+  gray-400).
 - **14-S6-4 Hint Input (7):** the number 14px/600 `primary`, on the input
   text's baseline; the text 14px/400 `primary`; no placeholder; the answer
   14px/400/20px, letter-spacing 1.4px, `muted`, right-aligned, 4px below
   the line and ending at its right end; the answer `primary` only while
   its own input has focus; no background on the active row; in EDIT GRID
-  the inputs disabled at opacity 0.5.
+  the inputs disabled at opacity 0.5 (the opacity superseded by the
+  [Correction](#correction-2026-10-26): 14-S6-8's 0.4).
 - **14-S6-5 the skeleton's frame (5):** labels 14px/600 `primary`; the line
   30px into the column and 320px wide, the first 45px below the label,
   lines 58px apart, all at one x; the Across column 72px right of the
@@ -239,7 +249,8 @@ the style guide).
 - **14-S6-6 style guide (1):** `sg-hint-rows` holds a real Hint Input
   (number, input, answer); `sg-grid-hints` shows blue, white and gray-700
   cells; `sg-grid-hints-editing` shows yellow-bright, yellow-medium, white
-  and gray-700.
+  and gray-700 (superseded by the
+  [Correction](#correction-2026-10-26): gray-200, no gray-700).
 - **14-S6-7 cell letters and numbers in every phase (3):** a letter and a
   number `primary` in the build phase, in Preview and in play (a typed
   letter). The hints phase's are in 14-S6-1 and 14-S6-3.
@@ -255,8 +266,9 @@ the style guide).
 - Grid colors after a focus change use `expect.poll`, since the highlight
   follows a React state update.
 - Five cases are guards that `main` also passes: the body-normal text, no
-  placeholder, no row background, the 50% disabled inputs and the scroll
-  box.
+  placeholder, no row background, the 50% disabled inputs (superseded by
+  the [Correction](#correction-2026-10-26): disabled, without the 50%)
+  and the scroll box.
 
 ### Discrimination (2026-10-26, observed)
 
@@ -285,6 +297,94 @@ In the Decisions:
   GRID, the cursor cell `hint-cell-edit-selected-cell` and its word
   `hint-cell-edit-selected-row`. Each phase has its own cell styles.
 - **Cell letters and numbers** are `primary` in every phase.
+
+## Correction (2026-10-26)
+
+**The human's visual check** of the implementation (`b9c920a`): the
+locked grid, its blue, EDIT GRID's yellows and the Hint Inputs look good.
+Two changes:
+
+- "When I click Edit the Grid, the hints don't change enough to indicate
+  they are not active. Make the opacity of the entire grid area .4 …
+  Similarly, the grid itself doesn't change at all, so it doesn't
+  communicate that it can be touched. Make the grid colors the same as
+  when in Build Grid mode (gray and white, not black and white; also,
+  change the border color to be the same as in build mode)."
+- "When editing the grid after starting to make hints, I want to
+  highlight the hint that corresponds to the selected word. If I choose
+  to edit the down word at space 2, then 2 Down in the hints should NOT be
+  faded back, it should be at full opacity, and the background of the
+  input should be the bright yellow color used for a selected cell." With
+  a mock: the number, the input filled yellow with its text, the answer
+  `muted` below the line.
+
+**Decisions:**
+
+- **EDIT GRID's cells** take the build grid's colors *(human)*: on cells
+  `hint-cell-edit-on` (white), off cells `hint-cell-edit-off` (gray-200),
+  lines `hint-cell-edit-border` (gray-400). The cursor cell and its word
+  keep `hint-cell-edit-selected-cell` and `hint-cell-edit-selected-row`.
+  Three new styles, not the `build-cell-*` ones, per the hints phase's
+  own-tokens Decision *(agent)*. The locked grid is unchanged.
+- **The hints area fades to 0.4 in EDIT GRID** *(human)*: the "Across"
+  and "Down" labels and every hint (number, input and answer). This
+  replaces the inputs' own 50% disabled look, so a faded hint is drawn at
+  0.4, not 0.2 *(agent)*. The inputs stay disabled. A published puzzle's
+  disabled inputs keep TextInput's 50%.
+- **The selected word's hint** *(human)*: while EDIT GRID's grid shows
+  its selection (it has focus, as for the cell highlights), the hint of
+  the cursor's word is drawn at full opacity and its input is filled
+  `hint-cell-edit-selected-cell` (yellow-bright). The same style as the
+  cursor cell, so the two stay alike *(agent)*. The fill is the input's
+  own box, so nothing moves *(agent)*. The input stays disabled, and the
+  answer stays `muted`, as in the mock. The highlight follows the cursor's
+  word. When the grid loses focus, or the cursor is on an off cell, no
+  hint is highlighted *(agent)*.
+- **Not changed:** the locked grid and its blue, the Hint Input's look
+  outside EDIT GRID, and what EDIT GRID does. The highlighted hint doesn't
+  scroll into view *(agent: not asked for)*.
+
+**Amended acceptance** in `e2e/hint-phase-design.spec.ts`:
+
+- the header comment;
+- 14-S6-3: EDIT GRID's on cells white, off cells gray-200 (was gray-700),
+  lines gray-400 (was gray-500);
+- 14-S6-4 "in EDIT GRID the inputs are disabled at 50%" becomes "in EDIT
+  GRID the inputs are disabled"; the opacity moves to 14-S6-8;
+- 14-S6-6: the EDIT GRID sample shows gray-200 and no gray-700;
+- **new 14-S6-8 EDIT GRID hints (4):** the labels and every hint drawn at
+  0.4 (an element's opacity times its ancestors'), no input filled; the
+  selected word's hint drawn at 1, its input yellow-bright, still
+  disabled, its answer `muted`, the other hints at 0.4; the highlight
+  follows the word (1 Across to 1 Down); no hint highlighted once focus
+  moves to the title.
+
+And the styles lists in `e2e/color-tokens.spec.ts` and
+`src/app/globals-css.test.ts` gain `hint-cell-edit-on` (white),
+`hint-cell-edit-off` (gray-200) and `hint-cell-edit-border` (gray-400).
+
+**Observed (2026-10-26).** Against `b9c920a`'s runtime, 9 cases fail: the
+amended 14-S6-3 and 14-S6-6, the four 14-S6-8 cases and three color-token
+checks; the amended 14-S6-4 passes (a guard). A throwaway
+(`/tmp/crossward-drafts/14-S6-correction-throwaway.patch`) passes all 36
+cases in the two specs. With it, `npm run verify` exited 0 (608 Vitest
+tests) and the full `npm run test:e2e` passed 621 of 621. No other frozen
+test breaks.
+
+**Independent review** (subagent, 2026-10-26). One blocker: the story's
+original S6 text still contradicted the Correction. Fixed: the EDIT GRID
+Decisions, 14-S6-3, 14-S6-4, 14-S6-6 and the 50% guard are marked
+superseded. Three non-blocking notes, all taken: the EPIC bullet now says
+the labels fade and the highlight shows while the grid has focus; 14-S6-8's
+0.4 case checks every hint in the panel, not only 1 Across and 1 Down, and
+clicks the title first so the grid has no focus. Neither test change
+alters what the case means. Rechecked after them: the two specs pass 36 of
+36 with the throwaway and fail the same 9 cases without it.
+
+**Runtime:** `globals.css` and `ColorSwatches.tsx` (the three styles),
+`PuzzleGrid.tsx` (EDIT GRID's own colors), `HintsPanel.tsx` (the fade and
+the selected hint) and `PuzzleGridEditor.tsx` (passes EDIT GRID and the
+selected word's key).
 
 ## Repo paths
 

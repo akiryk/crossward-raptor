@@ -366,13 +366,25 @@ as the commit):
 - `npm run test:e2e` (full suite, standing reset grant): exit 0, 617
   passed.
 
+**S6's visual check asked for a correction** (human, 2026-10-26). The locked
+grid, its blue, EDIT GRID's yellows and the Hint Inputs passed. In EDIT
+GRID the human asked for the build grid's colors, the hints faded to 0.4,
+and the selected word's hint at full opacity with a yellow input. The
+story's "Correction (2026-10-26)" section, the EPIC amendment and the
+amended acceptance are drafted, **uncommitted on `main`**, with a
+throwaway runtime in the same worktree (also saved as
+`/tmp/crossward-drafts/14-S6-correction-throwaway.patch`). An
+independent subagent review found one blocker: the story's original S6
+text contradicted the Correction. It is now marked superseded, the three
+non-blocking notes are taken, and the correction is frozen on `main` in a
+specification-only commit ("Freeze S6 correction").
+
 ## Next action
 
-The human's visual check of S6: the hints phase (locked grid, a focused
-hint's word, EDIT GRID), Hint Inputs, and the style guide's
-`sg-hint-rows`, `sg-grid-hints` and color catalog. Then, in epic
-order, draft S7 (Play).
+Fix the review blocker, then freeze the S6 correction in a
+specification-only commit (story, EPIC, the amended specs) and deliver
+the runtime fix on `main`. Details in the session handoff file.
 
 ## Resume prompt
 
-Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/EPIC.md. Draft story S7 (Play, the EPIC's S7 section) with proposed acceptance for approval on main; do not freeze or implement it.
+Read docs/epics/14-screen-redesign/HANDOFF.md and docs/epics/14-screen-redesign/stories/14-S6-hint-phase.md, then handoffs/02-handoff-s6-edit-grid-correction.md. Finish the S6 correction on main: freeze it, then deliver the runtime fix per CODE-REVIEW; no next story.

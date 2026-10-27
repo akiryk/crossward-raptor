@@ -13,10 +13,14 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // hint-cell-off (gray-700), every line hint-cell-border (gray-500),
 // letters and numbers primary. The locked grid takes no focus: no Tab
 // stop, no focus on a click, no keys. While a hint input has focus, its
-// word's cells are hint-cell-selected (blue-medium). In EDIT GRID: the
-// same colors, with the cursor cell hint-cell-edit-selected-cell
-// (yellow-bright) and the rest of its word hint-cell-edit-selected-row
-// (yellow-medium).
+// word's cells are hint-cell-selected (blue-medium). In EDIT GRID (the
+// 14-S6 correction): the build grid's colors, on cells hint-cell-edit-on
+// (white), off cells hint-cell-edit-off (gray-200), lines
+// hint-cell-edit-border (gray-400), with the cursor cell
+// hint-cell-edit-selected-cell (yellow-bright) and the rest of its word
+// hint-cell-edit-selected-row (yellow-medium). The hints fade to 0.4,
+// except, while the grid shows its selection, the hint of the selected
+// word: full opacity, its input filled hint-cell-edit-selected-cell.
 //
 // Hint Inputs take the build skeleton's frame, so nothing moves at Create
 // Hints: "Across" and "Down" in title-4 primary; the number in title-4
@@ -38,6 +42,9 @@ const BORDER = 'rgb(139, 144, 154)'; // gray-500
 const BLUE = 'rgb(207, 238, 255)'; // blue-medium
 const SELECTED_CELL = 'rgb(252, 255, 77)'; // yellow-bright
 const ROW_ON = 'rgb(254, 255, 176)'; // yellow-medium
+const EDIT_OFF = 'rgb(221, 224, 230)'; // gray-200
+const EDIT_BORDER = 'rgb(186, 188, 190)'; // gray-400
+const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 const PRIMARY = 'rgb(0, 0, 0)'; // black
 const MUTED = 'rgb(139, 144, 154)'; // gray-500
 
@@ -91,6 +98,16 @@ const bg = (locator: Locator) =>
   locator.evaluate((el) => getComputedStyle(el).backgroundColor);
 const style = (locator: Locator, property: string) =>
   locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+
+/** The opacity an element is drawn at: its own times every ancestor's. */
+const drawnOpacity = (locator: Locator) =>
+  locator.evaluate((el) => {
+    let opacity = 1;
+    for (let node: Element | null = el; node; node = node.parentElement) {
+      opacity *= Number(getComputedStyle(node).opacity);
+    }
+    return Math.round(opacity * 1000) / 1000;
+  });
 
 async function box(locator: Locator) {
   const b = await locator.boundingBox();
@@ -191,7 +208,7 @@ test.describe('14-S6-2 the focused hint\'s word', () => {
 test.describe('14-S6-3 EDIT GRID', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  test('the cursor cell yellow-bright, its word yellow-medium, the rest as locked', async ({ page }) => {
+  test('the build colors: the cursor cell yellow-bright, its word yellow-medium, on cells white, off cells gray-200, lines gray-400', async ({ page }) => {
     await open(page, cornersGrid());
     await step(page, 'build').click();
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints-editing');
@@ -203,10 +220,80 @@ test.describe('14-S6-3 EDIT GRID', () => {
       expect(await bg(cell(page, coord)), `its word, ${coord}`).toBe(ROW_ON);
     }
     expect(await bg(cell(page, '1,1')), 'an on cell outside it').toBe(WHITE);
-    expect(await bg(cell(page, '4,0')), 'an off cell').toBe(OFF);
-    expect(await bg(grid(page)), 'the lines').toBe(BORDER);
+    expect(await bg(cell(page, '4,0')), 'an off cell').toBe(EDIT_OFF);
+    expect(await bg(grid(page)), 'the lines').toBe(EDIT_BORDER);
     const letter = cell(page, '2,2').locator('div').first();
     expect(await style(letter, 'color'), 'a letter').toBe(PRIMARY);
+  });
+});
+
+test.describe('14-S6-8 EDIT GRID hints', () => {
+  test.use({ viewport: { width: 1440, height: 1000 } });
+
+  test('the labels and every hint are drawn at 0.4', async ({ page }) => {
+    await open(page, cornersGrid());
+    await step(page, 'build').click();
+    await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints-editing');
+    // The grid without focus shows no selection, so no hint is highlighted.
+    await page.getByTestId('puzzle-title').click();
+
+    for (const orientation of ['across', 'down'] as const) {
+      expect(await drawnOpacity(heading(page, orientation)), `${orientation} label`).toBe(0.4);
+    }
+    const keys = await page
+      .locator('[data-hint-key]')
+      .evaluateAll((rows) => rows.map((r) => r.getAttribute('data-hint-key') ?? ''));
+    expect(keys.length, 'every hint').toBeGreaterThan(2);
+    for (const key of keys) {
+      expect(await drawnOpacity(number(page, key)), `${key} number`).toBe(0.4);
+      expect(await drawnOpacity(input(page, key)), `${key} input`).toBe(0.4);
+      expect(await drawnOpacity(answer(page, key)), `${key} answer`).toBe(0.4);
+      expect(await bg(input(page, key)), `${key} fill`).toBe(TRANSPARENT);
+    }
+  });
+
+  test("the selected word's hint is drawn at full opacity, its input filled yellow-bright, still disabled", async ({ page }) => {
+    await open(page, cornersGrid());
+    await step(page, 'build').click();
+    await cell(page, '1,0').click();
+    await expect(cell(page, '1,0')).toHaveAttribute('data-highlight', 'selected');
+
+    await expect.poll(() => bg(input(page, '1-across')), 'its input').toBe(SELECTED_CELL);
+    expect(await drawnOpacity(number(page, '1-across')), 'its number').toBe(1);
+    expect(await drawnOpacity(input(page, '1-across')), 'its input').toBe(1);
+    expect(await drawnOpacity(answer(page, '1-across')), 'its answer').toBe(1);
+    await expect(input(page, '1-across')).toBeDisabled();
+    expect(await style(answer(page, '1-across'), 'color'), 'its answer').toBe(MUTED);
+
+    expect(await drawnOpacity(input(page, '1-down')), 'another hint').toBe(0.4);
+    expect(await bg(input(page, '1-down')), 'another hint').toBe(TRANSPARENT);
+    expect(await drawnOpacity(heading(page, 'across')), 'the label').toBe(0.4);
+  });
+
+  test('the highlight follows the selected word', async ({ page }) => {
+    await open(page, cornersGrid());
+    await step(page, 'build').click();
+    await cell(page, '1,0').click();
+    await cell(page, '0,0').click();
+    await expect.poll(() => bg(input(page, '1-across'))).toBe(SELECTED_CELL);
+
+    // A second click on the cursor cell turns it to the down word.
+    await cell(page, '0,0').click();
+    await expect.poll(() => bg(input(page, '1-down')), '1 Down').toBe(SELECTED_CELL);
+    expect(await drawnOpacity(input(page, '1-down')), '1 Down').toBe(1);
+    expect(await bg(input(page, '1-across')), '1 Across').toBe(TRANSPARENT);
+    expect(await drawnOpacity(input(page, '1-across')), '1 Across').toBe(0.4);
+  });
+
+  test('no hint is highlighted once the grid loses focus', async ({ page }) => {
+    await open(page, cornersGrid());
+    await step(page, 'build').click();
+    await cell(page, '1,0').click();
+    await expect.poll(() => bg(input(page, '1-across'))).toBe(SELECTED_CELL);
+
+    await page.getByTestId('puzzle-title').click();
+    await expect.poll(() => bg(input(page, '1-across')), 'its fill').toBe(TRANSPARENT);
+    expect(await drawnOpacity(input(page, '1-across')), 'its opacity').toBe(0.4);
   });
 });
 
@@ -275,11 +362,13 @@ test.describe('14-S6-4 Hint Input', () => {
     expect(await bg(row(page, '1-across'))).toBe('rgba(0, 0, 0, 0)');
   });
 
-  test('in EDIT GRID the inputs are disabled at 50%', async ({ page }) => {
+  // The 14-S6 correction replaced "in EDIT GRID the inputs are disabled at
+  // 50%": the hints fade to 0.4 instead (14-S6-8).
+  test('in EDIT GRID the inputs are disabled', async ({ page }) => {
     await open(page, cornersGrid());
     await step(page, 'build').click();
     await expect(input(page, '1-across')).toBeDisabled();
-    expect(await style(input(page, '1-across'), 'opacity')).toBe('0.5');
+    await expect(input(page, '1-down')).toBeDisabled();
   });
 });
 
@@ -405,7 +494,8 @@ test.describe('14-S6-6 style guide', () => {
     expect(editingColors).toContain(SELECTED_CELL);
     expect(editingColors).toContain(ROW_ON);
     expect(editingColors).toContain(WHITE);
-    expect(editingColors).toContain(OFF);
+    expect(editingColors).toContain(EDIT_OFF);
+    expect(editingColors, 'no locked off cell').not.toContain(OFF);
   });
 });
 
