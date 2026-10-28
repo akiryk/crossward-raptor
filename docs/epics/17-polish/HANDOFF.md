@@ -15,6 +15,11 @@ the human confirmed. Every pending question was answered before approval
 the build phase, the hints phase and play, and the order is epic 15, then
 16, then 17. No story is drafted.
 
+**Amended 2026-10-28** with S4, selection in Preview, from the human's
+notes; Rebus is now S5. S6, the build phase's selection colors, was
+added the same day; its details are all the human's. S4's *proposed*
+cursor rules (Decisions) are settled when it is drafted.
+
 ## Verification
 
 Documentation only; no checks run.
