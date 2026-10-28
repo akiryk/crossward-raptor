@@ -32,8 +32,8 @@ On the implementation tree, frozen acceptance unchanged from `fef423e`:
 
 The human's visual check of S1: the builder (both phases) and play at
 1440px and on a short window, a Sunday's lists beside the grid. Then
-S2 (wide layout) needs drafting, when authorized.
+draft S2 (wide layout), per the resume prompt.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S1-560px-grid.md. With the human's approval of S1's draft, freeze it on main and implement it on main; don't freeze before approval.
+Read docs/epics/15-responsive-layout/HANDOFF.md and the "S2 — Wide layout" section of docs/epics/15-responsive-layout/EPIC.md. Draft S2's specification and proposed acceptance on main for the human's approval; don't freeze or implement it.
