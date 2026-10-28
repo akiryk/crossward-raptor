@@ -10,8 +10,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 //
 // The build-phase grid uses build-cell-on/-off, -selected-cell and
 // -selected-row-on/-off, with build-cell-border lines. Preview's lines are
-// a new preview-cell-border (gray-500). A grid is at most 526px wide at
-// every size (36px cells at 15×15, lines shared). Letters use cell-letter,
+// a new preview-cell-border (gray-500). A grid is at most 560px wide at
+// every size, lines shared (15-S1, was 526px). Letters use cell-letter,
 // 16px in a 35px cell and scaled with the cell; numbers stay cell-number
 // (10px). '.' does nothing, and the geometry-locked message is gone.
 // Beside the grid, build phase only and wide screens only, a decorative
@@ -137,13 +137,13 @@ test.describe('14-S5-3 size', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
   for (const size of [5, 9, 15, 21]) {
-    test(`a ${size}×${size} is 526px wide, its cells sharing 1px lines`, async ({ page }) => {
+    test(`a ${size}×${size} is 560px wide, its cells sharing 1px lines`, async ({ page }) => {
       await open(page, squareGrid(size));
       const g = await box(grid(page));
-      expect(g.width).toBeCloseTo(526, 0);
-      expect(g.height).toBeCloseTo(526, 0);
+      expect(g.width).toBeCloseTo(560, 0);
+      expect(g.height).toBeCloseTo(560, 0);
 
-      const pitch = (526 - 1) / size;
+      const pitch = (560 - 1) / size;
       const first = await box(cell(page, '0,0'));
       const next = await box(cell(page, '1,0'));
       expect(first.x - g.x, 'outer line').toBeCloseTo(1, 0);
@@ -152,23 +152,15 @@ test.describe('14-S5-3 size', () => {
     });
   }
 
-  test('a 15×15 still shrinks with a shorter screen', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await open(page, dailyGrid());
-    const g = await box(grid(page));
-    expect(g.width).toBeLessThan(526);
-    expect(g.width).toBeCloseTo(420, 0);
-  });
+  // 15-S1 retired "a 15×15 still shrinks with a shorter screen": the grid
+  // no longer shrinks with the window's height (e2e/grid-size.spec.ts).
 });
 
 test.describe('14-S5-4 letters and numbers', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  const sizes: [number, number][] = [
-    [15, 16],
-    [5, (16 * 105) / 35],
-    [21, (16 * 25) / 35],
-  ];
+  // 15-S1: the letter in a 560px grid's cell, (560 - 1) / size wide.
+  const sizes: [number, number][] = [15, 5, 21].map((size) => [size, (559 / size) * (16 / 35)]);
   for (const [size, px] of sizes) {
     test(`a ${size}×${size}'s letters are cell-letter at ${px.toFixed(1)}px; numbers are 10px`, async ({ page }) => {
       await open(page, squareGrid(size));

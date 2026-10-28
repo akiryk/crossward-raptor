@@ -29,6 +29,10 @@ const FULL_MOTION_SPECS = [
   '**/play-reset-settling.spec.ts',
 ];
 
+// Story 15-S1: play's narrow layout starts below about 1290px, so the
+// default viewport is 1440px wide, wider than Desktop Chrome's 1280×720.
+const VIEWPORT = { width: 1440, height: 900 };
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -41,12 +45,12 @@ export default defineConfig({
     {
       name: 'public',
       testMatch: PUBLIC_SPECS,
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], viewport: VIEWPORT },
     },
     {
       name: 'setup',
       testMatch: '**/auth.setup.ts',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], viewport: VIEWPORT },
     },
     {
       name: 'authenticated',
@@ -54,6 +58,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
+        viewport: VIEWPORT,
         storageState: 'e2e/.auth/user.json',
       },
     },
@@ -63,6 +68,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
+        viewport: VIEWPORT,
         storageState: 'e2e/.auth/user.json',
         contextOptions: { reducedMotion: 'no-preference' },
       },

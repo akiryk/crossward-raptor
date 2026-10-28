@@ -103,7 +103,9 @@ behavior (the arrows, which word the box shows) is named in its story.
 **Grid width 560px** *(human)*. Every grid size fits 560px at most,
 superseding 14-S5's 526px in the builder and 14-S7's in play. Letters keep
 their ratio to the cell (14-S5), so they grow with it; numbers stay
-`cell-number`.
+`cell-number`. The hint lists beside a grid scroll in their own box at
+the grid's height *(human, 2026-10-28)*, and opening the builder doesn't
+scroll the page (S1).
 
 **The grid shrinks last** *(human)*. In the builder, as the window
 narrows, the order is: the hint columns shrink; the two columns become
@@ -133,8 +135,7 @@ Playwright projects' default viewport moves from `Desktop Chrome`'s
 1280×720 to 1440×900, so play's 1290px threshold doesn't change what
 existing tests see. The change lands in S1's specification-only freeze
 commit as approved acceptance infrastructure; new tests name narrow
-viewports explicitly. *(Height 900 is proposed; the human approved the
-1440px width.)*
+viewports explicitly. The human approved the 900px height on 2026-10-28.
 
 **The narrow layout's own title and toggle** *(human, 2026-10-27)*. The
 `title-3` title, the toggle to the right of the numbered buttons and the
@@ -244,7 +245,7 @@ The builder's and play's grid fit 560px at most at every size. Retires the
 `e2e/play-design.spec.ts`, and the 526/35px constants in
 `PuzzleGridEditor.tsx`, `PlayPuzzle.tsx` and `PuzzleGrid.tsx`. Removes
 both grids' height terms. Its freeze commit moves the default test
-viewport to 1440px wide.
+viewport to 1440×900.
 
 ### S2 — Wide layout
 
@@ -291,6 +292,6 @@ narrow play no longer shows "Puzzle options") and any dialog taller than a 375×
 ## Pending questions
 
 None. The first draft's ten questions were answered 2026-10-27 *(human)*
-and are recorded in Decisions. Two details stay *proposed* for their
-stories: an arrow focusing the Hint Box's input (S4), and the test
-viewport's 900px height (S1).
+and are recorded in Decisions. One detail stays *proposed* for its
+story: an arrow focusing the Hint Box's input (S4). The test viewport's
+900px height was approved with S1 (2026-10-28).

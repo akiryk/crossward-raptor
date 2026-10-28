@@ -70,15 +70,14 @@ async function measureCells(page: Page) {
 }
 
 // --- D5a-1: the grid fits ---
+// 15-S1: the grid no longer shrinks with the window's height, so only its
+// width must fit; the page scrolls (e2e/grid-size.spec.ts).
 test.describe('D5a-1 the grid fits the viewport', () => {
   for (const viewport of [LAPTOP, SMALL_LAPTOP]) {
-    test(`a 15x15 fits at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    test(`a 15x15 fits the width at ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await open(page, 'grid', viewport);
 
       const grid = await rectOf(page, 'puzzle-grid');
-      expect(grid.bottom, 'grid bottom within viewport').toBeLessThanOrEqual(
-        viewport.height + TOLERANCE
-      );
       expect(grid.right, 'grid right within viewport').toBeLessThanOrEqual(
         viewport.width + TOLERANCE
       );
@@ -100,16 +99,14 @@ test.describe('D5a-1 the grid fits the viewport', () => {
 
 // --- D5a-2: grid and hints together ---
 test.describe('D5a-2 grid and hints are visible together', () => {
-  test('both regions render and a hint is visible alongside the whole grid', async ({
+  // 15-S1: the grid's bottom may now run past an 800px window.
+  test('both regions render and a hint is visible alongside the grid', async ({
     page,
   }) => {
     await open(page, 'hints', LAPTOP);
 
     await expect(page.getByTestId('grid-region')).toBeVisible();
     await expect(page.getByTestId('hints-region')).toBeVisible();
-
-    const grid = await rectOf(page, 'puzzle-grid');
-    expect(grid.bottom).toBeLessThanOrEqual(LAPTOP.height + TOLERANCE);
 
     const firstHint = await page.getByTestId('hint-row').first().evaluate((el) => {
       const r = el.getBoundingClientRect();
