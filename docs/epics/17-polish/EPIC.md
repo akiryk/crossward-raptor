@@ -131,8 +131,9 @@ hint bar; values from the human in the story).
 
 ## Stories
 
-Order as listed. The epic starts after epics 15 and 16 *(human)*. Story files are `stories/17-S<n>-<slug>.md`. Each lists
-the frozen tests it supersedes.
+Order as listed. The epic starts after epics 15 and 16 *(human)*. Story
+files are `stories/17-S<n>-<slug>.md`. Each lists the frozen tests it
+supersedes.
 
 ### S1 — Missing hints
 
