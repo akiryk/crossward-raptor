@@ -101,12 +101,19 @@ value stays `'private'`, so no migration is needed *(proposed)*.
 it were Public. That's the defect S1 fixes. The builder still sees their
 own unlisted puzzles in both views.
 
-**An unlisted puzzle's link works for anyone signed in** *(proposed,
-pending the human's confirmation)*. Sending the link is the way to share
-a puzzle with testers, and it matches epic 11's "PB3's private means
-unlisted, not owner-only". The alternative is owner-only: nobody but the
-builder can open it, so there's no way to share it before making it
-Public.
+**An unlisted puzzle's link works for anyone signed in** *(human,
+2026-10-27)*. Sending the link is how a builder shares a puzzle with
+testers; only the builder sees it listed. This matches epic 11's "PB3's
+private means unlisted, not owner-only".
+
+**What a player sees when the builder changes a puzzle mid-solve**
+*(human asked, 2026-10-27)*. If the builder makes it Unlisted, the player
+keeps their progress, their open page keeps working and the link still
+opens it; whether it stays in their Play view is Pending question 1. If
+the builder deletes it, the player's progress is deleted with it (epic
+11). Their next save says the puzzle is no longer available. A reload or
+the link shows the "no longer available" page, and the puzzle leaves
+their Play view (S3).
 
 **Sign-in stays required** *(proposed)*. Unlisted means hidden from the
 Play view, not readable without an account. The outside proposal's
@@ -139,7 +146,7 @@ management page.
 
 **A three-dot row menu** *(human, 2026-10-27)*. Each Build row gets a
 button with three dots that opens a contextual menu of the puzzle's
-actions. *Proposed:* the menu replaces the row's trailing Delete button,
+actions. The human approved the following *(2026-10-27)*: the menu replaces the row's trailing Delete button,
 and its items are Duplicate, then "Make public" or "Make unlisted" on a
 published puzzle, then Delete, which opens the existing delete dialog. It's
 keyboard-operable, and it's a new component with its own style-guide
@@ -216,6 +223,11 @@ sessions copied, and another user's puzzle refused.
 
 ## Pending questions
 
-1. **Who can open an unlisted puzzle's link?** *Proposed:* anyone signed
-   in, so the builder can share it with testers. The alternative is the
-   builder only.
+1. **Does a puzzle a player has started stay in their Play view after it
+   becomes Unlisted?** Without that, a player who opened it from the list
+   and never kept the link can't find their in-progress or completed
+   solve again. *Proposed:* yes. The Play view lists other builders'
+   unlisted puzzles only to players who already have a play session for
+   them, which also lists it for testers once they've opened the link.
+   The alternative is that only the builder ever sees it listed, and
+   players need the link.

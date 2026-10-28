@@ -11,8 +11,10 @@
 `main` from an outside proposal (`~/Downloads/CROSSWARD-PUZZLE-LIFECYCLE-EPIC.md`,
 not in the repo) after checking it against the code. The EPIC's "What the
 code does today" records what that check found. The human answered the
-first draft's five questions on 2026-10-27 (recorded in Decisions). One
-remains: who can open an unlisted puzzle's link. No story is drafted.
+first draft's five questions on 2026-10-27 (recorded in Decisions). Their
+answers to the follow-ups (link access, the row menu) are recorded too. One
+question remains: whether a started puzzle stays in a player's Play view
+after it becomes Unlisted. No story is drafted.
 Queued after epic 15 *(human)*, which is in progress.
 
 ## Verification
