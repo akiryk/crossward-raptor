@@ -12,7 +12,7 @@
 not in the repo) after checking it against the code. The EPIC's "What the
 code does today" records what that check found. Every pending question was
 answered before approval (recorded in Decisions). No story is drafted.
-Queued after epic 15 *(human)*, which is in progress.
+Queued after epic 15 *(human)*, which is in progress; its order against epic 17 (Polish) is the human's to choose.
 
 ## Verification
 

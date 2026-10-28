@@ -28,6 +28,12 @@ Findings from the code that shaped the draft:
 The human answered all ten of the first draft's questions on 2026-10-27
 (recorded in the EPIC's Decisions).
 
+**Amended 2026-10-27** with the human's wide-layout details, before any
+story was drafted: the main area capped at 1800px and centered under the
+full-width masthead, a 32px gap between the grid and the hints, and hint
+columns without max widths, in the builder and play. S2 became "Wide
+layout" and carries them.
+
 ## Verification
 
 Documentation only; no checks run.

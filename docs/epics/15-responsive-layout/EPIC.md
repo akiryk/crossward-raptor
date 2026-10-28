@@ -3,7 +3,9 @@
 **Approved by the human 2026-10-27.** Drafted the same day from the
 human's details and two mockups; every pending question was answered
 before approval *(human)* and is recorded in Decisions. Stories are
-drafted and approved one at a time.
+drafted and approved one at a time. Amended the same day, before any story
+was drafted, with the human's wide-layout details (the 1800px main area,
+the 32px gap and full-width hint columns); see "The human's details".
 
 The third of the redesign epics outlined in the
 [Design system EPIC](../13-design-system/EPIC.md#the-redesign-programme)
@@ -20,8 +22,11 @@ hints become one hint at a time under the grid.
 
 1. **A 560px grid.** Every grid size fits 560px at most, up from 526px, so
    a Sunday (21×21) grid's cells are large enough.
-2. **Builder, wide:** the grid stays 560px while only the hint columns
-   shrink; below about 1290px the Across and Down columns become one.
+2. **Wide layout:** below the full-width masthead, the main area is at
+   most 1800px wide and centered. In the builder and play, the hints sit
+   32px from the grid and their columns fill the room left. In the
+   builder, the grid stays 560px while only the hint columns shrink; below
+   about 1290px the Across and Down columns become one.
 3. **Builder, narrow** (below about 1000px): the title, buttons and grid
    centered in one column at the grid's width, with a smaller title, the
    toggle beside the buttons and tighter spacing. The hints go below the
@@ -67,6 +72,15 @@ Recorded as given; the Decisions below are drawn from them.
   there's room. Below about 1290px, as NYT does, one hint shows: the one
   for the word at the cursor in its direction (the cursor in Down mode on
   a cell of 7 Down shows 7 Down's hint). Spare room centers the grid.
+
+### Amendment (2026-10-27)
+
+- **Builder, hints and play:** less gap between the hints and the grid,
+  32px. The Across and Down columns have a max width today; remove it, so
+  they take all the space available.
+- **The main area maxes out at 1800px** and stays centered beyond that, so
+  the hints don't get absurdly wide. The masthead still spans the whole
+  screen at any size.
 
 ## Decisions
 
@@ -134,7 +148,20 @@ Box is the hints phase's.
 
 **No separate spacing pass** *(human, 2026-10-27)*. Epic 13's programme
 listed "spacing refinement" for this epic; spacing changes only where a
-story names them, like the narrow layout's tightening.
+story names them, like the narrow layout's tightening and S2's 32px gap.
+
+**A 1800px main area** *(human, amendment 2026-10-27)*. The masthead spans
+the window at any width. Everything below it (`app-main`'s content) is at
+most 1800px wide and centered. Today nothing caps it.
+
+**32px between the grid and the hints, columns that fill** *(human,
+amendment 2026-10-27)*. In the builder's build and hints phases and in
+play, the gap between the grid and the hints is 32px, down from 72px in
+the builder and 66px in play. The hint columns lose their max widths
+(`max-w-[350px]` in `HintsPanel` and `HintSkeleton`, `max-w-[270px]` in
+`PlayerHints`) and share the room left beside the grid, which the 1800px
+main area bounds. The thresholds above were judged with the old gaps; S2
+settles their exact values.
 
 **Thresholds are set by content, not by device** *(proposed)*. The
 breakpoints are the widths the human gave, measured on the editor's and
@@ -164,9 +191,10 @@ with the same arrows and order. It shows the hint of the word at the
 cursor in the cursor's direction. The hint text is centered, with no
 number or direction ("14A") *(human, 2026-10-27)*.
 
-**Play, wide is unchanged** *(human)*. With room for the hints beside the
-grid (about 1290px and up), play keeps 14-S7's layout: the Prominent Hint
-above the grid and the Player Hints to its right.
+**Play, wide keeps its arrangement** *(human)*. With room for the hints
+beside the grid (about 1290px and up), play keeps 14-S7's layout: the
+Prominent Hint above the grid and the Player Hints to its right, with only
+the 32px gap and filling columns changed (amendment).
 
 **No new behavior in the engine.** Reading-order navigation, if it needs a
 helper, lives in `src/lib/` and takes the numbered slots it already has.
@@ -218,12 +246,15 @@ The builder's and play's grid fit 560px at most at every size. Retires the
 both grids' height terms. Its freeze commit moves the default test
 viewport to 1440px wide.
 
-### S2 — Builder, wide
+### S2 — Wide layout
 
-The grid holds 560px; only the hint skeleton's and Hint Inputs' columns
-shrink. Below about 1290px the Across and Down columns stack into one
-beside the grid. Covers the build phase's skeleton, the hints phase and
-Preview's legend.
+The main area capped at 1800px and centered under the full-width
+masthead. In the builder and play, the 32px gap between the grid and the
+hints and hint columns without max widths. In the builder, the grid holds
+560px and only the hint skeleton's and Hint Inputs' columns shrink; below
+about 1290px the Across and Down columns stack into one beside the grid.
+Covers the build phase's skeleton, the hints phase, Preview's legend and
+wide play.
 
 ### S3 — Builder, narrow
 
