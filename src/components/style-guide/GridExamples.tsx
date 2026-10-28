@@ -110,7 +110,7 @@ export function GridExamples() {
         <h2 className="mb-2 text-title-2 text-primary">
           Hint skeleton (build phase, wide screens)
         </h2>
-        <div className="flex">
+        <div className="flex max-w-[732px]">
           <HintSkeleton grid={grid} />
         </div>
       </section>
@@ -151,7 +151,7 @@ export function GridExamples() {
         <h2 className="mb-2 text-title-2 text-primary">
           Play: Prominent Hint, grid and Player Hints
         </h2>
-        <div className="flex flex-wrap items-start gap-x-[66px] gap-y-4">
+        <div className="flex flex-wrap items-start gap-x-[26px] gap-y-4">
           <div className="w-full max-w-sm space-y-4">
             <ProminentHint label={`${playSlot.number}D`} hint={playHints[playKey!]} />
             <PuzzleGrid grid={hintsGrid} mode="play" highlights={playHighlights} />

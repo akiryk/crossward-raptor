@@ -441,12 +441,12 @@ export function PuzzleGridEditor({
       </div>
       <div
         data-testid="editor-layout"
-        className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-[72px]"
+        className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8"
         onFocus={handleEditorFocus}
         onBlur={handleEditorBlur}
       >
         <div
-          className="max-w-full lg:max-w-[45%]"
+          className="max-w-full shrink-0"
           style={{ width: `${GRID_MAX_PX}px` }}
         >
           <div

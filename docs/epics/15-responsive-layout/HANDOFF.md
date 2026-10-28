@@ -14,31 +14,34 @@ for the carried items' original wording.
 [15-S1-560px-grid.md](stories/15-S1-560px-grid.md), frozen in `fef423e`.
 Only the human's visual check remains of its Definition of Done.
 
-**S2 (wide layout) is approved and frozen** *(human, 2026-10-28)*:
-[15-S2-wide-layout.md](stories/15-S2-wide-layout.md), frozen in the
-specification-only commit "Freeze epic 15 S2: wide layout" with
-`e2e/wide-layout.spec.ts` (20 cases), the six amended cases in
-`build-grid-design`, `hint-phase-design` and `play-design`, and the EPIC
-amendment. Its implementation is next, on `main`; the draft's throwaway
-is `/tmp/crossward-drafts/15-S2-throwaway.patch`.
+**S2 (wide layout) is implemented** on `main`:
+[15-S2-wide-layout.md](stories/15-S2-wide-layout.md), approved by the
+human and frozen in `ff07a76` (2026-10-28). Only the human's visual check
+remains of its Definition of Done (the builder's two phases, Preview and
+play at 2400, 1440, 1290 and 1100px).
+
+**S3 (builder, narrow) is next, not drafted.** Stories go one at a time
+*(human, 2026-10-28: the idea of drafting every story up front for one
+unattended run was dropped)*.
 
 The epic was approved 2026-10-27; its approval doesn't approve any story.
 
 ## Verification
 
-S2's draft, against the throwaway with the proposed spec and amendments:
-`npm run verify` exit 0 (47 files, 595 Vitest tests); the full
-`npm run test:e2e` exit 0, 683 of 683, using the standing reset grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). Against `main`'s
-runtime, 20 of the proposed cases fail as intended (story's
-Discrimination). Nothing has run on an S2 implementation.
+S2's implementation: `npm run verify` exit 0 (47 files, 595 Vitest
+tests); the full `npm run test:e2e` exit 0, 683 of 683, using the
+standing reset grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). The frozen
+acceptance is unchanged since `ff07a76`.
 
 ## Next action
 
-Implement S2 on `main` against its frozen acceptance; push after
-`npm run verify` and the full `npm run test:e2e` pass. The human's visual
-checks of S1 and S2 remain.
+The human's visual checks of S1 and S2. Draft S3 from the EPIC's S3
+entry: inspect the affected code, propose the narrow builder's exact
+values (spacing, threshold) with questions for the human, write the
+proposed acceptance and demonstrate its discrimination. Don't freeze or
+implement before the human approves the draft.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S2-wide-layout.md. Implement the frozen S2 on main without changing its acceptance; push after npm run verify and the full npm run test:e2e pass.
+Read docs/epics/15-responsive-layout/HANDOFF.md and the EPIC's S3 entry. Draft S3 (builder, narrow) with its proposed acceptance and questions for the human; don't freeze or implement before approval.

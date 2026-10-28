@@ -9,7 +9,10 @@ grid.
 
 **Status: approved and frozen** (2026-10-28). The human answered the
 four questions the same day, accepting each proposal, and approved the
-draft for freeze the same day *(human)*.
+draft for freeze the same day *(human)*; frozen in `ff07a76`.
+**Implemented** on `main` the same day: `npm run verify` exit 0 (595
+Vitest tests), full `npm run test:e2e` 683 of 683. Only the human's
+visual check remains of its Definition of Done.
 
 **Blast radius: small.** The root layout's `<main>`, the client
 components `PuzzleGridEditor`, `HintSkeleton`, `HintsPanel`, `PlayPuzzle`

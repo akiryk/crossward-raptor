@@ -34,7 +34,7 @@ export function PlayerHints({
           key={orientation}
           data-testid="play-clue-column"
           data-orientation={orientation}
-          className="min-w-0 max-w-[270px] flex-1"
+          className="min-w-0 flex-1"
         >
           <h2 className="px-[6px] pt-2 text-title-4 text-primary">{heading}</h2>
           <ol className="mt-[11px]">

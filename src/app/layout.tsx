@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en" className={`h-full ${inter.variable}`}>
       <body className="h-full flex flex-col text-primary font-body antialiased">
         <Header />
-        <main data-testid="app-main" className="flex-1">
+        <main data-testid="app-main" className="mx-auto w-full max-w-[1800px] flex-1">
           {children}
         </main>
       </body>

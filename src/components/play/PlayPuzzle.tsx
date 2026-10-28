@@ -322,7 +322,7 @@ export function PlayPuzzle({
         </div>
       )}
       <div
-        className="mt-[27px] grid grid-cols-1 gap-x-[66px] gap-y-4 lg:grid-cols-[var(--play-grid-width)_minmax(0,1fr)]"
+        className="mt-[27px] grid grid-cols-1 gap-x-[26px] gap-y-4 lg:grid-cols-[var(--play-grid-width)_minmax(0,1fr)]"
         style={{ ['--play-grid-width' as string]: gridWidth }}
       >
         <div className="w-full max-w-(--play-grid-width)">
