@@ -1,16 +1,17 @@
 # Epic: Polish
 
-**Draft, not approved (2026-10-27).** Drafted from the human's list of
-design and UX issues of 2026-10-27 and the NYT-style Rebus mockup. Their
+**Approved by the human 2026-10-27.** Drafted the same day from the
+human's list of design and UX issues and the NYT-style Rebus mockup. Their
 layout items (the 560px grid, the 1800px main area, the 32px gap and the
 filling hint columns) went into [epic 15](../15-responsive-layout/EPIC.md)
-instead, since it reworks the same containers. Nothing here is approved
-until the human approves the EPIC; each story is then drafted and approved
-on its own. Comes after epic 15. Its order against
-[epic 16](../16-puzzle-lifecycle/EPIC.md) is the human's to choose.
+instead, since it reworks the same containers; the human confirmed that
+amendment, including S2 becoming "Wide layout". Every pending question was
+answered before approval *(human)* and is recorded in Decisions; items
+still marked *proposed* are settled in their stories. Stories are drafted
+and approved one at a time. Comes after epics 15 and
+[16](../16-puzzle-lifecycle/EPIC.md), in that order *(human)*.
 
-Small builder and play fixes, plus rebus entry. More may be added before
-approval.
+Small builder and play fixes, plus rebus entry.
 
 ---
 
@@ -93,6 +94,11 @@ unchanged.
 **Prominent Hint text in `title-3`** *(human)*. Wide play's Prominent Hint.
 Epic 15's narrow play hint bar takes its own values in 15-S5.
 
+**Play has no Reset** *(human, 2026-10-27)*. "Puzzle options", its
+Reset dialog and the builder's quiet Reset button are removed, not hidden.
+A player starts over by deleting letters by hand. Epic 16's test-before-
+sharing step is now "publishes Unlisted and plays" (amended there).
+
 **Rebus entry by Escape** *(human)*. With a cell selected, Escape opens
 rebus entry for it, starting from the cell's current letters. Typing
 builds the entry; Escape or Enter closes it and places the whole string in
@@ -100,6 +106,9 @@ the cell, which the engine already supports. *Proposed:* only letters and
 digits, uppercase, as single-letter entry does; an empty entry clears the
 cell; the cursor then advances as after a single letter; the cell's text
 shrinks to fit.
+
+**Rebus can be typed wherever letters can** *(human, 2026-10-27)*: the
+build phase, the hints phase while letters are editable (14-S12) and play.
 
 **A Rebus button** *(human, mockup 2026-10-27)*. An outlined, pill-shaped
 "Rebus" button at the top of the hints column, right of the Prominent
@@ -122,7 +131,7 @@ hint bar; values from the human in the story).
 
 ## Stories
 
-Order as listed. Story files are `stories/17-S<n>-<slug>.md`. Each lists
+Order as listed. The epic starts after epics 15 and 16 *(human)*. Story files are `stories/17-S<n>-<slug>.md`. Each lists
 the frozen tests it supersedes.
 
 ### S1 — Missing hints
@@ -141,26 +150,18 @@ opens with nothing selected.
 
 Removes "Puzzle options", its Reset dialog, the builder's quiet Reset
 button and, if nothing else calls it, `resetPlaySession` (a risk path,
-`actions.ts`). Supersedes epic 11's reset tests. Depends on Pending
-question 1.
+`actions.ts`). Supersedes epic 11's reset tests.
 
 ### S4 — Rebus
 
-Escape and the Rebus button, in each place letters can be typed (Pending
-question 2): the entry state, its display in the cell, Enter or Escape to
+Escape and the Rebus button in the build phase, the hints phase and
+play: the entry state, its display in the cell, Enter or Escape to
 close, and the cell's text fitting its letters.
 
 ---
 
 ## Pending questions
 
-1. **Remove Reset entirely?** Reset only erases a player's own answers;
-   it isn't on the builder page and never touches the puzzle. Without it,
-   a player can't start over except by deleting letters by hand. Epic 16's
-   "publish Unlisted, play and reset" for testing would become "play".
-   *Proposed:* remove it as asked, and amend epic 16's sentence.
-2. **Where can a rebus be typed?** Play needs it to solve a rebus puzzle,
-   but a builder needs it first to put one in the grid. *Proposed:* the
-   build phase, the hints phase while letters are editable (14-S12) and
-   play.
-3. **Order against epic 16.** Both come after epic 15. Which goes first?
+None. The draft's three questions were answered 2026-10-27 *(human)* and
+are recorded in Decisions: Reset is removed entirely, rebus can be typed
+in the build phase, the hints phase and play, and the order is 15, 16, 17.

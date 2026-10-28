@@ -127,7 +127,8 @@ anonymous link access is a Non-goal.
 
 **No draft test-solve** *(proposed)*. Epic 11's "plays their own puzzle
 exactly as anyone else does" stands. To test before sharing, the builder
-publishes Unlisted, plays and resets. The outside proposal's L2 is dropped.
+publishes Unlisted and plays; epic 17 removes Reset from play *(human,
+2026-10-27)*. The outside proposal's L2 is dropped.
 
 **A duplicate is a new puzzle, not a revision** *(proposed)*. It gets a
 new ID, the caller as builder and `publishedAt: null`. It copies the
