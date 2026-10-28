@@ -79,7 +79,7 @@ const GRID_LINES: Record<string, string> = {
   play: 'bg-play-cell-border',
 };
 
-// cell-letter's size in a 35px cell (a 15×15 at its 526px maximum); a
+// cell-letter's size in a 35px cell (14-S5's 15×15 at 526px); a
 // letter keeps that ratio to its cell at every grid size and width (14-S5).
 const CELL_LETTER_PX = 16;
 const CELL_LETTER_PITCH_PX = 35;

@@ -42,14 +42,9 @@ import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 
 const SAVE_DEBOUNCE_MS = 500;
-// Space reserved above editor-layout for the title, phase line, and
-// editor-actions row (now including the stepper, Story D5b), so the
-// height-based term of the grid's min() sizing (Story D5a) doesn't push
-// its bottom edge past the viewport.
-const VERTICAL_ALLOWANCE_PX = 300;
-// Every grid size fits within this width at most (14-S5): a 15×15's 36px
-// cells, 1px lines shared, are 15 × 35 + 1.
-const GRID_MAX_PX = 526;
+// Every grid size fits within this width at most (15-S1), whatever the
+// window's height: a short window scrolls the page.
+const GRID_MAX_PX = 560;
 
 interface EditorState {
   grid: Grid;
@@ -200,7 +195,9 @@ export function PuzzleGridEditor({
     // when the grid can respond to input, so tests can wait for it rather
     // than racing hydration. In the hints phase nothing has focus on load
     // (14-S6, kept by 14-S12).
-    if (initialPhase === "grid") gridRegionRef.current?.focus();
+    // The focus doesn't scroll the page (15-S1): the grid can be taller
+    // than the window allows.
+    if (initialPhase === "grid") gridRegionRef.current?.focus({ preventScroll: true });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsReady(true);
   }, [initialPhase]);
@@ -370,7 +367,6 @@ export function PuzzleGridEditor({
   const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
-  const gridRatio = grid.cols / grid.rows;
 
   // No highlight at all once focus has moved somewhere that isn't the grid
   // or a hint input (a button, the title) -- otherwise the cursor cell
@@ -451,9 +447,7 @@ export function PuzzleGridEditor({
       >
         <div
           className="max-w-full lg:max-w-[45%]"
-          style={{
-            width: `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${gridRatio}), ${GRID_MAX_PX}px)`,
-          }}
+          style={{ width: `${GRID_MAX_PX}px` }}
         >
           <div
             ref={gridRegionRef}
@@ -480,10 +474,12 @@ export function PuzzleGridEditor({
         </div>
         {phase === "grid" && <HintSkeleton grid={grid} />}
         {phase === "hints" && (
+          // Beside the grid, the list scrolls in its own box at the grid's
+          // height (15-S1): size containment keeps its content from
+          // stretching the row, so the grid sets the row's height.
           <div
             data-testid="hints-region"
-            className="min-w-0 flex-1 overflow-y-auto"
-            style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
+            className="min-w-0 flex-1 overflow-y-auto lg:self-stretch lg:[contain:size]"
           >
             <HintsPanel
               grid={grid}

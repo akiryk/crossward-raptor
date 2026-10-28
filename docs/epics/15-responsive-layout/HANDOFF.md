@@ -10,28 +10,29 @@ for the carried items' original wording.
 
 ## Current state (2026-10-28)
 
-**S1 (560px grid) is frozen** on `main`:
-[15-S1-560px-grid.md](stories/15-S1-560px-grid.md). The human approved
-the draft on 2026-10-28, with the 900px viewport height and the hint
-lists at the grid's height. The freeze commit holds the story,
-`e2e/grid-size.spec.ts`, the amendments to `e2e/build-grid-design.spec.ts`,
-`e2e/play-design.spec.ts` and `e2e/editor-layout.spec.ts`,
-`playwright.config.ts`'s 1440×900 viewport and the EPIC amendment.
-Implementation is next, on `main` (no risk path).
+**S1 (560px grid) is implemented** on `main`:
+[15-S1-560px-grid.md](stories/15-S1-560px-grid.md). Frozen in `fef423e`
+after the human's approval (2026-10-28: the draft, the 900px viewport
+height, the hint lists at the grid's height). The implementation follows
+the draft's throwaway: both grids are a fixed 560px wide, the hint lists
+beside them take the grid's height, and the builder's load focus uses
+`preventScroll`. Only the human's visual check remains of its Definition
+of Done.
 
 The epic was approved 2026-10-27; its approval doesn't approve any story.
 
 ## Verification
 
-Drafting checks, on the draft plus the reverted throwaway
-(`/tmp/crossward-drafts/15-S1-throwaway.patch`): `npm run verify` exit 0
-and the full `npm run test:e2e` 663 of 663. Details in the story's
-Discrimination.
+On the implementation tree, frozen acceptance unchanged from `fef423e`:
+`npm run verify` exit 0 (47 files, 595 Vitest tests) and the full
+`npm run test:e2e` exit 0, 663 of 663, using the standing reset grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-Implement S1 on `main` against the frozen acceptance; `npm run verify`
-and the full `npm run test:e2e`, then the human's visual check.
+The human's visual check of S1: the builder (both phases) and play at
+1440px and on a short window, a Sunday's lists beside the grid. Then
+S2 (wide layout) needs drafting, when authorized.
 
 ## Resume prompt
 

@@ -21,10 +21,8 @@ import { PlayerHints } from './PlayerHints';
 import { PlayResetControls, PlayResetDialog } from './PlayReset';
 import { ProminentHint } from './ProminentHint';
 
-// The grid's width allows for the masthead, the title, the controls and the
-// Prominent Hint above it; at most 526px, as the build grid (14-S7).
-const VERTICAL_ALLOWANCE_PX = 370;
-const GRID_MAX_PX = 526;
+// At most 560px, as the build grid, whatever the window's height (15-S1).
+const GRID_MAX_PX = 560;
 
 export function PlayPuzzle({
   initialPuzzle,
@@ -149,7 +147,7 @@ export function PlayPuzzle({
     highlights.set(cellNumberKey(cursor.current), 'selected');
   }
   const selectedSlot = selectedKey ? lookup.get(selectedKey)! : null;
-  const gridWidth = `min(calc((100vh - ${VERTICAL_ALLOWANCE_PX}px) * ${grid.cols / grid.rows}), ${GRID_MAX_PX}px)`;
+  const gridWidth = `${GRID_MAX_PX}px`;
 
   function openReset() {
     // P3 feedback dialogs are modal; never stack the reset dialog with them.
@@ -347,10 +345,12 @@ export function PlayPuzzle({
         >
           <PuzzleGrid grid={grid} mode="play" highlights={highlights} onCellClick={handleCellClick} />
         </div>
+        {/* Beside the grid, the lists scroll in their own box at the grid's
+            height (15-S1): a zero height grown to the row's keeps them from
+            stretching it. */}
         <div
           data-testid="play-clues"
-          className="min-w-0 overflow-y-auto lg:col-start-2 lg:row-start-2"
-          style={{ maxHeight: `calc(100vh - ${VERTICAL_ALLOWANCE_PX}px)` }}
+          className="min-w-0 overflow-y-auto lg:col-start-2 lg:row-start-2 lg:h-0 lg:min-h-full"
         >
           <PlayerHints slots={slots} hints={view.hints} selectedKey={selectedKey} onSelect={handleHintClick} />
         </div>

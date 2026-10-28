@@ -5,8 +5,9 @@ The builder's and play's grids fit 560px at most at every size, up from
 window's height any more: a short window scrolls the page instead. The
 default test viewport moves to 1440×900.
 
-**Status: frozen** (2026-10-28). The human approved the draft, the
-900px viewport height and the lists at the grid's height on 2026-10-28.
+**Status: implemented** (2026-10-28), awaiting the human's visual check.
+Frozen in `fef423e`; the human approved the draft, the 900px viewport
+height and the lists at the grid's height on 2026-10-28.
 
 **Blast radius: small.** Client components `PuzzleGridEditor` and
 `PlayPuzzle`, a comment in `PuzzleGrid`, and the Playwright config. No
