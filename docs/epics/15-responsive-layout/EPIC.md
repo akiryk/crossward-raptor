@@ -162,7 +162,10 @@ the builder and 66px in play. The hint columns lose their max widths
 (`max-w-[350px]` in `HintsPanel` and `HintSkeleton`, `max-w-[270px]` in
 `PlayerHints`) and share the room left beside the grid, which the 1800px
 main area bounds. The thresholds above were judged with the old gaps; S2
-settles their exact values.
+settles their exact values. In play the 32px is to the numbers: each row
+keeps its 6px left padding, so the CSS gap is 26px *(human, S2,
+2026-10-28)*. The skeleton's lines and the Hint Inputs' underlines fill
+their columns (S2).
 
 **Thresholds are set by content, not by device** *(proposed)*. The
 breakpoints are the widths the human gave, measured on the editor's and
@@ -170,7 +173,9 @@ play's own layout container with CSS container queries (Tailwind v4's
 `@container`), since they depend on that container's room for a 560px grid
 plus hints, not on a device class. The style guide's samples can then
 show each layout at a fixed sample width. Each story settles its exact
-pixel values with the human.
+pixel values with the human. The builder's Across and Down become one
+column below 650px of room beside the grid (`@min-[650px]` on the hint
+area), a 1290px window *(human, S2, 2026-10-28)*.
 
 **Hint Box** *(human)*. Builder, narrow: one hint at a time, below the
 grid, in a box with a 1px border (a new color style on gray-700). Inside, a

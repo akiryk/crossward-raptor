@@ -248,7 +248,7 @@ test.describe('14-S5-6 hint skeleton', () => {
     }
   });
 
-  test('the dot, the gap and the line', async ({ page }) => {
+  test('the dot, the gap and the line, which fills its column', async ({ page }) => {
     await open(page, dailyGrid());
     const row = rows(page, 'across').first();
     const dot = row.getByTestId('hint-skeleton-dot');
@@ -262,10 +262,11 @@ test.describe('14-S5-6 hint skeleton', () => {
     expect(l.x - (d.x + d.width), 'gap').toBeCloseTo(12, 0);
     expect(l.height).toBeCloseTo(1, 0);
     expect(await bg(line)).toBe(LINE_MUTED);
-    expect(l.width, 'line at full size').toBeCloseTo(320, 0);
+    const across = await box(column(page, 'across'));
+    expect(l.x + l.width, 'line to the column\'s right edge').toBeCloseTo(across.x + across.width, 0);
   });
 
-  test('rows 58px apart, 32px below the label; columns 32px apart; 72px right of the grid', async ({ page }) => {
+  test('rows 58px apart, 32px below the label; columns 32px apart; 32px right of the grid', async ({ page }) => {
     await open(page, dailyGrid());
     await cell(page, '1,1').click();
     await page.keyboard.press('f');
@@ -285,7 +286,7 @@ test.describe('14-S5-6 hint skeleton', () => {
 
     const g = await box(grid(page));
     const acrossDot = await box(rows(page, 'across').first().getByTestId('hint-skeleton-dot'));
-    expect(acrossDot.x - (g.x + g.width), 'from the grid').toBeCloseTo(72, 0);
+    expect(acrossDot.x - (g.x + g.width), 'from the grid').toBeCloseTo(32, 0);
   });
 
   test("the labels sit level with the grid's first row", async ({ page }) => {

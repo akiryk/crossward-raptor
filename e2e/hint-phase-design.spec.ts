@@ -261,7 +261,7 @@ test.describe("14-S6-5 the skeleton's frame", () => {
     }
   });
 
-  test('the line starts 30px into the column and is 320px; lines 58px apart, the first 45px below the label', async ({ page }) => {
+  test('the line starts 30px into the column and fills it; lines 58px apart, the first 45px below the label', async ({ page }) => {
     await open(page, cornersGrid());
     const across = await box(column(page, 'across'));
     const label = await box(heading(page, 'across'));
@@ -270,20 +270,20 @@ test.describe("14-S6-5 the skeleton's frame", () => {
     const second = await lineOf(inputs.nth(1));
 
     expect(first.x - across.x, 'the dot\'s 18px and the 12px gap').toBeCloseTo(30, 0);
-    expect(first.width, 'line at full size').toBeCloseTo(320, 0);
+    expect(first.right, 'line to the column\'s right edge').toBeCloseTo(across.x + across.width, 0);
     expect(first.y - (label.y + label.height), 'below the label').toBeCloseTo(45, 0);
     expect(second.y - first.y, 'line to line').toBeCloseTo(58, 0);
     expect(second.x, 'every line starts at the same x').toBeCloseTo(first.x, 0);
   });
 
-  test('columns 32px apart, 72px right of the grid; labels level with the first row', async ({ page }) => {
+  test('columns 32px apart, 32px right of the grid; labels level with the first row', async ({ page }) => {
     await open(page, cornersGrid());
     const g = await box(grid(page));
     const across = await box(column(page, 'across'));
     const down = await box(column(page, 'down'));
     const acrossLine = await lineOf(column(page, 'across').getByTestId('hint-input').first());
 
-    expect(across.x - (g.x + g.width), 'from the grid').toBeCloseTo(72, 0);
+    expect(across.x - (g.x + g.width), 'from the grid').toBeCloseTo(32, 0);
     expect(down.x - acrossLine.right, 'between columns').toBeCloseTo(32, 0);
 
     const firstCell = await box(cell(page, '0,0'));

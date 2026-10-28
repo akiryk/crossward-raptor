@@ -220,7 +220,7 @@ test.describe('14-S7-3 Player Hints', () => {
     await expect(hint(page, '1-across')).toHaveText(/^1\s*Feline$/);
   });
 
-  test('the frame: 72px from the grid, the hint 24px after the number, rows 32px apart, 17px below the label', async ({ page }) => {
+  test('the frame: 32px from the grid, the hint 24px after the number, rows 32px apart, 17px below the label', async ({ page }) => {
     await openPlay(page, { grid: dailyGrid(), phase: 'hints', hints: dailyHints() });
     const g = await box(grid(page));
     for (const orientation of ['across', 'down'] as const) {
@@ -235,19 +235,18 @@ test.describe('14-S7-3 Player Hints', () => {
       expect(await textLeft(heading(page, orientation)), `${orientation}: label with the numbers`).toBeCloseTo(first.x, 0);
     }
     const acrossNumber = await box(hint(page, '1-across').getByTestId('play-clue-number'));
-    expect(acrossNumber.x - (g.x + g.width), 'from the grid').toBeCloseTo(72, 0);
+    expect(acrossNumber.x - (g.x + g.width), 'from the grid').toBeCloseTo(32, 0);
     // Two-digit numbers keep the hint at the same x.
     const twoDigit = await box(hint(page, '16-across').getByTestId('play-clue-text'));
     const oneDigit = await box(hint(page, '1-across').getByTestId('play-clue-text'));
     expect(twoDigit.x, 'one hint x').toBeCloseTo(oneDigit.x, 0);
   });
 
-  test('columns up to 270px, 32px apart, labels level with the grid’s first row', async ({ page }) => {
+  test('equal columns, 32px apart, labels level with the grid’s first row', async ({ page }) => {
     await openPlay(page, { grid: dailyGrid(), phase: 'hints', hints: dailyHints() });
     const across = await box(column(page, 'across'));
     const down = await box(column(page, 'down'));
-    expect(across.width, 'Across width').toBeCloseTo(270, 0);
-    expect(down.width, 'Down width').toBeCloseTo(270, 0);
+    expect(down.width, 'Down as wide as Across').toBeCloseTo(across.width, 0);
     expect(down.x - (across.x + across.width), 'between the columns').toBeCloseTo(32, 0);
     const g = await box(grid(page));
     const firstCell = await box(cell(page, '0,0'));
