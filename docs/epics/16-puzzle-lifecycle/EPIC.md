@@ -1,12 +1,12 @@
 # Epic: Puzzle lifecycle
 
-**Draft, not approved (2026-10-27).** Rewritten from an outside proposal
-(`CROSSWARD-PUZZLE-LIFECYCLE-EPIC.md`, written without access to this repo)
-against the code and the approved Decisions of epics 11 and 14. The
-human answered the first draft's five questions the same day; they are
-recorded in Decisions. Nothing here is approved until the human approves
-the EPIC; each story is then drafted and approved on its own. Queued after
-epic 15 *(human)*.
+**Approved by the human 2026-10-27.** Rewritten the same day from an
+outside proposal (`CROSSWARD-PUZZLE-LIFECYCLE-EPIC.md`, written without
+access to this repo) against the code and the approved Decisions of epics
+11 and 14. Every pending question was answered before approval *(human)*
+and is recorded in Decisions; items still marked *proposed* are settled in
+their stories. Stories are drafted and approved one at a time. Queued
+after epic 15 *(human)*.
 
 Today a builder can publish a puzzle but can't do much with it afterwards.
 They can't change who sees it, remove it from the library, or fix a
@@ -108,12 +108,18 @@ private means unlisted, not owner-only".
 
 **What a player sees when the builder changes a puzzle mid-solve**
 *(human asked, 2026-10-27)*. If the builder makes it Unlisted, the player
-keeps their progress, their open page keeps working and the link still
-opens it; whether it stays in their Play view is Pending question 1. If
+keeps their progress, their open page keeps working, the link still
+opens it and it stays in their Play view (next Decision). If
 the builder deletes it, the player's progress is deleted with it (epic
 11). Their next save says the puzzle is no longer available. A reload or
 the link shows the "no longer available" page, and the puzzle leaves
 their Play view (S3).
+
+**A started unlisted puzzle stays in its player's Play view** *(human,
+2026-10-27)*. The Play view lists other builders' unlisted puzzles only to
+players who have a play session for them. A player who started or
+finished one keeps finding it, and a tester who opened the link finds it
+listed afterwards. Nobody else sees it listed.
 
 **Sign-in stays required** *(proposed)*. Unlisted means hidden from the
 Play view, not readable without an account. The outside proposal's
@@ -184,8 +190,9 @@ the frozen tests it supersedes.
 ### S1 — Unlisted
 
 `listPuzzles` stops returning other builders' unlisted (stored
-`'private'`) published puzzles. The Play view then shows your own puzzles
-in either visibility and other builders' public ones. Play by URL follows
+`'private'`) published puzzles, except those the caller has a play session
+for. The Play view then shows your own puzzles in either visibility, other
+builders' public ones and the unlisted ones you've played. Play by URL follows
 the link-access Decision. Existing private puzzles in the database become
 unlisted when this ships. "Private" reads "Unlisted" in the Publish dialog
 and the status labels. Supersedes 14-S2's "Play lists every published
@@ -223,11 +230,5 @@ sessions copied, and another user's puzzle refused.
 
 ## Pending questions
 
-1. **Does a puzzle a player has started stay in their Play view after it
-   becomes Unlisted?** Without that, a player who opened it from the list
-   and never kept the link can't find their in-progress or completed
-   solve again. *Proposed:* yes. The Play view lists other builders'
-   unlisted puzzles only to players who already have a play session for
-   them, which also lists it for testers once they've opened the link.
-   The alternative is that only the builder ever sees it listed, and
-   players need the link.
+None. The draft's questions and their follow-ups were answered 2026-10-27
+*(human)* and are recorded in Decisions.
