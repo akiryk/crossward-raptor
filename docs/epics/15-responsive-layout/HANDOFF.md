@@ -17,12 +17,12 @@ for the carried items' original wording.
 `36529ab`, implemented `dc2cb48`). The human's visual checks passed,
 S1 and S2 on 2026-10-28 and S3 on 2026-10-29 *(human)*.
 
-**S4 (the Hint Box) is drafted**, uncommitted, awaiting the human's
-answers to its five questions and approval:
+**S4 (the Hint Box) is drafted**, uncommitted:
 [15-S4-builder-hint-box.md](stories/15-S4-builder-hint-box.md). The
-mockups aren't in the repo, so the box's spacing, the arrows' glyph,
-what an arrow does with focus, locked and published behavior and the
-three new color style names are proposed. Its spec file
+human gave the box's mockup and colors 2026-10-29 (questions 1 and 2;
+the lengths are measured from it). Pending: questions 3–5 (what an arrow
+does with focus, locked and published, the focus underline and the
+style names) and approval. Its spec file
 (`e2e/hint-box.spec.ts`) and discrimination run come after the answers.
 It proposes retiring 15-S3-7 and amending 15-S3-1's 999px hints case,
 D5a-2's phone case and the two color-style lists.
