@@ -1,6 +1,7 @@
 # Epic: Responsive layout
 
-**Approved by the human 2026-10-27.** Drafted the same day from the
+**Closed 2026-10-29**: all six stories done; see the
+[handoff](HANDOFF.md). **Approved by the human 2026-10-27.** Drafted the same day from the
 human's details and two mockups; every pending question was answered
 before approval *(human)* and is recorded in Decisions. Stories are
 drafted and approved one at a time. Amended the same day, before any story
@@ -36,7 +37,8 @@ hints become one hint at a time under the grid.
 5. **Play, narrow** (below about 1290px): only the masthead's logo above
    the grid, the grid centered, and one hint at a time in a blue bar below
    it, with arrows.
-6. **Small screens** (below about 606px): only now does the grid shrink.
+6. **Small screens** (below 608px; *corrected at closeout from "about
+   606px"*, per S3 and S6): only now does the grid shrink.
    Cell letters scale with the cell, cell numbers keep a readable minimum,
    and nothing clips at 375px.
 
@@ -103,14 +105,16 @@ behavior (the arrows, which word the box shows) is named in its story.
 **Grid width 560px** *(human)*. Every grid size fits 560px at most,
 superseding 14-S5's 526px in the builder and 14-S7's in play. Letters keep
 their ratio to the cell (14-S5), so they grow with it; numbers stay
-`cell-number`. The hint lists beside a grid scroll in their own box at
+`cell-number` at full size and, since S6, shrink with small cells to an
+8px minimum. The hint lists beside a grid scroll in their own box at
 the grid's height *(human, 2026-10-28)*, and opening the builder doesn't
 scroll the page (S1).
 
 **The grid shrinks last** *(human)*. In the builder, as the window
 narrows, the order is: the hint columns shrink; the two columns become
 one (about 1290px); the hints move below a centered grid (about 1000px);
-only then (about 606px, the grid plus the page's 24px padding on each side)
+only then (608px, the grid plus the page's 24px padding on each side;
+*corrected at closeout from "about 606px"*)
 does the grid shrink. The grid's `max-w-[45%]` cap, which shrinks it from
 about 1290px today, goes.
 
@@ -127,7 +131,7 @@ scrolls.
 Below about 1290px, play's title and "Puzzle options" (and with it Reset)
 don't show; the masthead's logo, which links to `/puzzles`, is the way
 back. Other links or controls may be added later, outside this epic.
-*Proposed:* the save, error and warning messages still show when they
+*(Approved in S5:)* the save, error and warning messages still show when they
 occur, and the completion dialog is unchanged.
 
 **The default test viewport is 1440px wide** *(human, 2026-10-27)*. The
@@ -167,7 +171,8 @@ keeps its 6px left padding, so the CSS gap is 26px *(human, S2,
 2026-10-28)*. The skeleton's lines and the Hint Inputs' underlines fill
 their columns (S2).
 
-**Thresholds are set by content, not by device** *(proposed)*. The
+**Thresholds are set by content, not by device** *(approved in S2 and
+S3)*. The
 breakpoints are the widths the human gave, measured on the editor's and
 play's own layout container with CSS container queries (Tailwind v4's
 `@container`), since they depend on that container's room for a 560px grid
@@ -184,8 +189,8 @@ letter-spaced, `muted`), an input filled blue-medium (a new style) holding
 the hint, and a right arrow. The arrows step through the words in reading
 order: every Across word by number, then every Down word, and wrap at
 the ends (the last Down's right arrow goes to the first Across, and back)
-*(human, 2026-10-27)*. *Proposed:* an arrow selects its word in the grid
-and focuses the box's input.
+*(human, 2026-10-27)*. *(Approved in S4:)* an arrow selects its word in
+the grid and focuses the box's input.
 
 **A 4px rule above the box and the bar** *(human, 2026-10-27)*. In both
 narrow mockups, a 4px gray-700 line (a new color style) runs along the
@@ -223,6 +228,39 @@ Not this epic's: the Modal close button's missing transition,
 `applyGeometryEdit` with no app caller, and the builder-page-only "'Edit
 the Grid' appears nowhere" check stay open as epic 14 left them.
 
+### Open at closeout (2026-10-29)
+
+How the carried observations ended, and what was found or left open when
+the epic closed. None is assigned to a story.
+
+- **Resolved:** the 375px clipping (S5 and S6) and cell-letter and
+  cell-number scaling (S6).
+- **The Modal panel's clipping** stays open: the tallest dialog at
+  375×667 is 369px (S6), so nothing clips today.
+- **Still open from epic 14:** the Modal close button's missing
+  transition, `applyGeometryEdit` with no app caller, and the
+  builder-page-only "'Edit the Grid' appears nowhere" check.
+- **The library's dates overflow at 320px** (S6's Non-goal).
+- **A frozen test's name outlived its behavior:** `e2e/build-grid-design.spec.ts`'s
+  "letters shrink with the grid on a shorter screen" (1280×720) no longer
+  shrinks anything since S2 removed the 45% cap; 15-S6-2 now covers
+  shrinking. Renaming or retiring it needs the frozen-test correction
+  procedure.
+- **Tab helpers don't collect `textarea`:** `WrappingField` sets
+  `tabIndex={0}` only because `e2e/focus-ring.spec.ts`'s `tabTo` collects
+  `input` and `[tabindex]`; the helpers in `builder-controls.spec.ts` and
+  `puzzle-library.spec.ts` omit `textarea` too. Fixing them is a
+  frozen-test correction.
+- **`WrappingField` has no style guide sample.** S6 declared it as a scope
+  addition; whether it needs one is the human's call.
+- **Intermittent e2e failures, each passed on rerun once:** 14-S4-6's
+  hover timing (`builder-controls.spec.ts`, S6) and two `library-play`
+  cases (S2). No repetition count yet (LEARNINGS #2).
+- **Layout widths are literals:** 560 and the derived 650, 952 and 1242
+  repeat across `PuzzleGridEditor`, `PuzzleTitle`, `HintSkeleton`,
+  `HintsPanel` and `PlayPuzzle`; only the e2e geometry tests tie them
+  together.
+
 ## Non-goals
 
 - **No grid-engine change.** `src/engine/**` is untouched.
@@ -247,8 +285,9 @@ lists the frozen tests it supersedes.
 
 The builder's and play's grid fit 560px at most at every size. Retires the
 526px expectations in `e2e/build-grid-design.spec.ts` and
-`e2e/play-design.spec.ts`, and the 526/35px constants in
-`PuzzleGridEditor.tsx`, `PlayPuzzle.tsx` and `PuzzleGrid.tsx`. Removes
+`e2e/play-design.spec.ts`, and the 526px constants in
+`PuzzleGridEditor.tsx`, `PlayPuzzle.tsx` and `PuzzleGrid.tsx`'s comment
+(the 35px letter pitch stays: S1 keeps the 16/35 ratio). Removes
 both grids' height terms. Its freeze commit moves the default test
 viewport to 1440×900.
 
@@ -288,7 +327,7 @@ the play hint bar's style guide sample.
 
 ### S6 — Small screens
 
-Below about 606px the grid shrinks to fit; letters scale with the cell and
+Below 608px the grid shrinks to fit; letters scale with the cell and
 numbers keep a readable minimum. Fixes the 375px clipping (the editor's title;
 narrow play no longer shows "Puzzle options") and any dialog taller than a 375×667 viewport.
 *(Human, 2026-10-29, S6's questions:)* nothing is cut off with an ellipsis:
@@ -300,6 +339,6 @@ and long hints wrap in the Hint Box and the wide Hint Inputs.
 ## Pending questions
 
 None. The first draft's ten questions were answered 2026-10-27 *(human)*
-and are recorded in Decisions. One detail stays *proposed* for its
-story: an arrow focusing the Hint Box's input (S4). The test viewport's
-900px height was approved with S1 (2026-10-28).
+and are recorded in Decisions; the details left *proposed* were approved
+in their stories. The test viewport's 900px height was approved with S1
+(2026-10-28).

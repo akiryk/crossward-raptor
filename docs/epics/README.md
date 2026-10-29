@@ -9,14 +9,14 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, approved
-  2026-10-27; S1 to draft)
 - [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, approved
-  2026-10-27; after epic 15)
+  2026-10-27; S1 to draft)
 - [Polish](17-polish/HANDOFF.md) (epic 17, approved 2026-10-27; after
   epic 16)
+- [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, closed
+  2026-10-29; open items listed there)
 - [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, closed
-  2026-10-27; open items carried to epic 15 listed there)
+  2026-10-27; its open items went to epic 15, which lists what remains)
 - [Design system](13-design-system/HANDOFF.md) (closed 2026-10-24; first of
   the redesign epics, outlined there)
 - [Play](11-play/HANDOFF.md) (closed 2026-10-20; open follow-ups listed there)

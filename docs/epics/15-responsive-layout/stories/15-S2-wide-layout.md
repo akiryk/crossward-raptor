@@ -7,7 +7,7 @@ holds 560px down to the `lg` breakpoint; with less room beside it (a
 window under 1290px) the two columns stack into one, still beside the
 grid.
 
-**Status: approved and frozen** (2026-10-28). The human answered the
+**Status: done** (2026-10-28). Approved and frozen. The human answered the
 four questions the same day, accepting each proposal, and approved the
 draft for freeze the same day *(human)*; frozen in `ff07a76`.
 **Implemented** on `main` the same day: `npm run verify` exit 0 (595

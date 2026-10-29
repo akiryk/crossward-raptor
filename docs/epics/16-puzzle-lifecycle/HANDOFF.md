@@ -12,7 +12,7 @@
 not in the repo) after checking it against the code. The EPIC's "What the
 code does today" records what that check found. Every pending question was
 answered before approval (recorded in Decisions). No story is drafted.
-Queued after epic 15 *(human)*, which is in progress, and before epic 17
+Queued after epic 15 *(human)*, closed 2026-10-29, and before epic 17
 (Polish) *(human, 2026-10-27)*.
 
 ## Verification
@@ -21,7 +21,7 @@ Documentation only; no checks run.
 
 ## Next action
 
-Once epic 15 is done, draft S1 (Unlisted) per its EPIC section, with
+Draft S1 (Unlisted) per its EPIC section, with
 proposed acceptance, on `main`, for the human's approval. The epic's
 approval doesn't approve any story.
 

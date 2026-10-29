@@ -6,7 +6,7 @@ toggle 20px after them, and tighter spacing. Below the grid, only Preview's
 legend in the build phase and the hints in the hints phase. From 1000px
 up, S2's wide layout holds.
 
-**Status: approved and frozen** (2026-10-29). The human answered the
+**Status: done** (2026-10-29). Approved and frozen. The human answered the
 four questions, changing question 2 to the toggle 20px after the buttons,
 and approved the draft *(human)*; frozen in `36529ab`. **Implemented** on
 `main` the same day: `npm run verify` exit 0 (595 Vitest tests), the
@@ -128,7 +128,7 @@ The one frozen case the throwaway first broke, 14-S5-7's style guide
 skeleton sample, was the throwaway's bug (the skeleton showed only inside
 the editor's container), fixed in it, not a superseded test.
 
-## Acceptance (proposed)
+## Acceptance
 
 `e2e/narrow-builder.spec.ts` (new), 20 cases:
 
@@ -150,7 +150,8 @@ the editor's container), fixed in it, not a superseded test.
 - **15-S3-6 below the grid, the build phase (1):** at 768px no skeleton;
   with Preview on, the legend under the grid from its left within its
   width, and still no skeleton.
-- **15-S3-7 below the grid, the hints phase (1):** at 768px the hint
+- **15-S3-7 below the grid, the hints phase (1)** *(retired by S4's
+  freeze, `cda1f8d`)*: at 768px the hint
   list 24px under the grid, from its left, at its width, not scrolling in
   its own box.
 - **15-S3-8 the published state (1):** at 768px "Published" from the
@@ -189,6 +190,8 @@ and the full suite.
   runs never started tests: the machine was out of memory (15.9 of
   17.4 GB swap in use) and the harness's production build took about 8
   minutes, past its 180s web-server wait. To rerun before freeze.
+  *(Superseded: the implementation's full run passed 703 of 703; see
+  the status line.)*
 
 ## Repo paths
 

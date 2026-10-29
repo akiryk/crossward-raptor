@@ -8,7 +8,7 @@ the Hint Box shows its whole word and hint (stacking them when they
 don't fit side by side), the wide Hint Inputs wrap a long hint, and the
 builder's wrapped controls get a gap between rows.
 
-**Status: approved and frozen** (2026-10-29) *(human: "I approve of S6
+**Status: done** (2026-10-29). Approved and frozen *(human: "I approve of S6
 and I accept the decisions as made by the previous session's agent")*,
 including the *(proposed)* 4px stacked-hint gap. The acceptance below is
 frozen (`3132b12`). **Implemented** 2026-10-29 on `main` (`644417f`).
@@ -153,7 +153,8 @@ and 21×21, builder and play, 2026-10-29):
   hint bar (S5 covered it to 375px) and Player Hints; the dialogs; the
   Modal (its clipping stays open, no dialog is that tall); keyboard
   entry in the grid; the engine (`src/engine/**`).
-- No style guide change: no new component. The Hint Box sample shows a
+- No style guide change: no new visible component (the shared
+  `WrappingField` is a text field's internals, noted above). The Hint Box sample shows a
   short hint, as before.
 
 ## Non-goals
@@ -195,7 +196,7 @@ value and computed style, which a multi-line field also has.
 
 ## Acceptance
 
-`e2e/small-screens.spec.ts` (new), 36 cases:
+`e2e/small-screens.spec.ts` (new), 35 cases:
 
 - **15-S6-1 the grid shrinks last (7):** at 608px both grids 560px; at
   607, 414 and 375px the builder's (hints phase) and play's grids are the
@@ -233,7 +234,8 @@ the underline under a wrapped title's last line; the visual check covers
 them.
 
 **Discrimination** (2026-10-29, before implementation): 13 failed, 23
-passed. The failures: every number case below full size (10px today);
+passed (36 results for 35 cases: the run likely counted the `setup`
+project's sign-in, closeout audit 2026-10-29). The failures: every number case below full size (10px today);
 both long-title cases (one line); both stacked-word Hint Box cases (up to
 88px of overflow) and the long-hint box (hint scrolled); the long Hint
 Input (scrolled); both wrapped-row cases (0px); and the 21×21

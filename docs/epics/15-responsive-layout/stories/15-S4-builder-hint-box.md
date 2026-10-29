@@ -7,7 +7,7 @@ through the words in reading order. The box follows the grid's cursor,
 and an arrow selects its word in the grid. From 1000px up, S2's hint
 columns hold.
 
-**Status: approved** (2026-10-29) *(human: "I approve S4")*. The human
+**Status: done** (2026-10-29). Approved *(human: "I approve S4")*. The human
 supplied the Hint Box's mockup and colors (questions 1 and 2) and approved
 the proposals for questions 3–5 as drafted. The spec file and unit test
 are written and discriminate (below); frozen in `cda1f8d`, corrected in

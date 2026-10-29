@@ -3,51 +3,60 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md).
+2. The [EPIC](EPIC.md)'s [Open at closeout](EPIC.md#open-at-closeout-2026-10-29),
+   for what's left for later work.
 
-**Only if needed:** epic 14's [Open at closeout](../14-screen-redesign/EPIC.md#open-at-closeout-2026-10-27)
-for the carried items' original wording.
+**Only if needed:** the [stories](stories/) for a layout's settled
+details; [HISTORY](HISTORY.md) for the closeout audit and the per-story
+verification in the pre-closeout handoff. Don't load HISTORY for routine
+startup.
 
 ## Current state (2026-10-29)
 
-**S1–S5 are done** on `main`:
-[15-S1-560px-grid.md](stories/15-S1-560px-grid.md) (frozen `fef423e`),
-[15-S2-wide-layout.md](stories/15-S2-wide-layout.md) (frozen `ff07a76`),
-[15-S3-builder-narrow.md](stories/15-S3-builder-narrow.md) (frozen
-`36529ab`, implemented `dc2cb48`),
-[15-S4-builder-hint-box.md](stories/15-S4-builder-hint-box.md) (frozen
-`cda1f8d`, corrected `6ea7f24`, implemented `a72c476`),
-[15-S5-play-narrow.md](stories/15-S5-play-narrow.md) (frozen `6f91950`,
-implemented `e45504d`). The human's visual checks passed, S1 and S2 on
-2026-10-28, S3–S5 on 2026-10-29 *(human)*.
+**The Responsive layout epic is closed.** All six stories are done on
+`main`, each with a passed visual check *(human)*, delivered directly
+(no risk path). Each story's status line names its freeze and
+implementation commits.
 
-**S6 (small screens) is done** on `main`:
-[15-S6-small-screens.md](stories/15-S6-small-screens.md) (approved
-*(human, 2026-10-29)*, frozen `3132b12`, implemented `644417f`). The
-human's visual check passed 2026-10-29 *(human)*.
+The independent, report-only closeout audit ran on `main` at `49c1efb`,
+by a fresh agent that authored none of the work. It found no blockers.
+This session recorded it and applied the dispositions in one commit
+([record and dispositions](HISTORY.md#closeout-audit-2026-10-29)):
 
-Every story meets its Definition of Done. Epic closeout is authorized
-*(human, 2026-10-29)* and needs the independent, report-only audit per
-the [epic index](../README.md#close-an-epic).
-
-Stories go one at a time *(human, 2026-10-28)*. The epic was approved
-2026-10-27; its approval doesn't approve any story.
+- Doc corrections: S6's case count (35), the EPIC's 608px threshold and
+  S1 wording, approved details no longer marked proposed, the cell-number
+  floor, S3's stale acceptance heading and run note, and every story's
+  status line opening "done".
+- `HintArrow`'s unused `className` prop is removed (the only runtime
+  change).
+- Open items went to the EPIC's Open at closeout: the Modal clipping, epic
+  14's three leftovers, the 320px library overflow, a stale frozen test
+  name, the tab helpers omitting `textarea`, a possible `WrappingField`
+  style guide sample, intermittent e2e failures, and repeated layout
+  literals.
+- The epic index lists the epic as closed.
 
 ## Verification
 
-On S6's implementation tree (2026-10-29): `npm run verify` exit 0
-(600 unit tests); full `npm run test:e2e` 776 passed, exit 0, including
-the 36 frozen S6 cases. An earlier full run had one hover-timing failure
-in `builder-controls.spec.ts` 14-S4-6 that passed on rerun and in the
-final run. `e2e/` is unchanged since the freeze. The guarded reset used the standing
-grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
+This session's runs, on the closeout tree:
+
+- `npm run verify`: exit 0 (48 files, 600 Vitest tests; the one
+  pre-existing lint warning in `request-logger/render.ts`).
+- `npm run test:e2e` (standing reset grant in
+  [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)): not one clean
+  full run. Three runs on a machine about 9 GB into swap: 767 passed / 9
+  failed, then (a rerun of four specs without the reset) 80 / 5 with
+  `ECONNRESET` from the server, then 772 / 4 (timeouts and visibility
+  waits). Each run failed a different set; no case failed twice, and the
+  last run's four failing specs then passed 58 of 58. The first run
+  overlapped a running dev server. Treated as load flakiness, not a
+  regression; the only runtime change removes an unused prop.
 
 ## Next action
 
-Epic closeout: a fresh agent that authored none of the work audits the
-epic (report-only); a non-auditing session records the result and its
-dispositions here.
+None in this epic. Epic 16 (puzzle lifecycle) is next: drafting its S1
+for the human's approval.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S6-small-screens.md. Close out epic 15 per docs/epics/README.md#close-an-epic once the human's S6 visual check has passed, on main.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/EPIC.md. Draft S1's specification (EPIC.md's "S1 — Unlisted") with proposed acceptance on main, for the human's approval; don't freeze or implement it.

@@ -7,7 +7,7 @@ the word at the cursor, centered in a blue-medium bar with a 4px rule
 along its top and arrows to the previous and next word. From 1290px up,
 play is as in S2.
 
-**Status: approved** (2026-10-29) *(human: "I approve S5")*. The
+**Status: done** (2026-10-29). Approved *(human: "I approve S5")*. The
 narrow-play mockup isn't in the repo, so the bar's measurements, what
 shows above the grid, the spacing, the style's name and the arrows were
 proposed; the human accepted all five proposals, the bar emptying when

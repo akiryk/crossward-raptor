@@ -23,12 +23,10 @@ function ArrowLine({ direction }: { direction: 'previous' | 'next' }) {
 export function HintArrow({
   direction,
   disabled,
-  className = '',
   onClick,
 }: {
   direction: 'previous' | 'next';
   disabled?: boolean;
-  className?: string;
   onClick: () => void;
 }) {
   return (
@@ -36,7 +34,7 @@ export function HintArrow({
       type="button"
       aria-label={direction === 'previous' ? 'Previous word' : 'Next word'}
       disabled={disabled}
-      className={`flex size-6 shrink-0 cursor-pointer items-center justify-center text-primary disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className="flex size-6 shrink-0 cursor-pointer items-center justify-center text-primary disabled:cursor-not-allowed disabled:opacity-50"
       onClick={onClick}
     >
       <ArrowLine direction={direction} />
