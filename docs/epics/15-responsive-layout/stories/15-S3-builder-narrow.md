@@ -11,7 +11,8 @@ four questions, changing question 2 to the toggle 20px after the buttons,
 and approved the draft *(human)*; frozen in `36529ab`. **Implemented** on
 `main` the same day: `npm run verify` exit 0 (595 Vitest tests), the
 spec 20 of 20, full `npm run test:e2e` 703 of 703, no frozen case
-retired or amended. Awaiting the human's visual check.
+retired or amended. The human's visual check passed 2026-10-29
+*(human)*: **done**.
 
 **Blast radius: small.** The client components `PuzzleGridEditor`,
 `HintSkeleton` and `PuzzleTitle`. No server, schema, engine, token or
