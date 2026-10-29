@@ -10,8 +10,10 @@ columns hold.
 **Status: approved** (2026-10-29) *(human: "I approve S4")*. The human
 supplied the Hint Box's mockup and colors (questions 1 and 2) and approved
 the proposals for questions 3–5 as drafted. The spec file and unit test
-are written and discriminate (below); frozen in the commit that adds
-them.
+are written and discriminate (below); frozen in `cda1f8d`, corrected in
+`6ea7f24`. **Implemented** on `main` in `a72c476`: `npm run verify` exit
+0 (600 Vitest tests), full `npm run test:e2e` 720 passed. The human's
+visual check passed 2026-10-29 *(human)*: **done**.
 
 **Blast radius: small.** The client components `PuzzleGridEditor` and a
 new `HintBox`, a reading-order helper in `src/lib/`, three color styles
