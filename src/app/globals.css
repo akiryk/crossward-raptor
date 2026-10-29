@@ -55,6 +55,10 @@
   --color-hint-cell-cursor: var(--palette-yellow-bright);
   --color-hint-cell-cursor-word: var(--palette-yellow-medium);
   --color-hint-cell-locked-on: var(--palette-gray-200);
+  /* the Hint Box (Story 15-S4) */
+  --color-hint-rule: var(--palette-gray-700);
+  --color-hint-box-border: var(--palette-gray-700);
+  --color-hint-box-input: var(--palette-blue-medium);
 
   /* text */
   --color-primary: var(--palette-black);

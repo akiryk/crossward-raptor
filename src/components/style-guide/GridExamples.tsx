@@ -8,6 +8,8 @@ import { PuzzleGrid } from '../grid/PuzzleGrid';
 import { HintSkeleton } from '../grid/HintSkeleton';
 import { PreviewLegend } from '../grid/PreviewLegend';
 import { HintsPanel } from '../grid/HintsPanel';
+import { HintBox } from '../grid/HintBox';
+import { adjacentHintKey } from '../../lib/hint-order';
 import { slotsWithNumbers } from '../../engine/numbering';
 import { PlayerHints } from '../play/PlayerHints';
 import { ProminentHint } from '../play/ProminentHint';
@@ -180,6 +182,30 @@ export function HintInputExample() {
         activeKey={null}
         onHintChange={(key, text) => setHints((prev) => ({ ...prev, [key]: text }))}
         onHintFocus={() => {}}
+      />
+    </div>
+  );
+}
+
+/** The Hint Box on the sample's 2 Across, its arrows stepping through the
+ *  sample's words (15-S4). */
+export function HintBoxExample() {
+  const hintsGrid = convertEmptyCellsToBlack(buildSampleGrid());
+  const slots = buildSlotLookup(hintsGrid);
+  const [key, setKey] = useState('2-across');
+  const [hints, setHints] = useState<Record<string, string>>({ '2-across': 'Network of squares' });
+  const slot = slots.get(key);
+  if (!slot) return null;
+
+  return (
+    <div className="max-w-[560px]">
+      <HintBox
+        grid={hintsGrid}
+        slot={slot}
+        hint={hints[key] ?? ''}
+        onHintChange={(text) => setHints((prev) => ({ ...prev, [key]: text }))}
+        onHintFocus={() => {}}
+        onStep={(step) => setKey((prev) => adjacentHintKey(slots, prev, step) ?? prev)}
       />
     </div>
   );

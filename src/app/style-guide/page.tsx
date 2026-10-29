@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ColorSwatches } from '@/components/style-guide/ColorSwatches';
-import { GridExamples, HintInputExample } from '@/components/style-guide/GridExamples';
+import { GridExamples, HintBoxExample, HintInputExample } from '@/components/style-guide/GridExamples';
 import { TextStyles } from '@/components/style-guide/TextStyles';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -301,6 +301,13 @@ export default function StyleGuidePage() {
             Hint Input (hints phase)
           </h2>
           <HintInputExample />
+        </section>
+
+        <section data-testid="sg-hint-box" className="space-y-2">
+          <h2 className="text-title-2 text-primary">
+            Hint Box (hints phase, narrow)
+          </h2>
+          <HintBoxExample />
         </section>
 
 

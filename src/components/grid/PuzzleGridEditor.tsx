@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
@@ -20,6 +21,7 @@ import {
 } from "../../lib/puzzle-storage";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey } from "../../lib/hint-lookup";
+import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
 import { publishReadiness } from "../../lib/publish-readiness";
 import {
@@ -32,6 +34,7 @@ import {
 import type { Visibility } from "../../app/puzzles/actions";
 import { PuzzleGrid } from "./PuzzleGrid";
 import { HintsPanel } from "./HintsPanel";
+import { HintBox } from "./HintBox";
 import { HintSkeleton } from "./HintSkeleton";
 import { PreviewLegend } from "./PreviewLegend";
 import { PreviewToggle } from "./PreviewToggle";
@@ -137,6 +140,10 @@ export function PuzzleGridEditor({
   // hint's blue, and fills the cursor word's hint (14-S12).
   const [isGridFocused, setIsGridFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
+  // The Hint Box's word (15-S4): the cursor's, or the one it last showed
+  // while the cursor's cell has no word in its direction.
+  const [boxKey, setBoxKey] = useState<string | null>(null);
+  const boxInputRef = useRef<HTMLInputElement>(null);
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
   const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
@@ -367,6 +374,19 @@ export function PuzzleGridEditor({
   const isPublished = publishedAt !== null;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
+  if (activeKey !== null && activeKey !== boxKey) setBoxKey(activeKey);
+  const shownKey = activeKey ?? boxKey ?? hintOrder(slotLookup)[0] ?? null;
+  const shownSlot = shownKey === null ? undefined : slotLookup.get(shownKey);
+
+  // An arrow selects its word: the cursor moves there first, so the box's
+  // input is already that word's when it takes focus (15-S4). Published,
+  // the input is disabled and focus stays on the arrow.
+  function handleBoxStep(step: 1 | -1) {
+    const key = shownKey === null ? null : adjacentHintKey(slotLookup, shownKey, step);
+    if (key === null) return;
+    flushSync(() => handleHintFocus(key));
+    boxInputRef.current?.focus();
+  }
 
   // No highlight at all once focus has moved somewhere that isn't the grid
   // or a hint input (a button, the title) -- otherwise the cursor cell
@@ -485,15 +505,32 @@ export function PuzzleGridEditor({
               />
             </div>
             {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
+            {/* Below 952px of room the Hint Box takes the list's place,
+                directly under the grid (15-S4). */}
+            {phase === "hints" && shownKey !== null && shownSlot && (
+              <div className="@min-[952px]/editor:hidden">
+                <HintBox
+                  grid={grid}
+                  slot={shownSlot}
+                  hint={hints[shownKey] ?? ""}
+                  disabled={isPublished}
+                  inputRef={boxInputRef}
+                  onHintChange={(text) => handleHintChange(shownKey, text)}
+                  onHintFocus={() => handleHintFocus(shownKey)}
+                  onStep={handleBoxStep}
+                />
+              </div>
+            )}
           </div>
           {phase === "grid" && <HintSkeleton grid={grid} />}
           {phase === "hints" && (
             // Beside the grid, the list scrolls in its own box at the grid's
             // height (15-S1): size containment keeps its content from
-            // stretching the row, so the grid sets the row's height.
+            // stretching the row, so the grid sets the row's height. Narrow,
+            // the Hint Box shows instead (15-S4).
             <div
               data-testid="hints-region"
-              className="min-w-0 flex-1 overflow-y-auto @min-[952px]/editor:self-stretch @min-[952px]/editor:[contain:size]"
+              className="hidden min-w-0 flex-1 overflow-y-auto @min-[952px]/editor:block @min-[952px]/editor:self-stretch @min-[952px]/editor:[contain:size]"
             >
               <HintsPanel
                 grid={grid}
