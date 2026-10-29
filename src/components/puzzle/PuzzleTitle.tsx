@@ -19,8 +19,9 @@ export function PuzzleTitle({
       // underline on hover (`line-muted`) and while focused (`primary`).
       // The underline is always present but transparent, so it never
       // moves the buttons 32px below. `block`, because an inline-block
-      // input's margin doesn't collapse with its neighbours'.
-      className="mb-8 block w-full border-0 border-b border-transparent bg-transparent p-0 text-title-1 text-primary outline-none hover:border-line-muted focus:border-primary disabled:cursor-default disabled:hover:border-transparent"
+      // input's margin doesn't collapse with its neighbours'. Narrow,
+      // `title-3`, 16px above the buttons (15-S3).
+      className="mb-4 block w-full border-0 border-b border-transparent bg-transparent p-0 text-title-3 text-primary @min-[952px]/editor:mb-8 @min-[952px]/editor:text-title-1 outline-none hover:border-line-muted focus:border-primary disabled:cursor-default disabled:hover:border-transparent"
     />
   );
 }

@@ -13,7 +13,7 @@ export function HintSkeleton({ grid }: { grid: Grid }) {
   const slots = slotsWithNumbers(convertEmptyCellsToBlack(grid));
 
   return (
-    <div data-testid="hint-skeleton" aria-hidden="true" className="@container hidden min-w-0 flex-1 lg:block">
+    <div data-testid="hint-skeleton" aria-hidden="true" className="@container min-w-0 flex-1 @max-[952px]/editor:hidden">
       {/* One column below 650px of room beside the grid, a 1290px window (15-S2). */}
       <div className="flex flex-col gap-8 @min-[650px]:flex-row">
         {COLUMNS.map(({ orientation, heading }) => (

@@ -6,8 +6,12 @@ toggle 20px after them, and tighter spacing. Below the grid, only Preview's
 legend in the build phase and the hints in the hints phase. From 1000px
 up, S2's wide layout holds.
 
-**Status: approved** by the human 2026-10-29 with their answers to the
-four questions (below), which this revision applies. Frozen on `main`.
+**Status: approved and frozen** (2026-10-29). The human answered the
+four questions, changing question 2 to the toggle 20px after the buttons,
+and approved the draft *(human)*; frozen in `36529ab`. **Implemented** on
+`main` the same day: `npm run verify` exit 0 (595 Vitest tests), the
+spec 20 of 20, full `npm run test:e2e` 703 of 703, no frozen case
+retired or amended. Awaiting the human's visual check.
 
 **Blast radius: small.** The client components `PuzzleGridEditor`,
 `HintSkeleton` and `PuzzleTitle`. No server, schema, engine, token or
@@ -118,7 +122,7 @@ not the epic's "about 606px", before it shrinks.
 
 ## Retired and amended acceptance
 
-None expected; to be confirmed by the full run at implementation.
+None: the full run at implementation passed 703 of 703.
 The one frozen case the throwaway first broke, 14-S5-7's style guide
 skeleton sample, was the throwaway's bug (the skeleton showed only inside
 the editor's container), fixed in it, not a superseded test.

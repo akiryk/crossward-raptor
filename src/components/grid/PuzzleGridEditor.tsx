@@ -396,103 +396,118 @@ export function PuzzleGridEditor({
   }
 
   return (
-    <div data-testid="puzzle-editor" data-ready={isReady} className=" m-auto">
-      <PuzzleTitle
-        value={title}
-        onChange={handleTitleChange}
-        disabled={isPublished}
-      />
-      {isPublished ? (
-        <PublishedState puzzleId={puzzleId} />
-      ) : (
-        <BuilderSteps phase={phase} onStep={handleStep} />
-      )}
-      <EnterHintsDialog
-        open={isEnterHintsDialogOpen}
-        onConfirm={handleConfirmEnterHints}
-        onCancel={handleCancelEnterHints}
-      />
-      <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
-      {isPublishDialogOpen && (
-        <PublishDialog
-          findings={publishReadiness({ grid, hints, phase })}
-          onPublish={handlePublish}
-          onCancel={() => setIsPublishDialogOpen(false)}
+    // Below 952px of room, a 1000px window, the builder is one column at
+    // the grid's width, centered, the toggle beside the buttons (15-S3).
+    <div
+      data-testid="puzzle-editor"
+      data-ready={isReady}
+      className="@container/editor m-auto"
+    >
+      <div className="mx-auto max-w-[560px] @min-[952px]/editor:max-w-none">
+        <PuzzleTitle
+          value={title}
+          onChange={handleTitleChange}
+          disabled={isPublished}
         />
-      )}
-      {/* The toggle row: Preview in the build phase, Lock Grid Letters in
-          the hints phase (14-S12). It stays, empty, once published, so the
-          grid doesn't move (14-S4). */}
-      <div className="mt-[27px] mb-3 flex h-6 items-center">
-        {phase === "grid" && (
-          <PreviewToggle
-            isPreviewing={isPreviewing}
-            onToggle={() => setIsPreviewing((prev) => !prev)}
+        <div className="mb-4 flex flex-wrap items-center gap-x-5 @min-[952px]/editor:mb-0 @min-[952px]/editor:block">
+          {isPublished ? (
+            <PublishedState puzzleId={puzzleId} />
+          ) : (
+            <BuilderSteps phase={phase} onStep={handleStep} />
+          )}
+          {/* The toggle row: Preview in the build phase, Lock Grid Letters in
+              the hints phase (14-S12). It stays, empty, once published, so the
+              grid doesn't move (14-S4); narrow, it's beside the buttons and a
+              published puzzle has none (15-S3). */}
+          <div
+            className={`h-6 items-center @min-[952px]/editor:mt-[27px] @min-[952px]/editor:mb-3 @min-[952px]/editor:flex ${
+              isPublished ? "hidden" : "flex"
+            }`}
+          >
+            {phase === "grid" && (
+              <PreviewToggle
+                isPreviewing={isPreviewing}
+                onToggle={() => setIsPreviewing((prev) => !prev)}
+              />
+            )}
+            {phase === "hints" && !isPublished && (
+              <PreviewToggle
+                data-testid="lock-letters-toggle"
+                label="Lock Grid Letters"
+                isPreviewing={isLettersLocked}
+                onToggle={() => setIsLettersLocked((prev) => !prev)}
+              />
+            )}
+          </div>
+        </div>
+        <EnterHintsDialog
+          open={isEnterHintsDialogOpen}
+          onConfirm={handleConfirmEnterHints}
+          onCancel={handleCancelEnterHints}
+        />
+        <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
+        {isPublishDialogOpen && (
+          <PublishDialog
+            findings={publishReadiness({ grid, hints, phase })}
+            onPublish={handlePublish}
+            onCancel={() => setIsPublishDialogOpen(false)}
           />
         )}
-        {phase === "hints" && !isPublished && (
-          <PreviewToggle
-            data-testid="lock-letters-toggle"
-            label="Lock Grid Letters"
-            isPreviewing={isLettersLocked}
-            onToggle={() => setIsLettersLocked((prev) => !prev)}
-          />
-        )}
-      </div>
-      <div
-        data-testid="editor-layout"
-        className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8"
-        onFocus={handleEditorFocus}
-        onBlur={handleEditorBlur}
-      >
         <div
-          className="max-w-full shrink-0"
-          style={{ width: `${GRID_MAX_PX}px` }}
+          data-testid="editor-layout"
+          className="flex flex-col gap-6 @min-[952px]/editor:flex-row @min-[952px]/editor:items-start @min-[952px]/editor:gap-8"
+          onFocus={handleEditorFocus}
+          onBlur={handleEditorBlur}
         >
           <div
-            ref={gridRegionRef}
-            data-testid="grid-region"
-            // A published puzzle's grid, or one with its letters locked,
-            // takes no focus: no Tab stop, no click focus, no keys (14-S12).
-            tabIndex={isPublished || isLettersLocked ? undefined : 0}
-            onKeyDown={handleGridKeyDown}
-            onFocus={() => setIsGridFocused(true)}
-            onBlur={() => setIsGridFocused(false)}
-            className="w-full outline-none"
+            className="max-w-full shrink-0"
+            style={{ width: `${GRID_MAX_PX}px` }}
           >
-            <PuzzleGrid
-              grid={grid}
-              highlights={highlights}
-              mode={isPreviewing ? "preview" : "build"}
-              isHintsPhase={phase === "hints"}
-              isGridFocused={isGridFocused}
-              isLettersLocked={phase === "hints" && isLettersLocked}
-              onCellClick={handleCellClick}
-            />
+            <div
+              ref={gridRegionRef}
+              data-testid="grid-region"
+              // A published puzzle's grid, or one with its letters locked,
+              // takes no focus: no Tab stop, no click focus, no keys (14-S12).
+              tabIndex={isPublished || isLettersLocked ? undefined : 0}
+              onKeyDown={handleGridKeyDown}
+              onFocus={() => setIsGridFocused(true)}
+              onBlur={() => setIsGridFocused(false)}
+              className="w-full outline-none"
+            >
+              <PuzzleGrid
+                grid={grid}
+                highlights={highlights}
+                mode={isPreviewing ? "preview" : "build"}
+                isHintsPhase={phase === "hints"}
+                isGridFocused={isGridFocused}
+                isLettersLocked={phase === "hints" && isLettersLocked}
+                onCellClick={handleCellClick}
+              />
+            </div>
+            {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
           </div>
-          {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
+          {phase === "grid" && <HintSkeleton grid={grid} />}
+          {phase === "hints" && (
+            // Beside the grid, the list scrolls in its own box at the grid's
+            // height (15-S1): size containment keeps its content from
+            // stretching the row, so the grid sets the row's height.
+            <div
+              data-testid="hints-region"
+              className="min-w-0 flex-1 overflow-y-auto @min-[952px]/editor:self-stretch @min-[952px]/editor:[contain:size]"
+            >
+              <HintsPanel
+                grid={grid}
+                slots={slotLookup}
+                hints={hints}
+                activeKey={activeKey}
+                disabled={isPublished}
+                selectedKey={isGridFocused ? activeKey : null}
+                onHintChange={handleHintChange}
+                onHintFocus={handleHintFocus}
+              />
+            </div>
+          )}
         </div>
-        {phase === "grid" && <HintSkeleton grid={grid} />}
-        {phase === "hints" && (
-          // Beside the grid, the list scrolls in its own box at the grid's
-          // height (15-S1): size containment keeps its content from
-          // stretching the row, so the grid sets the row's height.
-          <div
-            data-testid="hints-region"
-            className="min-w-0 flex-1 overflow-y-auto lg:self-stretch lg:[contain:size]"
-          >
-            <HintsPanel
-              grid={grid}
-              slots={slotLookup}
-              hints={hints}
-              activeKey={activeKey}
-              disabled={isPublished}
-              selectedKey={isGridFocused ? activeKey : null}
-              onHintChange={handleHintChange}
-              onHintFocus={handleHintFocus}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
