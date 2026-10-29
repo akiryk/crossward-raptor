@@ -12,8 +12,9 @@ narrow-play mockup isn't in the repo, so the bar's measurements, what
 shows above the grid, the spacing, the style's name and the arrows were
 proposed; the human accepted all five proposals, the bar emptying when
 the grid loses focus *(human, 2026-10-29)*. The spec file and amendments
-are written and discriminate (below). Frozen on `main`; implementation
-follows.
+are written and discriminate (below). Frozen in `6f91950`.
+**Implemented** on `main`: `npm run verify` exit 0 (600 Vitest tests),
+full `npm run test:e2e` 741 passed. Awaiting the human's visual check.
 
 **Blast radius: small.** The client components `PlayPuzzle`, a new
 `PlayHintBar`, and `HintBox` (its arrow shared, not changed); one

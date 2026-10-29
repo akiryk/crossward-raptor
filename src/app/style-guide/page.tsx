@@ -20,6 +20,7 @@ import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
 import { BuilderSteps, PublishedState } from '@/components/grid/BuilderSteps';
 import { TooEarlyDialog, type TooEarlyKind } from '@/components/grid/TooEarlyDialog';
 import { PublishDialog } from '@/components/grid/PublishDialog';
+import { PlayHintBar } from '@/components/play/PlayHintBar';
 
 const SAMPLE_ROW: LibraryPuzzle = {
   id: 'sg-sample',
@@ -308,6 +309,15 @@ export default function StyleGuidePage() {
             Hint Box (hints phase, narrow)
           </h2>
           <HintBoxExample />
+        </section>
+
+        <section data-testid="sg-play-hint-bar" className="space-y-2">
+          <h2 className="text-title-2 text-primary">
+            Play hint bar (play, narrow)
+          </h2>
+          <div className="max-w-[560px]">
+            <PlayHintBar hint="Network of squares" onStep={() => {}} />
+          </div>
         </section>
 
 

@@ -59,6 +59,8 @@
   --color-hint-rule: var(--palette-gray-700);
   --color-hint-box-border: var(--palette-gray-700);
   --color-hint-box-input: var(--palette-blue-medium);
+  /* the play hint bar (Story 15-S5) */
+  --color-play-hint-bar: var(--palette-blue-medium);
 
   /* text */
   --color-primary: var(--palette-black);

@@ -20,33 +20,29 @@ for the carried items' original wording.
 visual checks passed, S1 and S2 on 2026-10-28, S3 and S4 on 2026-10-29
 *(human)*.
 
-**S5 (narrow play) is approved and frozen**:
-[15-S5-play-narrow.md](stories/15-S5-play-narrow.md). The human
-accepted all five proposals and approved it 2026-10-29 ("I approve
-S5"). The freeze commit adds `e2e/narrow-play.spec.ts` and amends
-`e2e/color-tokens.spec.ts`, `src/app/globals-css.test.ts` and
-`play-source.test.ts`'s `PLAY_FILES`. No frozen case retires.
-Implementation follows on `main`.
+**S5 (narrow play) is implemented** on `main`:
+[15-S5-play-narrow.md](stories/15-S5-play-narrow.md), approved by the
+human 2026-10-29 ("I approve S5"), frozen in `6f91950`. The Hint Box's
+arrow moved to the shared `src/components/ui/HintArrow.tsx`; the bar is
+`src/components/play/PlayHintBar.tsx`. Pending: the human's visual check
+(the story's Definition of Done).
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
 
 ## Verification
 
-S4's implementation (`a72c476`): `npm run verify` exit 0 (600 Vitest
-tests); full `npm run test:e2e` 720 passed. S5's discrimination on the
-uncommitted draft (2026-10-29): the new spec with `color-tokens` ran 23
-failed, 7 passed, each failure for missing behavior; the two amended
-Vitest files fail as intended; `tsc` and ESLint pass. The guarded reset
-uses the standing grant in
+S5's implementation: `npm run verify` exit 0 (600 Vitest tests); full
+`npm run test:e2e` 741 passed. The frozen acceptance is unchanged from
+`6f91950`. The guarded reset uses the standing grant in
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-Implement S5 on `main` against its frozen acceptance, run `npm run
-verify` and the full `npm run test:e2e`, push, then ask for the human's
-visual check.
+The human's visual check of S5 (the list in its Definition of Done).
+When it passes, mark S5 done; the next job is S6's specification
+(`EPIC.md`), which needs its own approval before freeze.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S5-play-narrow.md. Implement S5 against its frozen acceptance on main; push once verify and the full e2e suite pass.
+Read docs/epics/15-responsive-layout/HANDOFF.md and the "S6 — Small screens" section of docs/epics/15-responsive-layout/EPIC.md. Once the human's S5 visual check passes, mark S5 done, then draft S6's specification and acceptance on main for the human's approval; don't freeze or implement it.
