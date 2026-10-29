@@ -20,16 +20,13 @@ for the carried items' original wording.
 visual checks passed, S1 and S2 on 2026-10-28, S3 and S4 on 2026-10-29
 *(human)*.
 
-**S5 (narrow play) is drafted**, uncommitted, awaiting the human's
-answers to its five questions and approval:
-[15-S5-play-narrow.md](stories/15-S5-play-narrow.md). The narrow-play
-mockup isn't in the repo, so the hint bar's measurements, what shows
-above the grid, the spacing, the new style's name (`play-hint-bar`) and
-the empty bar and arrows' behavior are proposed. Its spec file
-(`e2e/narrow-play.spec.ts`) and discrimination run come after the
-answers. It expects no retired case (every frozen spec opens play at
-1440px or wider) and amends the two color-style lists and
-`play-source.test.ts`'s `PLAY_FILES`.
+**S5 (narrow play) is drafted and awaiting approval**, uncommitted:
+[15-S5-play-narrow.md](stories/15-S5-play-narrow.md), the new
+`e2e/narrow-play.spec.ts`, and amendments to `e2e/color-tokens.spec.ts`,
+`src/app/globals-css.test.ts` and `play-source.test.ts`'s `PLAY_FILES`.
+The human accepted all five proposals on 2026-10-29: the bar empties
+when the grid loses focus, and the arrows work as proposed *(human)*.
+No frozen case retires.
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
@@ -37,17 +34,20 @@ Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 ## Verification
 
 S4's implementation (`a72c476`): `npm run verify` exit 0 (600 Vitest
-tests); full `npm run test:e2e` 720 passed. S5 is a draft: no checks
-apply yet.
+tests); full `npm run test:e2e` 720 passed. S5's discrimination on the
+uncommitted draft (2026-10-29): the new spec with `color-tokens` ran 23
+failed, 7 passed, each failure for missing behavior; the two amended
+Vitest files fail as intended; `tsc` and ESLint pass. The guarded reset
+uses the standing grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-The human answers S5's questions. Then revise the draft, write
-`e2e/narrow-play.spec.ts` and the amendments, observe their
-discrimination (the guarded reset uses the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)), and ask for
-approval. Freezing and implementing S5 need that approval.
+The human approves S5's specification and acceptance (or asks for
+changes). On approval, freeze them on `main` in a specification-only
+commit, then implement S5 on `main`. Neither is authorized before that
+approval.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S5-play-narrow.md. Record the human's answers to S5's questions, then finish S5's draft and acceptance for approval; no freeze before approval.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S5-play-narrow.md. Once the human approves S5, freeze its specification and acceptance on main, then implement it on main.
