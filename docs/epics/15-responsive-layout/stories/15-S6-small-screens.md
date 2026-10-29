@@ -11,7 +11,17 @@ builder's wrapped controls get a gap between rows.
 **Status: approved and frozen** (2026-10-29) *(human: "I approve of S6
 and I accept the decisions as made by the previous session's agent")*,
 including the *(proposed)* 4px stacked-hint gap. The acceptance below is
-frozen.
+frozen (`3132b12`). **Implemented** 2026-10-29 on `main`; awaiting the
+human's visual check.
+
+**Implementation notes.** The title and both hint fields are a new
+shared `WrappingField` (`src/components/ui/WrappingField.tsx`, a
+one-row textarea that grows to its content and rewraps on a width
+change), a scope addition beside `TextInput`. It sets `tabIndex={0}`
+explicitly, a textarea's default order, so it stays a Tab stop where
+the input was for 14-S11-4's frozen `tabTo` helper, which collects
+`input` and `[tabindex]` but not `textarea`. A word longer than the Hint
+Box itself breaks between letters rather than run past it.
 
 **Blast radius: small to medium.** The client components `CellNumber`
 and `PuzzleGrid` (a number-size variable), `PuzzleTitle`, `HintBox`,
@@ -241,7 +251,8 @@ Runtime: `src/components/grid/CellNumber.tsx`,
 letter's), `src/components/puzzle/PuzzleTitle.tsx`,
 `src/components/grid/HintBox.tsx`, `src/components/grid/HintsPanel.tsx`,
 `src/components/ui/TextInput.tsx` (a wrapping variant, its one-line use
-unchanged), `src/components/grid/PuzzleGridEditor.tsx` (the controls
+unchanged), `src/components/ui/WrappingField.tsx` (new, the growing
+field), `src/components/grid/PuzzleGridEditor.tsx` (the controls
 row's gap, the box's field ref).
 
 Acceptance: `e2e/small-screens.spec.ts` (new).

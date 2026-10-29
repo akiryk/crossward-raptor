@@ -3,10 +3,14 @@ import type { Grid } from '../../engine/grid';
 import type { NumberedSlot } from '../../engine/numbering';
 import { slotAnswer } from '../../lib/slot-answer';
 import { HintArrow } from '../ui/HintArrow';
+import { WrappingField } from '../ui/WrappingField';
 
 /** One hint at a time under the grid, with arrows through the words
  *  (15-S4): a 4px rule on top, a 1px outline on the other sides, 48px
- *  tall. */
+ *  tall for a short word and hint. Nothing is ever cut off (15-S6): the
+ *  hint wraps and the box grows; the word sits beside the hint while the
+ *  hint keeps 120px, otherwise on its own row above it; the arrows stay
+ *  level with the first 30px row. */
 export function HintBox({
   grid,
   slot,
@@ -21,7 +25,7 @@ export function HintBox({
   slot: NumberedSlot;
   hint: string;
   disabled?: boolean;
-  inputRef?: Ref<HTMLInputElement>;
+  inputRef?: Ref<HTMLTextAreaElement>;
   onHintChange: (text: string) => void;
   onHintFocus: () => void;
   onStep: (step: 1 | -1) => void;
@@ -31,27 +35,32 @@ export function HintBox({
   return (
     <div
       data-testid="hint-box"
-      className="border-hint-box-border border-t-hint-rule flex h-12 items-center border border-t-4 px-3"
+      className="border-hint-box-border border-t-hint-rule flex min-h-12 items-start border border-t-4 px-3 py-[6.5px]"
     >
-      <HintArrow direction="previous" onClick={() => onStep(-1)} />
-      <span
-        data-testid="hint-box-word"
-        className="text-label text-muted ml-3 shrink-0 tracking-[0.1em] uppercase"
-      >
-        {slotAnswer(grid, slot)}
-      </span>
-      <input
-        ref={inputRef}
-        type="text"
-        data-testid="hint-box-input"
-        aria-label={`${label} hint`}
-        value={hint}
-        onChange={(event) => onHintChange(event.target.value)}
-        onFocus={onHintFocus}
-        disabled={disabled}
-        className="bg-hint-box-input text-body-normal text-primary focus:border-line-highlight ml-2 h-[30px] min-w-0 flex-1 border-b border-transparent pr-[10px] pl-[10px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
-      />
-      <HintArrow direction="next" className="ml-3" onClick={() => onStep(1)} />
+      <div className="flex h-[30px] items-center">
+        <HintArrow direction="previous" onClick={() => onStep(-1)} />
+      </div>
+      <div className="ml-3 flex min-w-0 flex-1 flex-wrap gap-x-2 gap-y-1">
+        <span
+          data-testid="hint-box-word"
+          className="text-label text-muted min-w-0 self-start py-[5px] tracking-[0.1em] break-all uppercase"
+        >
+          {slotAnswer(grid, slot)}
+        </span>
+        <WrappingField
+          ref={inputRef}
+          data-testid="hint-box-input"
+          aria-label={`${label} hint`}
+          value={hint}
+          onChange={onHintChange}
+          onFocus={onHintFocus}
+          disabled={disabled}
+          className="bg-hint-box-input text-body-normal text-primary focus:border-line-highlight min-w-0 grow basis-[120px] border-b border-transparent px-[10px] pt-[5px] pb-[4px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        />
+      </div>
+      <div className="ml-3 flex h-[30px] items-center">
+        <HintArrow direction="next" onClick={() => onStep(1)} />
+      </div>
     </div>
   );
 }

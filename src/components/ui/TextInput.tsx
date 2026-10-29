@@ -1,6 +1,7 @@
 'use client';
 
 import { useId } from 'react';
+import { WrappingField } from './WrappingField';
 
 export type TextInputSize = 'regular' | 'large';
 
@@ -19,6 +20,7 @@ export function TextInput({
   autoFocus,
   disabled,
   size = 'regular',
+  wrap = false,
   label,
   error,
   'aria-label': ariaLabel,
@@ -31,6 +33,8 @@ export function TextInput({
   autoFocus?: boolean;
   disabled?: boolean;
   size?: TextInputSize;
+  /** A long value wraps and the field grows, in the same look (15-S6). */
+  wrap?: boolean;
   label?: string;
   error?: string;
   'aria-label': string;
@@ -40,6 +44,19 @@ export function TextInput({
   const id = useId();
   const errorId = `${id}-error`;
   const line = error ? 'border-error' : 'border-line-muted focus:border-line-highlight';
+
+  const fieldProps = {
+    'data-testid': dataTestId,
+    'aria-label': ariaLabel,
+    'aria-invalid': error ? true : undefined,
+    'aria-describedby': error ? errorId : undefined,
+    placeholder,
+    value,
+    onFocus,
+    autoFocus,
+    disabled,
+    className: `w-full border-b bg-transparent px-1 text-primary outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 ${SIZE_CLASS[size]} ${line}`,
+  };
 
   return (
     <div className="flex w-full flex-col">
@@ -52,21 +69,16 @@ export function TextInput({
           {label}
         </label>
       )}
-      <input
-        id={id}
-        type="text"
-        data-testid={dataTestId}
-        aria-label={ariaLabel}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        placeholder={placeholder}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        onFocus={onFocus}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        className={`w-full border-b bg-transparent px-1 text-primary outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 ${SIZE_CLASS[size]} ${line}`}
-      />
+      {wrap ? (
+        <WrappingField id={id} {...fieldProps} onChange={onChange} />
+      ) : (
+        <input
+          id={id}
+          type="text"
+          {...fieldProps}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      )}
       {error && (
         <p
           id={errorId}

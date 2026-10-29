@@ -84,6 +84,12 @@ const GRID_LINES: Record<string, string> = {
 const CELL_LETTER_PX = 16;
 const CELL_LETTER_PITCH_PX = 35;
 
+// cell-number's size down to a 21×21's cell at 560px; in a smaller cell a
+// number shrinks with the cell, never below 8px (15-S6).
+const CELL_NUMBER_PX = 10;
+const CELL_NUMBER_MIN_PX = 8;
+const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
+
 export function PuzzleGrid({
   grid,
   highlights,
@@ -190,6 +196,7 @@ export function PuzzleGrid({
         // its content box, so the cell pitch is (100cqw + 1px) / cols.
         containerType: 'inline-size',
         ['--cell-letter-size' as string]: `calc((100cqw + 1px) * ${CELL_LETTER_PX / CELL_LETTER_PITCH_PX / grid.cols})`,
+        ['--cell-number-size' as string]: `clamp(${CELL_NUMBER_MIN_PX}px, calc((100cqw + 1px) * ${CELL_NUMBER_PX / CELL_NUMBER_PITCH_PX / grid.cols}), ${CELL_NUMBER_PX}px)`,
         // minmax(0, 1fr), not bare 1fr: fr tracks default to an implicit
         // min-size of their content's min-content, which lets a small
         // cell's letter text force the track taller/wider than the

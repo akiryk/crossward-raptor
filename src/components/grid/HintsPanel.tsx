@@ -16,7 +16,7 @@ const NUMBER_MIN_PX = 18;
 
 // While the grid has focus, its cursor word's hint input is filled like
 // the cursor cell (14-S12).
-const SELECTED = '[&_input]:bg-hint-cell-cursor';
+const SELECTED = '[&_textarea]:bg-hint-cell-cursor';
 
 /** Hint Inputs, one per word, in the hint skeleton's frame (14-S6). */
 export function HintsPanel({
@@ -92,6 +92,7 @@ export function HintsPanel({
                           onChange={(text) => onHintChange(key, text)}
                           onFocus={() => onHintFocus(key)}
                           disabled={disabled}
+                          wrap
                         />
                         <p
                           data-testid="hint-answer"

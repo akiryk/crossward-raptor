@@ -143,7 +143,7 @@ export function PuzzleGridEditor({
   // The Hint Box's word (15-S4): the cursor's, or the one it last showed
   // while the cursor's cell has no word in its direction.
   const [boxKey, setBoxKey] = useState<string | null>(null);
-  const boxInputRef = useRef<HTMLInputElement>(null);
+  const boxInputRef = useRef<HTMLTextAreaElement>(null);
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
   const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
@@ -417,7 +417,8 @@ export function PuzzleGridEditor({
 
   return (
     // Below 952px of room, a 1000px window, the builder is one column at
-    // the grid's width, centered, the toggle beside the buttons (15-S3).
+    // the grid's width, centered, the toggle beside the buttons (15-S3),
+    // 10px under them when they wrap (15-S6).
     <div
       data-testid="puzzle-editor"
       data-ready={isReady}
@@ -429,7 +430,7 @@ export function PuzzleGridEditor({
           onChange={handleTitleChange}
           disabled={isPublished}
         />
-        <div className="mb-4 flex flex-wrap items-center gap-x-5 @min-[952px]/editor:mb-0 @min-[952px]/editor:block">
+        <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2.5 @min-[952px]/editor:mb-0 @min-[952px]/editor:block">
           {isPublished ? (
             <PublishedState puzzleId={puzzleId} />
           ) : (
