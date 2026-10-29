@@ -62,6 +62,10 @@ const STYLES: Record<string, string> = {
   'hint-cell-cursor': 'yellow-bright',
   'hint-cell-cursor-word': 'yellow-medium',
   'hint-cell-locked-on': 'gray-200',
+  // 15-S4: the Hint Box's rule, outline and input.
+  'hint-rule': 'gray-700',
+  'hint-box-border': 'gray-700',
+  'hint-box-input': 'blue-medium',
   primary: 'black',
   muted: 'gray-500',
   'link-muted': 'interactive-light',

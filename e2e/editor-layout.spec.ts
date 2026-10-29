@@ -125,13 +125,14 @@ test.describe('D5a-2 grid and hints are visible together', () => {
     expect(hintsRegion.left).toBeGreaterThanOrEqual(gridRegion.right - TOLERANCE);
   });
 
+  // 15-S4 amended this: on a phone the Hint Box, not the hint list.
   test('hints stack below the grid on a phone', async ({ page }) => {
     await open(page, 'hints', PHONE);
 
     const gridRegion = await rectOf(page, 'grid-region');
-    const hintsRegion = await rectOf(page, 'hints-region');
+    const hintBox = await rectOf(page, 'hint-box');
 
-    expect(hintsRegion.top).toBeGreaterThanOrEqual(gridRegion.bottom - TOLERANCE);
+    expect(hintBox.top).toBeGreaterThanOrEqual(gridRegion.bottom - TOLERANCE);
   });
 });
 

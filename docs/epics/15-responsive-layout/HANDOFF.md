@@ -17,15 +17,13 @@ for the carried items' original wording.
 `36529ab`, implemented `dc2cb48`). The human's visual checks passed,
 S1 and S2 on 2026-10-28 and S3 on 2026-10-29 *(human)*.
 
-**S4 (the Hint Box) is drafted**, uncommitted:
+**S4 (the Hint Box) is approved and frozen**:
 [15-S4-builder-hint-box.md](stories/15-S4-builder-hint-box.md). The
-human gave the box's mockup and colors 2026-10-29 (questions 1 and 2;
-the lengths are measured from it). Pending: questions 3–5 (what an arrow
-does with focus, locked and published, the focus underline and the
-style names) and approval. Its spec file
-(`e2e/hint-box.spec.ts`) and discrimination run come after the answers.
-It proposes retiring 15-S3-7 and amending 15-S3-1's 999px hints case,
-D5a-2's phone case and the two color-style lists.
+human answered its questions and approved it 2026-10-29 ("I approve
+S4"; questions 3–5 as proposed). The freeze commit adds
+`e2e/hint-box.spec.ts` and `src/lib/hint-order.test.ts`, retires
+15-S3-7 and amends 15-S3-1's 999px hints case, D5a-2's phone case and
+the two color-style lists. Implementation follows on `main`.
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
@@ -33,17 +31,17 @@ Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 ## Verification
 
 S3's implementation (`dc2cb48`): `npm run verify` exit 0 (595 Vitest
-tests); full `npm run test:e2e` 703 of 703. S4 is a draft: no checks
-apply yet.
+tests); full `npm run test:e2e` 703 of 703. S4's discrimination before
+implementation: the four browser files 21 failed, 35 passed (details in
+the story); its unit tests fail. The guarded reset uses the standing
+grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-The human answers S4's questions. Then revise the draft, write
-`e2e/hint-box.spec.ts` and the unit test, observe their discrimination
-(the guarded reset uses the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)), and ask for
-approval. Freezing and implementing S4 need that approval.
+Implement S4 on `main` against its frozen acceptance, run `npm run
+verify` and the full `npm run test:e2e`, push, then ask for the human's
+visual check.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S4-builder-hint-box.md. Record the human's answers to S4's questions, then finish S4's draft and acceptance for approval; no freeze before approval.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S4-builder-hint-box.md. Implement S4 against its frozen acceptance on main; push once verify and the full e2e suite pass.
