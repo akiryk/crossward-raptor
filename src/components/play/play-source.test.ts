@@ -18,6 +18,7 @@ const PLAY_FILES = [
   'app/puzzles/[id]/play/page.tsx',
   'components/play/PlayPuzzle.tsx',
   'components/play/PlayReset.tsx',
+  'components/play/PlayHintBar.tsx',
   'components/play/PlayerHints.tsx',
   'components/play/ProminentHint.tsx',
 ];

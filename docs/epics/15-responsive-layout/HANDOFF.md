@@ -20,13 +20,13 @@ for the carried items' original wording.
 visual checks passed, S1 and S2 on 2026-10-28, S3 and S4 on 2026-10-29
 *(human)*.
 
-**S5 (narrow play) is drafted and awaiting approval**, uncommitted:
-[15-S5-play-narrow.md](stories/15-S5-play-narrow.md), the new
-`e2e/narrow-play.spec.ts`, and amendments to `e2e/color-tokens.spec.ts`,
-`src/app/globals-css.test.ts` and `play-source.test.ts`'s `PLAY_FILES`.
-The human accepted all five proposals on 2026-10-29: the bar empties
-when the grid loses focus, and the arrows work as proposed *(human)*.
-No frozen case retires.
+**S5 (narrow play) is approved and frozen**:
+[15-S5-play-narrow.md](stories/15-S5-play-narrow.md). The human
+accepted all five proposals and approved it 2026-10-29 ("I approve
+S5"). The freeze commit adds `e2e/narrow-play.spec.ts` and amends
+`e2e/color-tokens.spec.ts`, `src/app/globals-css.test.ts` and
+`play-source.test.ts`'s `PLAY_FILES`. No frozen case retires.
+Implementation follows on `main`.
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
@@ -43,11 +43,10 @@ uses the standing grant in
 
 ## Next action
 
-The human approves S5's specification and acceptance (or asks for
-changes). On approval, freeze them on `main` in a specification-only
-commit, then implement S5 on `main`. Neither is authorized before that
-approval.
+Implement S5 on `main` against its frozen acceptance, run `npm run
+verify` and the full `npm run test:e2e`, push, then ask for the human's
+visual check.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S5-play-narrow.md. Once the human approves S5, freeze its specification and acceptance on main, then implement it on main.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S5-play-narrow.md. Implement S5 against its frozen acceptance on main; push once verify and the full e2e suite pass.

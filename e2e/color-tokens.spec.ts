@@ -68,6 +68,8 @@ const STYLES: Record<string, string> = {
   'hint-rule': 'gray-700',
   'hint-box-border': 'gray-700',
   'hint-box-input': 'blue-medium',
+  // 15-S5: the play hint bar's fill.
+  'play-hint-bar': 'blue-medium',
   primary: 'black',
   muted: 'gray-500',
   'link-muted': 'interactive-light',
