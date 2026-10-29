@@ -21,13 +21,11 @@ for the carried items' original wording.
 implemented `e45504d`). The human's visual checks passed, S1 and S2 on
 2026-10-28, S3–S5 on 2026-10-29 *(human)*.
 
-**S6 (small screens) is drafted, its questions answered, not yet
-approved**: [15-S6-small-screens.md](stories/15-S6-small-screens.md) and
-`e2e/small-screens.spec.ts`, both **uncommitted** in the `main` worktree
-until freeze. The human answered all six questions 2026-10-29; on the
-Hint Box they chose "no ellipses": the title and every hint field wrap,
-and the box stacks its word over the hint when they don't fit. Not
-frozen; no runtime change.
+**S6 (small screens) is approved and frozen** *(human, 2026-10-29,
+accepting the previous session's decisions)*:
+[15-S6-small-screens.md](stories/15-S6-small-screens.md) and
+`e2e/small-screens.spec.ts`, frozen in a specification-only commit on
+`main`. Implementation is in progress on `main`.
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
@@ -43,10 +41,9 @@ passed.
 
 ## Next action
 
-The human approves (or revises) S6's specification and acceptance. Then freeze it on `main` in a
-specification-only commit and implement it; S6 is the epic's last
-story, so closeout follows its visual check.
+Implement frozen S6 on `main`; S6 is the epic's last story, so
+closeout follows its visual check.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S6-small-screens.md. Once the human approves it, freeze S6 on main in a specification-only commit, then implement it on main; don't start epic closeout.
+Read docs/epics/15-responsive-layout/HANDOFF.md and docs/epics/15-responsive-layout/stories/15-S6-small-screens.md. Implement frozen S6 on main; don't start epic closeout.
