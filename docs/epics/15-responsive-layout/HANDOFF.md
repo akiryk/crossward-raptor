@@ -21,10 +21,14 @@ for the carried items' original wording.
 implemented `e45504d`). The human's visual checks passed, S1 and S2 on
 2026-10-28, S3–S5 on 2026-10-29 *(human)*.
 
-**S6 (small screens) is implemented** on `main`:
+**S6 (small screens) is done** on `main`:
 [15-S6-small-screens.md](stories/15-S6-small-screens.md) (approved
-*(human, 2026-10-29)*, frozen `3132b12`), pushed. It awaits the human's
-visual check, listed in the story's Definition of Done.
+*(human, 2026-10-29)*, frozen `3132b12`, implemented `644417f`). The
+human's visual check passed 2026-10-29 *(human)*.
+
+Every story meets its Definition of Done. Epic closeout is authorized
+*(human, 2026-10-29)* and needs the independent, report-only audit per
+the [epic index](../README.md#close-an-epic).
 
 Stories go one at a time *(human, 2026-10-28)*. The epic was approved
 2026-10-27; its approval doesn't approve any story.
@@ -40,9 +44,9 @@ grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-The human visually checks S6 (the story's Definition of Done). S6 is the
-epic's last story, so epic closeout follows once the check passes; it
-needs the human's go-ahead.
+Epic closeout: a fresh agent that authored none of the work audits the
+epic (report-only); a non-auditing session records the result and its
+dispositions here.
 
 ## Resume prompt
 

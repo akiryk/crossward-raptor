@@ -11,8 +11,8 @@ builder's wrapped controls get a gap between rows.
 **Status: approved and frozen** (2026-10-29) *(human: "I approve of S6
 and I accept the decisions as made by the previous session's agent")*,
 including the *(proposed)* 4px stacked-hint gap. The acceptance below is
-frozen (`3132b12`). **Implemented** 2026-10-29 on `main`; awaiting the
-human's visual check.
+frozen (`3132b12`). **Implemented** 2026-10-29 on `main` (`644417f`).
+The human's visual check passed 2026-10-29 *(human)*: **done**.
 
 **Implementation notes.** The title and both hint fields are a new
 shared `WrappingField` (`src/components/ui/WrappingField.tsx`, a
