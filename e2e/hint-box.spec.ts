@@ -208,7 +208,7 @@ test.describe('15-S4-4 the order', () => {
   test('Next visits the Across words, then the Down words, and wraps; Previous wraps back', async ({ page }) => {
     await open(page, 768);
     await expect(input(page)).toHaveAccessibleName('1 Across hint');
-    const order = ['2 Across', '3 Across', '4 Across', '5 Across', '1 Down', '2 Down', '3 Down', '4 Down', '5 Down', '1 Across'];
+    const order = ['6 Across', '7 Across', '8 Across', '9 Across', '1 Down', '2 Down', '3 Down', '4 Down', '5 Down', '1 Across'];
     for (const name of order) {
       await next(page).click();
       await expect(input(page)).toHaveAccessibleName(`${name} hint`);
@@ -231,10 +231,10 @@ test.describe('15-S4-4 the order', () => {
 
 // --- 15-S4-5: an arrow selects its word ---
 test.describe('15-S4-5 an arrow selects its word', () => {
-  test('after Next the cursor is on 2 Across, its cells the hint’s blue, and the box’s input has focus', async ({ page }) => {
+  test('after Next the cursor is on 6 Across, its cells the hint’s blue, and the box’s input has focus', async ({ page }) => {
     await open(page, 768);
     await next(page).click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
     await expect(input(page)).toBeFocused();
     await expect(cell(page, '0,1')).toHaveAttribute('data-highlight', 'selected');
     for (let col = 0; col < 5; col++) {
@@ -249,7 +249,7 @@ test.describe('15-S4-6 it follows the cursor', () => {
   test('clicking a cell of 3 Down, toggled to Down, shows 3 Down', async ({ page }) => {
     await open(page, 768);
     await cell(page, '2,1').click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
     await cell(page, '2,1').click();
     await expect(input(page)).toHaveAccessibleName('3 Down hint');
   });
@@ -272,7 +272,7 @@ test.describe('15-S4-7 editing saves', () => {
   test('a hint typed in the box survives a reload and shows in the list at 1440px', async ({ page }) => {
     await open(page, 768);
     await next(page).click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
 
     const saved = page.waitForResponse(
       (response) =>
@@ -286,11 +286,11 @@ test.describe('15-S4-7 editing saves', () => {
     await page.reload();
     await waitForEditorReady(page);
     await next(page).click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
     await expect(input(page)).toHaveValue('Sky color');
 
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator('[data-hint-key="2-across"] [data-testid="hint-input"]')).toHaveValue('Sky color');
+    await expect(page.locator('[data-hint-key="6-across"] [data-testid="hint-input"]')).toHaveValue('Sky color');
   });
 });
 
@@ -302,7 +302,7 @@ test.describe('15-S4-8 locked and published', () => {
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints-locked');
 
     await next(page).click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
     await expect(input(page)).toBeFocused();
     await page.keyboard.type('Locked');
     await expect(input(page)).toHaveValue('Locked');
@@ -314,7 +314,7 @@ test.describe('15-S4-8 locked and published', () => {
     await page.setViewportSize({ width: 768, height: 900 });
     const { id } = await seedPlayPuzzle({
       builderId: await currentBuilderId(page),
-      puzzle: { grid: filled(5), phase: 'hints', hints: { '1-across': 'First', '2-across': 'Second' } },
+      puzzle: { grid: filled(5), phase: 'hints', hints: { '1-across': 'First', '6-across': 'Second' } },
     });
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
@@ -322,7 +322,7 @@ test.describe('15-S4-8 locked and published', () => {
     await expect(input(page)).toBeDisabled();
     await expect(input(page)).toHaveValue('First');
     await next(page).click();
-    await expect(input(page)).toHaveAccessibleName('2 Across hint');
+    await expect(input(page)).toHaveAccessibleName('6 Across hint');
     await expect(input(page)).toHaveValue('Second');
     await expect(input(page)).toBeDisabled();
     await previous(page).click();

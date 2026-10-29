@@ -158,7 +158,7 @@ Retired and amended in the freeze commit:
 
 ## Acceptance
 
-`e2e/hint-box.spec.ts` (new), on a filled 5×5 (1–5 Across, 1–5 Down)
+`e2e/hint-box.spec.ts` (new), on a filled 5×5 (1 and 6–9 Across, 1–5 Down)
 unless named:
 
 - **15-S4-1 where it shows:** at 999 and 768px in the hints phase, the
@@ -172,7 +172,7 @@ unless named:
   `muted`; the input 30px, `hint-box-input`-filled, its text
   `body-normal` `primary` 10px in, no underline at rest, named for its
   word.
-- **15-S4-4 the order:** from 1 Across, Next ten times visits 2–5
+- **15-S4-4 the order:** from 1 Across, Next ten times visits 6–9
   Across, 1–5 Down and wraps to 1 Across; Previous from 1 Across goes to
   5 Down. On a grid with a black square, the numbers skip as the
   numbering does.
@@ -198,6 +198,14 @@ no box" and "build phase no box", which hold today by design. So did
 amended 15-S3-1 (999px hints), D5a-2's phone case and F1-2/F1-4's
 style lists. `hint-order.test.ts` fails (no module) and
 `globals-css.test.ts` fails on `--color-hint-rule`.
+
+**Correction** (2026-10-29, approved by the human): the frozen spec
+assumed a filled 5×5's Across words are 1–5, but they are 1, 6, 7, 8
+and 9 (2–5 start only Down words). In 15-S4-4's first case, 15-S4-5,
+15-S4-6's first case, 15-S4-7 and both 15-S4-8 cases, "2 Across" /
+`2-across` became "6 Across" / `6-across`, and 15-S4-4's order became
+6–9 Across, 1–5 Down, 1 Across; the text above has the same fix. The
+cells and assertions are unchanged; no behavior changed.
 
 ## Repo paths
 
