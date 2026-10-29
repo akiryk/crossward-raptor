@@ -11,8 +11,8 @@ grid.
 four questions the same day, accepting each proposal, and approved the
 draft for freeze the same day *(human)*; frozen in `ff07a76`.
 **Implemented** on `main` the same day: `npm run verify` exit 0 (595
-Vitest tests), full `npm run test:e2e` 683 of 683. Only the human's
-visual check remains of its Definition of Done.
+Vitest tests), full `npm run test:e2e` 683 of 683. **Done:** the
+human's visual check passed the same day *(human)*.
 
 **Blast radius: small.** The root layout's `<main>`, the client
 components `PuzzleGridEditor`, `HintSkeleton`, `HintsPanel`, `PlayPuzzle`

@@ -10,38 +10,38 @@ for the carried items' original wording.
 
 ## Current state (2026-10-28)
 
-**S1 (560px grid) is implemented** on `main`:
-[15-S1-560px-grid.md](stories/15-S1-560px-grid.md), frozen in `fef423e`.
-Only the human's visual check remains of its Definition of Done.
+**S1 (560px grid) and S2 (wide layout) are done** on `main`:
+[15-S1-560px-grid.md](stories/15-S1-560px-grid.md) (frozen `fef423e`),
+[15-S2-wide-layout.md](stories/15-S2-wide-layout.md) (frozen `ff07a76`).
+The human's visual checks passed 2026-10-28 *(human)*.
 
-**S2 (wide layout) is implemented** on `main`:
-[15-S2-wide-layout.md](stories/15-S2-wide-layout.md), approved by the
-human and frozen in `ff07a76` (2026-10-28). Only the human's visual check
-remains of its Definition of Done (the builder's two phases, Preview and
-play at 2400, 1440, 1290 and 1100px).
+**S3 (builder, narrow) is drafted, not approved:**
+[15-S3-builder-narrow.md](stories/15-S3-builder-narrow.md) and its
+proposed `e2e/narrow-builder.spec.ts`, both uncommitted in the worktree
+until freeze. It has four questions for the human (the threshold, the
+toggle's place, the spacing, the hints phase until S4). The throwaway
+used to measure and discriminate is
+`/tmp/crossward-drafts/15-S3-throwaway.patch`, reverted.
 
-**S3 (builder, narrow) is next, not drafted.** Stories go one at a time
-*(human, 2026-10-28: the idea of drafting every story up front for one
-unattended run was dropped)*.
-
-The epic was approved 2026-10-27; its approval doesn't approve any story.
+Stories go one at a time *(human, 2026-10-28)*. The epic was approved
+2026-10-27; its approval doesn't approve any story.
 
 ## Verification
 
-S2's implementation: `npm run verify` exit 0 (47 files, 595 Vitest
-tests); the full `npm run test:e2e` exit 0, 683 of 683, using the
-standing reset grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). The frozen
-acceptance is unchanged since `ff07a76`.
+S3's draft: the proposed spec fails 17 of 20 against `main`'s runtime and
+passes 20 of 20 against the throwaway. **The full suite against the
+throwaway has not completed** (memory pressure stalled the harness's
+build; details in the story's Discrimination): rerun it before freeze. The guarded reset
+uses the standing grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-The human's visual checks of S1 and S2. Draft S3 from the EPIC's S3
-entry: inspect the affected code, propose the narrow builder's exact
-values (spacing, threshold) with questions for the human, write the
-proposed acceptance and demonstrate its discrimination. Don't freeze or
-implement before the human approves the draft.
+The human answers S3's four questions and approves the draft. Then revise
+the draft and its spec to the answers, re-run the discrimination if they
+change it, and freeze on `main` in a specification-only commit. Don't
+implement before the freeze.
 
 ## Resume prompt
 
-Read docs/epics/15-responsive-layout/HANDOFF.md and the EPIC's S3 entry. Draft S3 (builder, narrow) with its proposed acceptance and questions for the human; don't freeze or implement before approval.
+Read docs/epics/15-responsive-layout/HANDOFF.md and S3's draft. Apply the human's answers to S3's questions, then freeze and implement S3 once the human approves.
