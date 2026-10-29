@@ -8,8 +8,8 @@ function item(page: Page, name: string) { return page.getByTestId('puzzle-list-i
 const states: BuilderEditState[] = ['grid', 'hints', 'private published', 'public published'];
 
 // 14-S2: Build lists only the caller's puzzles, each opening the editor; Play
-// lists every published puzzle with Play and never the editor. Foreign drafts
-// are in neither view.
+// lists published puzzles with Play and never the editor. Foreign drafts
+// are in neither view. 16-S1: nor is an unplayed foreign unlisted puzzle in Play.
 test('O3 the library gives only owners Edit, and foreign published puzzles only Play, across reloads', async ({ page }) => {
   const own = await currentBuilderId(page);
   const other = await seedOtherBuilder();
@@ -46,7 +46,7 @@ test('O3 the library gives only owners Edit, and foreign published puzzles only 
     await showView('Play');
     for (const fixture of fixtures) {
       const row = item(page, fixture.name);
-      if (!fixture.state.includes('published')) {
+      if (!fixture.state.includes('published') || (fixture.builder !== own && fixture.state === 'private published')) {
         await expect(row).toHaveCount(0);
         continue;
       }

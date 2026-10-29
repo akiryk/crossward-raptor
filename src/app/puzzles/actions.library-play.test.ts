@@ -164,7 +164,8 @@ describe('P5 — listPuzzles learns about play', () => {
   it('keeps every existing field and the updated-at order, adding play and builderName', async () => {
     // 14-S2: a draft is listed only for its own builder.
     puzzle('newer-draft', false, { builderId: 'player-a', phase: 'grid', visibility: 'private' });
-    puzzle('older-published', true, { visibility: 'private' });
+    // 16-S1: the caller's own, since another builder's unlisted puzzle is listed only once played.
+    puzzle('older-published', true, { builderId: 'player-a', visibility: 'private' });
 
     const rows = await list();
 

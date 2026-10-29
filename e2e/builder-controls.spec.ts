@@ -457,12 +457,13 @@ test.describe('14-S4-5 the Publish dialog', () => {
     await expect(radio).toHaveAttribute('data-variant', 'form');
     const options = radio.getByRole('radio');
     await expect(options).toHaveCount(2);
-    await expect(radio.getByRole('radio', { name: 'Private' })).toBeChecked();
+    // 16-S1: the stored 'private' reads Unlisted.
+    await expect(radio.getByRole('radio', { name: 'Unlisted' })).toBeChecked();
     await expect(radio.getByRole('radio', { name: 'Public' })).not.toBeChecked();
     const names = await options.evaluateAll((inputs) =>
       inputs.map((input) => input.closest('label')?.textContent?.trim())
     );
-    expect(names).toEqual(['Private', 'Public']);
+    expect(names).toEqual(['Unlisted', 'Public']);
 
     const footer = dialog.getByTestId('modal-footer').getByRole('button');
     await expect(footer).toHaveCount(2);

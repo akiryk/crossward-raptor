@@ -14,35 +14,28 @@ that check. Epic 15 closed 2026-10-29; epic 17 (Polish) follows this one
 *(human)*. Stories go one at a time; the epic's approval doesn't approve
 any story.
 
-**S1 (Unlisted) is drafted, not approved**:
-[16-S1-unlisted.md](stories/16-S1-unlisted.md), with proposed acceptance in
-`e2e/unlisted.spec.ts` and `src/app/puzzles/actions.unlisted.test.ts` and
-amendments to six frozen test files (listed in the story's table). All of
-it is **uncommitted** in the `main` worktree until freeze. No runtime
-change. One question is pending for the human: whether a published Build
-row shows its visibility (recommended: no, keep `[published]`; S2's menu
-shows it).
+**S1 (Unlisted) is approved and frozen** *(human, 2026-10-29)*: the
+specification, acceptance and amendments as drafted, with the Build
+marker question settled as option 1 (a published Build row keeps
+`[published]`). The freeze is a specification-only commit on `main`:
+[16-S1-unlisted.md](stories/16-S1-unlisted.md), `e2e/unlisted.spec.ts`,
+`src/app/puzzles/actions.unlisted.test.ts` and the six amended frozen
+test files listed in the story's table. No runtime change in it.
 
-S1 changes `src/app/puzzles/actions.ts`, a CODE-REVIEW risk path: after
-freeze, implement on `story/16-S1-unlisted` with a PR and an independent
+S1 changes `src/app/puzzles/actions.ts`, a CODE-REVIEW risk path: it's
+implemented on `story/16-S1-unlisted` with a PR and an independent
 review.
 
 ## Verification
 
-S1's draft: `tsc --noEmit` and ESLint pass on the proposed tests; the
-discrimination run is recorded in the story (a throwaway implementation,
-reverted, failed exactly the eight amended frozen cases in the full suites
-and passed all proposed tests; `main` fails the new cases). The guarded
-reset used the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). `npm run verify` fails
-on the uncommitted proposed tests until implementation, by design.
+At freeze: the drafting discrimination run recorded in the story.
+`npm run verify` fails on `main` at the freeze commit until S1's
+implementation lands, by design.
 
 ## Next action
 
-The human answers S1's pending question and approves (or revises) its
-specification, acceptance and amendments. Then freeze S1 on `main` in a
-specification-only commit and implement it on `story/16-S1-unlisted`,
-opening a PR for independent review; don't merge it yourself.
+Implement S1 on `story/16-S1-unlisted` from the freeze commit and open a
+PR for independent review; don't merge it yourself.
 
 ## Resume prompt
 

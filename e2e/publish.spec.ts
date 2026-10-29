@@ -51,12 +51,13 @@ async function seedReady(hints: Record<string, string> = ALL_HINTS) {
 
 // --- PB3-2: publishing ---
 test.describe('PB3-2 publish', () => {
-  test('an unpublished puzzle offers publishing, private by default', async ({ page }) => {
+  test('an unpublished puzzle offers publishing, unlisted by default', async ({ page }) => {
     const { id } = await seedReady();
     await openPublishStep(page, id);
 
     await expect(dialog(page).getByTestId('modal-confirm')).toBeVisible();
-    await expect(dialog(page).getByRole('radio', { name: 'Private' })).toBeChecked();
+    // 16-S1: the stored 'private' reads Unlisted.
+    await expect(dialog(page).getByRole('radio', { name: 'Unlisted' })).toBeChecked();
     await expect(page.getByTestId('unpublish-button')).toHaveCount(0);
     await expect(page.getByTestId('publish-state')).toHaveCount(0);
   });

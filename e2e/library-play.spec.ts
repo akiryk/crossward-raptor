@@ -135,13 +135,14 @@ function gate() {
 }
 
 test.describe('P5 — the library learns about play', () => {
-  test('every published row offers Play to every player; unpublished rows do not', async ({ page }) => {
+  // 16-S1: another builder's unlisted puzzle is listed only once played, so the foreign row is public.
+  test('every listed published row offers Play to every player; unpublished rows do not', async ({ page }) => {
     const ownPublic = await seed(page, 'none', { visibility: 'public' });
-    const othersPrivate = await seed(page, 'none', { builderId: await seedOtherBuilder() });
+    const othersPublic = await seed(page, 'none', { builderId: await seedOtherBuilder(), visibility: 'public' });
     const unpublished = await seed(page, 'partial', { published: false });
     await playLibrary(page);
 
-    for (const fixture of [ownPublic, othersPrivate]) {
+    for (const fixture of [ownPublic, othersPublic]) {
       const item = row(page, fixture.title);
       const play = item.getByTestId('puzzle-play-link');
       await expect(play).toBeVisible();
@@ -160,7 +161,7 @@ test.describe('P5 — the library learns about play', () => {
     await expect(manage).toBeVisible();
     await expect(manage).toHaveAccessibleName(`${ownPublic.title} [published]`);
     expect(await manage.getAttribute('href')).toMatch(new RegExp(`/puzzles/${ownPublic.id}$`));
-    await expect(row(page, othersPrivate.title)).toHaveCount(0);
+    await expect(row(page, othersPublic.title)).toHaveCount(0);
 
     const draft = row(page, unpublished.title);
     await expect(draft.getByTestId('puzzle-edit-link')).toBeVisible();
@@ -171,13 +172,13 @@ test.describe('P5 — the library learns about play', () => {
     await expect(draft).not.toHaveAttribute('data-play-state', /.*/);
 
     await showView(page, 'Play');
-    await row(page, othersPrivate.title).getByTestId('puzzle-play-link').click();
-    await expect(page).toHaveURL(new RegExp(`/puzzles/${othersPrivate.id}/play$`));
+    await row(page, othersPublic.title).getByTestId('puzzle-play-link').click();
+    await expect(page).toHaveURL(new RegExp(`/puzzles/${othersPublic.id}/play$`));
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
     // Opening started a blank attempt, which still reads as untouched.
-    expect(await ownRows(othersPrivate)).toHaveLength(1);
+    expect(await ownRows(othersPublic)).toHaveLength(1);
     await playLibrary(page);
-    await expectState(row(page, othersPrivate.title), 'untouched');
+    await expectState(row(page, othersPublic.title), 'untouched');
   });
 
   test('clicking anywhere on a row follows its primary action; secondary controls act alone', async ({ page }) => {
@@ -185,7 +186,8 @@ test.describe('P5 — the library learns about play', () => {
     const ownPublished = await seed(page, 'complete');
     const ownDraft = await seed(page, 'none', { published: false });
     const other = await seedOtherBuilder();
-    const foreignPublished = await seed(page, 'none', { builderId: other });
+    // 16-S1: public, since another builder's unplayed unlisted puzzle isn't listed.
+    const foreignPublished = await seed(page, 'none', { builderId: other, visibility: 'public' });
     const foreignDraft = await seed(page, 'none', { builderId: other, published: false });
     /** The element a pointer would hit at the centre of `target`, inside the given row. */
     async function hit(target: Locator) {

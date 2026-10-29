@@ -45,7 +45,8 @@ describe('PB5-1 unpublished puzzles', () => {
 });
 
 describe('PB5-1 published puzzles', () => {
-  it('private publishing says private', () => {
+  // 16-S1: the stored 'private' reads "Unlisted".
+  it('private publishing says unlisted', () => {
     const result = status({
       phase: 'hints',
       hintsComplete: true,
@@ -54,7 +55,8 @@ describe('PB5-1 published puzzles', () => {
     });
 
     expect(result.kind).toBe('published');
-    expect(result.label).toMatch(/private/i);
+    expect(result.label).toMatch(/unlisted/i);
+    expect(result.label).not.toMatch(/private/i);
   });
 
   it('public publishing says public', () => {
@@ -78,7 +80,7 @@ describe('PB5-1 published puzzles', () => {
     });
 
     expect(result.kind).toBe('published');
-    expect(result.label).toBe('Published · Private');
+    expect(result.label).toBe('Published · Unlisted');
   });
 
   it('a public puzzle names its visibility the same way', () => {
