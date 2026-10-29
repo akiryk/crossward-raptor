@@ -291,6 +291,9 @@ the play hint bar's style guide sample.
 Below about 606px the grid shrinks to fit; letters scale with the cell and
 numbers keep a readable minimum. Fixes the 375px clipping (the editor's title;
 narrow play no longer shows "Puzzle options") and any dialog taller than a 375×667 viewport.
+*(Human, 2026-10-29, S6's questions:)* nothing is cut off with an ellipsis:
+the title wraps, the Hint Box stacks its word and hint when they don't fit,
+and long hints wrap in the Hint Box and the wide Hint Inputs.
 
 ---
 
