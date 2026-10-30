@@ -3,8 +3,8 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md).
-3. The active story, [16-S1-unlisted.md](stories/16-S1-unlisted.md).
+2. The [EPIC](EPIC.md), especially "S2 — Row menu and visibility" and the
+   Decisions it relies on.
 
 ## Current state (2026-10-29)
 
@@ -14,33 +14,33 @@ that check. Epic 15 closed 2026-10-29; epic 17 (Polish) follows this one
 *(human)*. Stories go one at a time; the epic's approval doesn't approve
 any story.
 
-**S1 (Unlisted) is approved and frozen** *(human, 2026-10-29)*: the
-specification, acceptance and amendments as drafted, with the Build
-marker question settled as option 1 (a published Build row keeps
-`[published]`). The freeze is a specification-only commit on `main`:
-[16-S1-unlisted.md](stories/16-S1-unlisted.md), `e2e/unlisted.spec.ts`,
-`src/app/puzzles/actions.unlisted.test.ts` and the six amended frozen
-test files listed in the story's table. No runtime change in it.
+**S1 (Unlisted) is done.** Approved and frozen *(human, 2026-10-29)* on
+`main` at `0563d69`; implemented in
+[PR #29](https://github.com/akiryk/crossward-raptor/pull/29), independently
+reviewed with no findings, and merged to `main` as `ec2e383`. Its
+Decisions, including the stored value staying `'private'` and the Build
+row keeping `[published]`, are in
+[16-S1-unlisted.md](stories/16-S1-unlisted.md).
 
-S1 is **implemented** on `story/16-S1-unlisted` (from `0563d69`), pushed,
-with [PR #29](https://github.com/akiryk/crossward-raptor/pull/29) open for independent review per CODE-REVIEW; **not merged**.
-It changes only `src/app/puzzles/actions.ts` (risk path: `listPuzzles`'s
-`where`), `src/components/grid/PublishDialog.tsx` and
-`src/lib/puzzle-status.ts`, plus this handoff and the story's status.
+**S2 (Row menu and visibility)** has no story file yet. Only drafting its
+specification and proposed acceptance is the next job; it needs human
+approval and a specification-only freeze on `main` before implementation.
 
 ## Verification
 
-On the implementation tree (the PR's commit; docs-only edits after the
-runs): `npm run verify` exit 0, Vitest 606 of 606; full `npm run test:e2e`
-exit 0, 780 of 780, using the guarded reset under the standing grant in
+Reviewer, on PR #29's head `fa04d69` (the merged S1 content): `npm run
+verify` exit 0, Vitest 606 of 606; full `npm run test:e2e` exit 0, 780 of
+780, using the guarded reset under the standing grant in
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). `git diff 0563d69`
-touches no acceptance file. External CI: see the PR.
+touches no acceptance file. External CI: Vercel deployment only (runs no
+test gates), passed.
 
 ## Next action
 
-Independently review PR #29 on `story/16-S1-unlisted` per REVIEW and
-merge it if no blockers remain. S2 isn't authorized until then.
+Draft S2's specification and proposed acceptance from the EPIC's S2
+section as `stories/16-S2-*.md`, per STORY's drafting phase, on `main`.
+Stop for human approval before freezing; no runtime change.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S1-unlisted.md. Independently review PR #29 on story/16-S1-unlisted; merge it only if no blockers remain and required checks pass.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and the "S2 — Row menu and visibility" section of docs/epics/16-puzzle-lifecycle/EPIC.md. Draft S2's specification and proposed acceptance on main; stop for human approval before freezing.
