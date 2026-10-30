@@ -23,7 +23,7 @@ marker question settled as option 1 (a published Build row keeps
 test files listed in the story's table. No runtime change in it.
 
 S1 is **implemented** on `story/16-S1-unlisted` (from `0563d69`), pushed,
-with a PR open for independent review per CODE-REVIEW; **not merged**.
+with [PR #29](https://github.com/akiryk/crossward-raptor/pull/29) open for independent review per CODE-REVIEW; **not merged**.
 It changes only `src/app/puzzles/actions.ts` (risk path: `listPuzzles`'s
 `where`), `src/components/grid/PublishDialog.tsx` and
 `src/lib/puzzle-status.ts`, plus this handoff and the story's status.
@@ -38,9 +38,9 @@ touches no acceptance file. External CI: see the PR.
 
 ## Next action
 
-Independently review S1's PR on `story/16-S1-unlisted` per REVIEW and
+Independently review PR #29 on `story/16-S1-unlisted` per REVIEW and
 merge it if no blockers remain. S2 isn't authorized until then.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S1-unlisted.md. Once the human approves it, freeze S1 on main in a specification-only commit, then implement it on story/16-S1-unlisted and open a PR; don't merge it.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S1-unlisted.md. Independently review PR #29 on story/16-S1-unlisted; merge it only if no blockers remain and required checks pass.
