@@ -10,6 +10,13 @@ specification, its acceptance and the amendments, and chose option 1 of
 the [Build marker question](#build-marker-question-settled): a published
 Build row keeps `[published]`.
 
+**Implementation (2026-10-29):** on `story/16-S1-unlisted` from the freeze
+commit `0563d69`, in a PR awaiting independent review. Changed only the
+three declared runtime files. Observed on the implementation tree:
+`npm run verify` exit 0 (Vitest 606 of 606) and the full
+`npm run test:e2e` exit 0 (780 of 780); frozen acceptance unchanged from
+`0563d69`.
+
 **Blast radius: small.** One `where` clause in `listPuzzles`, one radio
 label in the Publish dialog and one status label. No schema change, no
 migration and no engine change. `src/app/puzzles/actions.ts` is a

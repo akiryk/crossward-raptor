@@ -287,8 +287,15 @@ export async function listPuzzles(): Promise<
 > {
   const authSession = await requireSession();
   // The caller's attempt comes from the same query, so the snapshot is atomic.
+  // Another builder's unlisted puzzle is listed only once the caller has started it.
   const records = await prisma.puzzle.findMany({
-    where: { OR: [{ builderId: authSession.user.id }, { publishedAt: { not: null } }] },
+    where: {
+      OR: [
+        { builderId: authSession.user.id },
+        { publishedAt: { not: null }, visibility: 'public' },
+        { publishedAt: { not: null }, playSessions: { some: { userId: authSession.user.id } } },
+      ],
+    },
     orderBy: { updatedAt: 'desc' },
     select: {
       builder: { select: { displayName: true } },
