@@ -8,7 +8,7 @@ import { ModalActions } from '../ui/ModalActions';
 import { RadioGroup } from '../ui/Radio';
 
 /** Story 14-S4. Confirms publishing; the human supplies the final copy
- *  later. Mounted only while open, so each opening starts at Private. */
+ *  later. Mounted only while open, so each opening starts at Unlisted. */
 export function PublishDialog({
   findings,
   onPublish,
@@ -63,7 +63,7 @@ export function PublishDialog({
         name="visibility"
         labelledBy={headingId}
         options={[
-          { value: 'private', label: 'Private' },
+          { value: 'private', label: 'Unlisted' },
           { value: 'public', label: 'Public' },
         ]}
         value={visibility}
