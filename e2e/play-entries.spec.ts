@@ -12,11 +12,17 @@ import {
   seedPlaySession,
 } from './helpers/play-route';
 
+// Selects (0,0) across. Play opens on the first empty cell, across, with the
+// grid focused (17-S2); clicking (0,0) when it is already the cursor would
+// toggle to down, so the click is only made when it isn't.
 async function openPlay(page: Page, id: string, options: { select?: boolean } = {}) {
   await page.goto(`/puzzles/${id}/play`);
   await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
   await expect(page.getByTestId('play-grid-region')).toHaveAttribute('data-ready', 'true');
-  if (options.select !== false) await page.locator('[data-coord="0,0"]').click();
+  if (options.select === false) return;
+  if (await page.locator('[data-coord="0,0"]').getAttribute('data-selected') !== 'true') {
+    await page.locator('[data-coord="0,0"]').click();
+  }
 }
 
 async function expectSelected(page: Page, coord: string) {
@@ -92,48 +98,9 @@ async function storeDraft(page: Page, sessionId: string, value: string) {
 }
 
 test.describe('P2 — typing and resuming', () => {
-  test('opening and reopening leave the puzzle unselected until the player clicks an active cell', async ({ page }) => {
-    const fixture = await seedPlayPuzzle({ builderId: await currentBuilderId(page) });
-    await openPlay(page, fixture.id, { select: false });
-    const initial = await readPlaySessions(fixture.id);
-    await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
-    await expect(page.getByTestId('play-grid-region')).not.toBeFocused();
-    // Merely tabbing/focusing the grid must not choose a starting square.
-    await page.getByTestId('play-grid-region').focus();
-    await page.keyboard.type('az');
-    for (const key of ['ArrowDown', 'ArrowRight', 'Space', 'Backspace']) await page.keyboard.press(key);
-    await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
-    await expectLetters(page, { '0,0': '', '1,0': '', '2,0': '' });
-    expect(await readPlaySessions(fixture.id)).toEqual(initial);
-
-    // The first click is selection, even at (0,0); it must not invoke the
-    // existing same-cell toggle against an invented initial cursor.
-    await page.locator('[data-coord="0,0"]').click();
-    await expectSelected(page, '0,0');
-    await expect(page.locator('[data-coord="1,0"]')).toHaveAttribute('data-highlight', 'slot');
-    await expect(page.locator('[data-coord="0,1"]')).not.toHaveAttribute('data-highlight', 'slot');
-    await page.keyboard.type('a');
-    await expectSelected(page, '1,0');
-    const saved = blankEntries();
-    saved.cells[0][0] = { kind: 'active', letter: 'A' };
-    await expectSavedEntries(page, fixture.id, saved);
-    await page.locator('[data-coord="2,2"]').click();
-    await page.locator('[data-coord="2,2"]').click();
-    await page.reload();
-    await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
-    await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
-    await expect(page.getByTestId('play-grid-region')).not.toBeFocused();
-    await expectLetters(page, { '0,0': 'A' });
-    await page.getByTestId('play-grid-region').focus();
-    await page.keyboard.type('q');
-    await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
-    await expectLetters(page, { '0,0': 'A', '1,0': '', '2,2': '' });
-    await page.locator('[data-coord="0,0"]').click();
-    await page.keyboard.type('b');
-    await expectSelected(page, '1,0');
-    saved.cells[0][0] = { kind: 'active', letter: 'B' };
-    await expectSavedEntries(page, fixture.id, saved);
-  });
+  // 17-S2 retired "opening and reopening leave the puzzle unselected until
+  // the player clicks an active cell": play now opens on the first empty
+  // cell (e2e/play-opening.spec.ts).
 
   test('typing after selection uses uppercase guesses, advances across, overtypes, and preserves white numbered geometry', async ({ page }) => {
     const fixture = await seedPlayPuzzle({ builderId: await currentBuilderId(page) });
@@ -315,11 +282,9 @@ test.describe('P2 — typing and resuming', () => {
       await expectLetters(page, { '2,2': '' });
       await page.getByRole('button', { name: 'Retry', exact: true }).click();
       await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
-      await expect(page.locator('[data-selected="true"]')).toHaveCount(0);
-      await page.getByTestId('play-grid-region').focus();
-      await page.keyboard.type('z');
-      await expectLetters(page, { '0,0': '' });
-      await page.locator('[data-coord="0,0"]').click();
+      // 17-S2: the successful session opens on its first empty cell, focused.
+      await expectSelected(page, '0,0');
+      await expect(page.getByTestId('play-grid-region')).toBeFocused();
       await page.keyboard.type('a');
       await expectLetters(page, { '0,0': 'A' });
     } finally {
@@ -566,8 +531,9 @@ test.describe('P2 — typing and resuming', () => {
       }
       await expect(reopened.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
       await expectLetters(reopened, { '0,0': '', '1,0': 'Q' });
-      await expect(reopened.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
-      await expect(reopened.getByTestId('play-grid-region')).not.toBeFocused();
+      // 17-S2: the reopened puzzle opens on its first empty cell, focused.
+      await expectSelected(reopened, '0,0');
+      await expect(reopened.getByTestId('play-grid-region')).toBeFocused();
       expect(dialogs).toEqual([]);
       await reopened.clock.runFor(500);
       await expectSavedEntries(reopened, fixture.id, pending);
@@ -617,7 +583,8 @@ test.describe('P2 — typing and resuming', () => {
       await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
       await expectLetters(page, { '0,0': 'Z' });
       expect(await page.evaluate(() => (window as typeof window & { __playDraftReads: number }).__playDraftReads)).toBeGreaterThan(0);
-      await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
+      // 17-S2: it opens on the first cell the recovered draft leaves empty.
+      await expectSelected(page, '1,0');
       expect((await readPlaySessions(fixture.id))[0].entries).toEqual(blankEntries());
       await page.clock.runFor(500);
       await expectSavedEntries(page, fixture.id, pending);

@@ -107,6 +107,9 @@ test.describe('P1 — a play route', () => {
     await expect(page.locator('[data-testid="grid-cell"][data-kind="active"]')).toHaveCount(8);
     await expect(page.locator('[data-testid="grid-cell"][data-kind="black"]')).toHaveCount(1);
     await expectFixedNumbers(page);
+    // 17-S2: play opens with the grid focused on its first empty cell;
+    // without focus, no cell shows the selection.
+    await page.getByTestId('play-grid-region').blur();
     for (const coord of ['0,0', '1,0', '2,0', '0,1', '2,1', '0,2', '1,2', '2,2']) {
       expect(await cellLetter(page, coord)).toBe('');
       expect(await page.locator(`[data-coord="${coord}"]`).evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(255, 255, 255)');
@@ -168,6 +171,9 @@ test.describe('P1 — a play route', () => {
     expect(await cellLetter(page, '1,0')).toBe('HEART');
     expect(await cellLetter(page, '0,2')).toBe('M');
     expect(await cellLetter(page, '2,0')).toBe('');
+    // 17-S2: play opens with the grid focused on its first empty cell;
+    // without focus, no cell shows the selection.
+    await page.getByTestId('play-grid-region').blur();
     expect(await page.locator('[data-coord="2,0"]').evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(255, 255, 255)');
     await expect(page.locator('[data-cell-state="symmetric-hint"], [data-cell-state="required"], [data-cell-state="recommended"], [data-cell-state="locked-letter"]')).toHaveCount(0);
     expect(await readPlaySessions(fixture.id)).toEqual(sessionsBefore);
@@ -187,6 +193,9 @@ test.describe('P1 — a play route', () => {
 
     await expect(page.getByTestId('grid-cell')).toHaveCount(4);
     await expect(page.locator('[data-cell-state="recommended"], [data-cell-state="required"], [data-cell-state="symmetric-hint"]')).toHaveCount(0);
+    // 17-S2: play opens with the grid focused on its first empty cell;
+    // without focus, no cell shows the selection.
+    await page.getByTestId('play-grid-region').blur();
     for (const cell of await page.getByTestId('grid-cell').all()) {
       expect(await cell.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(255, 255, 255)');
     }

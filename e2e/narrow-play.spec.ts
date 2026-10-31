@@ -20,8 +20,10 @@ import { seedPlayPuzzle, seedPlaySession } from './helpers/play-route';
 // Previous and Next arrows (24px buttons) 12px from its sides and
 // vertically centered, and between them, 12px from each, the hint of the
 // word at the cursor in body-large primary, centered, with no number or
-// direction. With no word selected (on load, the grid unfocused, a
-// complete puzzle) the bar is empty and keeps its height.
+// direction. With no word selected (the grid unfocused, a complete
+// puzzle) the bar is empty and keeps its height. Play opens on 1 Across
+// with the grid focused (17-S2), so the bar shows its hint on load and a
+// test starts there without clicking (0,0), which would toggle to Down.
 //
 // The arrows step from the cursor's word in the Hint Box's order (every
 // Across word by number, then every Down word, wrapping both ways); with
@@ -238,7 +240,6 @@ test.describe('15-S5-4 the bar', () => {
   test('a long hint wraps, the bar grows and the arrows stay centered', async ({ page }) => {
     const long = Array(3).fill('A very long hint that cannot possibly fit on one line of the bar').join(', ');
     await open(page, 768, { hints: { ...everyHint(), '1-across': long } });
-    await cell(page, '0,0').click();
     await expect(hintText(page)).toHaveText(long);
     const b = await rect(hintBar(page));
     expect(b.height, 'taller than one line').toBeGreaterThan(BAR_PX + 1);
@@ -253,7 +254,6 @@ test.describe('15-S5-4 the bar', () => {
 test.describe('15-S5-5 the hint', () => {
   test('at 768px: the cursor word’s hint in body-large primary, centered between the arrows, no number', async ({ page }) => {
     await open(page, 768);
-    await cell(page, '0,0').click();
     const text = hintText(page);
     await expect(text).toHaveText('Across hint 1');
     await expect(hintBar(page)).toHaveText('Across hint 1');
@@ -270,9 +270,9 @@ test.describe('15-S5-5 the hint', () => {
     expect(await textCenter(text), 'centered between the arrows').toBeCloseTo((prev.right + nxt.x) / 2, 0);
   });
 
-  test('on load: empty, 48px tall', async ({ page }) => {
+  test('on load: 1 Across’s hint, 48px tall', async ({ page }) => {
     await open(page, 768);
-    await expect(hintBar(page)).toHaveText('');
+    await expect(hintBar(page)).toHaveText('Across hint 1');
     expect((await rect(hintBar(page))).height, '48px').toBeCloseTo(BAR_PX, 0);
   });
 });
@@ -281,7 +281,6 @@ test.describe('15-S5-5 the hint', () => {
 test.describe('15-S5-6 it follows the cursor', () => {
   test('at 768px: clicks, the toggle and the arrow keys move it; it empties when the grid loses focus', async ({ page }) => {
     await open(page, 768);
-    await cell(page, '0,0').click();
     await expect(hintText(page)).toHaveText('Across hint 1');
     await cell(page, '0,0').click();
     await expect(hintText(page)).toHaveText('Down hint 1');
@@ -307,7 +306,6 @@ test.describe('15-S5-6 it follows the cursor', () => {
 test.describe('15-S5-7 the order', () => {
   test('at 768px: from 1 Across, Next visits 6–9 Across, 1–5 Down and wraps; Previous wraps back', async ({ page }) => {
     await open(page, 768);
-    await cell(page, '0,0').click();
     await expect(hintText(page)).toHaveText('Across hint 1');
     const expected = [6, 7, 8, 9].map((n) => `Across hint ${n}`)
       .concat([1, 2, 3, 4, 5].map((n) => `Down hint ${n}`), ['Across hint 1']);
@@ -319,10 +317,10 @@ test.describe('15-S5-7 the order', () => {
     await expect(hintText(page)).toHaveText('Down hint 5');
   });
 
-  test('with nothing selected, Next shows 1 Across and Previous 5 Down', async ({ page }) => {
+  test('on open, at 1 Across, Next shows 6 Across and Previous 5 Down', async ({ page }) => {
     await open(page, 768);
     await next(page).click();
-    await expect(hintText(page)).toHaveText('Across hint 1');
+    await expect(hintText(page)).toHaveText('Across hint 6');
     await page.reload();
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
     await previous(page).click();

@@ -35,17 +35,13 @@ and 16 are closed.
 frozen on `main` in 96a3cd6 (specification only), and the
 implementation was delivered directly on `main` (no risk path).
 
-**S2 is drafted, awaiting the human's approval** (2026-10-31):
+**S2 is approved** (2026-10-31): the human approved
 [17-S2-play-opens-on-first-empty-cell.md](stories/17-S2-play-opens-on-first-empty-cell.md),
-with proposed acceptance `e2e/play-opening.spec.ts` and amendments to
+its acceptance `e2e/play-opening.spec.ts`, the amendments to
 `e2e/play-entries.spec.ts`, `e2e/play-design.spec.ts`,
-`e2e/narrow-play.spec.ts` and `e2e/play-route.spec.ts` (listed in the
-story's table). The story, the spec and the amendments are uncommitted on
-`main`; nothing is frozen and no runtime changed. For the human to
-confirm: the *proposed* Decisions (Down where the first empty cell has
-no Across word, focus without scrolling, and clicking the opening cell
-toggles to Down as any cursor cell). No risk path, so S2 is delivered
-directly on `main`.
+`e2e/narrow-play.spec.ts` and `e2e/play-route.spec.ts`, and the story's
+proposed Decisions. They are frozen on `main` (specification only);
+implementation follows directly on `main` (no risk path).
 
 ## Verification
 

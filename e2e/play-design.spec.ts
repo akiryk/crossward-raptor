@@ -16,8 +16,10 @@ import { playPuzzleFixture, seedPlayPuzzle, seedPlaySession } from './helpers/pl
 // The Prominent Hint: a bar the grid's width, 16px above it, filled
 // play-cell-selected-row, 10px corners, 12px by 16px padding, at least
 // 52px tall. It shows the selected word's number and direction ("1A") in
-// title-4 primary and its hint in body-large primary, on one baseline, and
-// stays, empty, while no word is selected.
+// title-4 primary and its hint in title-3 primary (17-S2, was body-large),
+// on one baseline, and stays, empty, while no word is selected. Play opens
+// on 1 Across with the grid focused (17-S2), so a test starts there
+// without clicking (0,0), which would toggle to Down.
 //
 // Player Hints, compact (the human's mockup): "Across" and "Down" in
 // title-4 primary, level with the grid's first row; the numbers 72px
@@ -126,6 +128,7 @@ test.describe('14-S7-1 the play grid', () => {
 
   test('unselected: on cells white, off cells gray-700, lines gray-500, no ring, at most 560px', async ({ page }) => {
     await openPlay(page);
+    await page.getByTestId('play-grid-region').blur();
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'play');
     for (const coord of ON_CELLS) expect(await bg(cell(page, coord)), coord).toBe(WHITE);
     expect(await bg(cell(page, '1,1')), 'the off cell').toBe(OFF);
@@ -135,7 +138,6 @@ test.describe('14-S7-1 the play grid', () => {
 
   test("selected: the cursor yellow-bright, its word blue-medium, others unchanged, no ring", async ({ page }) => {
     await openPlay(page);
-    await cell(page, '0,0').click();
     await expect.poll(() => bg(cell(page, '0,0')), 'the cursor cell').toBe(SELECTED_CELL);
     for (const coord of ['1,0', '2,0']) expect(await bg(cell(page, coord)), coord).toBe(SELECTED_ROW);
     for (const coord of ['0,1', '2,1', '0,2', '1,2', '2,2']) expect(await bg(cell(page, coord)), coord).toBe(WHITE);
@@ -156,7 +158,7 @@ test.describe('14-S7-1 the play grid', () => {
 test.describe('14-S7-2 the Prominent Hint', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  test('a bar the grid’s width, 16px above it, blue-medium, 10px corners, 52px tall and empty with nothing selected', async ({ page }) => {
+  test('a bar the grid’s width, 16px above it, blue-medium, 10px corners, 52px tall, showing 1A on open', async ({ page }) => {
     await openPlay(page);
     const b = await box(bar(page));
     const g = await box(grid(page));
@@ -167,25 +169,23 @@ test.describe('14-S7-2 the Prominent Hint', () => {
     expect(await bg(bar(page)), 'fill').toBe(SELECTED_ROW);
     expect(await style(bar(page), 'border-top-left-radius'), 'corners').toBe('10px');
     expect(await style(bar(page), 'padding'), 'padding').toBe('12px 16px');
-    await expect(bar(page)).toHaveText('');
+    await expect(bar(page)).toHaveText(/^1A\s*Feline$/);
   });
 
-  test("shows the selected word's number and direction in title-4 and its hint in body-large, on one baseline", async ({ page }) => {
+  test("shows the selected word's number and direction in title-4 and its hint in title-3, on one baseline", async ({ page }) => {
     await openPlay(page);
-    await cell(page, '0,0').click();
     const label = bar(page).getByTestId('prominent-hint-label');
     const text = bar(page).getByTestId('prominent-hint-text');
     await expect(label).toHaveText('1A');
     await expect(text).toHaveText('Feline');
     await expectText(label, '14px', '600', '20px', PRIMARY);
-    await expectText(text, '18px', '400', '28px', PRIMARY);
+    await expectText(text, '18px', '600', '24px', PRIMARY);
     expect(await baseline(label), 'one baseline').toBeCloseTo(await baseline(text), 0);
     expect((await box(bar(page))).height, 'height').toBeCloseTo(52, 0);
   });
 
   test('follows the cursor’s word', async ({ page }) => {
     await openPlay(page);
-    await cell(page, '0,0').click();
     await expect(bar(page)).toHaveText(/^1A\s*Feline$/);
     await page.keyboard.press('Space');
     await expect(bar(page)).toHaveText(/^1D\s*A pet that purrs$/);
@@ -197,7 +197,6 @@ test.describe('14-S7-2 the Prominent Hint', () => {
 
   test('empties, keeping its height, when the grid loses focus', async ({ page }) => {
     await openPlay(page);
-    await cell(page, '0,0').click();
     await expect(bar(page)).toHaveText(/Feline/);
     const g = await box(grid(page));
     await page.getByTestId('play-title').click();
@@ -260,10 +259,6 @@ test.describe('14-S7-3 Player Hints', () => {
 
   test("the selected word's hint has the selected row's background, following the cursor", async ({ page }) => {
     await openPlay(page);
-    for (const key of ['1-across', '3-across', '1-down', '2-down']) {
-      expect(await bg(hint(page, key)), `${key} unselected`).toBe(TRANSPARENT);
-    }
-    await cell(page, '0,0').click();
     await expect.poll(() => bg(hint(page, '1-across'))).toBe(SELECTED_ROW);
     for (const key of ['3-across', '1-down', '2-down']) expect(await bg(hint(page, key)), key).toBe(TRANSPARENT);
     const number = await box(hint(page, '1-across').getByTestId('play-clue-number'));
@@ -298,7 +293,6 @@ test.describe('14-S7-3 Player Hints', () => {
 
   test('a click on a full word’s hint selects its first cell', async ({ page }) => {
     await openPlay(page);
-    await cell(page, '0,0').click();
     await page.keyboard.type('cat');
     await page.getByTestId('play-title').click();
     await hint(page, '1-across').click();
