@@ -3,8 +3,8 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md), especially "S3 — Delete published puzzles" and
-   the Decisions it relies on.
+2. The S3 story, [16-S3-delete-published.md](stories/16-S3-delete-published.md),
+   and the EPIC Decisions it cites.
 
 ## Current state (2026-10-31)
 
@@ -29,26 +29,33 @@ reviewed with no findings, and merged to `main` as `642ffe7`. Its
 Decisions, including `updatedAt` staying put on a visibility change, are in
 [16-S2-row-menu.md](stories/16-S2-row-menu.md).
 
-**S3 (Delete published puzzles)** has no story file yet. Only drafting its
-specification and proposed acceptance is the next job; it needs human
-approval and a specification-only freeze on `main` before implementation.
+**S3 (Delete published puzzles) is drafted, not approved**:
+[16-S3-delete-published.md](stories/16-S3-delete-published.md), with
+proposed acceptance in `e2e/delete-published.spec.ts` and amendments to
+two 16-S2 cases in `e2e/row-menu.spec.ts` (the story's table). All of it
+is **uncommitted** in the `main` worktree until freeze. No runtime change.
+Three questions are pending for the human: the proposed copy, the "no
+longer available" page's visual values, and delivery (recommended:
+direct to `main`, since S3 touches no CODE-REVIEW risk path; the
+alternative is a PR and independent review anyway).
 
 ## Verification
 
-Reviewer, on PR #30's head `d2a0444` (the merged S2 content): `npm run
-verify` exit 0, Vitest 612 of 612 (ESLint's one warning is pre-existing in
-`request-logger/`); full `npm run test:e2e` exit 0, 795 of 795, using the
-guarded reset under the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). `git diff a624b16`
-touches no acceptance file. External CI: Vercel deployment only (runs no
-test gates), passed.
+S3's draft, on `main` at `c6361a5` plus the uncommitted proposed tests:
+`npm run verify` exit 0 (Vitest 612 of 612; the new tests are browser
+only). The story records the discrimination run. `main` fails every new
+case except one intentional guard. A reverted throwaway implementation
+passed the full `npm run test:e2e`, 806 of 806, and two mutations were
+each caught. The guarded reset used the standing grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-Draft S3's specification and proposed acceptance from the EPIC's S3
-section as `stories/16-S3-*.md`, per STORY's drafting phase, on `main`.
-Stop for human approval before freezing; no runtime change.
+The human answers S3's pending questions and approves (or revises) its
+specification, acceptance and amendments. Then freeze S3 on `main` in a
+specification-only commit and implement it, delivered as the answer to
+question 3 says.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and the "S3 — Delete published puzzles" section of docs/epics/16-puzzle-lifecycle/EPIC.md. Draft S3's specification and proposed acceptance on main; stop for human approval before freezing.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S3-delete-published.md. Once the human approves it, freeze S3 on main in a specification-only commit, then implement it and deliver it as its question 3's answer says.
