@@ -28,14 +28,13 @@ is now S5 and Rebus S10. The human answered the drafting questions the
 same day (recorded in the EPIC) and approved the amendment. Epics 15
 and 16 are closed.
 
-**S1 is drafted, awaiting the human's approval** (2026-10-31):
-[17-S1-missing-hints.md](stories/17-S1-missing-hints.md), with proposed
-acceptance `e2e/missing-hints.spec.ts` and amendments to
+**S1 is approved and frozen** (2026-10-31): the human approved
+[17-S1-missing-hints.md](stories/17-S1-missing-hints.md), its acceptance
+`e2e/missing-hints.spec.ts` and the amendments to
 `src/app/globals-css.test.ts` and `e2e/color-tokens.spec.ts` (adding
-`pink` and `hint-missing`). The story, the spec and the amendments are
-uncommitted on `main`; nothing is frozen and no runtime changed. No
-pending question; the EPIC's proposed items are settled in the story's
-Decisions. No risk path, so S1 is delivered directly on `main`.
+`pink` and `hint-missing`). They are frozen on `main` in a
+specification-only commit. No risk path, so S1 is delivered directly on
+`main`. Implementation is in progress.
 
 ## Verification
 
@@ -48,10 +47,8 @@ run.
 
 ## Next action
 
-Once the human approves S1's specification, acceptance and amendments,
-record the approval, freeze them on `main` in a specification-only
-commit, then implement S1 on `main`. Without approval, don't freeze or
-implement.
+Implement S1 on `main` against the frozen acceptance, run `npm run
+verify` and the full `npm run test:e2e`, and deliver on `main`.
 
 ## Resume prompt
 

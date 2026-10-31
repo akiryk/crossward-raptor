@@ -34,6 +34,8 @@ const VARIABLES: Record<string, string> = {
   'blue-medium': '#CFEEFF',
   // 14-S11: the keyboard focus ring.
   cyan: '#00F0FF',
+  // 17-S1: a missing hint's row.
+  pink: '#FFE4E2',
 };
 
 // style -> the variable it references
@@ -70,6 +72,8 @@ const STYLES: Record<string, string> = {
   'hint-box-input': 'blue-medium',
   // 15-S5: the play hint bar's fill.
   'play-hint-bar': 'blue-medium',
+  // 17-S1: a missing hint's row.
+  'hint-missing': 'pink',
   primary: 'black',
   muted: 'gray-500',
   'link-muted': 'interactive-light',
