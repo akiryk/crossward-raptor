@@ -64,4 +64,4 @@ in the story.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and the S4 section of docs/epics/16-puzzle-lifecycle/EPIC.md. Present S4's drafted specification and pending question to the human; once they approve, freeze it on main and implement it on story/16-S4-duplicate.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S4-duplicate.md. Independently review PR #31 on story/16-S4-duplicate per docs/process/REVIEW.md; merge it if no blockers remain and verification and CI pass.
