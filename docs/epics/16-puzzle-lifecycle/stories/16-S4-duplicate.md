@@ -4,7 +4,7 @@ Every Build row's menu offers Duplicate, first. It creates, on the server
 from the stored puzzle, a new unpublished puzzle owned by the caller, and
 opens it in the editor. The source and its play sessions don't change.
 
-**Status: frozen** (2026-10-31). The human approved this
+**Status: done** (2026-10-31). The human approved this
 specification, its acceptance and the amendments, and accepted the
 recommended answers to [question 1](#pending-questions-settled): the
 "{title} (copy)" title, appended every time, and the proposed failure

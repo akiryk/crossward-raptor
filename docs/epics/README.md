@@ -9,10 +9,10 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, approved
-  2026-10-27; stories done, closeout audit next)
-- [Polish](17-polish/HANDOFF.md) (epic 17, approved 2026-10-27; after
-  epic 16)
+- [Polish](17-polish/HANDOFF.md) (epic 17, approved 2026-10-27; S1 to
+  draft)
+- [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, closed
+  2026-10-31; one accepted edge case listed there)
 - [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, closed
   2026-10-29; open items listed there)
 - [Screen redesign](14-screen-redesign/HANDOFF.md) (epic 14, closed

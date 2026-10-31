@@ -121,14 +121,17 @@ players who have a play session for them. A player who started or
 finished one keeps finding it, and a tester who opened the link finds it
 listed afterwards. Nobody else sees it listed.
 
-**Sign-in stays required** *(proposed)*. Unlisted means hidden from the
-Play view, not readable without an account. The outside proposal's
-anonymous link access is a Non-goal.
+**Sign-in stays required** *(human, confirmed 2026-10-31)*. Unlisted
+means hidden from the Play view, not readable without an account. The
+outside proposal's anonymous link access is a Non-goal.
 
-**No draft test-solve** *(proposed)*. Epic 11's "plays their own puzzle
-exactly as anyone else does" stands. To test before sharing, the builder
-publishes Unlisted and plays; epic 17 removes Reset from play *(human,
-2026-10-27)*. The outside proposal's L2 is dropped.
+**No draft test-solve** *(human, confirmed 2026-10-31)*. Epic 11's
+"plays their own puzzle exactly as anyone else does" stands. To test
+before sharing, the builder publishes Unlisted and plays; epic 17 removes
+Reset from play *(human, 2026-10-27)*. The outside proposal's L2 is dropped.
+
+**Duplicate comes back** *(human, 2026-10-27)*. This epic supersedes
+epic 05's Story Group D7, which removed epic 03's Duplicate.
 
 **A duplicate is a new puzzle, not a revision** *(proposed)*. It gets a
 new ID, the caller as builder and `publishedAt: null`. It copies the
@@ -217,8 +220,9 @@ that, for a published puzzle, says other players' progress is deleted.
 Declining deletes nothing. A link to a deleted puzzle shows a "no longer
 available" message with a way back to `/puzzles`, in play and the editor.
 A player mid-solve whose save fails because the puzzle was deleted is told
-so, not shown a generic save error. Supersedes 14-S2's published rows
-having no Delete.
+so, not shown a generic save error. Supersedes 16-S2-3 and 16-S2-7,
+which pinned a published row's menu to its visibility item alone; no
+14-S2 case still pinned published rows having no Delete.
 
 ### S4 — Duplicate a puzzle
 
@@ -233,3 +237,12 @@ sessions copied, and another user's puzzle refused.
 
 None. The draft's questions and their follow-ups were answered 2026-10-27
 *(human)* and are recorded in Decisions.
+
+---
+
+## At closeout (2026-10-31)
+
+- **Accepted, no code change** *(human)*: while one row's menu action is
+  pending, a second row's menu may possibly be opened, so two menus could
+  be open at once.
+- Nothing else is left open.

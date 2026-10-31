@@ -112,7 +112,8 @@ they would have passed whether or not the behavior under test existed:
   directly and dispatches no `keydown` events — so the window-level keydown
   guard it was meant to verify was never exercised. `pressSequentially`
   dispatches real key events; `fill` does not.
-- **`duplicate.spec.ts`** used `waitForURL(/\/puzzles\/[^/]+$/)` to wait for
+- **`duplicate.spec.ts`** (epic 03's, removed in 05 D7; not epic 16's
+  spec of the same name) used `waitForURL(/\/puzzles\/[^/]+$/)` to wait for
   navigation to a *newly created copy*. The page was already on a URL
   matching that pattern, so the wait resolved instantly, and the following
   assertion ran against the pre-navigation state. The predicate had to
