@@ -28,16 +28,31 @@ is now S5 and Rebus S10. The human answered the drafting questions the
 same day (recorded in the EPIC) and approved the amendment. Epics 15
 and 16 are closed.
 
+**S1 is drafted, awaiting the human's approval** (2026-10-31):
+[17-S1-missing-hints.md](stories/17-S1-missing-hints.md), with proposed
+acceptance `e2e/missing-hints.spec.ts` and amendments to
+`src/app/globals-css.test.ts` and `e2e/color-tokens.spec.ts` (adding
+`pink` and `hint-missing`). The story, the spec and the amendments are
+uncommitted on `main`; nothing is frozen and no runtime changed. No
+pending question; the EPIC's proposed items are settled in the story's
+Decisions. No risk path, so S1 is delivered directly on `main`.
+
 ## Verification
 
-Documentation only; no checks run.
+Drafting only. The story's Discrimination section records the observed
+runs: a throwaway implementation (reverted) passes the proposed tests and
+the related specs, current `main` fails 11 of 12 new cases (all but the
+guard), and two mutations are caught. `tsc` and ESLint pass on the
+proposed tests. `npm run verify` and the full `npm run test:e2e` were not
+run.
 
 ## Next action
 
-Draft S1 (Missing hints) per its EPIC section, with proposed acceptance,
-on `main`, for the human's approval.
-The epic's approval doesn't approve any story.
+Once the human approves S1's specification, acceptance and amendments,
+record the approval, freeze them on `main` in a specification-only
+commit, then implement S1 on `main`. Without approval, don't freeze or
+implement.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/EPIC.md. Draft S1's specification (EPIC.md's "S1 — Missing hints") with proposed acceptance on main, for the human's approval; don't freeze or implement it.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S1-missing-hints.md. Once the human has approved it, freeze S1's specification and acceptance on main, then implement S1 on main and deliver it there.
