@@ -3,8 +3,8 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The S4 story, [16-S4-duplicate.md](stories/16-S4-duplicate.md), and
-   the EPIC's S4 section and Decisions.
+2. The [EPIC](EPIC.md) and [AUDIT](../../process/AUDIT.md); open a
+   story file only when a finding needs it.
 
 ## Current state (2026-10-31)
 
@@ -37,31 +37,36 @@ in the commit after that freeze, touching only the story's four runtime
 paths (no CODE-REVIEW risk path; `actions.ts` unchanged). Its Decisions
 are in [16-S3-delete-published.md](stories/16-S3-delete-published.md).
 
-**S4 (Duplicate a puzzle) is implemented and awaits independent
-review.** The human approved the specification, acceptance and
+**S4 (Duplicate a puzzle) is done.** The human approved the specification, acceptance and
 amendments *(2026-10-31)*, accepting the recommended answers to its
 question: the "{title} (copy)" title, appended every time, and the
 proposed failure message. Frozen on `main` at `0e6658c`. Implemented on
 `story/16-S4-duplicate`, changing only `src/app/puzzles/actions.ts`
 (`duplicatePuzzle`, a risk path) and
 `src/components/puzzle/PuzzleRowMenu.tsx`, in [PR #31](https://github.com/akiryk/crossward-raptor/pull/31). Frozen
-acceptance is unchanged from `0e6658c`.
+acceptance is unchanged from `0e6658c`. Independently reviewed with no
+findings and merged to `main` as `c3bf751`.
+
+**Every story meets its Definition of Done.** The epic awaits its
+independent closeout audit.
 
 ## Verification
 
-S4 implementation (2026-10-31), on the branch's implementation tree:
-`npm run verify` exit 0 (Vitest 620 of 620; one pre-existing lint
-warning in `request-logger/render.ts`); full `npm run test:e2e` exit 0,
-811 of 811. The guarded reset used the standing grant in
+S4 review (2026-10-31), run by the independent reviewer on the reviewed
+head `053b6bd`: `npm run verify` exit 0 (Vitest 620 of 620; one
+pre-existing lint warning in `request-logger/render.ts`); full
+`npm run test:e2e` exit 0, 811 of 811; CI (Vercel) passed. The guarded reset used the standing grant in
 [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). Drafting's
 discrimination evidence is in the story.
 
 ## Next action
 
-Independently review S4's PR per [REVIEW](../../process/REVIEW.md); the
-reviewer merges when no blockers remain. Then record the merge here and
-in the story.
+An independent, report-only closeout audit of epic 16 per
+[AUDIT](../../process/AUDIT.md) and the
+[epic index](../README.md#close-an-epic), by a session that authored none
+of the epic's work. A non-auditing session then records its date,
+coverage, findings and disposition here.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S4-duplicate.md. Independently review PR #31 on story/16-S4-duplicate per docs/process/REVIEW.md; merge it if no blockers remain and verification and CI pass.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/EPIC.md. Perform the independent closeout audit of epic 16 per docs/process/AUDIT.md on main; report only, with no edits, commits or pushes.

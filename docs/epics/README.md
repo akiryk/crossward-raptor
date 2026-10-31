@@ -10,7 +10,7 @@ reading or additional product specifications.
 ## Find the current work
 
 - [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, approved
-  2026-10-27; S1 to draft)
+  2026-10-27; stories done, closeout audit next)
 - [Polish](17-polish/HANDOFF.md) (epic 17, approved 2026-10-27; after
   epic 16)
 - [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, closed
