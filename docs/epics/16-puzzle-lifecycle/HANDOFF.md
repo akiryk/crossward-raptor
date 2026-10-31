@@ -44,7 +44,7 @@ question: the "{title} (copy)" title, appended every time, and the
 proposed failure message. Frozen on `main` at `0e6658c`. Implemented on
 `story/16-S4-duplicate`, changing only `src/app/puzzles/actions.ts`
 (`duplicatePuzzle`, a risk path) and
-`src/components/puzzle/PuzzleRowMenu.tsx`, in PR-PLACEHOLDER. Frozen
+`src/components/puzzle/PuzzleRowMenu.tsx`, in [PR #31](https://github.com/akiryk/crossward-raptor/pull/31). Frozen
 acceptance is unchanged from `0e6658c`.
 
 ## Verification
