@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 
 /** Build's Delete confirmation, opened from the row menu (16-S2). */
-export function LibraryDelete({ puzzleId, title, onDeleted, open, setOpen }: {
+export function LibraryDelete({ puzzleId, title, published, onDeleted, open, setOpen }: {
   puzzleId: string;
   title: string;
+  published: boolean;
   onDeleted: () => void;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -60,7 +61,11 @@ export function LibraryDelete({ puzzleId, title, onDeleted, open, setOpen }: {
           </>
         )}
       >
-        <p>This deletes {title}. This cannot be undone.</p>
+        <p>
+          This deletes {title}.
+          {published && ' Everyone who has played it, including other players, loses their progress.'}
+          {' '}This cannot be undone.
+        </p>
         {failed && !pending && (
           <p data-testid="puzzle-delete-error" role="alert" className="text-error">
             Could not delete the puzzle. Please try again.

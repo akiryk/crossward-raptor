@@ -7,11 +7,14 @@ available" page with a way back to `/puzzles`. A player whose save fails
 because the puzzle was deleted is told so, not shown the generic save
 error.
 
-**Status: approved and frozen** (2026-10-31). The human approved this
+**Status: done** (2026-10-31). The human approved this
 specification, its acceptance and the amendments, and accepted the
 recommended answer to all three
 [questions](#pending-questions-settled): the proposed copy, the proposed
-visual values, and direct delivery to `main`.
+visual values, and direct delivery to `main`. Frozen at `602c0c5`.
+**Implemented and delivered** directly to `main` (2026-10-31):
+`npm run verify` exit 0 and the full `npm run test:e2e` exit 0, 806 of
+806.
 
 **Blast radius: small.** One more menu item, one more sentence in the
 existing dialog, a rewritten `not-found` page and one new state in the

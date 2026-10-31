@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import Link from 'next/link';
 import {
   inspectPlayCompletion, resetPlaySession, savePlayEntries, startPlaySession, type PlayPuzzleView,
 } from '@/app/puzzles/actions';
@@ -48,6 +49,7 @@ export function PlayPuzzle({
   const [resetOpen, setResetOpen] = useState(false);
   const [resetPending, setResetPending] = useState(false);
   const [resetFailed, setResetFailed] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   const gridRegion = useRef<HTMLDivElement>(null);
   const autosave = useRef<ReturnType<typeof createPlayAutosave> | null>(null);
   // Identifies the mounted start run; late results of a replaced run are ignored.
@@ -135,7 +137,19 @@ export function PlayPuzzle({
   const view = puzzle.id === initialPuzzle.id ? puzzle : initialPuzzle;
   const displayedSessionState = puzzle.id === initialPuzzle.id ? sessionState : 'starting';
   const ready = displayedSessionState === 'ready';
-  const editable = ready && !locked && !checking && !resetOpen;
+  const editable = ready && !locked && !checking && !resetOpen && !unavailable;
+
+  useEffect(() => {
+    if (saveState !== 'error') return;
+    let current = true;
+    fetch(`/puzzles/${initialPuzzle.id}/play`, { cache: 'no-store' }).then((response) => {
+      if (current && response.status === 404) {
+        autosave.current?.stop();
+        setUnavailable(true);
+      }
+    }).catch(() => undefined);
+    return () => { current = false; };
+  }, [saveState, initialPuzzle.id]);
   const grid = deserializeGrid(view.entries);
   const slots = slotsWithNumbers(grid);
   const lookup = buildSlotLookup(grid);
@@ -288,7 +302,13 @@ export function PlayPuzzle({
             <div className="hidden @min-[1242px]/play:contents">
               <PlayResetControls enabled={ready} isBuilder={isBuilder} onReset={openReset} />
             </div>
-            {ready && (
+            {ready && unavailable && (
+              <p data-testid="play-unavailable" role="alert" className="text-body-small text-error @min-[1242px]/play:ml-auto">
+                This puzzle is no longer available.{' '}
+                <Link href="/puzzles" className="text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover">Back to puzzles</Link>
+              </p>
+            )}
+            {ready && !unavailable && (
               <div
                 data-testid="play-save-status"
                 data-save-state={saveState}
@@ -331,7 +351,7 @@ export function PlayPuzzle({
               </Button>
             </div>
           )}
-          {ready && completionError && (
+          {ready && completionError && !unavailable && (
             <p data-testid="play-completion-error" role="alert" className="@min-[1242px]/play:mt-3 text-body-small text-error">
               Completion verification failed. Retry to check your saved entries before continuing.
             </p>

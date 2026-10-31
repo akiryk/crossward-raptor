@@ -13,6 +13,7 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
   const published = puzzle.publishedAt !== null;
   const makePublic = puzzle.visibility !== 'public';
 
+  const remove: MenuItem = { key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', onSelect: () => setDeleting(true) };
   const items: MenuItem[] = published
     ? [{
       key: 'visibility',
@@ -28,8 +29,8 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
           return false;
         }
       },
-    }]
-    : [{ key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', onSelect: () => setDeleting(true) }];
+    }, remove]
+    : [remove];
 
   return (
     <>
@@ -44,7 +45,7 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
           </p>
         )}
       />
-      <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} onDeleted={onDeleted} open={deleting} setOpen={setDeleting} />
+      <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} published={published} onDeleted={onDeleted} open={deleting} setOpen={setDeleting} />
     </>
   );
 }

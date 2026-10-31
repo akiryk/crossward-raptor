@@ -29,28 +29,31 @@ reviewed with no findings, and merged to `main` as `642ffe7`. Its
 Decisions, including `updatedAt` staying put on a visibility change, are in
 [16-S2-row-menu.md](stories/16-S2-row-menu.md).
 
-**S3 (Delete published puzzles) is approved and frozen** *(human,
-2026-10-31)*, accepting the recommended answer to all three questions:
-the proposed copy, the proposed visual values, and direct delivery to
-`main` (no CODE-REVIEW risk path). Frozen in a specification-only commit
-on `main`: [16-S3-delete-published.md](stories/16-S3-delete-published.md),
-`e2e/delete-published.spec.ts` and the two 16-S2 amendments in
-`e2e/row-menu.spec.ts`. Implementation is next, on `main`.
+**S3 (Delete published puzzles) is done.** Approved and frozen *(human,
+2026-10-31)* on `main` at `602c0c5`, accepting the recommended answer to
+all three questions: the proposed copy, the proposed visual values, and
+direct delivery to `main`. Implemented and delivered directly to `main`
+in the commit after that freeze, touching only the story's four runtime
+paths (no CODE-REVIEW risk path; `actions.ts` unchanged). Its Decisions
+are in [16-S3-delete-published.md](stories/16-S3-delete-published.md).
+
+S4 (Duplicate a puzzle) has no story yet; its EPIC section is the
+starting point.
 
 ## Verification
 
-At freeze, on `main` at `5bfae31` plus the then-uncommitted proposed
-tests: `npm run verify` exit 0. The story records the discrimination
-run. Implementation's `npm run verify` and full `npm run test:e2e` are
-not yet run.
+S3's implementation, on `main` at `602c0c5` plus the four runtime
+changes (the tree committed as S3's implementation): `npm run verify`
+exit 0 (Vitest 612 of 612); full `npm run test:e2e` exit 0, 806 of 806.
+Frozen acceptance unchanged from `602c0c5`. The guarded reset used the
+standing grant in [DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
 
 ## Next action
 
-Implement S3 on `main` per its Repo paths, keeping the frozen acceptance
-unchanged. Deliver directly to `main` after `npm run verify` and the full
-`npm run test:e2e` both exit 0. Touching `actions.ts` would be a
-risk-path escalation (story branch, PR, independent review).
+Draft S4's specification and proposed acceptance from the EPIC's S4
+section, on `main`, uncommitted until the human approves it. No runtime
+change before freeze.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S3-delete-published.md. Implement the frozen S3 on main; deliver directly to main after npm run verify and the full npm run test:e2e pass.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and the S4 section of docs/epics/16-puzzle-lifecycle/EPIC.md. Draft S4's specification and proposed acceptance on main; don't commit or change runtime until the human approves it.
