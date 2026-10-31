@@ -454,6 +454,36 @@ export async function publishPuzzle(
   return { publishedAt, visibility };
 }
 
+/** Story 16-S2: switches the caller's published puzzle between unlisted and
+ *  public. Only `visibility` changes: `updatedAt` is written back with its
+ *  own value (overriding `@updatedAt`), so the row's date and place don't
+ *  move. Ownership and publication are in the write's own condition, with
+ *  the `updatedAt` just read, so a concurrent write makes it match nothing
+ *  rather than roll that stamp back. Every refusal throws the same error. */
+export async function setPuzzleVisibility(
+  id: string,
+  visibility: Visibility
+): Promise<{ visibility: Visibility }> {
+  const session = await requireSession();
+  if (visibility !== 'private' && visibility !== 'public') {
+    throw new Error(`setPuzzleVisibility: invalid visibility ${JSON.stringify(visibility)}`);
+  }
+
+  const notAllowed = new Error(`setPuzzleVisibility: puzzle ${id} cannot change visibility`);
+  const owned = { id, builderId: session.user.id, publishedAt: { not: null } };
+  const record = await prisma.puzzle.findUnique({ where: owned, select: { updatedAt: true } });
+  if (!record) throw notAllowed;
+
+  const { count } = await prisma.puzzle.updateMany({
+    where: { ...owned, updatedAt: record.updatedAt },
+    data: { visibility, updatedAt: record.updatedAt },
+  });
+  if (count === 0) throw notAllowed;
+
+  revalidatePath('/puzzles');
+  return { visibility };
+}
+
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   const session = await requireSession();

@@ -10,6 +10,16 @@ specification, its acceptance and the amendments, and accepted the
 recommended answer to both [questions](#pending-questions-settled): the
 proposed visual values, and `updatedAt` unchanged on a visibility change.
 
+**Implementation (2026-10-31):** on `story/16-S2-row-menu` from the freeze
+(branched at `b3109a3`, which only records `a624b16`), in a PR awaiting
+independent review. Changed only the declared runtime files. Based on the
+discrimination throwaway, with one addition: the write's condition also
+pins the `updatedAt` it just read, so a concurrent write makes it match
+nothing (and throw) rather than roll that stamp back. Observed on the
+implementation tree: `npm run verify` exit 0 (Vitest 612 of 612) and the
+full `npm run test:e2e` exit 0 (795 of 795); frozen acceptance unchanged
+from `a624b16`.
+
 **Blast radius: medium.** One new server action, a new generic menu
 component, a Build row wrapper for it, the delete dialog made controlled
 and a style-guide sample. No schema change, no migration and no engine
