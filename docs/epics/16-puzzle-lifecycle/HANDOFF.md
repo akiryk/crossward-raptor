@@ -32,7 +32,8 @@ the amended `e2e/puzzle-library.spec.ts` (14-S2-2, 14-S2-3, 14-S2-6). No
 runtime change in it.
 
 **S2 is implemented** on `story/16-S2-row-menu` (branched from `b3109a3`,
-which only records the freeze) and awaits independent review in its PR.
+which only records the freeze) and awaits independent review in
+[PR #30](https://github.com/akiryk/crossward-raptor/pull/30).
 Only the story's declared runtime paths changed; the one addition to the
 throwaway design is recorded in the story's Implementation note. Not
 merged.
@@ -52,9 +53,9 @@ unchanged):
 
 ## Next action
 
-Independently review S2's PR per [REVIEW](../../process/REVIEW.md) and
+Independently review PR #30 per [REVIEW](../../process/REVIEW.md) and
 merge it when no blockers remain. S3 is not authorized by this.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S2-row-menu.md. Review S2's PR on story/16-S2-row-menu independently, and merge it if no blockers remain.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S2-row-menu.md. Review PR #30 (S2) on story/16-S2-row-menu independently, and merge it if no blockers remain.
