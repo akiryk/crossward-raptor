@@ -255,7 +255,8 @@ test.describe('16-S2-2 the menu', () => {
 
     for (const [fixture, color] of [[draft, 'error'], [published, 'primary']] as const) {
       await openMenu(page, row(page, fixture.title));
-      const entry = items(page).first();
+      // 16-S4: a draft's first item is Duplicate, so its Delete is found by test ID.
+      const entry = color === 'error' ? menu(page).getByTestId('puzzle-menu-delete') : items(page).first();
       expect(await entry.evaluate((el) => el.tagName.toLowerCase())).toBe('button');
       expect((await box(entry)).height, 'item height').toBeCloseTo(32, 0);
       expect(await css(entry, 'padding-left'), 'inset').toBe('12px');
@@ -289,20 +290,21 @@ test.describe('16-S2-2 the menu', () => {
 
 test.describe('16-S2-3 what the menu offers', () => {
   // 16-S3: published rows offer Delete after the visibility item.
+  // 16-S4: every row offers Duplicate first.
   test('Delete on an unpublished row; Make public then Delete on an unlisted one; Make unlisted then Delete on a public one', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
-      ['grid', ['Delete']],
-      ['hints', ['Delete']],
-      ['private published', ['Make public', 'Delete']],
-      ['public published', ['Make unlisted', 'Delete']],
+      ['grid', ['Duplicate', 'Delete']],
+      ['hints', ['Duplicate', 'Delete']],
+      ['private published', ['Duplicate', 'Make public', 'Delete']],
+      ['public published', ['Duplicate', 'Make unlisted', 'Delete']],
     ] as const) {
       const fixture = await seedOwn(me, state);
       await library(page);
       await openMenu(page, row(page, fixture.title));
       expect(await itemTexts(page), state).toEqual(expected);
-      await expect(items(page).first()).toHaveAccessibleName(expected[0]);
-      await expect(menu(page).getByTestId(expected[0] === 'Delete' ? 'puzzle-menu-delete' : 'puzzle-menu-visibility')).toHaveCount(1);
+      await expect(items(page).nth(1)).toHaveAccessibleName(expected[1]);
+      await expect(menu(page).getByTestId(expected[1] === 'Delete' ? 'puzzle-menu-delete' : 'puzzle-menu-visibility')).toHaveCount(1);
       await page.keyboard.press('Escape');
     }
   });
@@ -422,6 +424,7 @@ test.describe('16-S2-6 Delete from the menu', () => {
 
     await tabTo(page, trigger(item));
     await page.keyboard.press('Enter');
+    await page.keyboard.press('End'); // 16-S4: Duplicate is first, Delete last
     await page.keyboard.press('Enter');
     await expect(dialog).toBeVisible();
     await page.getByTestId('puzzle-delete-confirm').click();
@@ -458,7 +461,7 @@ test.describe('16-S2-7 changing visibility', () => {
       await expect(item.getByTestId('puzzle-status-badge')).toHaveText('[published]');
 
       await openMenu(page, item);
-      expect(await itemTexts(page)).toEqual([next, 'Delete']); // 16-S3: Delete follows
+      expect(await itemTexts(page)).toEqual(['Duplicate', next, 'Delete']); // 16-S3: Delete follows; 16-S4: Duplicate leads
       await page.keyboard.press('Escape');
     }
     expect(await page.evaluate(() => (window as unknown as { s2Marker?: boolean }).s2Marker), 'no reload').toBe(true);

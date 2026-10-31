@@ -203,13 +203,14 @@ async function expectGonePage(page: Page, path: string) {
 }
 
 test.describe('16-S3-1 Delete on published rows', () => {
-  test('the menu offers Delete after the visibility item on published rows, and Delete alone on unpublished ones', async ({ page }) => {
+  test('the menu offers Delete after the visibility item on published rows, and after Duplicate on unpublished ones', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
-      ['grid', ['Delete']],
-      ['hints', ['Delete']],
-      ['private published', ['Make public', 'Delete']],
-      ['public published', ['Make unlisted', 'Delete']],
+      // 16-S4: every row offers Duplicate first.
+      ['grid', ['Duplicate', 'Delete']],
+      ['hints', ['Duplicate', 'Delete']],
+      ['private published', ['Duplicate', 'Make public', 'Delete']],
+      ['public published', ['Duplicate', 'Make unlisted', 'Delete']],
     ] as const) {
       const fixture = await seedOwn(me, state);
       await library(page);
