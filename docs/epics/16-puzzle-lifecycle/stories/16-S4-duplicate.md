@@ -8,8 +8,11 @@ opens it in the editor. The source and its play sessions don't change.
 specification, its acceptance and the amendments, and accepted the
 recommended answers to [question 1](#pending-questions-settled): the
 "{title} (copy)" title, appended every time, and the proposed failure
-message. Frozen on `main` in a specification-only commit; implemented on
-`story/16-S4-duplicate`.
+message. Frozen at `0e6658c`. **Implemented** on `story/16-S4-duplicate`
+(2026-10-31), touching only `actions.ts` and `PuzzleRowMenu.tsx`:
+`npm run verify` exit 0 (Vitest 620 of 620) and the full
+`npm run test:e2e` exit 0, 811 of 811. Awaits independent review of its
+PR.
 
 **Blast radius: medium.** One new server action, one new menu item and
 navigation to the copy. No schema, migration or engine change.
