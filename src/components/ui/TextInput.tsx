@@ -7,7 +7,8 @@ export type TextInputSize = 'regular' | 'large';
 
 // One underlined field (story F5). The 1px bottom line is the only stroke:
 // line-muted at rest, line-highlight on focus (no ring, no hover change),
-// error whenever an error is shown, focused or not.
+// error whenever an error is shown or the field is marked invalid, focused
+// or not.
 const SIZE_CLASS: Record<TextInputSize, string> = {
   regular: 'py-1 text-body-normal',
   large: 'py-1.5 text-body-large',
@@ -23,6 +24,7 @@ export function TextInput({
   wrap = false,
   label,
   error,
+  invalid = false,
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
@@ -37,18 +39,21 @@ export function TextInput({
   wrap?: boolean;
   label?: string;
   error?: string;
+  /** The error line and `aria-invalid`, without a message (17-S1). */
+  invalid?: boolean;
   'aria-label': string;
   placeholder?: string;
   'data-testid'?: string;
 }) {
   const id = useId();
   const errorId = `${id}-error`;
-  const line = error ? 'border-error' : 'border-line-muted focus:border-line-highlight';
+  const isInvalid = Boolean(error) || invalid;
+  const line = isInvalid ? 'border-error' : 'border-line-muted focus:border-line-highlight';
 
   const fieldProps = {
     'data-testid': dataTestId,
     'aria-label': ariaLabel,
-    'aria-invalid': error ? true : undefined,
+    'aria-invalid': isInvalid ? true : undefined,
     'aria-describedby': error ? errorId : undefined,
     placeholder,
     value,

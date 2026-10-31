@@ -26,6 +26,7 @@ export function HintsPanel({
   activeKey,
   disabled,
   selectedKey = null,
+  missingKeys,
   onHintChange,
   onHintFocus,
 }: {
@@ -38,6 +39,8 @@ export function HintsPanel({
   onHintFocus: (key: string) => void;
   /** While the grid has focus, the hint of its cursor's word. */
   selectedKey?: string | null;
+  /** Hints 3 Publish found blank, until each is changed (17-S1). */
+  missingKeys?: ReadonlySet<string>;
 }) {
   const entries = Array.from(slots.entries());
   // One width for every number in both columns, so every line starts at
@@ -66,6 +69,7 @@ export function HintsPanel({
                 .filter(([, slot]) => slot.orientation === orientation)
                 .map(([key, slot]) => {
                   const label = `${slot.number} ${slot.orientation === 'across' ? 'Across' : 'Down'}`;
+                  const isMissing = missingKeys?.has(key) ?? false;
                   return (
                     <div
                       key={key}
@@ -73,13 +77,14 @@ export function HintsPanel({
                       data-hint-key={key}
                       data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
                       data-active={activeKey === key ? 'true' : undefined}
+                      data-missing={isMissing ? 'true' : undefined}
                       className={`group flex items-baseline gap-3 not-first:mt-[5px] ${
                         selectedKey === key ? SELECTED : ''
-                      }`}
+                      } ${isMissing ? 'bg-hint-missing' : ''}`}
                     >
                       <span
                         data-testid="hint-label"
-                        className="text-title-4 text-primary shrink-0"
+                        className={`text-title-4 shrink-0 ${isMissing ? 'text-error' : 'text-primary'}`}
                         style={{ minWidth: `max(${NUMBER_MIN_PX}px, ${maxNumberDigits}ch)` }}
                       >
                         {slot.number}
@@ -92,11 +97,14 @@ export function HintsPanel({
                           onChange={(text) => onHintChange(key, text)}
                           onFocus={() => onHintFocus(key)}
                           disabled={disabled}
+                          invalid={isMissing}
                           wrap
                         />
                         <p
                           data-testid="hint-answer"
-                          className="text-label text-muted group-focus-within:text-primary mt-1 text-right tracking-[0.1em]"
+                          className={`text-label mt-1 text-right tracking-[0.1em] ${
+                            isMissing ? 'text-error' : 'text-muted group-focus-within:text-primary'
+                          }`}
                         >
                           {slotAnswer(grid, slot)}
                         </p>

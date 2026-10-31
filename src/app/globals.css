@@ -25,6 +25,7 @@
   --palette-blue-bright: #4bc0ff;
   --palette-blue-medium: #cfeeff;
   --palette-cyan: #00f0ff;
+  --palette-pink: #ffe4e2;
 }
 
 /* --- color styles (Story F1) --- */
@@ -61,6 +62,8 @@
   --color-hint-box-input: var(--palette-blue-medium);
   /* the play hint bar (Story 15-S5) */
   --color-play-hint-bar: var(--palette-blue-medium);
+  /* a missing hint's row (Story 17-S1) */
+  --color-hint-missing: var(--palette-pink);
 
   /* text */
   --color-primary: var(--palette-black);

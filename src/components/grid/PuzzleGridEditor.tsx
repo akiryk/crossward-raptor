@@ -20,7 +20,7 @@ import {
   type SerializedGrid,
 } from "../../lib/puzzle-storage";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
-import { buildSlotLookup, activeHintKey } from "../../lib/hint-lookup";
+import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
 import { publishReadiness } from "../../lib/publish-readiness";
@@ -147,6 +147,11 @@ export function PuzzleGridEditor({
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
   const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  // The hints 3 Publish found blank, each until its text next changes
+  // (17-S1). Not persisted.
+  const [missingKeys, setMissingKeys] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   // Build-phase clicks on 3 Publish since the page loaded: the first says
   // "Lol.", every later one "Nope." (14-S4). Not persisted.
   const buildPublishClicks = useRef(0);
@@ -290,6 +295,13 @@ export function PuzzleGridEditor({
         setTooEarly(buildPublishClicks.current === 0 ? "lol" : "nope");
         buildPublishClicks.current += 1;
       } else if (!hintsComplete(state)) {
+        setMissingKeys(
+          new Set(
+            Array.from(buildSlotLookup(state.grid).keys()).filter(
+              (key) => !isHintFilled(state.hints, key),
+            ),
+          ),
+        );
         setTooEarly("not-quite");
       } else {
         setIsPublishDialogOpen(true);
@@ -349,6 +361,12 @@ export function PuzzleGridEditor({
 
   function handleHintChange(key: string, text: string) {
     setState((prev) => ({ ...prev, hints: { ...prev.hints, [key]: text } }));
+    setMissingKeys((prev) => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
   }
 
   function handleHintFocus(key: string) {
@@ -514,6 +532,7 @@ export function PuzzleGridEditor({
                   grid={grid}
                   slot={shownSlot}
                   hint={hints[shownKey] ?? ""}
+                  isMissing={missingKeys.has(shownKey)}
                   disabled={isPublished}
                   inputRef={boxInputRef}
                   onHintChange={(text) => handleHintChange(shownKey, text)}
@@ -540,6 +559,7 @@ export function PuzzleGridEditor({
                 activeKey={activeKey}
                 disabled={isPublished}
                 selectedKey={isGridFocused ? activeKey : null}
+                missingKeys={missingKeys}
                 onHintChange={handleHintChange}
                 onHintFocus={handleHintFocus}
               />

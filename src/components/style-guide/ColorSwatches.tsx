@@ -24,6 +24,7 @@ const VARIABLES: { name: string; hex: string }[] = [
   { name: 'blue-bright', hex: '#4BC0FF' },
   { name: 'blue-medium', hex: '#CFEEFF' },
   { name: 'cyan', hex: '#00F0FF' },
+  { name: 'pink', hex: '#FFE4E2' },
 ];
 
 // Utility class names are written out in full so Tailwind generates them.
@@ -75,6 +76,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'hint-box-border', variable: 'gray-700', swatch: 'bg-hint-box-border' },
   { name: 'hint-box-input', variable: 'blue-medium', swatch: 'bg-hint-box-input' },
   { name: 'play-hint-bar', variable: 'blue-medium', swatch: 'bg-play-hint-bar' },
+  { name: 'hint-missing', variable: 'pink', swatch: 'bg-hint-missing' },
   { name: 'primary', variable: 'black', swatch: 'bg-primary' },
   { name: 'muted', variable: 'gray-500', swatch: 'bg-muted' },
   { name: 'link-muted', variable: 'interactive-light', swatch: 'bg-link-muted' },

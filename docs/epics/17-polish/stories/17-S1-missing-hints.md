@@ -4,9 +4,9 @@ When 3 Publish finds hints missing, it marks each one: the hint's row
 turns pink, and its number, its answer word and its input line turn the
 error red. A row returns to normal as soon as the builder types in it.
 
-**Status: frozen** (drafted 2026-10-31). The human approved this
-specification, its acceptance and the two amendments on 2026-10-31;
-frozen on `main` in a specification-only commit.
+**Status: done** (2026-10-31). The human approved this specification,
+its acceptance and the two amendments on 2026-10-31; frozen on `main` in
+96a3cd6 (specification only) and delivered directly on `main`.
 
 **Blast radius: small.** One new palette variable and color style, a
 `TextInput` option, marks in `HintsPanel` and `HintBox`, one piece of

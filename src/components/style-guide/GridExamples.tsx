@@ -187,6 +187,32 @@ export function HintInputExample() {
   );
 }
 
+/** The sample's Hint Inputs after 3 Publish found 1 Down blank: its row
+ *  marked, 2 Across written and unmarked (17-S1). Typing clears the mark. */
+export function MissingHintExample() {
+  const hintsGrid = convertEmptyCellsToBlack(buildSampleGrid());
+  const slots = buildSlotLookup(hintsGrid);
+  const [hints, setHints] = useState<Record<string, string>>({ '2-across': 'Network of squares' });
+  const [missingKeys, setMissingKeys] = useState<ReadonlySet<string>>(() => new Set(['1-down']));
+
+  return (
+    <div className="max-w-[732px]">
+      <HintsPanel
+        grid={hintsGrid}
+        slots={slots}
+        hints={hints}
+        activeKey={null}
+        missingKeys={missingKeys}
+        onHintChange={(key, text) => {
+          setHints((prev) => ({ ...prev, [key]: text }));
+          setMissingKeys((prev) => new Set([...prev].filter((k) => k !== key)));
+        }}
+        onHintFocus={() => {}}
+      />
+    </div>
+  );
+}
+
 /** The Hint Box on the sample's 2 Across, its arrows stepping through the
  *  sample's words (15-S4). */
 export function HintBoxExample() {
