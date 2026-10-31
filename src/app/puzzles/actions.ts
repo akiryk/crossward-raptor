@@ -484,6 +484,34 @@ export async function setPuzzleVisibility(
   return { visibility };
 }
 
+/** Story 16-S4: copies the caller's stored puzzle into a new unpublished one
+ *  of theirs, never from client state. Publication, visibility and dates
+ *  take their defaults; play sessions aren't copied and the source isn't
+ *  written. Another builder's puzzle and a missing one throw the same error. */
+export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
+  const session = await requireSession();
+  const source = await prisma.puzzle.findUnique({
+    where: { id, builderId: session.user.id },
+    select: { title: true, grid: true, hints: true, phase: true, gridBeforeHints: true },
+  });
+  if (!source) throw new Error(`duplicatePuzzle: puzzle ${id} cannot be duplicated`);
+
+  const record = await prisma.puzzle.create({
+    data: {
+      builderId: session.user.id,
+      title: `${source.title} (copy)`,
+      grid: source.grid as Prisma.InputJsonValue,
+      hints: source.hints as Prisma.InputJsonValue,
+      phase: source.phase,
+      // Omitted when null, which stores a database null (not a JSON null).
+      ...(source.gridBeforeHints !== null && { gridBeforeHints: source.gridBeforeHints as Prisma.InputJsonValue }),
+    },
+    select: { id: true },
+  });
+  revalidatePath('/puzzles');
+  return { id: record.id };
+}
+
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   const session = await requireSession();

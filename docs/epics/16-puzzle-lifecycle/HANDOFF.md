@@ -37,28 +37,30 @@ in the commit after that freeze, touching only the story's four runtime
 paths (no CODE-REVIEW risk path; `actions.ts` unchanged). Its Decisions
 are in [16-S3-delete-published.md](stories/16-S3-delete-published.md).
 
-**S4 (Duplicate a puzzle) is frozen and being implemented.** The human
-approved the specification, acceptance and amendments *(2026-10-31)*,
-accepting the recommended answers to its question: the "{title} (copy)"
-title, appended every time, and the proposed failure message. Frozen on
-`main` in a specification-only commit. Acceptance: `e2e/duplicate.spec.ts`,
-`src/app/puzzles/actions.duplicate.test.ts`, and the amendments to
-`e2e/row-menu.spec.ts` and `e2e/delete-published.spec.ts`. Runtime goes
-on `story/16-S4-duplicate` (`actions.ts` is a risk path), with a PR and
-independent review.
+**S4 (Duplicate a puzzle) is implemented and awaits independent
+review.** The human approved the specification, acceptance and
+amendments *(2026-10-31)*, accepting the recommended answers to its
+question: the "{title} (copy)" title, appended every time, and the
+proposed failure message. Frozen on `main` at `0e6658c`. Implemented on
+`story/16-S4-duplicate`, changing only `src/app/puzzles/actions.ts`
+(`duplicatePuzzle`, a risk path) and
+`src/components/puzzle/PuzzleRowMenu.tsx`, in PR-PLACEHOLDER. Frozen
+acceptance is unchanged from `0e6658c`.
 
 ## Verification
 
-S4 drafting (2026-10-31), recorded in the story's Discrimination section:
-the proposed tests fail on the old runtime as intended; a throwaway
-implementation passed `npm run verify` and the full `npm run test:e2e`
-(811 of 811), and ten mutations were each caught.
+S4 implementation (2026-10-31), on the branch's implementation tree:
+`npm run verify` exit 0 (Vitest 620 of 620; one pre-existing lint
+warning in `request-logger/render.ts`); full `npm run test:e2e` exit 0,
+811 of 811. The guarded reset used the standing grant in
+[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). Drafting's
+discrimination evidence is in the story.
 
 ## Next action
 
-Implement S4 on `story/16-S4-duplicate` from the freeze commit, run
-`npm run verify` and the full `npm run test:e2e`, and open a PR for
-independent review.
+Independently review S4's PR per [REVIEW](../../process/REVIEW.md); the
+reviewer merges when no blockers remain. Then record the merge here and
+in the story.
 
 ## Resume prompt
 

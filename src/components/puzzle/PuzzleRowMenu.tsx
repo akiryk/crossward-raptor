@@ -1,21 +1,40 @@
 'use client';
 
 import { useState } from 'react';
-import { setPuzzleVisibility } from '@/app/puzzles/actions';
+import { useRouter } from 'next/navigation';
+import { duplicatePuzzle, setPuzzleVisibility } from '@/app/puzzles/actions';
 import { Menu, type MenuItem } from '@/components/ui/Menu';
 import { LibraryDelete } from './LibraryDeleteDialog';
 import type { LibraryPuzzle } from './PuzzleRow';
 
-/** Story 16-S2: a Build row's three-dot menu. */
+/** Story 16-S2: a Build row's three-dot menu. Story 16-S4 adds Duplicate, first. */
 export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; onDeleted: () => void }) {
   const [deleting, setDeleting] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const published = puzzle.publishedAt !== null;
   const makePublic = puzzle.visibility !== 'public';
+  const router = useRouter();
+
+  const duplicate: MenuItem = {
+    key: 'duplicate',
+    label: 'Duplicate',
+    testId: 'puzzle-menu-duplicate',
+    onSelect: async () => {
+      setFailed(null);
+      try {
+        const { id } = await duplicatePuzzle(puzzle.id);
+        router.push(`/puzzles/${id}`);
+        return true;
+      } catch {
+        setFailed('Could not duplicate the puzzle. Please try again.');
+        return false;
+      }
+    },
+  };
 
   const remove: MenuItem = { key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', onSelect: () => setDeleting(true) };
   const items: MenuItem[] = published
-    ? [{
+    ? [duplicate, {
       key: 'visibility',
       label: makePublic ? 'Make public' : 'Make unlisted',
       testId: 'puzzle-menu-visibility',
@@ -30,7 +49,7 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
         }
       },
     }, remove]
-    : [remove];
+    : [duplicate, remove];
 
   return (
     <>
