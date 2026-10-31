@@ -3,10 +3,9 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md), especially "S2 — Row menu and visibility" and the
-   Decisions it relies on.
+2. [16-S2-row-menu.md](stories/16-S2-row-menu.md).
 
-## Current state (2026-10-29)
+## Current state (2026-10-31)
 
 **The EPIC is approved** (by the human, 2026-10-27), from an outside
 proposal checked against the code; its "What the code does today" records
@@ -22,25 +21,37 @@ Decisions, including the stored value staying `'private'` and the Build
 row keeping `[published]`, are in
 [16-S1-unlisted.md](stories/16-S1-unlisted.md).
 
-**S2 (Row menu and visibility)** has no story file yet. Only drafting its
-specification and proposed acceptance is the next job; it needs human
-approval and a specification-only freeze on `main` before implementation.
+**S2 (Row menu and visibility) is approved and frozen** *(human,
+2026-10-31)*: the specification, acceptance and amendments as drafted,
+with both pending questions answered as recommended (the proposed visual
+values, and `updatedAt` unchanged on a visibility change). The freeze is
+a specification-only commit on `main`:
+[16-S2-row-menu.md](stories/16-S2-row-menu.md),
+`e2e/row-menu.spec.ts`, `src/app/puzzles/actions.visibility.test.ts` and
+the amended `e2e/puzzle-library.spec.ts` (14-S2-2, 14-S2-3, 14-S2-6). No
+runtime change in it.
+
+S2 changes `src/app/puzzles/actions.ts`, a CODE-REVIEW risk path, so
+it's implemented on `story/16-S2-row-menu` with a PR and an independent
+review. The throwaway implementation used for discrimination is outside
+the repo at `/tmp/s2-throwaway/` (may not survive a reboot).
 
 ## Verification
 
-Reviewer, on PR #29's head `fa04d69` (the merged S1 content): `npm run
-verify` exit 0, Vitest 606 of 606; full `npm run test:e2e` exit 0, 780 of
-780, using the guarded reset under the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment). `git diff 0563d69`
-touches no acceptance file. External CI: Vercel deployment only (runs no
-test gates), passed.
+At freeze: drafting checks only (details in the story's Discrimination
+section). With the throwaway, Vitest passed 612 of 612 and the four
+affected browser specs 69 of 69. Two full `npm run test:e2e` runs under
+heavy machine load failed 3 and 8 timeouts outside S2's specs, and each
+failing spec passed alone. On `main`'s runtime the proposed tests fail as
+intended. `npm run verify` fails on `main` at the freeze commit until
+S2's implementation lands, by design. No full suite has passed yet.
 
 ## Next action
 
-Draft S2's specification and proposed acceptance from the EPIC's S2
-section as `stories/16-S2-*.md`, per STORY's drafting phase, on `main`.
-Stop for human approval before freezing; no runtime change.
+Implement S2 on `story/16-S2-row-menu` from the freeze commit and open a
+PR for independent review; don't merge it yourself. A clean full
+`npm run test:e2e` run is still required.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and the "S2 — Row menu and visibility" section of docs/epics/16-puzzle-lifecycle/EPIC.md. Draft S2's specification and proposed acceptance on main; stop for human approval before freezing.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S2-row-menu.md. Implement S2 on story/16-S2-row-menu from its freeze commit and open a PR for independent review; don't merge it.
