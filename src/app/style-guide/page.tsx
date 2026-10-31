@@ -16,6 +16,7 @@ import { Logo } from '@/components/ui/Logo';
 import { Masthead, MastheadAction } from '@/components/layout/Masthead';
 import { PuzzleRow, type LibraryPuzzle } from '@/components/puzzle/PuzzleRow';
 import { RowHeading } from '@/components/puzzle/RowHeading';
+import { Menu } from '@/components/ui/Menu';
 import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
 import { BuilderSteps, PublishedState } from '@/components/grid/BuilderSteps';
 import { TooEarlyDialog, type TooEarlyKind } from '@/components/grid/TooEarlyDialog';
@@ -285,6 +286,20 @@ export default function StyleGuidePage() {
               <PuzzleRow puzzle={SAMPLE_ROW} view="build" onDeleted={() => {}} />
               <PuzzleRow puzzle={SAMPLE_COMPLETE_ROW} view="play" onDeleted={() => {}} />
             </ul>
+          </div>
+        </section>
+
+        <section data-testid="sg-row-menu">
+          <h2 className="mb-2 text-title-2 text-primary">Row menu</h2>
+          <div className="relative flex h-10 w-[240px] justify-end">
+            <Menu
+              label="Actions for Sample puzzle"
+              className="relative"
+              items={[
+                { key: 'visibility', label: 'Make public', onSelect: () => {} },
+                { key: 'delete', label: 'Delete', tone: 'error', onSelect: () => {} },
+              ]}
+            />
           </div>
         </section>
 

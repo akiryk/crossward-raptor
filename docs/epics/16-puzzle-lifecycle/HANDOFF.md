@@ -31,27 +31,30 @@ a specification-only commit on `main`:
 the amended `e2e/puzzle-library.spec.ts` (14-S2-2, 14-S2-3, 14-S2-6). No
 runtime change in it.
 
-S2 changes `src/app/puzzles/actions.ts`, a CODE-REVIEW risk path, so
-it's implemented on `story/16-S2-row-menu` with a PR and an independent
-review. The throwaway implementation used for discrimination is outside
-the repo at `/tmp/s2-throwaway/` (may not survive a reboot).
+**S2 is implemented** on `story/16-S2-row-menu` (branched from `b3109a3`,
+which only records the freeze) and awaits independent review in its PR.
+Only the story's declared runtime paths changed; the one addition to the
+throwaway design is recorded in the story's Implementation note. Not
+merged.
 
 ## Verification
 
-At freeze: drafting checks only (details in the story's Discrimination
-section). With the throwaway, Vitest passed 612 of 612 and the four
-affected browser specs 69 of 69. Two full `npm run test:e2e` runs under
-heavy machine load failed 3 and 8 timeouts outside S2's specs, and each
-failing spec passed alone. On `main`'s runtime the proposed tests fail as
-intended. `npm run verify` fails on `main` at the freeze commit until
-S2's implementation lands, by design. No full suite has passed yet.
+On the implementation tree (2026-10-31, before commit; committed content
+unchanged):
+
+- `npm run verify`: exit 0. Vitest 612 of 612; ESLint's one warning is
+  pre-existing in `request-logger/`.
+- Full `npm run test:e2e`: exit 0, 795 of 795, under the standing
+  test-database reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
+- Frozen acceptance (`e2e/row-menu.spec.ts`,
+  `src/app/puzzles/actions.visibility.test.ts`,
+  `e2e/puzzle-library.spec.ts`) unchanged from `a624b16`.
 
 ## Next action
 
-Implement S2 on `story/16-S2-row-menu` from the freeze commit and open a
-PR for independent review; don't merge it yourself. A clean full
-`npm run test:e2e` run is still required.
+Independently review S2's PR per [REVIEW](../../process/REVIEW.md) and
+merge it when no blockers remain. S3 is not authorized by this.
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S2-row-menu.md. Implement S2 on story/16-S2-row-menu from its freeze commit and open a PR for independent review; don't merge it.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S2-row-menu.md. Review S2's PR on story/16-S2-row-menu independently, and merge it if no blockers remain.
