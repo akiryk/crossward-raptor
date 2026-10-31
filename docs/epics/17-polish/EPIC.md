@@ -13,8 +13,16 @@ and approved one at a time. Comes after epics 15 and
 **Amended 2026-10-28** with S4, selection in Preview, from the human's
 notes of that day; Rebus moved from S4 to S5. S6, the build phase's
 selection colors, was added the same day.
+**Amended 2026-10-31** from the human's addendum of that day: S6 (only
+real words), S7 (larger grid), S8 (step controls) and S9 (Preview
+Hints), plus the rebus cell's look. Selection colors became S5 and Rebus
+S10, after the controls row and cell size it depends on. The human
+approved this amendment the same day.
+The addendum's selection-colors story repeated the old S6 and added
+nothing. Its file was folded in here and deleted.
 
-Small builder and play fixes, plus rebus entry.
+Small builder and play fixes, a larger grid, clearer builder steps and
+rebus entry.
 
 ---
 
@@ -63,6 +71,46 @@ Recorded as given; the Decisions below are drawn from them.
   color, #CADAE2). The hints phase's colors match the build phase's;
   remove yellow-dull and yellow-medium.
 
+## The human's details (2026-10-31)
+
+From the addendum, condensed; every value is the human's. Mockups are in
+the human's `~/Downloads`.
+
+- **Rebus cell:** while a rebus is being entered, its cell enlarges by
+  about a third (36px to 48px in the mockup) and has a subtle drop
+  shadow: x 0, y 4, blur 4, spread 0, rgb(0 0 0 / 0.25) (`rebus.png`).
+- **Hints phase, word directions:** as a builder adding hints, I want to
+  select only words. A cell in only an Across word (the B of 1-Across
+  BLUE, starting no Down word) should only be Across, with that word
+  highlighted. A second click or the Down arrow is ignored because there
+  is nothing to do Down. Today it can switch to Down and highlight one
+  lone yellow cell (`broken-down-word.png`, versus `across-mode-word.png`).
+  *(Answer, 2026-10-31: the same in play.)*
+- **Preview Hints:** as a builder, I want to see what the hints and puzzle
+  will look like to the player, e.g. that long hints aren't truncated. A
+  Preview toggle like the existing one, above the hints section: at
+  desktop sizes it aligns vertically with Lock Grid Letters and
+  horizontally with the hints' left column (the word "Across").
+  *(Answer: on, it shows the player's view in place.)*
+- **Larger grid:** Sunday puzzles must be readable without zooming. The
+  grid's 560px maximum becomes 700px, kept as long as possible. The
+  numbers must stop overlapping the letters. Emulate the NYT, which is
+  readable even at 535px (`nyt-sunday-535px.png` versus
+  `crossward-raptor-sunday.png` at 560px).
+- **Step controls:** as a builder, I want to know what step I'm on and
+  what's next. Replace the three step buttons. The build step shows a
+  "Build the Grid" label, left, and one button for the next step,
+  "2 Create Hints", right (`build-step-controls.png`). The hints step shows
+  a "Create Hints" label and "3 Publish" (`hint-step-controls.png`).
+  The buttons behave as today, e.g. Publish's confirmation. A hairline
+  separates them from the grid's own controls below (Preview or Lock
+  Grid Letters, and Rebus). Use only existing styles: the hairline takes
+  the color of similar hairlines, the labels are `title-4`, and other
+  colors are the implementer's call, for the human to amend. The mockups
+  show the toggle text gray and "Rebus" as a blue text link.
+  *(Answer: the link is the builder's Rebus control; play keeps S10's
+  pill.)*
+
 ## What the code does today (2026-10-27)
 
 - **Publishing with missing hints** opens the "Not quite!" too-early
@@ -104,6 +152,27 @@ Recorded as given; the Decisions below are drawn from them.
   14-S12). Nothing else uses yellow-medium. Play already pairs a
   yellow-bright cell with a blue-medium word.
 
+Added 2026-10-31:
+
+- **Direction switches anywhere.** The engine's `moveTo` (clicking the
+  cursor cell again), `toggleOrientation` and `arrowKey` (a cross-axis
+  arrow) change orientation on any active cell, whether or not it has a
+  word that way. The same holds in the build phase, the hints phase
+  (`PuzzleGridEditor.tsx`) and play (`PlayPuzzle.tsx`).
+- **Grid size.** `GRID_MAX_PX = 560` in both `PuzzleGridEditor.tsx` and
+  `PlayPuzzle.tsx` (15-S1), and the editor's `max-w-[560px]`.
+  `PuzzleGrid.tsx` scales letters (16px at a 35px pitch) centered in the
+  cell, and numbers (10px, at least 8px) at the top left
+  (`CellNumber.tsx`), so on a 21×21 grid they collide.
+- **Step buttons.** `BuilderSteps.tsx` (14-S4, 14-S12) shows three
+  numbered buttons. In the build phase, 3 Publish opens the "lol" or
+  "nope" too-early dialog. In the hints phase, 1 is done and disabled
+  (there is no way back) and 3 Publish opens "Not quite!" or the Publish
+  dialog. Below them, one toggle row holds Preview (build) or Lock Grid
+  Letters (hints). A published puzzle shows `PublishedState` instead.
+- **No player's-view preview in the builder.** The hints phase shows only
+  editable hint inputs.
+
 ## Scope
 
 1. **Missing hints are marked** when Publish finds some missing.
@@ -114,6 +183,10 @@ Recorded as given; the Decisions below are drawn from them.
 6. **Rebus entry** with Escape, or the Rebus button.
 7. **The build and hints phases' word highlight is blue,** so the cursor
    cell stands out.
+8. **The hints phase and play select only real words.**
+9. **The grid grows to 700px,** with numbers clear of the letters.
+10. **The builder's step controls** show the current step and the next.
+11. **Preview Hints** shows the player's view in the hints phase.
 
 ## Decisions
 
@@ -192,19 +265,84 @@ digits, uppercase, as single-letter entry does; an empty entry clears the
 cell; the cursor then advances as after a single letter; the cell's text
 shrinks to fit.
 
+**The rebus cell while entering** *(human, mockup 2026-10-31)*. The cell
+being entered enlarges by about a third of a grid cell (36px to 48px in
+the mockup), centered on its cell and above its neighbors, white, with
+the drop shadow x 0, y 4, blur 4, spread 0, rgb(0 0 0 / 0.25). It
+returns to normal when entry closes. *Proposed:* the shadow is a new
+shadow token, used only through a style.
+
 **Rebus can be typed wherever letters can** *(human, 2026-10-27)*: the
 build phase, the hints phase while letters are editable (14-S12) and play.
 Since S4, that includes Preview.
 
-**A Rebus button** *(human, mockup 2026-10-27)*. An outlined, pill-shaped
+**The Rebus control** *(human, 2026-10-31)*. It does what Escape does,
+for devices without a keyboard. **In the builder** (build and hints
+phases), it is a "Rebus" text link at the right of S8's toggle row,
+aligned with the grid's right edge, as in the step-controls mockups. **In
+play** *(human, mockup 2026-10-27)*, it is an outlined, pill-shaped
 "Rebus" button at the top of the hints column, right of the Prominent
-Hint, does what Escape does, for devices without a keyboard. *Proposed:*
-it shows at every width (in narrow layouts, near the grid's buttons or
-hint bar; values from the human in the story).
+Hint. *Proposed:* it shows at every width (in narrow layouts, near the
+grid's buttons or hint bar; values from the human in the story) and is
+inactive while letters can't be typed (Lock Grid Letters, Preview Hints,
+published).
+
+**Only real words can be selected** *(human, 2026-10-31)*. In the hints
+phase and play, the cursor's direction is always one with a word through
+the cursor cell. Clicking a cell that has a word in one direction only
+takes that direction. Clicking the cursor cell again, or pressing the
+cross-axis arrow, does nothing there (no lone highlighted cell). A
+cross-axis arrow only changes direction where a word runs that way; it
+never moves the cursor. The build phase is unchanged, since its words are
+still being made. *Proposed:* the hints phase's words are the published
+puzzle's (as its hint list); every white cell in a valid grid has at
+least one. Built from `extractSlots` outside the engine.
+
+**The grid is at most 700px** *(human, 2026-10-31)*, up from 560px (15-S1),
+in the build phase, the hints phase and play. It stays 700px as long as
+the window allows before shrinking. *Proposed:* epic 15's wide and
+narrow breakpoints move by the same 140px so the hints columns keep their
+minimum widths. The story records the new breakpoints and supersedes the
+560px tests it replaces.
+
+**Numbers clear of letters, as the NYT** *(human, 2026-10-31)*. Measured
+from the NYT screenshot in the story: the number stays at the top left,
+and the letter sits lower in the cell, smaller relative to the cell, so
+two-digit and three-digit numbers never touch it at any grid size from
+5×5 to 21×21. The values come from the measurements, scaled with the
+cell as today (`PuzzleGrid.tsx`). A rebus's letters shrink within the
+same letter area.
+
+**Step controls** *(human, mockups 2026-10-31)*. The three step buttons
+give way to one row: a label for the current step on the left, `title-4`,
+with its step number (as in the mockup), and a button for the next step
+on the right, aligned with the grid's right edge: "Build the Grid" with
+"2 Create Hints", then "Create Hints" with "3 Publish". The buttons do
+what 2 and 3 do today. A full-width hairline, in the color of the app's
+other hairlines, separates this row from the grid's toggle row below. All
+styles are existing ones. A published puzzle keeps `PublishedState`.
+**The build phase has no Publish button**, so its "lol" and "nope"
+too-early dialogs (14-S4) are removed. "Not quite!" (and S1's marks) stay.
+*Proposed:* the labels keep today's text ("Build the Grid"); the
+mockup's "Lock the Grid" stays "Lock Grid Letters". Supersedes 14-S4's
+step-button tests, named in the story.
+
+**Preview Hints** *(human, 2026-10-31)*. In the hints phase, a "Preview
+Hints" toggle sits above the hints columns. In the wide layout it is on
+the toggle row's line and aligned with the Across column's left edge. On,
+the grid and hints show the player's view in place: the grid without
+answer letters, the hints read-only as play's Player Hints with full text
+(nothing truncated), and the Prominent Hint as in play. Off returns to
+editing as before. *Proposed:* selecting a cell or hint works as in play,
+but typing does nothing. Lock Grid Letters and Rebus are inactive while
+it's on. It isn't saved. In the narrow layout it sits in the toggle row
+(values in the story).
 
 **No grid-engine change.** Preview selection uses existing engine
 functions over `intendedGeometry`. Rebus input is a new keyboard intent in
 `src/lib/` and editor or player state; `place` already takes any string.
+The word-direction rule wraps the engine's cursor functions with existing
+slot data.
 
 ## Non-goals
 
@@ -212,7 +350,10 @@ functions over `intendedGeometry`. Rebus input is a new keyboard intent in
 - Rebus-specific answer matching (e.g. accepting the first letter only).
   Answers stay opaque, as `src/engine/play.ts` says.
 - Grid-engine changes.
-- Changes to the library, sign-in or the layout epic 15 owns.
+- Changes to the library or sign-in. Layout changes beyond S7's grid
+  size and the breakpoints that follow from it. (Epic 15, which owns the
+  layout, is closed.)
+- Going back from the hints phase to the build phase.
 
 ---
 
@@ -249,13 +390,7 @@ and the cursor's typing and arrow-key movement within them. Supersedes
 sample of a selected Preview word mixing error, warning and lettered
 cells.
 
-### S5 — Rebus
-
-Escape and the Rebus button in the build phase, the hints phase and
-play: the entry state, its display in the cell, Enter or Escape to
-close, and the cell's text fitting its letters.
-
-### S6 — Selection colors
+### S5 — Selection colors
 
 The `blue-dull` palette variable, `build-cell-selected-row-on`,
 `build-cell-selected-row-off` and `hint-cell-cursor-word` on blue, the
@@ -264,6 +399,42 @@ style guide's swatches and the removal of `yellow-dull` and
 values frozen in `globals-css.test.ts`, `e2e/color-tokens.spec.ts`,
 `e2e/build-grid-design.spec.ts` and `e2e/hints-grid-editing.spec.ts`.
 
+### S6 — Only real words
+
+The hints phase and play take a word's direction on a click, ignore a
+second click or cross-axis arrow where no word runs that way, and never
+show a lone highlighted cell. The build phase is unchanged. Supersedes any
+frozen hints-phase or play test that toggles onto a wordless direction.
+
+### S7 — Larger grid
+
+The 700px maximum in the build phase, the hints phase and play, the
+breakpoints that follow, and the NYT-measured letter and number sizes and
+positions that keep numbers clear of letters at every grid size. Includes
+a style-guide sample of a 21×21 corner with three-digit numbers.
+Supersedes 15-S1's 560px tests and 15-S6's cell type sizes.
+
+### S8 — Step controls
+
+The current-step label and next-step button row, its hairline, the toggle
+row below with S10's Rebus link slot, and the removal of the build phase's
+3 Publish, with its "lol" and "nope" dialogs. Supersedes 14-S4's
+step-button and too-early tests, which the story names.
+
+### S9 — Preview Hints
+
+The hints phase's Preview Hints toggle, its position over the Across
+column, and the player's view it shows: the grid without letters,
+read-only Player Hints with full text and the Prominent Hint. Editing
+pauses while it's on.
+
+### S10 — Rebus
+
+Escape and the Rebus control (S8's link in the builder, the pill in play)
+in the build phase, the hints phase and play: the entry state, the
+enlarged, shadowed cell while entering (the human's `rebus.png` mockup),
+Enter or Escape to close, and the cell's text fitting its letters.
+
 ---
 
 ## Pending questions
@@ -271,3 +442,7 @@ values frozen in `globals-css.test.ts`, `e2e/color-tokens.spec.ts`,
 None. The draft's three questions were answered 2026-10-27 *(human)* and
 are recorded in Decisions: Reset is removed entirely, rebus can be typed
 in the build phase, the hints phase and play, and the order is 15, 16, 17.
+The 2026-10-31 amendment's questions were answered that day *(human)*:
+fold the addendum into this EPIC, the word rule covers the hints phase and
+play, Preview Hints shows the player's view in place, and the Rebus
+control is a link in the builder and a pill in play.
