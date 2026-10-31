@@ -4,15 +4,15 @@ import { useRef, useState } from 'react';
 import { deletePuzzle } from '@/app/puzzles/actions';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { ROW_CONTROL } from './library-row';
 
-/** Build's Delete control and its confirmation. */
-export function LibraryDelete({ puzzleId, title, onDeleted }: {
+/** Build's Delete confirmation, opened from the row menu (16-S2). */
+export function LibraryDelete({ puzzleId, title, onDeleted, open, setOpen }: {
   puzzleId: string;
   title: string;
   onDeleted: () => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const busy = useRef(false);
@@ -43,18 +43,6 @@ export function LibraryDelete({ puzzleId, title, onDeleted }: {
 
   return (
     <>
-      <button
-        type="button"
-        data-testid="puzzle-delete-button"
-        className={ROW_CONTROL}
-        onClick={(event) => {
-          event.currentTarget.focus();
-          setFailed(false);
-          setOpen(true);
-        }}
-      >
-        Delete
-      </button>
       <Modal
         open={open}
         title="Delete puzzle?"

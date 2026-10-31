@@ -6,7 +6,7 @@ import type { LibraryPlay } from '@/lib/library-play';
 import type { StatusKind } from '@/lib/puzzle-status';
 import type { Phase } from '@/engine/puzzle';
 import { CrosswordIcon } from './CrosswordIcon';
-import { LibraryDelete } from './LibraryDeleteDialog';
+import { PuzzleRowMenu } from './PuzzleRowMenu';
 import { LibraryPlayControls } from './LibraryPlayControls';
 import { ROW_PRIMARY_LINK } from './library-row';
 
@@ -84,8 +84,8 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
       >
         {puzzle.updatedLabel}
       </span>
-      {view === 'build' && !published && (
-        <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} onDeleted={onDeleted} />
+      {view === 'build' && (
+        <PuzzleRowMenu puzzle={puzzle} onDeleted={onDeleted} />
       )}
       {view === 'play' && play && (
         <LibraryPlayControls puzzleId={puzzle.id} title={puzzle.title} play={play} playLink={link} />

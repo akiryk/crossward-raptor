@@ -32,7 +32,7 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
 
   // Focus the heading only once the deleted row has left the list. By then
   // the delete dialog's Modal can no longer return focus to the row's
-  // Delete button, so nothing moves focus after this. (A timed focus raced
+  // menu button, so nothing moves focus after this. (A timed focus raced
   // that return and could leave focus on the removed button.)
   useEffect(() => {
     if (deletedId === null || puzzles.some((p) => p.id === deletedId)) return;
