@@ -21,7 +21,7 @@ Decisions, including the stored value staying `'private'` and the Build
 row keeping `[published]`, are in
 [16-S1-unlisted.md](stories/16-S1-unlisted.md).
 
-**S2 (Row menu and visibility) is approved and frozen** *(human,
+**S2 (Row menu and visibility) is approved and frozen** at `a624b16` *(human,
 2026-10-31)*: the specification, acceptance and amendments as drafted,
 with both pending questions answered as recommended (the proposed visual
 values, and `updatedAt` unchanged on a visibility change). The freeze is

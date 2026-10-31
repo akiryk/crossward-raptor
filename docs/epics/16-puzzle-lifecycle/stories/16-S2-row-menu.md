@@ -5,7 +5,7 @@ actions, in place of the trailing Delete. From it the builder switches a
 published puzzle between Unlisted and Public. Nothing else about the
 puzzle changes.
 
-**Status: approved and frozen** (2026-10-31). The human approved this
+**Status: approved and frozen** (2026-10-31) at `a624b16`. The human approved this
 specification, its acceptance and the amendments, and accepted the
 recommended answer to both [questions](#pending-questions-settled): the
 proposed visual values, and `updatedAt` unchanged on a visibility change.
