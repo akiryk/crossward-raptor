@@ -10,6 +10,7 @@ import { signInSeededUser } from './helpers/seed-session';
 // Every Build row has a three-dot button in place of the old trailing Delete.
 // It opens a menu of the puzzle's actions. In S2 those are Delete on an
 // unpublished row, and "Make public" or "Make unlisted" on a published one.
+// 16-S3 adds Delete after the visibility item on published rows.
 // The stored value stays 'private' for Unlisted (16-S1). Play's rows have no
 // menu.
 //
@@ -287,13 +288,14 @@ test.describe('16-S2-2 the menu', () => {
 });
 
 test.describe('16-S2-3 what the menu offers', () => {
-  test('Delete on an unpublished row; Make public on an unlisted one; Make unlisted on a public one; nothing else yet', async ({ page }) => {
+  // 16-S3: published rows offer Delete after the visibility item.
+  test('Delete on an unpublished row; Make public then Delete on an unlisted one; Make unlisted then Delete on a public one', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
       ['grid', ['Delete']],
       ['hints', ['Delete']],
-      ['private published', ['Make public']],
-      ['public published', ['Make unlisted']],
+      ['private published', ['Make public', 'Delete']],
+      ['public published', ['Make unlisted', 'Delete']],
     ] as const) {
       const fixture = await seedOwn(me, state);
       await library(page);
@@ -456,7 +458,7 @@ test.describe('16-S2-7 changing visibility', () => {
       await expect(item.getByTestId('puzzle-status-badge')).toHaveText('[published]');
 
       await openMenu(page, item);
-      expect(await itemTexts(page)).toEqual([next]);
+      expect(await itemTexts(page)).toEqual([next, 'Delete']); // 16-S3: Delete follows
       await page.keyboard.press('Escape');
     }
     expect(await page.evaluate(() => (window as unknown as { s2Marker?: boolean }).s2Marker), 'no reload').toBe(true);

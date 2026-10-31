@@ -29,33 +29,28 @@ reviewed with no findings, and merged to `main` as `642ffe7`. Its
 Decisions, including `updatedAt` staying put on a visibility change, are in
 [16-S2-row-menu.md](stories/16-S2-row-menu.md).
 
-**S3 (Delete published puzzles) is drafted, not approved**:
-[16-S3-delete-published.md](stories/16-S3-delete-published.md), with
-proposed acceptance in `e2e/delete-published.spec.ts` and amendments to
-two 16-S2 cases in `e2e/row-menu.spec.ts` (the story's table). All of it
-is **uncommitted** in the `main` worktree until freeze. No runtime change.
-Three questions are pending for the human: the proposed copy, the "no
-longer available" page's visual values, and delivery (recommended:
-direct to `main`, since S3 touches no CODE-REVIEW risk path; the
-alternative is a PR and independent review anyway).
+**S3 (Delete published puzzles) is approved and frozen** *(human,
+2026-10-31)*, accepting the recommended answer to all three questions:
+the proposed copy, the proposed visual values, and direct delivery to
+`main` (no CODE-REVIEW risk path). Frozen in a specification-only commit
+on `main`: [16-S3-delete-published.md](stories/16-S3-delete-published.md),
+`e2e/delete-published.spec.ts` and the two 16-S2 amendments in
+`e2e/row-menu.spec.ts`. Implementation is next, on `main`.
 
 ## Verification
 
-S3's draft, on `main` at `c6361a5` plus the uncommitted proposed tests:
-`npm run verify` exit 0 (Vitest 612 of 612; the new tests are browser
-only). The story records the discrimination run. `main` fails every new
-case except one intentional guard. A reverted throwaway implementation
-passed the full `npm run test:e2e`, 806 of 806, and two mutations were
-each caught. The guarded reset used the standing grant in
-[DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment).
+At freeze, on `main` at `5bfae31` plus the then-uncommitted proposed
+tests: `npm run verify` exit 0. The story records the discrimination
+run. Implementation's `npm run verify` and full `npm run test:e2e` are
+not yet run.
 
 ## Next action
 
-The human answers S3's pending questions and approves (or revises) its
-specification, acceptance and amendments. Then freeze S3 on `main` in a
-specification-only commit and implement it, delivered as the answer to
-question 3 says.
+Implement S3 on `main` per its Repo paths, keeping the frozen acceptance
+unchanged. Deliver directly to `main` after `npm run verify` and the full
+`npm run test:e2e` both exit 0. Touching `actions.ts` would be a
+risk-path escalation (story branch, PR, independent review).
 
 ## Resume prompt
 
-Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S3-delete-published.md. Once the human approves it, freeze S3 on main in a specification-only commit, then implement it and deliver it as its question 3's answer says.
+Read docs/epics/16-puzzle-lifecycle/HANDOFF.md and docs/epics/16-puzzle-lifecycle/stories/16-S3-delete-published.md. Implement the frozen S3 on main; deliver directly to main after npm run verify and the full npm run test:e2e pass.
