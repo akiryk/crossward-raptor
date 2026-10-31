@@ -5,10 +5,10 @@ focused, so its word is highlighted, its hint shows in the Prominent Hint
 and the player can type at once. The Prominent Hint's text becomes
 `title-3`.
 
-**Status: approved** (2026-10-31). The human approved this
-specification, its acceptance, the amendments and the proposed
-Decisions on 2026-10-31; frozen on `main` in a specification-only
-commit.
+**Status: done** (2026-10-31). The human approved this specification,
+its acceptance, the amendments and the proposed Decisions on 2026-10-31;
+frozen on `main` in 316c7f6 (specification only) and delivered directly
+on `main`.
 
 **Blast radius: small.** The opening cursor and focus in `PlayPuzzle` and
 one class in `ProminentHint`. No schema, server action, storage or engine

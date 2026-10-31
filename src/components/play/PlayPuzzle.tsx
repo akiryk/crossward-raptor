@@ -27,6 +27,30 @@ import { ProminentHint } from './ProminentHint';
 // At most 560px, as the build grid, whatever the window's height (15-S1).
 const GRID_MAX_PX = 560;
 
+/**
+ * Play opens on the first empty cell in reading order, or the first white
+ * cell of a full grid (17-S2).
+ */
+function openingCursor(grid: Grid): CursorState | null {
+  let firstActive: Coord | null = null;
+  for (let row = 0; row < grid.rows; row++) {
+    for (let col = 0; col < grid.cols; col++) {
+      const cell = grid.at(col, row);
+      if (cell.kind !== 'active') continue;
+      firstActive ??= { col, row };
+      if (cell.letter === null) return orient(grid, { col, row });
+    }
+  }
+  return firstActive ? orient(grid, firstActive) : null;
+}
+
+/** Across, or Down where the cell has no Across word (17-S2). */
+function orient(grid: Grid, coord: Coord): CursorState {
+  const lookup = buildSlotLookup(grid);
+  const across = { current: coord, orientation: 'across' as const };
+  return activeHintKey(lookup, across) ? across : { current: coord, orientation: 'down' };
+}
+
 export function PlayPuzzle({
   initialPuzzle,
   isBuilder,
@@ -114,10 +138,14 @@ export function PlayPuzzle({
     });
     autosave.current = saver;
     setPuzzle({ ...started, entries: saver.entries });
-    setCursor(null);
+    const opening = initiallyComplete ? null : openingCursor(deserializeGrid(saver.entries));
+    setCursor(opening);
     setIsFocused(false);
     onShown?.();
     setSessionState('ready');
+    // Focused at once, so the word and its hint show and typing works,
+    // without scrolling the page (17-S2).
+    if (opening) gridRegion.current?.focus({ preventScroll: true });
   }, []);
 
   useEffect(() => {

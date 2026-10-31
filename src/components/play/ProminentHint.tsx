@@ -21,7 +21,7 @@ export function ProminentHint({
           <span data-testid="prominent-hint-label" className="shrink-0 text-title-4 text-primary">
             {label}
           </span>
-          <span data-testid="prominent-hint-text" className="text-body-large text-primary">
+          <span data-testid="prominent-hint-text" className="text-title-3 text-primary">
             {hint}
           </span>
         </>

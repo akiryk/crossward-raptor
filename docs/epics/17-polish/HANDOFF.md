@@ -35,34 +35,28 @@ and 16 are closed.
 frozen on `main` in 96a3cd6 (specification only), and the
 implementation was delivered directly on `main` (no risk path).
 
-**S2 is approved** (2026-10-31): the human approved
+**S2 is done** (2026-10-31): the human approved
 [17-S2-play-opens-on-first-empty-cell.md](stories/17-S2-play-opens-on-first-empty-cell.md),
 its acceptance `e2e/play-opening.spec.ts`, the amendments to
 `e2e/play-entries.spec.ts`, `e2e/play-design.spec.ts`,
 `e2e/narrow-play.spec.ts` and `e2e/play-route.spec.ts`, and the story's
-proposed Decisions. They are frozen on `main` (specification only);
-implementation follows directly on `main` (no risk path).
+proposed Decisions. They were frozen on `main` in 316c7f6
+(specification only), and the implementation was delivered directly on
+`main` (no risk path). S3 has no story yet.
 
 ## Verification
 
-S1, on b6706f7: `npm run verify` exit 0 (Vitest 620 of 620); the full
-`npm run test:e2e` exit 0 (822 passed), through the guarded harness
-under the standing reset grant
-([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-
-S2, drafting only. The story's Discrimination section records the
-observed runs: a throwaway implementation (reverted) passes the proposed
-and amended specs (107 of 107) and `npm run verify`; current `main`
-fails 25 of them; three mutations are caught. `tsc` and ESLint pass on
-the proposed tests. The full `npm run test:e2e` was not run.
+S2, on the implementation tree delivered with this handoff:
+`npm run verify` exit 0 (Vitest 620 of 620); the full `npm run test:e2e`
+exit 0 (830 passed), through the guarded harness under the standing
+reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)). The
+frozen acceptance is unchanged from 316c7f6.
 
 ## Next action
 
-Once the human approves S2's specification, acceptance and amendments,
-record the approval, freeze them on `main` in a specification-only
-commit, then implement S2 on `main`. Without approval, don't freeze or
-implement.
+Write S3's specification ("S3 — No Reset in play" in the [EPIC](EPIC.md))
+on `main` and stop for the human's approval.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S2-play-opens-on-first-empty-cell.md. Once the human has approved it, freeze S2's specification and acceptance on main, then implement S2 on main and deliver it there.
+Read docs/epics/17-polish/HANDOFF.md and the EPIC's "S3 — No Reset in play" section. Write S3's specification and proposed acceptance on main; don't freeze or implement it before the human approves.
