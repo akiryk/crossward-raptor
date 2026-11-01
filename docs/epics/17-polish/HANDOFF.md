@@ -5,7 +5,7 @@
 1. This handoff; AGENTS only if not already supplied.
 2. The [EPIC](EPIC.md).
 
-## Current state (2026-10-31)
+## Current state (2026-11-01)
 
 **The EPIC is approved** (by the human, 2026-10-27). It was drafted on
 `main` from the human's list of design and UX issues and a Rebus mockup of
@@ -55,8 +55,13 @@ stays only in the library, on completed rows. Frozen on `main` in ceba5ec
 PR #32, independently reviewed with no findings and merged into `main` in
 8cb74a8.
 
-S4 has no story yet. Its EPIC section and proposed cursor rules
-(Decisions) are the starting point.
+**S4 is approved and frozen** (2026-11-01): the human approved
+[17-S4-selection-in-preview.md](stories/17-S4-selection-in-preview.md),
+its acceptance `e2e/preview-selection.spec.ts`, the amendment to
+`e2e/grid-focus.spec.ts` and its proposed Decisions. 05-D4's unit tests
+stay (the EPIC's S4 and Decisions lines amended to say so). Frozen on
+`main` (specification only); implementation in progress on `main` (no
+risk path).
 
 ## Verification
 
@@ -66,13 +71,14 @@ unchanged from ceba5ec: `npm run verify` exit 0 (Vitest 620/620) and full
 Browser runs used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
+S4 drafting, on a throwaway implementation since reverted: see the
+story's Discrimination section (not a gate run).
+
 ## Next action
 
-Draft S4, Selection in Preview (EPIC "S4 — Selection in Preview"), per
-[STORY](../../process/STORY.md): the specification and proposed
-acceptance, for the human's approval. Nothing is implemented or frozen
-before that approval.
+Implement S4 per [STORY](../../process/STORY.md) against the frozen
+acceptance, then run the full gate and deliver on `main`.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the "S4 — Selection in Preview" section of docs/epics/17-polish/EPIC.md. Draft the S4 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S4-selection-in-preview.md. Once the human has approved the S4 draft, freeze it and implement S4 on main; stop if approval isn't recorded.

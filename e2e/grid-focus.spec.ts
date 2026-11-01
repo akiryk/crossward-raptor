@@ -38,6 +38,12 @@ test.describe('grid focus', () => {
 
     await page.getByTestId('preview-toggle').click();
     await expect(page.locator('[data-selected="true"]')).toHaveCount(0);
+    // 17-S4: an empty grid is all black in Preview, and a Preview-black
+    // cell can't be selected, so the toggle is clicked again: Preview is
+    // off, and a button still has focus.
+    await page.getByTestId('preview-toggle').click();
+    await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'build');
+    await expect(page.locator('[data-selected="true"]')).toHaveCount(0);
 
     await page.locator('[data-coord="0,0"]').click();
     await expect(page.locator('[data-coord="0,0"]')).toHaveAttribute('data-selected', 'true');

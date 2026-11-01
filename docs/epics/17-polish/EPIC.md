@@ -241,8 +241,9 @@ advances only within the Preview word and stops at its end; arrow keys
 skip Preview-black cells; a cell emptied so that Preview would show it
 black stays selected until the cursor leaves it; turning Preview on
 while the cursor is on a Preview-black cell shows no highlight until a
-cell is clicked. Supersedes 05-D4's "Preview ignores selection" unit
-tests. Cursor rules reuse the engine's pure functions over
+cell is clicked. 05-D4's "Preview ignores selection" unit tests stay:
+the selection is painted over Preview's appearance (S4, settled at its
+drafting). Cursor rules reuse the engine's pure functions over
 `intendedGeometry`; no engine change.
 
 **Build selection colors** *(human, 2026-10-28)*.
@@ -390,8 +391,9 @@ tests.
 
 Preview's cursor and word highlight over Preview's own words (error,
 warning and lettered cells together), Preview-black cells unselectable,
-and the cursor's typing and arrow-key movement within them. Supersedes
-05-D4's unit tests that Preview ignores selection. Adds a style-guide
+and the cursor's typing and arrow-key movement within them. 05-D4's unit
+tests that Preview ignores selection stay; the selection is painted over
+Preview's appearance. Adds a style-guide
 sample of a selected Preview word mixing error, warning and lettered
 cells.
 
