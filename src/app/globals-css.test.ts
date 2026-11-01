@@ -24,13 +24,13 @@ const VARIABLES: Record<string, string> = {
   'interactive-faint': '#F5F7FA',
   'interactive-faint-hover': '#EBEFF7',
   'yellow-bright': '#FCFF4D',
-  'yellow-medium': '#FEFFB0',
-  'yellow-dull': '#E6E6D1',
   'cell-warning': '#CEB55A',
   'cell-error': '#FF251A',
   'text-error': '#E2655F',
   'blue-bright': '#4BC0FF',
   'blue-medium': '#CFEEFF',
+  // 17-S5: the selected word's off cells in the build phase.
+  'blue-dull': '#CADAE2',
   // 14-S11: the keyboard focus ring.
   cyan: '#00F0FF',
   // 17-S1: a missing hint's row.
@@ -42,8 +42,9 @@ const STYLES: Record<string, string> = {
   'build-cell-off': 'gray-200',
   'build-cell-border': 'gray-400',
   'build-cell-selected-cell': 'yellow-bright',
-  'build-cell-selected-row-on': 'yellow-medium',
-  'build-cell-selected-row-off': 'yellow-dull',
+  // 17-S5: the selected word is blue, so the cursor cell stands out.
+  'build-cell-selected-row-on': 'blue-medium',
+  'build-cell-selected-row-off': 'blue-dull',
   'preview-cell-on': 'white',
   'preview-cell-off': 'gray-700',
   'preview-cell-warning': 'cell-warning',
@@ -62,7 +63,8 @@ const STYLES: Record<string, string> = {
   // 14-S12: EDIT GRID's five styles are gone; the focused grid's cursor
   // and its word, and the on cells while Lock Grid Letters is on.
   'hint-cell-cursor': 'yellow-bright',
-  'hint-cell-cursor-word': 'yellow-medium',
+  // 17-S5: blue, as a focused hint input's word.
+  'hint-cell-cursor-word': 'blue-medium',
   'hint-cell-locked-on': 'gray-200',
   // 15-S4: the Hint Box's rule, outline and input.
   'hint-rule': 'gray-700',

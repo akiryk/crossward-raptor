@@ -63,6 +63,14 @@ stay (the EPIC's S4 and Decisions lines amended to say so). Frozen on
 `main` in fd7fca9 (specification only); the implementation was
 delivered directly on `main` (no risk path).
 
+**S5 is approved, frozen** (2026-11-01): the human approved
+[17-S5-selection-colors.md](stories/17-S5-selection-colors.md), its
+acceptance `e2e/selection-colors.spec.ts`, the amendments to
+`src/app/globals-css.test.ts`, `e2e/color-tokens.spec.ts`,
+`e2e/build-grid-design.spec.ts` and `e2e/hints-grid-editing.spec.ts`,
+and its proposed small calls. Frozen on `main` (specification only);
+implementation next, direct delivery on `main` (no risk path).
+
 ## Verification
 
 S4, on the implementation (precommit tree, committed unchanged), frozen
@@ -71,13 +79,13 @@ acceptance unchanged from fd7fca9: `npm run verify` exit 0 (Vitest
 used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
+S5's discrimination runs (throwaway reverted) are recorded in its story.
+
 ## Next action
 
-Draft S5, Selection colors (EPIC "S5 — Selection colors"), per
-[STORY](../../process/STORY.md): the specification and proposed
-acceptance, for the human's approval. Nothing is implemented or frozen
-before that approval.
+Implement S5 against its frozen acceptance and deliver directly on
+`main` per [STORY](../../process/STORY.md).
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the "S5 — Selection colors" section of docs/epics/17-polish/EPIC.md. Draft the S5 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S5-selection-colors.md. If the human's approval is recorded, freeze S5 and implement it on main with direct delivery; otherwise present the draft for approval and stop.

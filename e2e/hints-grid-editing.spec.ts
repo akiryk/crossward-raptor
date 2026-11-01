@@ -32,7 +32,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // off cells hint-cell-off gray-700, lines hint-cell-border gray-500).
 // While the grid has focus, the cursor cell is hint-cell-cursor
 // (yellow-bright), the rest of its word hint-cell-cursor-word
-// (yellow-medium), and that word's hint input is filled hint-cell-cursor.
+// (blue-medium since 17-S5, was yellow-medium), and that word's hint
+// input is filled hint-cell-cursor.
 // While a hint input has focus its word is hint-cell-selected (blue), as
 // in 14-S6. Nothing fades.
 //
@@ -48,7 +49,7 @@ const OFF = 'rgb(20, 21, 27)'; // gray-700
 const BORDER = 'rgb(139, 144, 154)'; // gray-500
 const BLUE = 'rgb(207, 238, 255)'; // blue-medium
 const CURSOR = 'rgb(252, 255, 77)'; // yellow-bright
-const CURSOR_WORD = 'rgb(254, 255, 176)'; // yellow-medium
+const CURSOR_WORD = 'rgb(207, 238, 255)'; // blue-medium (17-S5, was yellow-medium)
 const GRAY_200 = 'rgb(221, 224, 230)'; // hint-cell-locked-on; also build's off
 const DONE = 'rgb(186, 188, 190)'; // gray-400, button-done
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
@@ -513,7 +514,7 @@ test.describe('14-S12-4 the grid takes focus and letters', () => {
 });
 
 test.describe('14-S12-5 the grid colors', () => {
-  test("with the grid focused: the cursor yellow-bright, its word yellow-medium, the hints phase's colors otherwise", async ({ page }) => {
+  test("with the grid focused: the cursor yellow-bright, its word blue-medium, the hints phase's colors otherwise", async ({ page }) => {
     await open(page);
     await cell(page, '1,0').click();
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints');

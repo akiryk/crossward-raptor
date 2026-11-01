@@ -29,8 +29,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 const WHITE = 'rgb(255, 255, 255)';
 const BUILD_OFF = 'rgb(221, 224, 230)'; // gray-200
 const SELECTED_CELL = 'rgb(252, 255, 77)'; // yellow-bright
-const ROW_ON = 'rgb(254, 255, 176)'; // yellow-medium
-const ROW_OFF = 'rgb(230, 230, 209)'; // yellow-dull
+const ROW_ON = 'rgb(207, 238, 255)'; // blue-medium (17-S5, was yellow-medium)
+const ROW_OFF = 'rgb(202, 218, 226)'; // blue-dull (17-S5, was yellow-dull)
 const BUILD_BORDER = 'rgb(186, 188, 190)'; // gray-400
 const PREVIEW_BORDER = 'rgb(139, 144, 154)'; // gray-500
 const PREVIEW_OFF = 'rgb(20, 21, 27)'; // gray-700
