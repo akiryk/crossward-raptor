@@ -85,9 +85,10 @@
   --color-button-active: var(--palette-interactive-dark);
   --color-button-alternate-border: var(--palette-gray-500);
   --color-button-alternate-hover: var(--palette-gray-500);
-  --color-button-done: var(--palette-gray-400);
   --color-puzzle-row: var(--palette-interactive-faint);
   --color-puzzle-row-hover: var(--palette-interactive-faint-hover);
+  /* the builder's toggle row (Story 17-S8) */
+  --color-toggle-row: var(--palette-interactive-faint);
   --color-modal-background: var(--palette-white);
   --color-modal-title-background: var(--palette-yellow-bright);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);

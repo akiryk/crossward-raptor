@@ -3,24 +3,13 @@
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 
-export type TooEarlyKind = 'lol' | 'nope' | 'not-quite';
-
-const COPY: Record<TooEarlyKind, { title: string; body: string }> = {
-  lol: {
-    title: 'Lol.',
-    body: "I think you know you can't publish until you actually complete the puzzle. Carry on.",
-  },
-  nope: { title: 'Nope.', body: 'Sorry.' },
-  'not-quite': { title: 'Not quite!', body: "Some of the puzzle's words still need hints." },
-};
-
-/** Story 14-S4. Why 3 Publish can't publish yet. */
-export function TooEarlyDialog({ kind, onClose }: { kind: TooEarlyKind | null; onClose: () => void }) {
-  const copy = kind ? COPY[kind] : COPY.lol;
+/** Stories 14-S4 and 17-S8. "Not quite!": 3 Publish while a required hint
+ *  is blank. The build phase has no Publish, so no other dialog is left. */
+export function TooEarlyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Modal
-      open={kind !== null}
-      title={copy.title}
+      open={open}
+      title="Not quite!"
       onClose={onClose}
       testId="too-early-dialog"
       footer={
@@ -29,7 +18,7 @@ export function TooEarlyDialog({ kind, onClose }: { kind: TooEarlyKind | null; o
         </Button>
       }
     >
-      <p>{copy.body}</p>
+      <p>Some of the puzzle&apos;s words still need hints.</p>
     </Modal>
   );
 }

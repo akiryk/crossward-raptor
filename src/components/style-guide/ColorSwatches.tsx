@@ -100,13 +100,13 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'gray-500',
     swatch: 'bg-button-alternate-hover',
   },
-  { name: 'button-done', variable: 'gray-400', swatch: 'bg-button-done' },
   { name: 'puzzle-row', variable: 'interactive-faint', swatch: 'bg-puzzle-row' },
   {
     name: 'puzzle-row-hover',
     variable: 'interactive-faint-hover',
     swatch: 'bg-puzzle-row-hover',
   },
+  { name: 'toggle-row', variable: 'interactive-faint', swatch: 'bg-toggle-row' },
   { name: 'modal-background', variable: 'white', swatch: 'bg-modal-background' },
   {
     name: 'modal-title-background',

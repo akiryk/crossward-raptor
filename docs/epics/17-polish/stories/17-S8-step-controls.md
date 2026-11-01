@@ -8,7 +8,8 @@ toggle row, at the grid's width. The build phase has no Publish, so its
 
 **Status: approved and frozen** (drafted 2026-11-01). The human approved
 this specification, its acceptance, the amendments and the EPIC amendment
-on 2026-11-01, with the pending question as proposed.
+on 2026-11-01, with the pending question as proposed. Frozen in 898bb5a;
+implemented on `main` the same day. Awaiting the human's visual check.
 
 **Blast radius: small.** `BuilderSteps`, the builder's layout in
 `PuzzleGridEditor`, `TooEarlyDialog`, `Button` (the "done" look goes), one

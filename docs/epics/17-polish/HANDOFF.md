@@ -89,26 +89,24 @@ delivered directly on `main` (no risk path).
 independently reviewed, frozen in 86497f2 and implemented in 73ad3c0 (no
 risk path). The human's visual check passed the same day.
 
-**S8 is approved and frozen** (2026-11-01): the human approved
+**S8 is implemented** (2026-11-01): the human approved
 [17-S8-step-controls.md](stories/17-S8-step-controls.md), its acceptance
 `e2e/step-controls.spec.ts`, the amendments to 13 frozen files (the
 story's table), the EPIC's amended Step controls decision and S8 line,
-and its pending question as proposed (keep F6's blue toggle). From the
-human's mockups (`~/Downloads/build-step-controls.png`,
-`hint-step-controls.png`): the current step as a `title-4` label, one
-button for the next step, and the toggle row on a 10px-cornered
-`interactive-faint` panel. Smaller screens were delegated to the
-implementer. Frozen on `main` in the specification-only commit
-"Epic 17 S8: freeze the approved specification and acceptance".
+and its pending question as proposed (keep F6's blue toggle). Frozen on
+`main` in 898bb5a (specification only); the implementation (the
+drafting throwaway, reviewed against the Decisions) was delivered
+directly on `main` (no risk path): the current step as a `title-4`
+label, one button for the next step, the toggle row on a 10px-cornered
+`toggle-row` panel, no build-phase Publish or "Lol."/"Nope.", and 1's
+"done" look removed. **Waiting on the human's visual check at desktop
+sizes** (the story's Definition of Done).
 
 ## Verification
 
-S8 drafting (story's Discrimination): `main` with the proposed tests,
-35 failed and 144 passed across the 13 browser files, and
-`globals-css.test.ts` fails both F1 style cases. With a throwaway
-implementation (reverted; `/tmp/s8/throwaway.patch`, not in the repo)
-`npm run verify` exit 0 (Vitest 626/626) and the full `npm run test:e2e`
-exit 0 (885 passed).
+S8 implementation (precommit tree, committed unchanged; frozen
+acceptance unchanged from 898bb5a): `npm run verify` exit 0 (Vitest
+626/626) and full `npm run test:e2e` exit 0 (885 passed).
 
 S7 correction, frozen in 86497f2 and implemented in 73ad3c0 (precommit
 tree, committed unchanged): `npm run verify` exit 0 (Vitest 626/626) and
@@ -119,11 +117,10 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human reviews S8's draft and answers its pending question. On
-approval, freeze the story, its acceptance, the amendments and the EPIC
-amendment on `main` in a specification-only commit, then implement S8
-directly on `main` (no risk path).
+The human's visual check of S8 at desktop sizes (the build and hints
+phases, and a published puzzle). Then draft S9 (Preview Hints) when
+authorized.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S8-step-controls.md. Freeze S8 once the human approves its draft, then implement it on main.
+Read docs/epics/17-polish/HANDOFF.md and the EPIC's S9. Once the human's visual check of S8 passes, record it, then draft S9 (Preview Hints).

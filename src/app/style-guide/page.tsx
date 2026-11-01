@@ -23,8 +23,8 @@ import { PuzzleRow, type LibraryPuzzle } from '@/components/puzzle/PuzzleRow';
 import { RowHeading } from '@/components/puzzle/RowHeading';
 import { Menu } from '@/components/ui/Menu';
 import { NewPuzzleDialog } from '@/components/puzzle/NewPuzzleDialog';
-import { BuilderSteps, PublishedState } from '@/components/grid/BuilderSteps';
-import { TooEarlyDialog, type TooEarlyKind } from '@/components/grid/TooEarlyDialog';
+import { BuilderSteps, PublishedState, ToggleRow } from '@/components/grid/BuilderSteps';
+import { TooEarlyDialog } from '@/components/grid/TooEarlyDialog';
 import { PublishDialog } from '@/components/grid/PublishDialog';
 import { PlayHintBar } from '@/components/play/PlayHintBar';
 
@@ -65,7 +65,7 @@ export default function StyleGuidePage() {
   const [errorValue, setErrorValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [newPuzzleOpen, setNewPuzzleOpen] = useState(false);
-  const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
+  const [notQuiteOpen, setNotQuiteOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [toggleOff, setToggleOff] = useState(false);
   const [toggleOn, setToggleOn] = useState(true);
@@ -355,7 +355,13 @@ export default function StyleGuidePage() {
             Builder steps
           </h2>
           <BuilderSteps phase="grid" onStep={() => {}} />
+          <ToggleRow>
+            <PreviewToggle isPreviewing={false} onToggle={() => {}} />
+          </ToggleRow>
           <BuilderSteps phase="hints" onStep={() => {}} />
+          <ToggleRow>
+            <PreviewToggle data-testid="sg-lock-letters-toggle" label="Lock Grid Letters" isPreviewing={false} onToggle={() => {}} />
+          </ToggleRow>
           <PublishedState puzzleId="sg-sample" />
         </section>
 
@@ -363,12 +369,8 @@ export default function StyleGuidePage() {
           <h2 className="mb-3 text-title-2 text-primary">
             Too-early dialog
           </h2>
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => setTooEarly('lol')}>Open “Lol.”</Button>
-            <Button onClick={() => setTooEarly('nope')}>Open “Nope.”</Button>
-            <Button onClick={() => setTooEarly('not-quite')}>Open “Not quite!”</Button>
-          </div>
-          <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
+          <Button onClick={() => setNotQuiteOpen(true)}>Open “Not quite!”</Button>
+          <TooEarlyDialog open={notQuiteOpen} onClose={() => setNotQuiteOpen(false)} />
         </section>
 
         <section data-testid="sg-publish-dialog">

@@ -42,8 +42,8 @@ import { HintSkeleton } from "./HintSkeleton";
 import { PreviewLegend } from "./PreviewLegend";
 import { PreviewToggle } from "./PreviewToggle";
 import { EnterHintsDialog } from "./EnterHintsDialog";
-import { BuilderSteps, PublishedState, type BuilderStepId } from "./BuilderSteps";
-import { TooEarlyDialog, type TooEarlyKind } from "./TooEarlyDialog";
+import { BuilderSteps, PublishedState, ToggleRow, type BuilderStepId } from "./BuilderSteps";
+import { TooEarlyDialog } from "./TooEarlyDialog";
 import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 
@@ -165,16 +165,13 @@ export function PuzzleGridEditor({
   const [boxKey, setBoxKey] = useState<string | null>(null);
   const boxInputRef = useRef<HTMLTextAreaElement>(null);
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
-  const [tooEarly, setTooEarly] = useState<TooEarlyKind | null>(null);
+  const [isNotQuiteOpen, setIsNotQuiteOpen] = useState(false);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   // The hints 3 Publish found blank, each until its text next changes
   // (17-S1). Not persisted.
   const [missingKeys, setMissingKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  // Build-phase clicks on 3 Publish since the page loaded: the first says
-  // "Lol.", every later one "Nope." (14-S4). Not persisted.
-  const buildPublishClicks = useRef(0);
 
   useEffect(() => {
     if (lastSavedGridRef.current === state.grid) return;
@@ -356,14 +353,11 @@ export function PuzzleGridEditor({
     ]);
   }
 
-  // BuilderSteps never reports the selected button, so each click here
-  // is a real change (14-S4).
-  function handleStep(id: BuilderStepId) {
+  // The one step button: 2 Create Hints in the build phase, 3 Publish in
+  // the hints phase (17-S8).
+  function handleStep(id: Exclude<BuilderStepId, "build">) {
     if (id === "publish") {
-      if (state.phase === "grid") {
-        setTooEarly(buildPublishClicks.current === 0 ? "lol" : "nope");
-        buildPublishClicks.current += 1;
-      } else if (!hintsComplete(state)) {
+      if (!hintsComplete(state)) {
         setMissingKeys(
           new Set(
             Array.from(buildSlotLookup(state.grid).keys()).filter(
@@ -371,20 +365,16 @@ export function PuzzleGridEditor({
             ),
           ),
         );
-        setTooEarly("not-quite");
+        setIsNotQuiteOpen(true);
       } else {
         setIsPublishDialogOpen(true);
       }
       return;
     }
-    // In the hints phase 1 is disabled and 2 selected, so only the build
-    // phase's 2 reaches here (14-S12).
-    if (state.phase === "grid" && id === "hints") {
-      // Preview turns on as the dialog opens and stays on unless the
-      // builder confirms (14-S10).
-      changePreview(true);
-      setIsEnterHintsDialogOpen(true);
-    }
+    // Preview turns on as the dialog opens and stays on unless the
+    // builder confirms (14-S10).
+    changePreview(true);
+    setIsEnterHintsDialogOpen(true);
   }
 
   function handleCancelEnterHints() {
@@ -506,8 +496,7 @@ export function PuzzleGridEditor({
 
   return (
     // Below 1092px of room, a 1140px window (17-S7), the builder is one column at
-    // the grid's width, centered, the toggle beside the buttons (15-S3),
-    // 10px under them when they wrap (15-S6).
+    // the grid's width, centered (15-S3).
     <div
       data-testid="puzzle-editor"
       data-ready={isReady}
@@ -519,21 +508,18 @@ export function PuzzleGridEditor({
           onChange={handleTitleChange}
           disabled={isPublished}
         />
-        <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2.5 @min-[1092px]/editor:mb-0 @min-[1092px]/editor:block">
+        {/* The step row, then the toggle row, 20px apart and 20px above the
+            grid; in one column, 16px (17-S8). */}
+        <div className="mb-4 flex flex-col gap-4 @min-[1092px]/editor:mb-5 @min-[1092px]/editor:gap-5">
           {isPublished ? (
-            <PublishedState puzzleId={puzzleId} />
+            // Wide, as tall as the step row, so the grid doesn't move.
+            <div className="@min-[1092px]/editor:min-h-8">
+              <PublishedState puzzleId={puzzleId} />
+            </div>
           ) : (
             <BuilderSteps phase={phase} onStep={handleStep} />
           )}
-          {/* The toggle row: Preview in the build phase, Lock Grid Letters in
-              the hints phase (14-S12). It stays, empty, once published, so the
-              grid doesn't move (14-S4); narrow, it's beside the buttons and a
-              published puzzle has none (15-S3). */}
-          <div
-            className={`h-6 items-center @min-[1092px]/editor:mt-[27px] @min-[1092px]/editor:mb-3 @min-[1092px]/editor:flex ${
-              isPublished ? "hidden" : "flex"
-            }`}
-          >
+          <ToggleRow isPublished={isPublished}>
             {phase === "grid" && (
               <PreviewToggle
                 isPreviewing={isPreviewing}
@@ -548,14 +534,14 @@ export function PuzzleGridEditor({
                 onToggle={() => setIsLettersLocked((prev) => !prev)}
               />
             )}
-          </div>
+          </ToggleRow>
         </div>
         <EnterHintsDialog
           open={isEnterHintsDialogOpen}
           onConfirm={handleConfirmEnterHints}
           onCancel={handleCancelEnterHints}
         />
-        <TooEarlyDialog kind={tooEarly} onClose={() => setTooEarly(null)} />
+        <TooEarlyDialog open={isNotQuiteOpen} onClose={() => setIsNotQuiteOpen(false)} />
         {isPublishDialogOpen && (
           <PublishDialog
             findings={publishReadiness({ grid, hints, phase })}
