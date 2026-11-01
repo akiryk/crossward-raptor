@@ -73,6 +73,8 @@ const style = (locator: Locator, property: string) =>
 function tokenPx(page: Page, name: string) {
   return page.evaluate((token) => {
     const probe = document.createElement('div');
+    // Out of the body's flow, which a taller page would shrink it in (17-S7).
+    probe.style.position = 'absolute';
     probe.style.height = `var(${token})`;
     document.body.append(probe);
     const px = getComputedStyle(probe).height;

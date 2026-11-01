@@ -11,7 +11,7 @@ import { playPuzzleFixture, seedPlayPuzzle, seedPlaySession } from './helpers/pl
 // (gray-700), every line play-cell-border (gray-500); while the grid has
 // focus, the cursor cell play-cell-selected-cell (yellow-bright) and the
 // rest of its word play-cell-selected-row (blue-medium), with no inset
-// ring. At most 560px wide (15-S1, was 526px).
+// ring. At most 700px wide (17-S7; 560px in 15-S1, 526px before).
 //
 // The Prominent Hint: a bar the grid's width, 16px above it, filled
 // play-cell-selected-row, 10px corners, 12px by 16px padding, at least
@@ -127,14 +127,14 @@ const ON_CELLS = ['0,0', '1,0', '2,0', '0,1', '2,1', '0,2', '1,2', '2,2'];
 test.describe('14-S7-1 the play grid', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  test('unselected: on cells white, off cells gray-700, lines gray-500, no ring, at most 560px', async ({ page }) => {
+  test('unselected: on cells white, off cells gray-700, lines gray-500, no ring, at most 700px', async ({ page }) => {
     await openPlay(page);
     await page.getByTestId('play-grid-region').blur();
     await expect(grid(page)).toHaveAttribute('data-grid-mode', 'play');
     for (const coord of ON_CELLS) expect(await bg(cell(page, coord)), coord).toBe(WHITE);
     expect(await bg(cell(page, '1,1')), 'the off cell').toBe(OFF);
     expect(await bg(grid(page)), 'the lines').toBe(BORDER);
-    expect((await box(grid(page))).width, 'width').toBeCloseTo(560, 0);
+    expect((await box(grid(page))).width, 'width').toBeCloseTo(700, 0);
   });
 
   test("selected: the cursor yellow-bright, its word blue-medium, others unchanged, no ring", async ({ page }) => {

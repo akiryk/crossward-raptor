@@ -311,7 +311,8 @@ minimum widths. The story records the new breakpoints and supersedes the
 
 **Numbers clear of letters, as the NYT** *(human, 2026-10-31)*. Measured
 from the NYT screenshot in the story: the number stays at the top left,
-and the letter sits lower in the cell, smaller relative to the cell, so
+and the letter sits lower in the cell, larger relative to the cell than
+ours (corrected to the measurement at S7's freeze, human, 2026-11-01), so
 two-digit and three-digit numbers never touch it at any grid size from
 5×5 to 21×21. The values come from the measurements, scaled with the
 cell as today (`PuzzleGrid.tsx`). A rebus's letters shrink within the

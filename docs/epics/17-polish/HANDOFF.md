@@ -81,7 +81,24 @@ Backspace), and both pending questions as proposed. Frozen on `main` in
 used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
 delivered directly on `main` (no risk path).
 
+**S7 is frozen, being implemented** (2026-11-01): the human approved
+[17-S7-larger-grid.md](stories/17-S7-larger-grid.md), its acceptance
+`e2e/larger-grid.spec.ts`, the amendments to nine frozen specs, the
+retirement of 14-S5-4's shorter-screen case and 15-S6-2 and 15-S6-3 (all
+listed in the story), and both pending questions as proposed (numbers
+with no floor or cap; the EPIC's "smaller relative to the cell"
+corrected to the measurement). Frozen on `main` in a specification-only
+commit (see the story's commit "Epic 17 S7: freeze…").
+
 ## Verification
+
+S7 drafting (story's Discrimination): with a throwaway implementation
+(since reverted; patch at `/tmp/s7/throwaway.patch`, not in the repo) and
+the amendments, the full `npm run test:e2e` had 861 passed and 1 failed
+(`session-renewal` A4, `ECONNRESET`; passed 8 of 8 on rerun). Current
+`main` with the proposed tests: 67 failed, 131 passed across the ten
+files. `tsc` and ESLint pass on the tests. `npm run verify` was not run
+(no runtime change).
 
 S6, on the implementation (precommit tree, committed unchanged), frozen
 acceptance unchanged from 1269487: `npm run verify` exit 0 (Vitest
@@ -93,11 +110,10 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Draft S7, Larger grid (EPIC "S7 — Larger grid"), per
-[STORY](../../process/STORY.md): the specification and proposed
-acceptance, for the human's approval. Nothing is implemented or frozen
-before that approval.
+Implement S7 on `main` against its frozen acceptance per
+[STORY](../../process/STORY.md) (no risk path), then `npm run verify`
+and the full `npm run test:e2e`, and ask for the human's visual check.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the "S7 — Larger grid" section of docs/epics/17-polish/EPIC.md. Draft the S7 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S7-larger-grid.md. Implement the frozen S7 on main, verify, and deliver.
