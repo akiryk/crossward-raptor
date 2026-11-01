@@ -53,7 +53,7 @@ and `e2e/play-reset-settling.spec.ts`. The human decided that Reset stays
 only in the library, on completed rows (recorded in the story and the
 EPIC). Approved 2026-11-01 with its proposed Decisions and frozen on
 `main` in ceba5ec (specification only, with the two deletions), then
-implemented on `story/17-S3-no-reset-in-play` and opened as a PR,
+implemented on `story/17-S3-no-reset-in-play` and opened as PR #32,
 awaiting independent review and merge. S3 touches `actions.ts`, so it is delivered by branch,
 PR and independent review.
 
@@ -67,10 +67,10 @@ used the guarded harness under the standing reset grant
 
 ## Next action
 
-Independently review S3's PR (`story/17-S3-no-reset-in-play`) per
+Independently review S3's PR #32 (`story/17-S3-no-reset-in-play`) per
 [REVIEW](../../process/REVIEW.md), and merge it if no blockers remain.
 The author does not merge it. Then update this handoff and mark S3 done.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S3-no-reset-in-play.md. If the human has approved S3's draft, freeze it on main and implement it on story/17-S3-no-reset-in-play with a PR for independent review; otherwise stop and ask for approval.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S3-no-reset-in-play.md. Independently review PR #32 on story/17-S3-no-reset-in-play per docs/process/REVIEW.md; merge it if no blockers remain and verification and CI pass.
