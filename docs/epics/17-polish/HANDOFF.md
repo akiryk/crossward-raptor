@@ -81,7 +81,7 @@ Backspace), and both pending questions as proposed. Frozen on `main` in
 used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
 delivered directly on `main` (no risk path).
 
-**S7 is implemented, with a correction approved** (2026-11-01): the
+**S7 is implemented as corrected** (2026-11-01): the
 human approved [17-S7-larger-grid.md](stories/17-S7-larger-grid.md) and
 its acceptance, frozen in 3152562 and implemented in 8cf2828 (no risk
 path). At the visual check they rejected the scaled-up numbers on every
@@ -100,6 +100,12 @@ discrimination wording, superseded text) were fixed in the story and
 confirmed by the reviewer before the freeze.
 
 ## Verification
+
+S7 correction, frozen in 86497f2 and implemented (the throwaway patch,
+applied unchanged; precommit tree, committed unchanged): `npm run verify`
+exit 0 (Vitest 626/626) and full `npm run test:e2e` exit 0 (875 passed).
+A first E2E run failed before any test, the web server's build stopping on
+`next/font/google`'s Inter download; the immediate rerun passed.
 
 S7 correction drafting (story's "The correction's discrimination"): with
 a throwaway implementation (reverted; `/tmp/s7/correction-throwaway.patch`)
@@ -128,11 +134,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Implement S7's correction on `main` against its frozen acceptance
-(starting from `/tmp/s7/correction-throwaway.patch`, if it still exists),
-run `npm run verify` and the full `npm run test:e2e`, and ask for the
-human's visual check of every size at 700px and on a phone.
+The human's visual check of S7 as corrected: every size at 700px and on
+a phone. If it passes, S7 is done and S8's drafting is next.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the Correction section of docs/epics/17-polish/stories/17-S7-larger-grid.md. The correction is approved, reviewed and frozen; implement it on main, run the gates and ask for the human's visual check.
+Read docs/epics/17-polish/HANDOFF.md. S7's correction is implemented on main; record the human's visual check, then draft S8 only once the human authorizes it.

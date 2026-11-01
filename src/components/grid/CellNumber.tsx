@@ -3,14 +3,14 @@ export function CellNumber({ number }: { number: number }) {
     <span
       data-testid="cell-number"
       className="text-cell-number text-primary absolute"
-      // A grid sets the size for its cells; elsewhere, cell-number's. The
-      // digits' ink sits about 0.10 of the pitch from the cell's top and
-      // 0.08 from its left, as the NYT's (17-S7).
+      // A grid sets the size for its cells (15-S6); elsewhere, cell-number's.
+      // At the top left, or on a Sunday where the NYT's sits (17-S7).
       style={{
         fontSize: 'var(--cell-number-size, var(--text-cell-number))',
         lineHeight: 'var(--cell-number-size, var(--text-cell-number--line-height))',
-        top: 'calc(var(--cell-pitch, 0px) * 0.07)',
-        left: 'calc(var(--cell-pitch, 0px) * 0.06)',
+        top: 'var(--cell-number-top, 0px)',
+        left: 'var(--cell-number-left, 0px)',
+        padding: 'var(--cell-number-pad, 1px)',
       }}
     >
       {number}

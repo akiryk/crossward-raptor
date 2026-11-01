@@ -15,8 +15,10 @@ Awaiting the human's visual check.
 
 **Correction approved** (2026-11-01, after the human's visual check of
 8cf2828): approved by the human and independently reviewed the same day,
-then frozen in its own specification-only commit before its runtime
-change. Where the text below the Correction differs, the Correction
+then frozen in its own specification-only commit (86497f2) before its
+runtime change. Implemented on `main`; `npm run verify` and the full
+`npm run test:e2e` (875 passed) exit 0. Awaiting the human's visual
+check. Where the text below the Correction differs, the Correction
 governs.
 
 ## Correction (2026-11-01) *(human; approved)*

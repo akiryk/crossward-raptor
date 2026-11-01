@@ -226,7 +226,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   }
 
   return (
-    <div data-testid="play-puzzle" data-session-state={displayedSessionState} className="p-6">
+    <div data-testid="play-puzzle" data-session-state={displayedSessionState} className="px-2 py-6 min-[748px]:px-6">
       {/* Narrow below 1382px of room (a 1430px window, 17-S7): no title, controls
           or hint lists, and the hint bar under the grid (15-S5). Both
           arrangements are rendered and the container query picks one. */}

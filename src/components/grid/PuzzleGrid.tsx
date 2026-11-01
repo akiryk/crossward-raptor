@@ -86,11 +86,22 @@ const GRID_LINES: Record<string, string> = {
   play: 'bg-play-cell-border',
 };
 
-// Letters and numbers as the NYT's (17-S7), in proportion to the cell's
-// pitch at every grid size and width, with no floor or cap: in Inter, the
-// capitals are 0.475 of the pitch and the digits 0.24.
-const CELL_LETTER_PER_PITCH = 0.65;
-const CELL_NUMBER_PER_PITCH = 1 / 3;
+// A Sunday's letters and numbers are the NYT's (17-S7), in proportion to
+// the cell's pitch at every width, with no floor or cap: in Inter, the
+// capitals are 0.475 of the pitch and the digits 0.24, the letter low.
+const SUNDAY_SIZE = 21;
+const SUNDAY_LETTER_PER_PITCH = 0.64;
+const SUNDAY_NUMBER_PER_PITCH = 0.31;
+
+// Other sizes keep their type from before 17-S7: cell-letter's size in a
+// 35px cell (14-S5's 15×15 at 526px), kept in ratio to the cell, and
+// centered; cell-number's size down to a 21×21's cell at 560px, shrinking
+// with a smaller cell to an 8px floor, never growing (15-S6).
+const CELL_LETTER_PX = 16;
+const CELL_LETTER_PITCH_PX = 35;
+const CELL_NUMBER_PX = 10;
+const CELL_NUMBER_MIN_PX = 8;
+const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
 
 export function PuzzleGrid({
   grid,
@@ -200,8 +211,20 @@ export function PuzzleGrid({
         // content box, so the cell pitch is (100cqw + 1px) / cols.
         containerType: 'inline-size',
         ['--cell-pitch' as string]: `calc((100cqw + 1px) / ${grid.cols})`,
-        ['--cell-letter-size' as string]: `calc(var(--cell-pitch) * ${CELL_LETTER_PER_PITCH})`,
-        ['--cell-number-size' as string]: `calc(var(--cell-pitch) * ${CELL_NUMBER_PER_PITCH})`,
+        ...(grid.cols === SUNDAY_SIZE
+          ? {
+              ['--cell-letter-size' as string]: `calc(var(--cell-pitch) * ${SUNDAY_LETTER_PER_PITCH})`,
+              ['--cell-letter-align' as string]: 'flex-start',
+              ['--cell-letter-top' as string]: 'calc(var(--cell-pitch) * 0.37)',
+              ['--cell-number-size' as string]: `calc(var(--cell-pitch) * ${SUNDAY_NUMBER_PER_PITCH})`,
+              ['--cell-number-top' as string]: 'calc(var(--cell-pitch) * 0.07)',
+              ['--cell-number-left' as string]: 'calc(var(--cell-pitch) * 0.06)',
+              ['--cell-number-pad' as string]: '0px',
+            }
+          : {
+              ['--cell-letter-size' as string]: `calc(var(--cell-pitch) * ${CELL_LETTER_PX / CELL_LETTER_PITCH_PX})`,
+              ['--cell-number-size' as string]: `clamp(${CELL_NUMBER_MIN_PX}px, calc(var(--cell-pitch) * ${CELL_NUMBER_PX / CELL_NUMBER_PITCH_PX}), ${CELL_NUMBER_PX}px)`,
+            }),
         // minmax(0, 1fr), not bare 1fr: fr tracks default to an implicit
         // min-size of their content's min-content, which lets a small
         // cell's letter text force the track taller/wider than the

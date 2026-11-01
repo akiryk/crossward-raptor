@@ -10,11 +10,16 @@ export function LetterCell({
   onClick?: () => void;
 }) {
   return (
-    // Centered across and low in the cell, as the NYT's: the capitals'
-    // ink ends about 0.91 of the pitch down, clear of the number (17-S7).
+    // Centered, or on a Sunday low in the cell, as the NYT's (17-S7): the
+    // grid sets the alignment and the space above.
     <div
-      className="text-cell-letter text-primary relative flex h-full w-full items-start justify-center uppercase"
-      style={{ fontSize: 'var(--cell-letter-size)', lineHeight: 1, paddingTop: 'calc(var(--cell-pitch, 0px) * 0.35)' }}
+      className="text-cell-letter text-primary relative flex h-full w-full justify-center uppercase"
+      style={{
+        fontSize: 'var(--cell-letter-size)',
+        lineHeight: 1,
+        alignItems: 'var(--cell-letter-align, center)',
+        paddingTop: 'var(--cell-letter-top, 0px)',
+      }}
       onClick={onClick}
     >
       {number !== undefined && <CellNumber number={number} />}
