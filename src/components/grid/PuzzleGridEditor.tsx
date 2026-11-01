@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
-import { withLetter } from "../../engine/grid";
+import { clearLetters, withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
@@ -46,6 +46,10 @@ import { BuilderSteps, PublishedState, ToggleRow, type BuilderStepId } from "./B
 import { TooEarlyDialog } from "./TooEarlyDialog";
 import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
+import { PlayerHints } from "../play/PlayerHints";
+import { PlayHintBar } from "../play/PlayHintBar";
+import { ProminentHint } from "../play/ProminentHint";
+import { slotsWithNumbers } from "../../engine/numbering";
 
 const SAVE_DEBOUNCE_MS = 500;
 // Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
@@ -148,6 +152,9 @@ export function PuzzleGridEditor({
   // Lock Grid Letters (14-S12): the hints phase's guard against changing a
   // letter by accident. A way of working, like Preview, so not persisted.
   const [isLettersLocked, setIsLettersLocked] = useState(false);
+  // Preview Hints (17-S9): the hints phase shows the player's view in
+  // place. Selection works as in play; nothing can be typed. Not persisted.
+  const [isHintsPreview, setIsHintsPreview] = useState(false);
   // Whether the grid (or something that logically belongs to it, like a
   // hint input -- see the onFocus/onBlur on editor-layout below) currently
   // holds keyboard focus. Drives both whether the cursor/slot highlight
@@ -233,6 +240,15 @@ export function PuzzleGridEditor({
 
   function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     const intent = keyToIntent(event.key);
+    if (intent && isHintsPreview) {
+      event.preventDefault();
+      if (intent.type === "arrow") {
+        setState((prev) => ({ ...prev, cursor: wordArrowKey(prev.grid, prev.cursor, intent.direction) }));
+      } else if (intent.type === "toggleOrientation") {
+        setState((prev) => ({ ...prev, cursor: wordToggle(prev.grid, prev.cursor) }));
+      }
+      return;
+    }
     if (!intent || isLettersLocked) return;
     event.preventDefault();
     if (isPreviewing) {
@@ -303,6 +319,13 @@ export function PuzzleGridEditor({
   }
 
   function handleCellClick(coord: Coord) {
+    // Preview Hints selects as play does, whatever Lock Grid Letters says (17-S9).
+    if (isHintsPreview) {
+      if (state.grid.at(coord.col, coord.row).kind !== "active") return;
+      gridRegionRef.current?.focus();
+      setState((prev) => ({ ...prev, cursor: wordMoveTo(prev.grid, prev.cursor, coord) }));
+      return;
+    }
     // A published puzzle's grid, or one with its letters locked, takes no
     // focus, and a click selects nothing (14-S12).
     if (state.publishedAt !== null || isLettersLocked) return;
@@ -365,6 +388,8 @@ export function PuzzleGridEditor({
             ),
           ),
         );
+        // The marks show only in the editing view.
+        setIsHintsPreview(false);
         setIsNotQuiteOpen(true);
       } else {
         setIsPublishDialogOpen(true);
@@ -455,6 +480,21 @@ export function PuzzleGridEditor({
   const shownKey = activeKey ?? boxKey ?? hintOrder(slotLookup)[0] ?? null;
   const shownSlot = shownKey === null ? undefined : slotLookup.get(shownKey);
 
+  // Preview Hints' selection, as play's (17-S9): a hint selects its word
+  // from its first cell, every cell being empty in the player's view.
+  const hintsPreviewKey = isHintsPreview && isFocused ? activeKey : null;
+  const hintsPreviewSlot = hintsPreviewKey === null ? undefined : slotLookup.get(hintsPreviewKey);
+  function handlePreviewHint(key: string) {
+    const slot = slotLookup.get(key);
+    if (!slot) return;
+    gridRegionRef.current?.focus();
+    setState((prev) => ({ ...prev, cursor: { current: slot.start, orientation: slot.orientation } }));
+  }
+  function handlePreviewStep(step: 1 | -1) {
+    const key = activeKey ? adjacentHintKey(slotLookup, activeKey, step) : hintOrder(slotLookup).at(step === 1 ? 0 : -1);
+    if (key) handlePreviewHint(key);
+  }
+
   // An arrow selects its word: the cursor moves there first, so the box's
   // input is already that word's when it takes focus (15-S4). Published,
   // the input is disabled and focus stays on the arrow.
@@ -519,22 +559,55 @@ export function PuzzleGridEditor({
           ) : (
             <BuilderSteps phase={phase} onStep={handleStep} />
           )}
-          <ToggleRow isPublished={isPublished}>
-            {phase === "grid" && (
-              <PreviewToggle
-                isPreviewing={isPreviewing}
-                onToggle={() => changePreview(!isPreviewing)}
-              />
+          <div className={`${isPublished ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
+            <ToggleRow isPublished={isPublished}>
+              {phase === "grid" && (
+                <PreviewToggle
+                  isPreviewing={isPreviewing}
+                  onToggle={() => changePreview(!isPreviewing)}
+                />
+              )}
+              {phase === "hints" && !isPublished && (
+                <div className="flex items-center gap-3 min-[748px]:gap-5">
+                  <PreviewToggle
+                    data-testid="lock-letters-toggle"
+                    label="Lock Grid Letters"
+                    isPreviewing={isLettersLocked}
+                    disabled={isHintsPreview}
+                    onToggle={() => setIsLettersLocked((prev) => !prev)}
+                  />
+                  {/* Narrow, Preview Hints follows Lock Grid Letters (17-S9). */}
+                  <div className="flex @min-[1092px]/editor:hidden">
+                    <PreviewToggle
+                      data-testid="preview-hints-toggle"
+                      label="Preview Hints"
+                      isPreviewing={isHintsPreview}
+                      onToggle={() => setIsHintsPreview((prev) => !prev)}
+                    />
+                  </div>
+                </div>
+              )}
+            </ToggleRow>
+            {/* Wide, Preview Hints has its own panel over the hints list,
+                on the toggle row's line (17-S9). */}
+            {phase === "hints" && (
+              <div
+                data-testid="preview-hints-row"
+                className={`hidden h-12 min-w-0 flex-1 items-center rounded-modal px-4 @min-[1092px]/editor:flex ${
+                  isPublished ? "invisible" : "bg-toggle-row"
+                }`}
+              >
+                {!isPublished && (
+                  <PreviewToggle
+                    data-testid="preview-hints-toggle"
+                    label="Preview Hints"
+                    isPreviewing={isHintsPreview}
+                    onToggle={() => setIsHintsPreview((prev) => !prev)}
+                  />
+                )}
+              </div>
             )}
-            {phase === "hints" && !isPublished && (
-              <PreviewToggle
-                data-testid="lock-letters-toggle"
-                label="Lock Grid Letters"
-                isPreviewing={isLettersLocked}
-                onToggle={() => setIsLettersLocked((prev) => !prev)}
-              />
-            )}
-          </ToggleRow>
+          </div>
         </div>
         <EnterHintsDialog
           open={isEnterHintsDialogOpen}
@@ -548,6 +621,16 @@ export function PuzzleGridEditor({
             onPublish={handlePublish}
             onCancel={() => setIsPublishDialogOpen(false)}
           />
+        )}
+        {/* Preview Hints: play's Prominent Hint over the grid, 16px above
+            it, wide only (17-S9). */}
+        {isHintsPreview && (
+          <div className="mb-4 hidden w-[700px] max-w-full @min-[1092px]/editor:block">
+            <ProminentHint
+              label={hintsPreviewSlot ? `${hintsPreviewSlot.number}${hintsPreviewSlot.orientation === "across" ? "A" : "D"}` : null}
+              hint={hintsPreviewKey ? hints[hintsPreviewKey] ?? "" : ""}
+            />
+          </div>
         )}
         <div
           data-testid="editor-layout"
@@ -564,26 +647,40 @@ export function PuzzleGridEditor({
               data-testid="grid-region"
               // A published puzzle's grid, or one with its letters locked,
               // takes no focus: no Tab stop, no click focus, no keys (14-S12).
-              tabIndex={isPublished || isLettersLocked ? undefined : 0}
+              tabIndex={isPublished || (isLettersLocked && !isHintsPreview) ? undefined : 0}
               onKeyDown={handleGridKeyDown}
               onFocus={() => setIsGridFocused(true)}
               onBlur={() => setIsGridFocused(false)}
               className="w-full outline-none"
             >
-              <PuzzleGrid
-                grid={grid}
-                highlights={highlights}
-                mode={isPreviewing ? "preview" : "build"}
-                isHintsPhase={phase === "hints"}
-                isGridFocused={isGridFocused}
-                isLettersLocked={phase === "hints" && isLettersLocked}
-                onCellClick={handleCellClick}
-              />
+              {isHintsPreview ? (
+                <PuzzleGrid
+                  grid={clearLetters(grid)}
+                  mode="play"
+                  highlights={highlights}
+                  onCellClick={handleCellClick}
+                />
+              ) : (
+                <PuzzleGrid
+                  grid={grid}
+                  highlights={highlights}
+                  mode={isPreviewing ? "preview" : "build"}
+                  isHintsPhase={phase === "hints"}
+                  isGridFocused={isGridFocused}
+                  isLettersLocked={phase === "hints" && isLettersLocked}
+                  onCellClick={handleCellClick}
+                />
+              )}
             </div>
+            {isHintsPreview && (
+              <div className="@min-[1092px]/editor:hidden">
+                <PlayHintBar hint={hintsPreviewKey ? hints[hintsPreviewKey] ?? "" : ""} onStep={handlePreviewStep} />
+              </div>
+            )}
             {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
             {/* Below 1092px of room the Hint Box takes the list's place,
                 directly under the grid (15-S4). */}
-            {phase === "hints" && shownKey !== null && shownSlot && (
+            {phase === "hints" && !isHintsPreview && shownKey !== null && shownSlot && (
               <div className="@min-[1092px]/editor:hidden">
                 <HintBox
                   grid={grid}
@@ -609,17 +706,26 @@ export function PuzzleGridEditor({
               data-testid="hints-region"
               className="hidden min-w-0 flex-1 overflow-y-auto @min-[1092px]/editor:block @min-[1092px]/editor:self-stretch @min-[1092px]/editor:[contain:size]"
             >
-              <HintsPanel
-                grid={grid}
-                slots={slotLookup}
-                hints={hints}
-                activeKey={activeKey}
-                disabled={isPublished}
-                selectedKey={isGridFocused ? activeKey : null}
-                missingKeys={missingKeys}
-                onHintChange={handleHintChange}
-                onHintFocus={handleHintFocus}
-              />
+              {isHintsPreview ? (
+                <PlayerHints
+                  slots={slotsWithNumbers(grid)}
+                  hints={hints}
+                  selectedKey={hintsPreviewKey}
+                  onSelect={handlePreviewHint}
+                />
+              ) : (
+                <HintsPanel
+                  grid={grid}
+                  slots={slotLookup}
+                  hints={hints}
+                  activeKey={activeKey}
+                  disabled={isPublished}
+                  selectedKey={isGridFocused ? activeKey : null}
+                  missingKeys={missingKeys}
+                  onHintChange={handleHintChange}
+                  onHintFocus={handleHintFocus}
+                />
+              )}
             </div>
           )}
         </div>

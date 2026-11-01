@@ -19,23 +19,30 @@ export function PreviewToggle({
   onToggle,
   'data-testid': dataTestId = 'preview-toggle',
   label = 'Preview',
+  disabled = false,
 }: {
   isPreviewing: boolean;
   onToggle: () => void;
   'data-testid'?: string;
   /** The hints phase's Lock Grid Letters uses the same toggle (14-S12). */
   label?: string;
+  /** Inactive, its state kept: Lock Grid Letters while Preview Hints is on (17-S9). */
+  disabled?: boolean;
 }) {
   const state = isPreviewing ? 'on' : 'off';
   return (
     <label
       data-testid={dataTestId}
-      className="group relative inline-flex cursor-pointer items-center gap-2 select-none"
+      data-disabled={disabled ? 'true' : undefined}
+      className={`group relative inline-flex items-center gap-2 select-none ${
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+      }`}
     >
       <input
         type="checkbox"
         checked={isPreviewing}
         onChange={onToggle}
+        disabled={disabled}
         className="peer sr-only"
       />
       <span

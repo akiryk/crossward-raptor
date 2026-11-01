@@ -101,22 +101,26 @@ label, one button for the next step, the toggle row on a 10px-cornered
 `toggle-row` panel, no build-phase Publish or "Lol."/"Nope.", and 1's
 "done" look removed. The human's visual check passed the same day.
 
-**S9 is approved** (2026-11-01): the human approved
+**S9 is implemented, awaiting the human's visual check** (2026-11-01):
+the human approved
 [17-S9-preview-hints.md](stories/17-S9-preview-hints.md), its acceptance
 `e2e/preview-hints.spec.ts` (no frozen test amended) and both pending
 questions as proposed: the Prominent Hint between the toggle row and the
 grid, 16px over the grid as in play; Lock Grid Letters inactive at 50%
-opacity with a not-allowed cursor. Frozen on `main` in a
-specification-only commit; implementation follows directly on `main`
-(no risk path).
+opacity with a not-allowed cursor. Frozen on `main` in be03d64
+(specification only); the implementation (the drafting throwaway,
+reviewed against the Decisions and tidied) was delivered directly on
+`main` (no risk path): a Preview Hints toggle (wide, its own
+`preview-hints-row` panel over the hints list; narrow, after Lock Grid
+Letters) showing play's grid without letters, Player Hints and Prominent
+Hint (narrow, play's hint bar), selection as in play and no typing.
 
 ## Verification
 
-S9 drafting (story's Discrimination): `main` with the proposed test, 11
-of 12 cases failed (the one guard passed). With a throwaway
-implementation (reverted; `/tmp/s9/throwaway.patch`, not in the repo)
-`npm run verify` exit 0 (Vitest 626/626) and the full `npm run test:e2e`
-exit 0 (897 passed).
+S9 implementation (precommit tree, committed unchanged; frozen
+acceptance unchanged from be03d64): `npm run verify` exit 0 (Vitest
+626/626) and full `npm run test:e2e` exit 0 (897 passed). Drafting: `main`
+with the proposed test failed 11 of 12 cases (the one guard passed).
 
 S8 implementation (precommit tree, committed unchanged; frozen
 acceptance unchanged from 898bb5a): `npm run verify` exit 0 (Vitest
@@ -131,11 +135,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human reviews S9's draft and answers its two pending questions. On
-approval, freeze the story and its acceptance on `main` in a
-specification-only commit, then implement S9 directly on `main` (no risk
-path).
+The human's visual check of S9 at desktop sizes (Definition of Done). If
+it passes, record it here; S10 (Rebus) is next, when authorized.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S9-preview-hints.md. Freeze S9 once the human approves its draft, then implement it on main.
+Read docs/epics/17-polish/HANDOFF.md. Record the human's S9 visual check, then draft S10 (Rebus) when the human authorizes it.
