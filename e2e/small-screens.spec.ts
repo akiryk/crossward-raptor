@@ -28,8 +28,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // beside the hint while the hint keeps at least 120px, and otherwise gets
 // its own row above it; the arrows stay level with the first row. The
 // wide Hint Inputs wrap a long hint too, the answer 4px below. Enter adds
-// no line break to the title or a hint. When the narrow builder's buttons
-// and toggle wrap, their rows are 10px apart.
+// no line break to the title or a hint. (17-S8 retired the narrow
+// builder's wrapped buttons and toggle, 10px apart.)
 //
 // At 375×667 nothing runs past the window's right edge, and no dialog is
 // taller than the window.
@@ -51,7 +51,6 @@ const NARROW_GAP_PX = 16;
 const WIDE_GAP_PX = 32;
 const TITLE_3_LINE_PX = 24;
 const TITLE_1_LINE_PX = 54;
-const WRAP_GAP_PX = 10;
 const PHONE = { width: 375, height: 667 };
 
 const LONG_TITLE = 'An extraordinarily long puzzle title that keeps going well past the edge';
@@ -350,21 +349,9 @@ test.describe('15-S6-5 the Hint Box shows everything', () => {
 });
 
 // --- 15-S6-6: wrapped controls ---
-test.describe('15-S6-6 wrapped controls', () => {
-  for (const phase of ['grid', 'hints'] as const) {
-    test(`${phase} phase at 375px: the toggle’s row 10px under the buttons`, async ({ page }) => {
-      await openBuilder(page, PHONE, { phase });
-      const toggleId = phase === 'grid' ? 'preview-toggle' : 'lock-letters-toggle';
-      const buttons = page.getByTestId('builder-steps').getByRole('button');
-      let buttonsBottom = 0;
-      for (const b of await buttons.all()) buttonsBottom = Math.max(buttonsBottom, (await rect(b)).bottom);
-      const toggleRow = page.getByTestId(toggleId).locator('..');
-      const t = await rect(toggleRow);
-      expect(t.y, 'the toggle wraps to its own row').toBeGreaterThan(buttonsBottom - 1);
-      expect(t.y - buttonsBottom, '10px between the rows').toBeCloseTo(WRAP_GAP_PX, 0);
-    });
-  }
-});
+// 17-S8 retired 15-S6-6 "the toggle's row 10px under the buttons" (2
+// cases): the toggle no longer shares the buttons' row, it sits on its
+// own panel 16px under the step row (17-S8-2, e2e/step-controls.spec.ts).
 
 // --- 15-S6-7: nothing clips at 375×667 ---
 test.describe('15-S6-7 nothing clips at 375×667', () => {

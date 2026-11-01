@@ -555,7 +555,9 @@ test.describe('F3-9 adoption', () => {
     await waitForEditorReady(page);
     await parkMouse(page);
 
-    for (const step of ['build', 'hints', 'publish']) {
+    // 17-S8: the build phase's one step button is 2; 1 is a label and 3 is
+    // the hints phase's.
+    for (const step of ['hints']) {
       await expect(page.locator(`[data-testid="builder-steps"] [data-step-id="${step}"]`)).toHaveAttribute('data-button-type', 'numbered');
     }
 

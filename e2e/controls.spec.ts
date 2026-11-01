@@ -47,8 +47,8 @@ test.describe('D2-1 buttons', () => {
     await waitForEditorReady(page);
 
     // 14-S4: Clear all letters and Delete are gone; the unselected numbered
-    // buttons stand in.
-    for (const testid of ['hints', 'publish']) {
+    // buttons stand in. 17-S8: the build phase has one, 2 (3 is gone).
+    for (const testid of ['hints']) {
       const button = page.locator(`[data-testid="builder-steps"] [data-step-id="${testid}"]`);
       const cursor = await button.evaluate((el) => getComputedStyle(el).cursor);
       const bg = await button.evaluate((el) => getComputedStyle(el).backgroundColor);

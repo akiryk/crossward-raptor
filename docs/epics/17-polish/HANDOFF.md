@@ -89,18 +89,17 @@ delivered directly on `main` (no risk path).
 independently reviewed, frozen in 86497f2 and implemented in 73ad3c0 (no
 risk path). The human's visual check passed the same day.
 
-**S8 is drafted, not approved** (2026-11-01):
-[17-S8-step-controls.md](stories/17-S8-step-controls.md), from the
+**S8 is approved and frozen** (2026-11-01): the human approved
+[17-S8-step-controls.md](stories/17-S8-step-controls.md), its acceptance
+`e2e/step-controls.spec.ts`, the amendments to 13 frozen files (the
+story's table), the EPIC's amended Step controls decision and S8 line,
+and its pending question as proposed (keep F6's blue toggle). From the
 human's mockups (`~/Downloads/build-step-controls.png`,
-`hint-step-controls.png`) and their notes: the current step as a
-`title-4` label, one button for the next step, and the toggle row on a
-10px-cornered `interactive-faint` panel. They delegated the smaller
-screens to the implementer without further approval. The draft is
-uncommitted in the worktree: the story, the new acceptance
-`e2e/step-controls.spec.ts`, amendments to 13 frozen files (the story's
-table) and the EPIC's amended Step controls decision and S8 line. One
-pending question: the toggle's gray label in the mockups (proposed:
-keep F6's blue toggle).
+`hint-step-controls.png`): the current step as a `title-4` label, one
+button for the next step, and the toggle row on a 10px-cornered
+`interactive-faint` panel. Smaller screens were delegated to the
+implementer. Frozen on `main` in the specification-only commit
+"Epic 17 S8: freeze the approved specification and acceptance".
 
 ## Verification
 

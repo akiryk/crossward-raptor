@@ -110,6 +110,10 @@ the human's `~/Downloads`.
   show the toggle text gray and "Rebus" as a blue text link.
   *(Answer: the link is the builder's Rebus control; play keeps S10's
   pill.)*
+  *(Amended 2026-11-01, human: the button follows the label as in the
+  mockups, and the toggle row sits on a panel with 10px corners in the
+  interactive faint color instead of under a hairline. Smaller screens
+  are the implementer's call.)*
 
 ## What the code does today (2026-10-27)
 
@@ -320,14 +324,16 @@ page's side padding is 8px. The values come from the measurements, scaled with t
 cell as today (`PuzzleGrid.tsx`). A rebus's letters shrink within the
 same letter area.
 
-**Step controls** *(human, mockups 2026-10-31)*. The three step buttons
-give way to one row: a label for the current step on the left, `title-4`,
-with its step number (as in the mockup), and a button for the next step
-on the right, aligned with the grid's right edge: "Build the Grid" with
+**Step controls** *(human, mockups 2026-10-31; amended 2026-11-01)*. The
+three step buttons give way to one row: a label for the current step,
+`title-4`, with its step number (as in the mockup), and a button for the
+next step just after it, as in the mockups: "Build the Grid" with
 "2 Create Hints", then "Create Hints" with "3 Publish". The buttons do
-what 2 and 3 do today. A full-width hairline, in the color of the app's
-other hairlines, separates this row from the grid's toggle row below. All
-styles are existing ones. A published puzzle keeps `PublishedState`.
+what 2 and 3 do today. Below it, the grid's toggle row sits on a panel
+at the grid's width, with 10px corners in the interactive faint color
+(was a full-width hairline, 2026-10-31). Smaller screens are the
+implementer's call, aiming for consistency and economy of space (human,
+2026-11-01). Other styles are existing ones. A published puzzle keeps `PublishedState`.
 **The build phase has no Publish button**, so its "lol" and "nope"
 too-early dialogs (14-S4) are removed. "Not quite!" (and S1's marks) stay.
 *Proposed:* the labels keep today's text ("Build the Grid"); the
@@ -427,10 +433,11 @@ Supersedes 15-S1's 560px tests, 15-S6's 24px narrow padding and a Sunday's cell 
 
 ### S8 — Step controls
 
-The current-step label and next-step button row, its hairline, the toggle
-row below with S10's Rebus link slot, and the removal of the build phase's
-3 Publish, with its "lol" and "nope" dialogs. Supersedes 14-S4's
-step-button and too-early tests, which the story names.
+The current-step label and next-step button row, the toggle row's
+panel below it with S10's Rebus link slot, and the removal of the build
+phase's 3 Publish, with its "lol" and "nope" dialogs, and of 1's "done"
+look. Supersedes 14-S4's step-button and too-early tests, 14-S12's done
+1 and epic 15's narrow toggle placement, which the story names.
 
 ### S9 — Preview Hints
 

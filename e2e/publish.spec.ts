@@ -107,15 +107,18 @@ test.describe('PB3-2 publish', () => {
   // block publishing" is retired, since a blank hint now blocks it
   // (builder-controls.spec.ts covers both rules).
 
+  // 17-S8: the build phase has no 3 Publish (it opened "Lol." or "Nope.").
   test('a grid-phase puzzle cannot be published', async ({ page }) => {
     const { id } = await seedPuzzle({
       grid: fillAll(createGrid({ cols: 3, rows: 3 })),
       hints: {},
       phase: 'grid',
     });
-    await openPublishStep(page, id);
+    await page.goto(`/puzzles/${id}`);
+    await waitForEditorReady(page);
 
-    await expect(page.getByTestId('too-early-dialog')).toBeVisible();
+    await expect(publishStep(page)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /publish/i })).toHaveCount(0);
     await expect(dialog(page)).toHaveCount(0);
     expect((await builderEditSnapshot(id)).publishedAt).toBeNull();
   });

@@ -90,10 +90,11 @@ const STYLES: Record<string, string> = {
   'button-active': 'interactive-dark',
   'button-alternate-border': 'gray-500',
   'button-alternate-hover': 'gray-500',
-  // 14-S12: a numbered button whose step is done (1 in the hints phase).
-  'button-done': 'gray-400',
+  // 17-S8 removed 'button-done' (14-S12's done 1): nothing uses it.
   'puzzle-row': 'interactive-faint',
   'puzzle-row-hover': 'interactive-faint-hover',
+  // 17-S8: the builder's toggle row.
+  'toggle-row': 'interactive-faint',
   'modal-background': 'white',
   'modal-title-background': 'yellow-bright',
   logo: 'gray-400',

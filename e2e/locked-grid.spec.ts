@@ -47,14 +47,16 @@ test.describe('H4-2 the locked grid', () => {
     await expect(cell(page, '0,0')).toHaveAttribute('data-cell-state', 'locked-letter');
   });
 
-  test('the preview toggle is replaced by Lock Grid Letters and 1 is done', async ({ page }) => {
+  // 17-S8: was "… and 1 is done": the hints phase has no 1, its current
+  // step is the "2 Create Hints" label.
+  test('the preview toggle is replaced by Lock Grid Letters and 2 is the current step', async ({ page }) => {
     await openPuzzle(page);
 
     await expect(page.getByTestId('preview-toggle')).toHaveCount(0);
     await expect(page.getByTestId('lock-letters-toggle')).toBeVisible();
-    await expect(step(page, 'build')).toHaveAccessibleName(/Build the Grid/);
-    await expect(step(page, 'build')).toBeDisabled();
-    await expect(step(page, 'build')).toHaveAttribute('data-done', 'true');
+    await expect(step(page, 'hints')).toHaveText(/Create Hints/);
+    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
+    await expect(step(page, 'build')).toHaveCount(0);
   });
 
   test('build phase is unaffected', async ({ page }) => {

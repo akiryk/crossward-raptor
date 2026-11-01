@@ -12,8 +12,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Below a 1140px window (1092px of room inside the page's padding; 17-S7,
 // was 1000px), the builder is one column at the grid's 700px width
 // (17-S7, was 560px), centered: the title in
-// `title-3`, the numbered buttons with the toggle 20px after them,
-// 16px between the title, that row and the grid. Below the grid, only
+// `title-3`, then the step row, then the toggle row (17-S8; was the
+// numbered buttons with the toggle 20px after them), 16px between the
+// title, each row and the grid. Below the grid, only
 // Preview's legend in the build phase and, in the hints phase, S4's Hint
 // Box (15-S4 replaced the hint list there). From 1140px up, S2's wide
 // layout holds.
@@ -22,7 +23,6 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 const GRID_PX = 700;
 const NARROW_GAP_PX = 16;
-const TOGGLE_GAP_PX = 20;
 const WIDE_GAP_PX = 32;
 
 type Phase = 'grid' | 'hints';
@@ -142,36 +142,25 @@ test.describe('15-S3-3 the title', () => {
 });
 
 // --- 15-S3-4: the toggle beside the buttons ---
-test.describe('15-S3-4 the toggle beside the buttons', () => {
-  for (const phase of PHASES) {
-    test(`${phase} phase at 768px: the toggle level with the buttons, 20px after them`, async ({ page }) => {
-      await openBuilder(page, phase, 768);
-      const s = await box(steps(page));
-      const toggle = await box(page.getByTestId(TOGGLE[phase]));
-      expect(toggle.x - s.right, '20px after the buttons').toBeCloseTo(TOGGLE_GAP_PX, 0);
-      expect(toggle.y + toggle.height / 2, 'centered on the buttons').toBeCloseTo(s.y + s.height / 2, 0);
-    });
-  }
-
-  test('at 1140px the toggle is still on its own row below the buttons', async ({ page }) => {
-    await openBuilder(page, 'grid', 1140);
-    const s = await box(steps(page));
-    const toggle = await box(page.getByTestId('preview-toggle'));
-    expect(toggle.y, 'below the buttons').toBeGreaterThan(s.bottom);
-    expect(toggle.x, 'at the editor’s left').toBeCloseTo(s.x, 0);
-  });
-});
+// 17-S8 retired 15-S3-4 (3 cases: the toggle level with the buttons, 20px
+// after them, at 768px in each phase, and on its own row at 1140px): the
+// toggle sits on its own panel under the step row at every width (17-S8-2,
+// e2e/step-controls.spec.ts).
 
 // --- 15-S3-5: tighter spacing ---
 test.describe('15-S3-5 tighter spacing', () => {
   for (const phase of PHASES) {
-    test(`${phase} phase at 768px: 16px from the title to the buttons and from the buttons to the grid`, async ({ page }) => {
+    // 17-S8: was "… from the buttons to the grid"; the toggle row is
+    // between them now.
+    test(`${phase} phase at 768px: 16px from the title to the step row, to the toggle row and to the grid`, async ({ page }) => {
       await openBuilder(page, phase, 768);
       const t = await box(title(page));
       const s = await box(steps(page));
+      const r = await box(page.getByTestId('toggle-row'));
       const g = await box(grid(page));
-      expect(s.y - t.bottom, 'title to buttons').toBeCloseTo(NARROW_GAP_PX, 0);
-      expect(g.y - s.bottom, 'buttons to grid').toBeCloseTo(NARROW_GAP_PX, 0);
+      expect(s.y - t.bottom, 'title to the step row').toBeCloseTo(NARROW_GAP_PX, 0);
+      expect(r.y - s.bottom, 'step row to toggle row').toBeCloseTo(NARROW_GAP_PX, 0);
+      expect(g.y - r.bottom, 'toggle row to grid').toBeCloseTo(NARROW_GAP_PX, 0);
     });
   }
 });

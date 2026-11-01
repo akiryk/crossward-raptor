@@ -15,13 +15,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // and advances. Backspace still does nothing. The hint inputs stay enabled
 // throughout, so the builder moves between letters and hints with a click.
 //
-// 1 is done: disabled, not selected, gray (button-done, gray-400) and 70px
-// wide, its number gray in the white circle, a 16px white check centred in
-// the 40px beside the circle, and its label "Build the Grid" faded out but
-// still its name. 2 Create Hints is selected. When the hints phase begins,
-// the label fades out over 150ms, then the check fades in over 150ms,
-// while the fill, width and number change over 300ms; under reduced
-// motion, and on a page that loads in the hints phase, it changes at once.
+// 17-S8 retired 1's "done" look (gray, 70px, a check): the hints phase's
+// current step is a label, "2 Create Hints", with no step back.
 //
 // Lock Grid Letters takes the Preview toggle's place in the hints phase,
 // off on every load. While on, the on cells are hint-cell-locked-on
@@ -51,7 +46,6 @@ const BLUE = 'rgb(207, 238, 255)'; // blue-medium
 const CURSOR = 'rgb(252, 255, 77)'; // yellow-bright
 const CURSOR_WORD = 'rgb(207, 238, 255)'; // blue-medium (17-S5, was yellow-medium)
 const GRAY_200 = 'rgb(221, 224, 230)'; // hint-cell-locked-on; also build's off
-const DONE = 'rgb(186, 188, 190)'; // gray-400, button-done
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 const MUTED = 'rgb(139, 144, 154)'; // gray-500
 
@@ -125,238 +119,16 @@ const ON_CELLS = Array.from({ length: 25 }, (_, i) => `${i % 5},${Math.floor(i /
   (coord) => coord !== '4,0' && coord !== '0,4'
 );
 
-/** 1's look: its box, fill, border, number, check and label. */
-async function readDone(page: Page) {
-  return step(page, 'build').evaluate((button) => {
-    const box = button.getBoundingClientRect();
-    const style = getComputedStyle(button);
-    const circle = button.querySelector('[data-button-number]')!;
-    const check = button.querySelector('[data-button-check]');
-    const label = button.querySelector('[data-button-label]');
-    const circleBox = circle.getBoundingClientRect();
-    const checkBox = check?.getBoundingClientRect();
-    const borderRight = parseFloat(style.borderRightWidth);
-    return {
-      width: box.width,
-      height: box.height,
-      fill: style.backgroundColor,
-      border: style.borderTopColor,
-      opacity: Number(style.opacity),
-      cursor: style.cursor,
-      numberColor: getComputedStyle(circle).color,
-      circleFill: getComputedStyle(circle).backgroundColor,
-      number: circle.textContent?.trim(),
-      checkWidth: checkBox?.width ?? null,
-      checkColor: check ? getComputedStyle(check).color : null,
-      checkOpacity: check ? Number(getComputedStyle(check).opacity) : null,
-      checkGapLeft: checkBox ? checkBox.left - circleBox.right : null,
-      checkGapRight: checkBox ? box.right - borderRight - checkBox.right : null,
-      checkCentreY: checkBox ? checkBox.top + checkBox.height / 2 - (box.top + box.height / 2) : null,
-      labelOpacity: label ? Number(getComputedStyle(label).opacity) : null,
-    };
-  });
-}
-
-function expectDone(look: Awaited<ReturnType<typeof readDone>>) {
-  expect(look.width, 'width').toBeCloseTo(70, 0);
-  expect(look.height, 'height, as before').toBeCloseTo(32, 0);
-  expect(look.fill, 'fill').toBe(DONE);
-  expect(look.border, 'border').toBe(DONE);
-  expect(look.opacity, 'not faded').toBe(1);
-  expect(look.cursor, 'cursor').toBe('default');
-  expect(look.number, 'the number stays').toBe('1');
-  expect(look.numberColor, 'the number').toBe(DONE);
-  expect(look.circleFill, 'the circle').toBe(WHITE);
-  expect(look.checkWidth, 'the check').not.toBeNull();
-  expect(look.checkWidth!, 'the check’s width').toBeCloseTo(16, 0);
-  expect(look.checkColor, 'the check’s color').toBe(WHITE);
-  expect(look.checkOpacity, 'the check shows').toBe(1);
-  expect(look.checkGapLeft!, 'circle to check').toBeCloseTo(12, 0);
-  expect(look.checkGapRight!, 'check to the inner right edge').toBeCloseTo(12, 0);
-  expect(look.checkCentreY!, 'the check is centred vertically').toBeCloseTo(0, 0);
-  expect(look.labelOpacity, 'the label is faded out').toBe(0);
-}
-
 /** Confirms 2 Create Hints' dialog on a build-phase puzzle. */
 async function createHints(page: Page) {
   await step(page, 'hints').click();
   await page.getByTestId('enter-hints-dialog').getByTestId('modal-confirm').click();
 }
 
-type Running = { property: string; duration: number; delay: number };
-type Watched = { button: Running[]; number: Running[]; label: Running[]; check: Running[] };
-
-/**
- * Arms a watcher that, the moment 1 becomes done, pauses its transitions
- * at their start so they can be read at chosen times.
- */
-async function armDoneWatcher(page: Page) {
-  await page.evaluate(() => {
-    const w = window as unknown as { __s12?: Record<string, Animation[]> };
-    w.__s12 = undefined;
-    const button = document.querySelector('[data-testid="builder-steps"] [data-step-id="build"]')!;
-    const observer = new MutationObserver(() => {
-      if (button.getAttribute('data-done') !== 'true') return;
-      observer.disconnect();
-      const parts = {
-        button,
-        number: button.querySelector('[data-button-number]'),
-        label: button.querySelector('[data-button-label]'),
-        check: button.querySelector('[data-button-check]'),
-      };
-      const found: Record<string, Animation[]> = {};
-      for (const [name, el] of Object.entries(parts)) {
-        found[name] = el ? el.getAnimations({ subtree: false }) : [];
-        for (const a of found[name]) {
-          a.pause();
-          a.currentTime = 0;
-        }
-      }
-      w.__s12 = found;
-    });
-    observer.observe(button, { attributes: true });
-  });
-}
-
-async function readWatched(page: Page): Promise<Watched> {
-  await expect.poll(() => page.evaluate(() => Boolean((window as unknown as { __s12?: unknown }).__s12))).toBe(true);
-  return page.evaluate(() => {
-    const found = (window as unknown as { __s12: Record<string, Animation[]> }).__s12;
-    const describe = (list: Animation[]) =>
-      list.map((a) => {
-        const timing = a.effect!.getTiming();
-        return {
-          property: (a as CSSTransition).transitionProperty,
-          duration: Number(timing.duration),
-          delay: Number(timing.delay),
-        };
-      });
-    return {
-      button: describe(found.button),
-      number: describe(found.number),
-      label: describe(found.label),
-      check: describe(found.check),
-    };
-  });
-}
-
-/** Moves every watched transition to `ms` and reads the parts' state. */
-async function seekWatched(page: Page, ms: number) {
-  return page.evaluate((time) => {
-    const found = (window as unknown as { __s12: Record<string, Animation[]> }).__s12;
-    for (const list of Object.values(found)) for (const a of list) a.currentTime = time;
-    const button = document.querySelector('[data-testid="builder-steps"] [data-step-id="build"]')!;
-    return {
-      width: button.getBoundingClientRect().width,
-      label: Number(getComputedStyle(button.querySelector('[data-button-label]')!).opacity),
-      check: Number(getComputedStyle(button.querySelector('[data-button-check]')!).opacity),
-    };
-  }, ms);
-}
-
-test.describe('14-S12-1 the numbered buttons', () => {
-  test('1 is done: disabled, unselected, gray and 70px with a check; 2 is selected; 3 stays enabled', async ({ page }) => {
-    await open(page);
-    await expect(step(page, 'build')).toBeDisabled();
-    await expect(step(page, 'build')).toHaveAttribute('data-done', 'true');
-    await expect(step(page, 'build')).toHaveAccessibleName(/Build the Grid/);
-    await expect(step(page, 'build')).not.toHaveAttribute('aria-current', 'true');
-    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
-    await expect(step(page, 'publish')).toBeEnabled();
-    await expect(page.getByText('Edit the Grid')).toHaveCount(0);
-    expectDone(await readDone(page));
-
-    await page.reload();
-    await waitForEditorReady(page);
-    await expect(step(page, 'build')).toBeDisabled();
-    expectDone(await readDone(page));
-  });
-
-  test('a click on 1 changes nothing', async ({ page }) => {
-    await open(page);
-    await step(page, 'build').click({ force: true });
-
-    await expect(page.getByTestId('modal')).toHaveCount(0);
-    await expect(grid(page)).toHaveAttribute('data-grid-mode', 'hints');
-    await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
-    await expect(input(page, '1-across')).toBeEnabled();
-  });
-
-  test('in the build phase 1 is not done: no fill change, no check showing, its label showing', async ({ page }) => {
-    await open(page, 'grid');
-    await expect(step(page, 'build')).not.toHaveAttribute('data-done', 'true');
-    await expect(step(page, 'build')).toBeEnabled();
-    const look = await readDone(page);
-    expect(look.fill).not.toBe(DONE);
-    expect(look.labelOpacity).toBe(1);
-    expect(look.checkOpacity ?? 0, 'no check showing').toBe(0);
-  });
-
-  test('under reduced motion, and on load, 1 becomes done at once', async ({ page }) => {
-    await open(page, 'grid');
-    await armDoneWatcher(page);
-    await createHints(page);
-    const running = await readWatched(page);
-    expect(running, 'no transitions').toEqual({ button: [], number: [], label: [], check: [] });
-    expectDone(await readDone(page));
-
-    await page.reload();
-    await waitForEditorReady(page);
-    const onLoad = await step(page, 'build').evaluate((button) =>
-      [button, ...Array.from(button.querySelectorAll('*'))].flatMap((el) => el.getAnimations({ subtree: false })).length
-    );
-    expect(onLoad, 'nothing running on load').toBe(0);
-  });
-});
-
-test.describe('14-S12-2 1 turns done when the hints phase begins', () => {
-  test.use({ contextOptions: { reducedMotion: 'no-preference' } });
-
-  test('the label fades out, then the check fades in, while the fill, width and number change', async ({ page }) => {
-    await open(page, 'grid');
-    const before = (await step(page, 'build').boundingBox())!.width;
-    expect(before, 'wider than done to begin with').toBeGreaterThan(80);
-
-    await armDoneWatcher(page);
-    await createHints(page);
-    const running = await readWatched(page);
-
-    const timing = (list: Running[], property: string) => list.find((t) => t.property === property);
-    expect(timing(running.label, 'opacity'), 'the label').toEqual({ property: 'opacity', duration: 150, delay: 0 });
-    expect(timing(running.check, 'opacity'), 'the check').toEqual({ property: 'opacity', duration: 150, delay: 150 });
-    expect(timing(running.button, 'background-color'), 'the fill').toEqual({
-      property: 'background-color',
-      duration: 300,
-      delay: 0,
-    });
-    expect(timing(running.button, 'width'), 'the width').toEqual({ property: 'width', duration: 300, delay: 0 });
-    expect(timing(running.number, 'color'), 'the number').toEqual({ property: 'color', duration: 300, delay: 0 });
-
-    const start = await seekWatched(page, 0);
-    expect(start.label, 'the label at the start').toBeCloseTo(1, 2);
-    expect(start.check, 'the check at the start').toBeCloseTo(0, 2);
-    expect(start.width, 'the width at the start').toBeCloseTo(before, 0);
-
-    const early = await seekWatched(page, 75);
-    expect(early.label, 'the label is fading out').toBeGreaterThan(0.05);
-    expect(early.label).toBeLessThan(0.95);
-    expect(early.check, 'the check waits').toBeCloseTo(0, 2);
-    expect(early.width, 'the width is between').toBeLessThan(before - 1);
-    expect(early.width).toBeGreaterThan(71);
-
-    const late = await seekWatched(page, 225);
-    expect(late.label, 'the label has gone').toBeCloseTo(0, 2);
-    expect(late.check, 'the check is fading in').toBeGreaterThan(0.05);
-    expect(late.check).toBeLessThan(0.95);
-
-    await seekWatched(page, 300);
-    await page.evaluate(() => {
-      const found = (window as unknown as { __s12: Record<string, Animation[]> }).__s12;
-      for (const list of Object.values(found)) for (const a of list) a.finish();
-    });
-    expectDone(await readDone(page));
-  });
-});
+// 17-S8 retired 14-S12-1 "the numbered buttons" (4 cases) and 14-S12-2
+// "1 turns done when the hints phase begins": the hints phase has no 1,
+// its current step is the "2 Create Hints" label (17-S8-1,
+// e2e/step-controls.spec.ts), so the "done" look is gone.
 
 test.describe('14-S12-3 Lock Grid Letters', () => {
   test("it replaces Preview in the toggle row when the hints phase begins, off; a published puzzle shows neither", async ({ page }) => {
@@ -607,7 +379,8 @@ test.describe("14-S12-6 the selected word's hint", () => {
 test.describe('14-S12-7 style guide', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test('the focused-grid and locked-letters samples, the done 1, and no EDIT GRID sample', async ({ page }) => {
+  // 17-S8: was "…, the done 1, and …": the hints phase's sample has no 1.
+  test('the focused-grid and locked-letters samples, and no EDIT GRID sample', async ({ page }) => {
     await page.goto('/style-guide');
     await expect(page.getByTestId('sg-grid-hints-editing')).toHaveCount(0);
 
@@ -634,6 +407,6 @@ test.describe('14-S12-7 style guide', () => {
     expect(await bg(locked), 'the lines').toBe(BORDER);
 
     const hintsSteps = page.getByTestId('sg-builder-steps').getByTestId('builder-steps').nth(1);
-    await expect(hintsSteps.locator('[data-step-id="build"]')).toHaveAttribute('data-done', 'true');
+    await expect(hintsSteps.locator('[data-step-id="build"]')).toHaveCount(0);
   });
 });

@@ -273,7 +273,8 @@ test.describe('14-S11-4 on the real screens', () => {
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
 
-    const step = page.locator('[data-testid="builder-steps"] [data-step-id="build"]');
+    // 17-S8: the build phase's one step button is 2 (was 1).
+    const step = page.locator('[data-testid="builder-steps"] [data-step-id="hints"]');
     await tabTo(page, step);
     expect(await ringOf(step), 'step on keyboard focus').toBe(FOCUS_RING);
 

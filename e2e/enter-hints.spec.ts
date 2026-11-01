@@ -22,9 +22,10 @@ async function openPuzzle(page: Page, grid: Grid = catGrid()) {
 }
 
 // 14-S4: the stepper became the builder's numbered buttons; 2 Create Hints
-// (data-step-id "hints") opens the dialog, and the selected button carries
-// aria-current. 14-S12: once the grid is locked, 1 still reads "Build the
-// Grid" and is disabled.
+// (data-step-id "hints") opens the dialog, and the current step carries
+// aria-current. 17-S8: the current step is a label ("1 Build the Grid",
+// then "2 Create Hints") and, once the grid is locked, there is no step
+// back (was 1, disabled, 14-S12).
 const step = (page: Page, id: string) =>
   page.locator(`[data-testid="builder-steps"] [data-step-id="${id}"]`);
 
@@ -94,7 +95,7 @@ test.describe('H1-1 entering hints phase', () => {
     await expect(page.getByTestId('enter-hints-dialog')).toHaveCount(0);
     await expect(page.getByTestId('hints-region')).toBeVisible();
     await expect(step(page, 'hints')).toHaveAttribute('aria-current', 'true');
-    await expect(step(page, 'build')).toBeDisabled();
+    await expect(step(page, 'build')).toHaveCount(0);
   });
 
   test('the transition survives a reload', async ({ page }) => {
@@ -107,7 +108,7 @@ test.describe('H1-1 entering hints phase', () => {
     await waitForEditorReady(page);
 
     await expect(page.getByTestId('hints-region')).toBeVisible();
-    await expect(step(page, 'build')).toBeDisabled();
+    await expect(step(page, 'build')).toHaveCount(0);
   });
 
   test('the build step cannot take you back afterward', async ({ page }) => {
@@ -116,14 +117,17 @@ test.describe('H1-1 entering hints phase', () => {
     await page.getByTestId('modal-confirm').click();
     await expect(page.getByTestId('hints-region')).toBeVisible();
 
-    // 14-S12: 1 is disabled in the hints phase, so a click does nothing;
-    // the grid's shape stays locked and the puzzle stays in hints phase.
-    await expect(step(page, 'build')).toBeDisabled();
-    await step(page, 'build').click({ force: true });
+    // 17-S8: the hints phase offers no step back (was 1, disabled, 14-S12):
+    // only the "2 Create Hints" label and 3 Publish. Clicking the label
+    // does nothing; the grid's shape stays locked and the puzzle stays in
+    // hints phase.
+    await expect(step(page, 'build')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /build the grid/i })).toHaveCount(0);
+    await step(page, 'hints').click();
 
     await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'hints');
     await expect(page.getByTestId('hints-region')).toBeVisible();
-    await expect(step(page, 'build')).toHaveText(/Build the Grid/);
+    await expect(step(page, 'hints')).toHaveText(/Create Hints/);
     await page.reload();
     await waitForEditorReady(page);
     await expect(page.getByTestId('hints-region')).toBeVisible();

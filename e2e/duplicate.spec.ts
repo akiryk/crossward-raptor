@@ -197,7 +197,9 @@ test.describe('16-S4-2 duplicating a published puzzle', () => {
     await expect(page.getByTestId('puzzle-title')).toBeEnabled();
     await expect(page.getByTestId('publish-state')).toHaveCount(0);
     await expect(page.getByTestId('builder-steps')).toBeVisible();
-    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]'), 'the shape stays locked').toBeDisabled();
+    // 17-S8: the hints phase is current, with no step back (was 1, disabled).
+    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="hints"]'), 'the hints phase').toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]'), 'the shape stays locked').toHaveCount(0);
     await expect(page.getByTestId('lock-letters-toggle')).toBeVisible();
     await expect(hintInput(page, '1-across')).toHaveValue('Feline');
 
@@ -235,7 +237,8 @@ test.describe('16-S4-3 duplicating an unpublished puzzle', () => {
     expect(gridCopy.phase).toBe('grid');
     expect(gridCopy.gridBeforeHints).toBeNull();
     await expect(page.getByTestId('puzzle-title')).toHaveValue(`${grid.title} (copy)`);
-    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]'), 'grid building').toBeEnabled();
+    // 17-S8: the build step is current (was 1, enabled).
+    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]'), 'grid building').toHaveAttribute('aria-current', 'true');
     await expect(page.getByTestId('preview-toggle')).toBeVisible();
     expect(await snapshot(grid.id)).toEqual(gridBefore);
 
@@ -247,7 +250,7 @@ test.describe('16-S4-3 duplicating an unpublished puzzle', () => {
     const hintsCopyId = await openedCopy(page, hints.id);
     const hintsCopy = await expectCopyOf(hintsCopyId, hintsBefore.puzzle, me);
     expect(hintsCopy.gridBeforeHints).toEqual(BEFORE_HINTS);
-    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]')).toBeDisabled();
+    await expect(page.locator('[data-testid="builder-steps"] [data-step-id="build"]')).toHaveCount(0);
     expect(await snapshot(hints.id)).toEqual(hintsBefore);
   });
 
