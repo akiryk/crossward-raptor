@@ -27,8 +27,9 @@ export type GridMode = 'build' | 'preview' | 'play';
  * which otherwise would be indistinguishable from it once the slot's
  * final length isn't decided (no black cells yet on that row/column).
  * Preview mode ignores selection and slot entirely -- it answers "what
- * will this look like published", and the builder's own cursor state
- * would obscure that. `recommended` (Story D6: a cell that's part of a
+ * will this look like published". The cursor and its Preview word are
+ * painted over it by PuzzleGrid (17-S4), as in the hints phase and play,
+ * so `data-cell-state` stays Preview's own. `recommended` (Story D6: a cell that's part of a
  * two-letter slot) is checked first within preview mode, ahead of
  * `cell.letter !== null` -- it applies whether or not the cell holds a
  * letter, so a lettered cell in a too-short word still reads as

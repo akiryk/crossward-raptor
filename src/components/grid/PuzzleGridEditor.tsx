@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
+import { withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
@@ -13,6 +14,7 @@ import {
   toggleOrientation,
 } from "../../engine/cursor";
 import type { Phase } from "../../engine/puzzle";
+import { intendedGeometry } from "../../engine/puzzle-geometry";
 import { hintsComplete } from "../../engine/hints";
 import {
   deserializeGrid,
@@ -125,6 +127,16 @@ export function PuzzleGridEditor({
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
   const [isPreviewing, setIsPreviewing] = useState(false);
+  // Preview turned on with the cursor on a cell it shows black: nothing is
+  // selected, and keys do nothing, until a cell is clicked (17-S4).
+  const [isPreviewCursorHidden, setIsPreviewCursorHidden] = useState(false);
+  function changePreview(on: boolean) {
+    if (on && !isPreviewing) {
+      const { col, row } = state.cursor.current;
+      setIsPreviewCursorHidden(intendedGeometry(state.grid).at(col, row).kind === "black");
+    }
+    setIsPreviewing(on);
+  }
   // Lock Grid Letters (14-S12): the hints phase's guard against changing a
   // letter by accident. A way of working, like Preview, so not persisted.
   const [isLettersLocked, setIsLettersLocked] = useState(false);
@@ -218,6 +230,10 @@ export function PuzzleGridEditor({
     const intent = keyToIntent(event.key);
     if (!intent || isLettersLocked) return;
     event.preventDefault();
+    if (isPreviewing) {
+      if (!isPreviewCursorHidden) setState((prev) => previewKey(prev, intent));
+      return;
+    }
 
     setState((prev) => {
       // Letters/deletion are the content a published puzzle freezes
@@ -248,10 +264,46 @@ export function PuzzleGridEditor({
     });
   }
 
+  // Preview's cursor moves over Preview's own words: the engine's cursor
+  // functions over intendedGeometry, letters placed in the real grid (17-S4).
+  function previewKey(prev: EditorState, intent: NonNullable<ReturnType<typeof keyToIntent>>): EditorState {
+    const shown = intendedGeometry(prev.grid);
+    if (intent.type === "letter") {
+      if (prev.publishedAt !== null) return prev;
+      const grid = place(prev.grid, prev.cursor, intent.letter).grid;
+      const { cursor } = place(intendedGeometry(grid), prev.cursor, intent.letter);
+      return { ...prev, grid, cursor };
+    }
+    if (intent.type === "delete") {
+      if (prev.publishedAt !== null) return prev;
+      const deleted = deleteAt(shown, prev.cursor);
+      if (deleted.grid === shown) return prev;
+      return {
+        ...prev,
+        grid: withLetter(prev.grid, deleted.cursor.current, null),
+        cursor: deleted.cursor,
+      };
+    }
+    if (intent.type === "arrow") {
+      return { ...prev, cursor: arrowKey(shown, prev.cursor, intent.direction) };
+    }
+    return { ...prev, cursor: toggleOrientation(prev.cursor) };
+  }
+
   function handleCellClick(coord: Coord) {
     // A published puzzle's grid, or one with its letters locked, takes no
     // focus, and a click selects nothing (14-S12).
     if (state.publishedAt !== null || isLettersLocked) return;
+    if (isPreviewing) {
+      if (intendedGeometry(state.grid).at(coord.col, coord.row).kind === "black") return;
+      gridRegionRef.current?.focus();
+      setIsPreviewCursorHidden(false);
+      setState((prev) => ({
+        ...prev,
+        cursor: moveTo(intendedGeometry(prev.grid), prev.cursor, coord),
+      }));
+      return;
+    }
     // A plain click on a non-focusable cell doesn't move DOM focus to its
     // focusable ancestor by itself -- without this, clicking a cell after
     // focus had moved elsewhere (a button, the title) would update the
@@ -313,7 +365,7 @@ export function PuzzleGridEditor({
     if (state.phase === "grid" && id === "hints") {
       // Preview turns on as the dialog opens and stays on unless the
       // builder confirms (14-S10).
-      setIsPreviewing(true);
+      changePreview(true);
       setIsEnterHintsDialogOpen(true);
     }
   }
@@ -325,7 +377,7 @@ export function PuzzleGridEditor({
   function handleConfirmEnterHints() {
     setIsEnterHintsDialogOpen(false);
     // The hints phase has no Preview, so its grid starts in its own look.
-    setIsPreviewing(false);
+    changePreview(false);
     // enterHints reloads the puzzle from the database, so a letter typed
     // within the last debounce window has to be flushed first or the
     // conversion would read that cell as empty and blacken it.
@@ -410,9 +462,11 @@ export function PuzzleGridEditor({
   // or a hint input (a button, the title) -- otherwise the cursor cell
   // would read as selected forever, regardless of what actually has focus.
   const highlights = new Map<string, "selected" | "slot">();
-  if (isFocused) {
-    if (activeKey) {
-      const activeSlot = slotLookup.get(activeKey)!;
+  const highlightLookup = isPreviewing ? buildSlotLookup(intendedGeometry(grid)) : slotLookup;
+  const highlightKey = isPreviewing ? activeHintKey(highlightLookup, cursor) : activeKey;
+  if (isFocused && !(isPreviewing && isPreviewCursorHidden)) {
+    if (highlightKey) {
+      const activeSlot = highlightLookup.get(highlightKey)!;
       for (const cell of activeSlot.cells) {
         highlights.set(cellNumberKey(cell), "slot");
       }
@@ -466,7 +520,7 @@ export function PuzzleGridEditor({
             {phase === "grid" && (
               <PreviewToggle
                 isPreviewing={isPreviewing}
-                onToggle={() => setIsPreviewing((prev) => !prev)}
+                onToggle={() => changePreview(!isPreviewing)}
               />
             )}
             {phase === "hints" && !isPublished && (

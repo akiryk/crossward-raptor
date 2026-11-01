@@ -55,30 +55,29 @@ stays only in the library, on completed rows. Frozen on `main` in ceba5ec
 PR #32, independently reviewed with no findings and merged into `main` in
 8cb74a8.
 
-**S4 is approved and frozen** (2026-11-01): the human approved
+**S4 is done** (2026-11-01): the human approved
 [17-S4-selection-in-preview.md](stories/17-S4-selection-in-preview.md),
 its acceptance `e2e/preview-selection.spec.ts`, the amendment to
 `e2e/grid-focus.spec.ts` and its proposed Decisions. 05-D4's unit tests
 stay (the EPIC's S4 and Decisions lines amended to say so). Frozen on
-`main` (specification only); implementation in progress on `main` (no
-risk path).
+`main` in fd7fca9 (specification only); the implementation was
+delivered directly on `main` (no risk path).
 
 ## Verification
 
-S3, by the independent reviewer on PR head 03283a3, frozen acceptance
-unchanged from ceba5ec: `npm run verify` exit 0 (Vitest 620/620) and full
-`npm run test:e2e` exit 0 (816 passed). Configured CI (Vercel) passed.
-Browser runs used the guarded harness under the standing reset grant
+S4, on the implementation (precommit tree, committed unchanged), frozen
+acceptance unchanged from fd7fca9: `npm run verify` exit 0 (Vitest
+620/620) and full `npm run test:e2e` exit 0 (830 passed). Browser runs
+used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-
-S4 drafting, on a throwaway implementation since reverted: see the
-story's Discrimination section (not a gate run).
 
 ## Next action
 
-Implement S4 per [STORY](../../process/STORY.md) against the frozen
-acceptance, then run the full gate and deliver on `main`.
+Draft S5, Selection colors (EPIC "S5 — Selection colors"), per
+[STORY](../../process/STORY.md): the specification and proposed
+acceptance, for the human's approval. Nothing is implemented or frozen
+before that approval.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S4-selection-in-preview.md. Once the human has approved the S4 draft, freeze it and implement S4 on main; stop if approval isn't recorded.
+Read docs/epics/17-polish/HANDOFF.md and the "S5 — Selection colors" section of docs/epics/17-polish/EPIC.md. Draft the S5 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.

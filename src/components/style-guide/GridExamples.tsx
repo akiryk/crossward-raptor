@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createGrid, withLetter } from '../../engine/grid';
 import type { CursorState } from '../../engine/cursor';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
+import { intendedGeometry } from '../../engine/puzzle-geometry';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { cellNumberKey } from '../../lib/cell-number-lookup';
 import { PuzzleGrid } from '../grid/PuzzleGrid';
@@ -43,6 +44,18 @@ const GRID_FOCUS_CURSOR: CursorState = { current: { col: 3, row: 1 }, orientatio
 // The locked sample shows the word of a focused hint input: GRID, across
 // row 2 (14-S6).
 const LOCKED_HINT_CURSOR: CursorState = { current: { col: 2, row: 2 }, orientation: 'across' };
+
+// The selected Preview word (17-S4): 1 Across of a 5×5 mixes an error
+// (0,0), a letter (1,0) and a warning (2,0), part of a two-letter Down word.
+function previewSelectionGrid() {
+  let grid = createGrid({ cols: 5, rows: 5 });
+  grid = withLetter(grid, { col: 1, row: 0 }, 'B');
+  grid = withLetter(grid, { col: 2, row: 0 }, 'C');
+  grid = withLetter(grid, { col: 2, row: 1 }, 'D');
+  grid = withLetter(grid, { col: 4, row: 4 }, 'E');
+  return grid;
+}
+const PREVIEW_SELECTION_CURSOR: CursorState = { current: { col: 1, row: 0 }, orientation: 'across' };
 
 function buildSampleGrid() {
   let grid = createGrid({ cols: 10, rows: 10 });
@@ -105,6 +118,19 @@ export function GridExamples() {
         <div className="max-w-sm">
           <PuzzleGrid grid={grid} mode="preview" />
           <PreviewLegend grid={grid} />
+        </div>
+      </section>
+
+      <section data-testid="sg-grid-preview-selected">
+        <h2 className="mb-2 text-title-2 text-primary">
+          Grid (Preview, a word selected)
+        </h2>
+        <div className="max-w-sm">
+          <PuzzleGrid
+            grid={previewSelectionGrid()}
+            mode="preview"
+            highlights={highlightsFor(intendedGeometry(previewSelectionGrid()), PREVIEW_SELECTION_CURSOR)}
+          />
         </div>
       </section>
 

@@ -7,10 +7,10 @@ word `build-cell-selected-row-on`. Preview-black cells can't be selected,
 and the cursor's typing, arrows and Backspace stay within Preview's
 words. The style guide gains a sample of a selected Preview word.
 
-**Status: approved and frozen** (2026-11-01). The human approved this
-specification, its acceptance, the `grid-focus` amendment and every
-*proposed* item below as written. Frozen on `main` in a
-specification-only commit; implementation follows.
+**Status: done** (2026-11-01). The human approved this specification,
+its acceptance, the `grid-focus` amendment and every *proposed* item
+below as written. Frozen on `main` in fd7fca9 (specification only);
+implemented and delivered directly on `main`.
 
 **Blast radius: small.** The editor's Preview cursor and highlight in
 `PuzzleGridEditor`, Preview's highlight colors in `PuzzleGrid` and one
@@ -237,6 +237,13 @@ Preview (S10).
 - Frozen acceptance is unchanged after freeze.
 - `npm run verify` exits 0, and the full `npm run test:e2e` suite exits 0.
 - Delivered on `main` and the handoff updated with observed results.
+
+## Verification (2026-11-01, observed)
+
+On the implementation (precommit tree, committed unchanged), frozen
+acceptance unchanged from fd7fca9: `npm run verify` exit 0 (Vitest
+620/620) and full `npm run test:e2e` exit 0 (830 passed), under the
+guarded harness's standing reset grant.
 
 ## Pending questions
 

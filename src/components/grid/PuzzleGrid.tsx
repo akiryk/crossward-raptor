@@ -71,6 +71,13 @@ const PREVIEW_BG: Partial<Record<CellAppearance, string>> = {
   recommended: 'bg-preview-cell-warning',
 };
 
+// Selection in Preview (17-S4): the build phase's cursor and word colors,
+// over Preview's own words. No cell takes the row's "off" color.
+const PREVIEW_HIGHLIGHT_BG = {
+  selected: 'bg-build-cell-selected-cell',
+  slot: 'bg-build-cell-selected-row-on',
+} as const;
+
 const GRID_LINES: Record<string, string> = {
   build: 'bg-build-cell-border',
   preview: 'bg-preview-cell-border',
@@ -169,7 +176,9 @@ export function PuzzleGrid({
                 ? 'bg-hint-cell-selected'
                 : gridMode === 'play' && highlight && cell.kind === 'active'
                   ? PLAY_HIGHLIGHT_BG[highlight]
-                  : modeBg[appearance]
+                  : gridMode === 'preview' && highlight && cell.kind === 'active'
+                    ? PREVIEW_HIGHLIGHT_BG[highlight]
+                    : modeBg[appearance]
           }
         >
           <GridCell
