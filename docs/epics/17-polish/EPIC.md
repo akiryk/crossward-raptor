@@ -313,8 +313,10 @@ minimum widths. The story records the new breakpoints and supersedes the
 from the NYT screenshot in the story: the number stays at the top left,
 and the letter sits lower in the cell, larger relative to the cell than
 ours (corrected to the measurement at S7's freeze, human, 2026-11-01), so
-two-digit and three-digit numbers never touch it at any grid size from
-5×5 to 21×21. The values come from the measurements, scaled with the
+two-digit and three-digit numbers never touch it. *Corrected
+2026-11-01 (S7's visual check, human):* on a Sunday (21×21) only; the
+other sizes keep their type from before S7, and below a 748px window the
+page's side padding is 8px. The values come from the measurements, scaled with the
 cell as today (`PuzzleGrid.tsx`). A rebus's letters shrink within the
 same letter area.
 
@@ -417,10 +419,11 @@ frozen hints-phase or play test that toggles onto a wordless direction.
 ### S7 — Larger grid
 
 The 700px maximum in the build phase, the hints phase and play, the
-breakpoints that follow, and the NYT-measured letter and number sizes and
-positions that keep numbers clear of letters at every grid size. Includes
+breakpoints that follow, the 8px side padding below a 748px window, and
+the NYT-measured letter and number sizes and positions that keep a
+Sunday's numbers clear of its letters (corrected 2026-11-01). Includes
 a style-guide sample of a 21×21 corner with three-digit numbers.
-Supersedes 15-S1's 560px tests and 15-S6's cell type sizes.
+Supersedes 15-S1's 560px tests, 15-S6's 24px narrow padding and a Sunday's cell type sizes.
 
 ### S8 — Step controls
 

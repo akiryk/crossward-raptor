@@ -81,20 +81,30 @@ Backspace), and both pending questions as proposed. Frozen on `main` in
 used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
 delivered directly on `main` (no risk path).
 
-**S7 is implemented, awaiting the human's visual check** (2026-11-01):
-the human approved
-[17-S7-larger-grid.md](stories/17-S7-larger-grid.md), its acceptance
-`e2e/larger-grid.spec.ts`, the amendments to nine frozen specs, the
-retirement of 14-S5-4's shorter-screen case and 15-S6-2 and 15-S6-3 (all
-listed in the story), and both pending questions as proposed (numbers
-with no floor or cap; the EPIC's "smaller relative to the cell"
-corrected to the measurement). Frozen on `main` in 3152562
-(specification only); the implementation (700px grid, thresholds moved
-by 140px, pitch-based letters and numbers in `PuzzleGrid`, `LetterCell`
-and `CellNumber`, the style guide's `sg-grid-corner` and 700px samples)
-was delivered directly on `main` (no risk path).
+**S7 is implemented, with a correction approved** (2026-11-01): the
+human approved [17-S7-larger-grid.md](stories/17-S7-larger-grid.md) and
+its acceptance, frozen in 3152562 and implemented in 8cf2828 (no risk
+path). At the visual check they rejected the scaled-up numbers on every
+size but the Sunday and asked for 8px page padding on phones. They chose
+the story's
+[correction](stories/17-S7-larger-grid.md#correction-2026-11-01-human-approved):
+the NYT's type for a Sunday only, the old type for the rest, and 8px side
+padding below a 748px window. It also corrects S7 rather than adding a
+new story. The human approved the correction the same day. An
+independent reviewer (a separate agent, report-only) found the three
+corrected spec files match the correction's table with no frozen case
+weakened (`tsc` and ESLint exit 0), and one blocking doc inconsistency:
+the "No number floor or cap" small call still read as every size. That
+and the non-blocking doc notes (status lines, case counts, the
+discrimination wording, superseded text) were fixed in the story and
+confirmed by the reviewer before the freeze.
 
 ## Verification
+
+S7 correction drafting (story's "The correction's discrimination"): with
+a throwaway implementation (reverted; `/tmp/s7/correction-throwaway.patch`)
+the full `npm run test:e2e` had 875 passed; 8cf2828 with the corrected
+tests: 22 failed, 71 passed in the three files.
 
 S7, on the implementation (precommit tree, committed unchanged), frozen
 acceptance unchanged from 3152562: `npm run verify` exit 0 (Vitest
@@ -118,11 +128,11 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human's visual check of S7 (its Definition of Done): a Sunday at
-700px and on a phone. Once confirmed, mark S7 done here and draft S8,
-Step controls (EPIC "S8 — Step controls"), per
-[STORY](../../process/STORY.md), for the human's approval.
+Implement S7's correction on `main` against its frozen acceptance
+(starting from `/tmp/s7/correction-throwaway.patch`, if it still exists),
+run `npm run verify` and the full `npm run test:e2e`, and ask for the
+human's visual check of every size at 700px and on a phone.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md. Once the human confirms S7's visual check, mark S7 done and draft S8 (Step controls) on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/17-polish/HANDOFF.md and the Correction section of docs/epics/17-polish/stories/17-S7-larger-grid.md. The correction is approved, reviewed and frozen; implement it on main, run the gates and ask for the human's visual check.

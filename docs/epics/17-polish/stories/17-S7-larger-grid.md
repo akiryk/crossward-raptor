@@ -2,15 +2,83 @@
 
 The builder's and play's grids grow from 560px to 700px at most, held as
 long as the window allows, and the layout's thresholds move by the same
-140px. Letters and numbers take the NYT's proportions of the cell,
-measured from the human's screenshot, so a number never touches its
-cell's letter at any grid size or width.
+140px. A Sunday's letters and numbers take the NYT's proportions of the
+cell, measured from the human's screenshot, so a number never touches
+its cell's letter at any width; the other sizes keep their type. Below a
+748px window the page's side padding is 8px (the correction below).
 
 **Status: approved and frozen** (drafted and approved by the human
 2026-11-01, with both pending questions as proposed), in a
 specification-only commit on `main` (3152562). Implemented on `main`;
 `npm run verify` and the full `npm run test:e2e` (862 passed) exit 0.
 Awaiting the human's visual check.
+
+**Correction approved** (2026-11-01, after the human's visual check of
+8cf2828): approved by the human and independently reviewed the same day,
+then frozen in its own specification-only commit before its runtime
+change. Where the text below the Correction differs, the Correction
+governs.
+
+## Correction (2026-11-01) *(human; approved)*
+
+The human's visual check: the scaled-up numbers look wrong on a Mini and
+on every size but the Sunday, and on a phone the page's padding leaves
+the grid smaller than it needs to be. Their answers (the same day):
+
+1. **The NYT's letters and numbers are a Sunday's (21×21) only**, as in
+   "Letters and numbers as the NYT" below, with no floor or cap. A Mini,
+   Midi and Daily keep their type from before S7 exactly: the letter
+   centered, `cell-letter`'s 16px in a 35px pitch, scaled with the
+   pitch; the number `cell-number`'s 10px at the top left with 1px
+   padding, shrinking in a cell smaller than a 21×21's at 560px
+   ((560 − 1) / 21) to an 8px floor (14-S5, 15-S6). The grid stays 700px.
+2. **Below a 748px window the page's padding is 8px on each side**, in
+   the builder and play (the pages whose grid shrinks), so the grid is
+   700px down to a 716px window and narrower is the window less 16px,
+   8px in. The top and bottom padding stay 24px (the human asked about
+   the grid's width; approved with the correction). The Hint Box and
+   the hint bar stay at the grid's width. The library and the other pages are unchanged.
+3. **S7 is corrected, not followed by a new story**, since its visual
+   check had not passed.
+
+The Sunday's values are unchanged, but the throwaway implementation
+moves within their 0.03*p* tolerance for clear space at phone sizes. At
+a 375px window a Sunday's pitch is 17px, and pixel snapping took the
+first values' nominal 0.10*p* (1.7px) gap to nothing. Digits about
+0.225*p* tall and capitals about 0.466*p*, bottom 0.90*p*, measured gaps of
+1 to 3px at windows of 320 to 600px.
+
+### The correction's acceptance
+
+Amended in a specification-only commit. Counts are the corrected ones:
+
+| File | Case | Frozen (3152562) | Corrected |
+| --- | --- | --- | --- |
+| `e2e/larger-grid.spec.ts` | 17-S7-2 "at 747px both are the window less 48px, 24px in" (3) | 1 case | three: at 748px both 24px in; at 716px still 700px, 8px in; at 715px the window less 16px, 8px in |
+| | 17-S7-5 (3) | a 21×21 and a 15×15 at 700px, a 15×15 at 375px, a played letter on a 15×15 | a Sunday's only (3): a 21×21 at 700px, a 21×21 at a 600px window (numbers under 10px), a played letter on a 21×21 |
+| | **17-S7-8** (new, 3) | — | a 5×5, 9×9 and 15×15 at 700px: the letter 16/35 of the pitch, its ink centered both ways within 0.06*p*; the number 10px, its ink within 5px of the cell's top left |
+| `e2e/small-screens.spec.ts` | 15-S6-1 (8) | the window less 48px, 24px in, at 747, 414 and 375px | a new "at 716px still 700px, 8px in"; the window less 16px, 8px in, at 715, 414 and 375px |
+| | 15-S6-2 (2) | retired by S7 | restored unchanged |
+| | 15-S6-3 (5) | retired by S7 | restored without its two 21×21 cases (608px: 10px; 375px: the 8px floor), with "a 15×15 at 320px: the 8px minimum" in their place |
+| `e2e/build-grid-design.spec.ts` | 14-S5-4 (4) | weight, uppercase and family only, for 15, 5 and 21 | the 15×15's and 5×5's sizes restored at a 700px pitch (letters 699 / size × 16/35, numbers 10px); the 21×21 keeps weight, uppercase and family only; "letters shrink with the grid on a shorter screen" restored |
+
+17-S7-6's guards (a 5×5 and 15×15 at 700px clear) and every other case
+are unchanged. Each file's header comment says the same.
+
+### The correction's discrimination (2026-11-01, observed)
+
+- **Throwaway implementation** of the correction on 8cf2828, then
+  reverted (patch outside the repo, `/tmp/s7/correction-throwaway.patch`):
+  the full `npm run test:e2e` with the corrected tests had 875 passed;
+  `npm run verify` exit 0.
+- **8cf2828 with the corrected tests** (the three files): 22 failed, 71
+  passed: every new, restored and changed case except 17-S7-5's Sunday
+  cases (values unchanged), 17-S7-2's 748px boundary guard and
+  14-S5-4's renamed 21×21 weight and family case.
+- The first throwaway (S7's own values with only the padding changed)
+  failed 17-S7-6 at 375px: a Sunday's numbers touching their letters at
+  a 17px pitch. Gaps were 0 to 1px at windows of 360 to 600px. This
+  prompted the tighter values above.
 
 **Blast radius: small.** Client components only: the grid's cell
 typography (`PuzzleGrid`, `LetterCell`, `CellNumber`), the grid width and
@@ -82,7 +150,9 @@ separates them.
   share 1px lines as today: a pitch of 699px / size (a Sunday's 33.3px,
   a Daily's 46.6px, a Mini's 139.8px).
 - **It shrinks last:** 700px down to a 748px window (700 + 2 × 24);
-  narrower, the window less 48px, as 15-S6 has it. A short window still
+  narrower, the window less 48px, as 15-S6 has it. *Corrected
+  2026-11-01: below 748px the page's side padding is 8px, so 700px down
+  to a 716px window, then the window less 16px.* A short window still
   scrolls the page (15-S1).
 
 ### The thresholds move by 140px *(the EPIC's proposal, settled here)*
@@ -105,6 +175,9 @@ grid's 700px.
 
 ### Letters and numbers as the NYT *(human, the EPIC; values measured)*
 
+*Corrected 2026-11-01: a Sunday's (21×21's) only; the other sizes keep
+their type from before S7 (the correction above).*
+
 In a cell of pitch *p*, wherever a grid is drawn (build, Preview, hints,
 play, the style guide):
 
@@ -125,7 +198,9 @@ play, the style guide):
 
 - **No number floor or cap** *(human, 2026-11-01)*. 15-S6's 8px floor
   can't stay: on a phone a Sunday's pitch is 15.5px, and an 8px number
-  reaches the letter. The NYT's board scales as one drawing.
+  reaches the letter. The NYT's board scales as one drawing. *Corrected
+  2026-11-01: on a Sunday only; the other sizes keep 15-S6's 8px floor,
+  and with 8px padding a Sunday's pitch at a 375px window is 17px.*
 - **The style guide's Hint Box and play hint bar samples** move to 700px,
   since they show those bars at the grid's width.
 - **A new style-guide sample, `sg-grid-corner`:** the bottom-left 7×5
@@ -154,7 +229,9 @@ letters, in black.
    699 / size pitch; a 15×15 is 700px in the hints phase, Preview and
    play (5 cases).
 2. **17-S7-2** at 748px the builder's and play's grids are 700px; at
-   747px the window less 48px, 24px in (2).
+   747px the window less 48px, 24px in (2). *Corrected 2026-11-01: 24px
+   in at 748px; 700px, 8px in at 716px; the window less 16px, 8px in at
+   715px (3).*
 3. **17-S7-3** the builder: at 1430px two hint columns 32px from a 700px
    grid; at 1429px one column beside it; at 1140px still beside it, no
    Hint Box, title `title-1`; at 1139px one centered 700px column with the
@@ -164,7 +241,8 @@ letters, in black.
    centered 700px grid) (2).
 5. **17-S7-5** the NYT's proportions in cell (0,0): a 21×21 and a 15×15
    at 700px, a 15×15 at 375px (numbers under 8px) and a player's typed
-   letter in play (4).
+   letter in play (4). *Corrected 2026-11-01: a Sunday's only (3), and
+   17-S7-8 checks the other sizes' type (the Correction).*
 6. **17-S7-6** numbers never touch letters, and stay inside their cells:
    every numbered cell of a 21×21 lattice (111 numbers, lettered Q, W, O
    and M) in the hints phase at 700px and at 375px, and in play from a
@@ -181,7 +259,7 @@ is unchanged.
 | --- | --- | --- | --- |
 | `e2e/build-grid-design.spec.ts` | 14-S5-3 size (4) | "is 560px wide", pitch 559 / size | "is 700px wide", pitch 699 / size |
 | | 14-S5-4 letters and numbers (3) | letters (559 / size) × 16/35 px, numbers 10px, plus weight, uppercase, family | renamed "…letters are cell-letter's weight, uppercase, in the body's family": the size checks go (sizes are 17-S7-5's) |
-| | 14-S5-4 "letters shrink with the grid on a shorter screen" | the 16/35 ratio at 1280×720 | **retired**, replaced by 17-S7-5 |
+| | 14-S5-4 "letters shrink with the grid on a shorter screen" | the 16/35 ratio at 1280×720 | **retired**, replaced by 17-S7-5 *(restored by the Correction)* |
 | `e2e/grid-size.spec.ts` | 15-S1-2 (3), 15-S1-3 sizes (3) and "a 15×15 stays…" | 560px | 700px |
 | | 15-S1-3 "clicking a cell leaves the page where it was" | clicks (3,7), the last row in view at 1440×600 | clicks (3,5), the last row in view with a 700px grid |
 | `e2e/hint-box.spec.ts` | 15-S4-1 (2) | the box at 999px, none at 1000px | at 1139px, none at 1140px |
@@ -194,7 +272,7 @@ is unchanged.
 | `e2e/play-design.spec.ts` | 14-S7-1 unselected | at most 560px | 700px |
 | `e2e/play-opening.spec.ts` | 17-S2-2 the Prominent Hint's text | its `tokenPx` probe sits in the body's flex column, which shrinks it to 0px once the 700px grid makes the page taller | the probe is `position: absolute`; no assertion changes |
 | `e2e/small-screens.spec.ts` | 15-S6-1 (3) | 560px at 608px; the window less 48px at 607px | 700px at 748px; at 747px |
-| | 15-S6-2 (2) and 15-S6-3 (6) | letters 16/35 of the pitch; numbers 10px, 8px floor | **retired**, replaced by 17-S7-5 and 17-S7-6 |
+| | 15-S6-2 (2) and 15-S6-3 (6) | letters 16/35 of the pitch; numbers 10px, 8px floor | **retired**, replaced by 17-S7-5 and 17-S7-6 *(restored by the Correction, 15-S6-3 without its 21×21 cases)* |
 | `e2e/wide-layout.spec.ts` | 15-S2-2, 15-S2-3 (6) | a 560px grid at 1440, 2400 and 1290px | 700px at 1440, 2400 and 1430px |
 | | 15-S2-4 (7) "one column below 1290px" | 1289, 1100 and 1024px (scroll case 1100px) | "below 1430px": 1429, 1240 and 1164px (scroll case 1240px) |
 | | 15-S2-5 (2), 15-S2-6 (2) | 560px; the legend at 1100px | 700px; at 1240px |
@@ -213,7 +291,9 @@ Each file's header comment is updated to match.
   (M); the no-touch cases use Q, W and O, the letters with the most ink.
 - 17-S7-5's narrow case is a 15×15 at 375px (pitch 21.8px): a Sunday
   there (15.5px) renders its 5px numbers too coarsely to measure to
-  0.03*p*, so only 17-S7-6 checks it, for clearance.
+  0.03*p*, so only 17-S7-6 checks it, for clearance. *Superseded
+  2026-11-01: the narrow case is a Sunday at a 600px window (the
+  Correction).*
 - Not covered: Preview's and the hints phase's colors over the new
   layout (unchanged; their frozen tests pass), and rebus text (S10).
 
@@ -256,6 +336,8 @@ Runtime:
 - `src/components/style-guide/GridExamples.tsx` and
   `src/app/style-guide/page.tsx`: `sg-grid-corner` and the 700px samples.
 - `playwright.config.ts`: a comment only ("about 1290px").
+- The correction: `src/app/puzzles/[id]/page.tsx` (the builder page's
+  padding) and `PlayPuzzle.tsx` (play's), and the three files above.
 - This story, `../EPIC.md` (the letter wording, at freeze, if agreed) and
   `../HANDOFF.md`.
 
@@ -265,8 +347,8 @@ Declare any other path before editing it.
 
 Only S7. Out of scope: the step controls (S8), Preview Hints (S9), rebus
 entry and a rebus's text fitting the letter area (S10), the 1800px main
-area, and any layout change other than the grid's width and the
-thresholds that follow from it.
+area, and any layout change other than the grid's width, the thresholds
+that follow from it and the correction's narrow side padding.
 
 ## Definition of done
 
@@ -275,7 +357,9 @@ thresholds that follow from it.
   a specification-only commit before any runtime change.
 - Frozen acceptance is unchanged after freeze.
 - `npm run verify` exits 0, and the full `npm run test:e2e` suite exits 0.
-- The human's visual check of a Sunday at 700px and on a phone.
+- The correction approved, independently reviewed and frozen in its own
+  specification-only commit before its runtime change.
+- The human's visual check of every size at 700px and on a phone.
 - Delivered on `main` and the handoff updated with observed results.
 
 ## Pending questions

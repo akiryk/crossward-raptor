@@ -12,9 +12,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // -selected-row-on/-off, with build-cell-border lines. Preview's lines are
 // a new preview-cell-border (gray-500). A grid is at most 700px wide at
 // every size, lines shared (17-S7, was 560px in 15-S1, 526px before).
-// Letters use cell-letter's weight and the body's family; letters' and
-// numbers' sizes are the NYT's (17-S7, larger-grid.spec.ts). '.' does
-// nothing, and the geometry-locked message is gone.
+// Letters use cell-letter, 16px in a 35px cell and scaled with the cell;
+// numbers stay cell-number (10px), except on a 21×21, whose sizes are the
+// NYT's (17-S7, larger-grid.spec.ts). '.' does nothing, and the
+// geometry-locked message is gone.
 // Beside the grid, build phase only and wide screens only, a decorative
 // skeleton: "Across" and "Down" in title-4 muted, one placeholder per word
 // (counted as the grid numbers them), each an 18px fill-muted dot, a 12px
@@ -160,18 +161,42 @@ test.describe('14-S5-3 size', () => {
 test.describe('14-S5-4 letters and numbers', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  // 17-S7: the sizes are the NYT's, in larger-grid.spec.ts (17-S7-5); it
-  // retired "letters shrink with the grid on a shorter screen".
-  for (const size of [15, 5, 21]) {
-    test(`a ${size}×${size}'s letters are cell-letter's weight, uppercase, in the body's family`, async ({ page }) => {
+  // The letter in a 700px grid's cell, (700 - 1) / size wide (17-S7).
+  const sizes: [number, number][] = [15, 5].map((size) => [size, (699 / size) * (16 / 35)]);
+  for (const [size, px] of sizes) {
+    test(`a ${size}×${size}'s letters are cell-letter at ${px.toFixed(1)}px; numbers are 10px`, async ({ page }) => {
       await open(page, squareGrid(size));
       const letter = await letterIn(page, '0,0');
+      const fontSize = parseFloat(await style(letter, 'font-size'));
+      expect(Math.abs(fontSize - px), `letter ${fontSize}px`).toBeLessThanOrEqual(0.3);
       expect(await style(letter, 'font-weight')).toBe('400');
       expect(await style(letter, 'text-transform')).toBe('uppercase');
       const bodyFamily = await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily);
       expect(await style(letter, 'font-family')).toBe(bodyFamily);
+
+      const number = cell(page, '0,0').getByTestId('cell-number');
+      expect(await style(number, 'font-size')).toBe('10px');
     });
   }
+
+  // 17-S7: a 21×21's sizes are the NYT's (larger-grid.spec.ts, 17-S7-5).
+  test("a 21×21's letters are cell-letter's weight, uppercase, in the body's family", async ({ page }) => {
+    await open(page, squareGrid(21));
+    const letter = await letterIn(page, '0,0');
+    expect(await style(letter, 'font-weight')).toBe('400');
+    expect(await style(letter, 'text-transform')).toBe('uppercase');
+    const bodyFamily = await page.locator('body').evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(await style(letter, 'font-family')).toBe(bodyFamily);
+  });
+
+  test('letters shrink with the grid on a shorter screen', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await open(page, dailyGrid());
+    const g = await box(grid(page));
+    const expected = ((g.width - 1) / 15) * (16 / 35);
+    const fontSize = parseFloat(await style(await letterIn(page, '0,0'), 'font-size'));
+    expect(Math.abs(fontSize - expected), `letter ${fontSize}px`).toBeLessThanOrEqual(0.3);
+  });
 });
 
 test.describe('14-S5-5 no "." key', () => {
