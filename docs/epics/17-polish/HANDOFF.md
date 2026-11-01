@@ -89,7 +89,7 @@ delivered directly on `main` (no risk path).
 independently reviewed, frozen in 86497f2 and implemented in 73ad3c0 (no
 risk path). The human's visual check passed the same day.
 
-**S8 is implemented** (2026-11-01): the human approved
+**S8 is done** (2026-11-01): the human approved
 [17-S8-step-controls.md](stories/17-S8-step-controls.md), its acceptance
 `e2e/step-controls.spec.ts`, the amendments to 13 frozen files (the
 story's table), the EPIC's amended Step controls decision and S8 line,
@@ -99,8 +99,7 @@ drafting throwaway, reviewed against the Decisions) was delivered
 directly on `main` (no risk path): the current step as a `title-4`
 label, one button for the next step, the toggle row on a 10px-cornered
 `toggle-row` panel, no build-phase Publish or "Lol."/"Nope.", and 1's
-"done" look removed. **Waiting on the human's visual check at desktop
-sizes** (the story's Definition of Done).
+"done" look removed. The human's visual check passed the same day.
 
 ## Verification
 
@@ -117,10 +116,8 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human's visual check of S8 at desktop sizes (the build and hints
-phases, and a published puzzle). Then draft S9 (Preview Hints) when
-authorized.
+Draft S9 (Preview Hints) when the human authorizes it.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the EPIC's S9. Once the human's visual check of S8 passes, record it, then draft S9 (Preview Hints).
+Read docs/epics/17-polish/HANDOFF.md and the EPIC's S9. Draft S9 (Preview Hints) for the human's approval.
