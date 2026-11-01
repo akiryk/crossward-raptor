@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import {
-  inspectPlayCompletion, resetPlaySession, savePlayEntries, startPlaySession, type PlayPuzzleView,
+  inspectPlayCompletion, savePlayEntries, startPlaySession, type PlayPuzzleView,
 } from '@/app/puzzles/actions';
 import { PuzzleGrid } from '@/components/grid/PuzzleGrid';
 import { Button } from '@/components/ui/Button';
@@ -17,11 +17,10 @@ import { activeHintKey, buildSlotLookup } from '@/lib/hint-lookup';
 import { adjacentHintKey, hintOrder } from '@/lib/hint-order';
 import { keyToIntent } from '@/lib/keyboard-intent';
 import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
-import { createPlayAutosave, playDraftKey, type PlaySaveState } from './play-autosave';
+import { createPlayAutosave, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
 import { PlayerHints } from './PlayerHints';
 import { PlayHintBar } from './PlayHintBar';
-import { PlayResetControls, PlayResetDialog } from './PlayReset';
 import { ProminentHint } from './ProminentHint';
 
 // At most 560px, as the build grid, whatever the window's height (15-S1).
@@ -51,13 +50,7 @@ function orient(grid: Grid, coord: Coord): CursorState {
   return activeHintKey(lookup, across) ? across : { current: coord, orientation: 'down' };
 }
 
-export function PlayPuzzle({
-  initialPuzzle,
-  isBuilder,
-}: {
-  initialPuzzle: PlayPuzzleView;
-  isBuilder: boolean;
-}) {
+export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView }) {
   const [puzzle, setPuzzle] = useState(initialPuzzle);
   const [sessionState, setSessionState] = useState<'starting' | 'ready' | 'error'>('starting');
   const [attempt, setAttempt] = useState(0);
@@ -70,29 +63,17 @@ export function PlayPuzzle({
   const [completionError, setCompletionError] = useState(false);
   const [dialog, setDialog] = useState<'incorrect' | 'complete' | null>(null);
   const [celebrating, setCelebrating] = useState(false);
-  const [resetOpen, setResetOpen] = useState(false);
-  const [resetPending, setResetPending] = useState(false);
-  const [resetFailed, setResetFailed] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
   const gridRegion = useRef<HTMLDivElement>(null);
   const autosave = useRef<ReturnType<typeof createPlayAutosave> | null>(null);
   // Identifies the mounted start run; late results of a replaced run are ignored.
   const currentRun = useRef<object | null>(null);
-  const resetBusy = useRef(false);
   const finishCelebration = useCallback(() => setCelebrating(false), []);
 
-  /**
-   * Shows an authenticated attempt from start or reset with a new save workflow.
-   * `onShown` runs in the same update that shows the attempt or the start error.
-   */
-  const beginSession = useCallback(async (
-    started: PlayPuzzleView,
-    isCurrent: () => boolean,
-    onShown?: () => void,
-  ) => {
+  /** Shows an authenticated attempt from a start with a new save workflow. */
+  const beginSession = useCallback(async (started: PlayPuzzleView, isCurrent: () => boolean) => {
     if (!isCurrent()) return;
     if (!started.session) {
-      onShown?.();
       setSessionState('error');
       return;
     }
@@ -141,7 +122,6 @@ export function PlayPuzzle({
     const opening = initiallyComplete ? null : openingCursor(deserializeGrid(saver.entries));
     setCursor(opening);
     setIsFocused(false);
-    onShown?.();
     setSessionState('ready');
     // Focused at once, so the word and its hint show and typing works,
     // without scrolling the page (17-S2).
@@ -165,7 +145,7 @@ export function PlayPuzzle({
   const view = puzzle.id === initialPuzzle.id ? puzzle : initialPuzzle;
   const displayedSessionState = puzzle.id === initialPuzzle.id ? sessionState : 'starting';
   const ready = displayedSessionState === 'ready';
-  const editable = ready && !locked && !checking && !resetOpen && !unavailable;
+  const editable = ready && !locked && !checking && !unavailable;
 
   useEffect(() => {
     if (saveState !== 'error') return;
@@ -196,68 +176,6 @@ export function PlayPuzzle({
   // (15-S5), 16px from it.
   const narrowMessage = displayedSessionState !== 'ready'
     || saveState === 'error' || completionError || localWarning || locked;
-
-  function openReset() {
-    // P3 feedback dialogs are modal; never stack the reset dialog with them.
-    if (!ready || dialog !== null) return;
-    setResetFailed(false);
-    setResetOpen(true);
-  }
-
-  function cancelReset() {
-    if (resetBusy.current) return;
-    setResetOpen(false);
-    setResetFailed(false);
-    autosave.current?.resume();
-  }
-
-  async function confirmReset() {
-    const saver = autosave.current;
-    const run = currentRun.current;
-    const sessionId = puzzle.session?.id;
-    if (resetBusy.current || !saver || !run || !sessionId) return;
-    const isCurrent = () => currentRun.current === run;
-    resetBusy.current = true;
-    setResetPending(true);
-    setResetFailed(false);
-    try {
-      let fresh: PlayPuzzleView;
-      try {
-        // No save or inspection of the old attempt may reach the server after
-        // the reset request; settle anything already running first.
-        await saver.suspend();
-        if (!isCurrent()) return;
-        fresh = await resetPlaySession(initialPuzzle.id, sessionId);
-      } catch {
-        if (isCurrent()) {
-          setResetFailed(true);
-          setResetPending(false);
-        }
-        return;
-      }
-      if (!isCurrent()) return;
-      saver.stop();
-      autosave.current = null;
-      try {
-        localStorage.removeItem(playDraftKey(sessionId));
-      } catch {
-        // The new session ID already prevents recovering the obsolete draft.
-      }
-      // The reset stays pending in its dialog until the returned attempt is
-      // shown, including any completion check of a full returned attempt.
-      const closeReset = () => {
-        setResetOpen(false);
-        setResetPending(false);
-      };
-      await beginSession(fresh, isCurrent, closeReset).catch(() => {
-        if (!isCurrent()) return;
-        closeReset();
-        setSessionState('error');
-      });
-    } finally {
-      resetBusy.current = false;
-    }
-  }
 
   function changeEntries(next: Grid) {
     const entries = serializeGrid(next);
@@ -327,9 +245,6 @@ export function PlayPuzzle({
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
           <div className="contents @min-[1242px]/play:flex @min-[1242px]/play:h-8 @min-[1242px]/play:items-center @min-[1242px]/play:gap-3">
-            <div className="hidden @min-[1242px]/play:contents">
-              <PlayResetControls enabled={ready} isBuilder={isBuilder} onReset={openReset} />
-            </div>
             {ready && unavailable && (
               <p data-testid="play-unavailable" role="alert" className="text-body-small text-error @min-[1242px]/play:ml-auto">
                 This puzzle is no longer available.{' '}
@@ -466,13 +381,6 @@ export function PlayPuzzle({
       >
         <p>You completed the puzzle!</p>
       </Modal>
-      <PlayResetDialog
-        open={resetOpen}
-        pending={resetPending}
-        failed={resetFailed}
-        onConfirm={() => void confirmReset()}
-        onCancel={cancelReset}
-      />
       {celebrating && <PlayConfetti onFinished={finishCelebration} />}
     </div>
   );
