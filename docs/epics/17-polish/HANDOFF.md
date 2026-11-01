@@ -101,7 +101,22 @@ label, one button for the next step, the toggle row on a 10px-cornered
 `toggle-row` panel, no build-phase Publish or "Lol."/"Nope.", and 1's
 "done" look removed. The human's visual check passed the same day.
 
+**S9 is approved** (2026-11-01): the human approved
+[17-S9-preview-hints.md](stories/17-S9-preview-hints.md), its acceptance
+`e2e/preview-hints.spec.ts` (no frozen test amended) and both pending
+questions as proposed: the Prominent Hint between the toggle row and the
+grid, 16px over the grid as in play; Lock Grid Letters inactive at 50%
+opacity with a not-allowed cursor. Frozen on `main` in a
+specification-only commit; implementation follows directly on `main`
+(no risk path).
+
 ## Verification
+
+S9 drafting (story's Discrimination): `main` with the proposed test, 11
+of 12 cases failed (the one guard passed). With a throwaway
+implementation (reverted; `/tmp/s9/throwaway.patch`, not in the repo)
+`npm run verify` exit 0 (Vitest 626/626) and the full `npm run test:e2e`
+exit 0 (897 passed).
 
 S8 implementation (precommit tree, committed unchanged; frozen
 acceptance unchanged from 898bb5a): `npm run verify` exit 0 (Vitest
@@ -116,8 +131,11 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Draft S9 (Preview Hints) when the human authorizes it.
+The human reviews S9's draft and answers its two pending questions. On
+approval, freeze the story and its acceptance on `main` in a
+specification-only commit, then implement S9 directly on `main` (no risk
+path).
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the EPIC's S9. Draft S9 (Preview Hints) for the human's approval.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S9-preview-hints.md. Freeze S9 once the human approves its draft, then implement it on main.
