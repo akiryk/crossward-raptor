@@ -416,11 +416,18 @@ test.describe('F4-5 footer', () => {
     await expectFooter(page, page.getByTestId('new-puzzle-create'), page.getByTestId('new-puzzle-cancel'), 'new puzzle');
   });
 
-  test("play reset's footer: confirm then cancel", async ({ page }) => {
-    await openPlay(page, entries({ lastBlank: true }));
-    await page.getByTestId('play-reset-button').click();
+  // 17-S3: Reset is only in the library, on a completed Play row.
+  test("the library reset's footer: confirm then cancel", async ({ page }) => {
+    const fixture = await openPlay(page, entries({ lastBlank: true }));
+    await finishPlay(page);
+    await expect(page.getByTestId('play-completion-dialog')).toBeVisible();
+    await page.goto('/puzzles');
+    await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
+    await page.getByTestId('library-view').getByRole('radio', { name: 'Play', exact: true }).check();
+    const item = page.getByTestId('puzzle-list-item').filter({ hasText: fixture.title });
+    await item.getByTestId('puzzle-reset-button').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
-    await expectFooter(page, page.getByTestId('play-reset-confirm'), page.getByTestId('play-reset-cancel'), 'play reset');
+    await expectFooter(page, page.getByTestId('play-reset-confirm'), page.getByTestId('play-reset-cancel'), 'library reset');
   });
 });
 

@@ -42,21 +42,31 @@ its acceptance `e2e/play-opening.spec.ts`, the amendments to
 `e2e/narrow-play.spec.ts` and `e2e/play-route.spec.ts`, and the story's
 proposed Decisions. They were frozen on `main` in 316c7f6
 (specification only), and the implementation was delivered directly on
-`main` (no risk path). S3 has no story yet.
+`main` (no risk path).
+
+**S3 is approved and frozen** (2026-11-01): the human approved
+[17-S3-no-reset-in-play.md](stories/17-S3-no-reset-in-play.md), its
+proposed acceptance `e2e/no-play-reset.spec.ts`, the amendments to
+`e2e/play-design.spec.ts`, `e2e/narrow-play.spec.ts` and
+`e2e/modal-design.spec.ts`, and the retirement of `e2e/play-reset.spec.ts`
+and `e2e/play-reset-settling.spec.ts`. The human decided that Reset stays
+only in the library, on completed rows (recorded in the story and the
+EPIC). Approved 2026-11-01 with its proposed Decisions and frozen on
+`main` (specification only, with the two deletions). S3 touches `actions.ts`, so it is delivered by branch,
+PR and independent review.
 
 ## Verification
 
-S2, on the implementation tree delivered with this handoff:
-`npm run verify` exit 0 (Vitest 620 of 620); the full `npm run test:e2e`
-exit 0 (830 passed), through the guarded harness under the standing
-reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)). The
-frozen acceptance is unchanged from 316c7f6.
+S3's draft: the observed discrimination is in the story. Nothing has been
+implemented, so there is no implementation verification yet. Browser runs
+used the guarded harness under the standing reset grant
+([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
 ## Next action
 
-Write S3's specification ("S3 — No Reset in play" in the [EPIC](EPIC.md))
-on `main` and stop for the human's approval.
+Implement S3 on `story/17-S3-no-reset-in-play` and open a PR for
+independent review.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the EPIC's "S3 — No Reset in play" section. Write S3's specification and proposed acceptance on main; don't freeze or implement it before the human approves.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S3-no-reset-in-play.md. If the human has approved S3's draft, freeze it on main and implement it on story/17-S3-no-reset-in-play with a PR for independent review; otherwise stop and ask for approval.

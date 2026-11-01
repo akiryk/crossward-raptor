@@ -120,8 +120,9 @@ const next = (page: Page) => hintBar(page).getByRole('button', { name: 'Next wor
 const cell = (page: Page, coord: string) => page.locator(`[data-coord="${coord}"]`);
 const visible = (locator: Locator) => locator.filter({ visible: true });
 
-/** The wide arrangement's parts, all hidden narrow. */
-const WIDE_PARTS = ['play-title', 'play-options', 'play-reset-button', 'prominent-hint', 'play-clues'];
+/** The wide arrangement's parts, all hidden narrow. Play has no Reset or
+ *  Puzzle options any more (17-S3); e2e/no-play-reset.spec.ts checks them. */
+const WIDE_PARTS = ['play-title', 'play-save-status', 'prominent-hint', 'play-clues'];
 
 function noHorizontalOverflow(page: Page) {
   return page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);

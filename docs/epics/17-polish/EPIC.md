@@ -218,7 +218,10 @@ Epic 15's narrow play hint bar takes its own values in 15-S5.
 
 **Play has no Reset** *(human, 2026-10-27)*. "Puzzle options", its
 Reset dialog and the builder's quiet Reset button are removed, not hidden.
-A player starts over by deleting letters by hand. Epic 16's test-before-
+A player starts over by deleting letters by hand. *Amended (human,
+2026-11-01):* Reset is only in the library: its small Reset button on a
+completed Play row (14-S2) and its confirmation dialog stay, unchanged,
+and nothing in the builder or play resets. Epic 16's test-before-
 sharing step is now "publishes Unlisted and plays" (amended there).
 
 **Selection in Preview** *(human, 2026-10-28)*. In Preview, clicking a
@@ -377,9 +380,11 @@ opens with nothing selected.
 
 ### S3 — No Reset in play
 
-Removes "Puzzle options", its Reset dialog, the builder's quiet Reset
-button and, if nothing else calls it, `resetPlaySession` (a risk path,
-`actions.ts`). Supersedes epic 11's reset tests.
+Removes "Puzzle options", its Reset dialog and the builder's quiet Reset
+button. The library's Reset still calls `resetPlaySession`, so it stays
+*(human, 2026-11-01)*; removing the builder check `isPlayPuzzleBuilder`
+still touches `actions.ts` (a risk path). Supersedes epic 11's play reset
+tests.
 
 ### S4 — Selection in Preview
 
@@ -440,8 +445,9 @@ Enter or Escape to close, and the cell's text fitting its letters.
 ## Pending questions
 
 None. The draft's three questions were answered 2026-10-27 *(human)* and
-are recorded in Decisions: Reset is removed entirely, rebus can be typed
-in the build phase, the hints phase and play, and the order is 15, 16, 17.
+are recorded in Decisions: Reset is removed from play (only the library
+keeps it, 2026-11-01), rebus can be typed in the build phase, the hints
+phase and play, and the order is 15, 16, 17.
 The 2026-10-31 amendment's questions were answered that day *(human)*:
 fold the addendum into this EPIC, the word rule covers the hints phase and
 play, Preview Hints shows the player's view in place, and the Rebus
