@@ -44,33 +44,35 @@ proposed Decisions. They were frozen on `main` in 316c7f6
 (specification only), and the implementation was delivered directly on
 `main` (no risk path).
 
-**S3 is approved and frozen** (2026-11-01): the human approved
+**S3 is done** (2026-11-01): the human approved
 [17-S3-no-reset-in-play.md](stories/17-S3-no-reset-in-play.md), its
-proposed acceptance `e2e/no-play-reset.spec.ts`, the amendments to
+acceptance `e2e/no-play-reset.spec.ts`, the amendments to
 `e2e/play-design.spec.ts`, `e2e/narrow-play.spec.ts` and
-`e2e/modal-design.spec.ts`, and the retirement of `e2e/play-reset.spec.ts`
-and `e2e/play-reset-settling.spec.ts`. The human decided that Reset stays
-only in the library, on completed rows (recorded in the story and the
-EPIC). Approved 2026-11-01 with its proposed Decisions and frozen on
-`main` in ceba5ec (specification only, with the two deletions), then
-implemented on `story/17-S3-no-reset-in-play` and opened as PR #32,
-awaiting independent review and merge. S3 touches `actions.ts`, so it is delivered by branch,
-PR and independent review.
+`e2e/modal-design.spec.ts`, the retirement of `e2e/play-reset.spec.ts`
+and `e2e/play-reset-settling.spec.ts`, and its proposed Decisions. Reset
+stays only in the library, on completed rows. Frozen on `main` in ceba5ec
+(specification only). Because it touches `actions.ts`, it was delivered as
+PR #32, independently reviewed with no findings and merged into `main` in
+8cb74a8.
+
+S4 has no story yet. Its EPIC section and proposed cursor rules
+(Decisions) are the starting point.
 
 ## Verification
 
-S3: the observed discrimination is in the story. On the story branch,
-precommit, frozen acceptance unchanged from ceba5ec: `npm run verify`
-exit 0 (Vitest 620/620) and full `npm run test:e2e` exit 0 (816 passed). Browser runs
-used the guarded harness under the standing reset grant
+S3, by the independent reviewer on PR head 03283a3, frozen acceptance
+unchanged from ceba5ec: `npm run verify` exit 0 (Vitest 620/620) and full
+`npm run test:e2e` exit 0 (816 passed). Configured CI (Vercel) passed.
+Browser runs used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
 ## Next action
 
-Independently review S3's PR #32 (`story/17-S3-no-reset-in-play`) per
-[REVIEW](../../process/REVIEW.md), and merge it if no blockers remain.
-The author does not merge it. Then update this handoff and mark S3 done.
+Draft S4, Selection in Preview (EPIC "S4 — Selection in Preview"), per
+[STORY](../../process/STORY.md): the specification and proposed
+acceptance, for the human's approval. Nothing is implemented or frozen
+before that approval.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S3-no-reset-in-play.md. Independently review PR #32 on story/17-S3-no-reset-in-play per docs/process/REVIEW.md; merge it if no blockers remain and verification and CI pass.
+Read docs/epics/17-polish/HANDOFF.md and the "S4 — Selection in Preview" section of docs/epics/17-polish/EPIC.md. Draft the S4 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.

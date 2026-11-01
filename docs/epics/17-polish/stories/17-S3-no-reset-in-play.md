@@ -8,8 +8,8 @@ button and its Reset dialog. Nothing else in the builder or play resets.
 **Status: approved and frozen** (2026-11-01). The human approved this
 specification, its acceptance, the retirements and the proposed
 Decisions on 2026-11-01. Frozen on `main` in ceba5ec (specification
-only); implemented on `story/17-S3-no-reset-in-play`, awaiting
-independent review of its PR.
+only); implemented on `story/17-S3-no-reset-in-play`, independently
+reviewed as PR #32 and merged into `main` in 8cb74a8. **Done.**
 
 **Blast radius: small, but a risk path.** It removes play's Reset UI and
 the code only that UI used. Removing `isPlayPuzzleBuilder` touches
