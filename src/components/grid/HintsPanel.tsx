@@ -49,7 +49,7 @@ export function HintsPanel({
 
   return (
     <div className="@container">
-      {/* One column below 650px of room beside the grid, a 1290px window (15-S2). */}
+      {/* One column below 650px of room beside the grid, a 1430px window (15-S2, 17-S7). */}
       <div className="flex flex-col gap-8 @min-[650px]:flex-row">
         {COLUMNS.map(({ orientation, heading }) => (
           <div

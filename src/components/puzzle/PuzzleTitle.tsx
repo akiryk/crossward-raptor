@@ -23,7 +23,7 @@ export function PuzzleTitle({
       // input's margin doesn't collapse with its neighbours'. Narrow,
       // `title-3`, 16px above the buttons (15-S3). A long title wraps, the
       // field growing and the underline under its last line (15-S6).
-      className="mb-4 block w-full border-0 border-b border-transparent bg-transparent p-0 text-title-3 text-primary @min-[952px]/editor:mb-8 @min-[952px]/editor:text-title-1 outline-none hover:border-line-muted focus:border-primary disabled:cursor-default disabled:hover:border-transparent"
+      className="mb-4 block w-full border-0 border-b border-transparent bg-transparent p-0 text-title-3 text-primary @min-[1092px]/editor:mb-8 @min-[1092px]/editor:text-title-1 outline-none hover:border-line-muted focus:border-primary disabled:cursor-default disabled:hover:border-transparent"
     />
   );
 }

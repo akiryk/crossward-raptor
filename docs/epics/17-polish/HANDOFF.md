@@ -81,16 +81,24 @@ Backspace), and both pending questions as proposed. Frozen on `main` in
 used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
 delivered directly on `main` (no risk path).
 
-**S7 is frozen, being implemented** (2026-11-01): the human approved
+**S7 is implemented, awaiting the human's visual check** (2026-11-01):
+the human approved
 [17-S7-larger-grid.md](stories/17-S7-larger-grid.md), its acceptance
 `e2e/larger-grid.spec.ts`, the amendments to nine frozen specs, the
 retirement of 14-S5-4's shorter-screen case and 15-S6-2 and 15-S6-3 (all
 listed in the story), and both pending questions as proposed (numbers
 with no floor or cap; the EPIC's "smaller relative to the cell"
-corrected to the measurement). Frozen on `main` in a specification-only
-commit (see the story's commit "Epic 17 S7: freeze…").
+corrected to the measurement). Frozen on `main` in 3152562
+(specification only); the implementation (700px grid, thresholds moved
+by 140px, pitch-based letters and numbers in `PuzzleGrid`, `LetterCell`
+and `CellNumber`, the style guide's `sg-grid-corner` and 700px samples)
+was delivered directly on `main` (no risk path).
 
 ## Verification
+
+S7, on the implementation (precommit tree, committed unchanged), frozen
+acceptance unchanged from 3152562: `npm run verify` exit 0 (Vitest
+626/626) and full `npm run test:e2e` exit 0 (862 passed).
 
 S7 drafting (story's Discrimination): with a throwaway implementation
 (since reverted; patch at `/tmp/s7/throwaway.patch`, not in the repo) and
@@ -110,10 +118,11 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Implement S7 on `main` against its frozen acceptance per
-[STORY](../../process/STORY.md) (no risk path), then `npm run verify`
-and the full `npm run test:e2e`, and ask for the human's visual check.
+The human's visual check of S7 (its Definition of Done): a Sunday at
+700px and on a phone. Once confirmed, mark S7 done here and draft S8,
+Step controls (EPIC "S8 — Step controls"), per
+[STORY](../../process/STORY.md), for the human's approval.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S7-larger-grid.md. Implement the frozen S7 on main, verify, and deliver.
+Read docs/epics/17-polish/HANDOFF.md. Once the human confirms S7's visual check, mark S7 done and draft S8 (Step controls) on main; stop for the human's approval before freezing or implementing.

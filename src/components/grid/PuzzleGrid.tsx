@@ -86,16 +86,11 @@ const GRID_LINES: Record<string, string> = {
   play: 'bg-play-cell-border',
 };
 
-// cell-letter's size in a 35px cell (14-S5's 15×15 at 526px); a
-// letter keeps that ratio to its cell at every grid size and width (14-S5).
-const CELL_LETTER_PX = 16;
-const CELL_LETTER_PITCH_PX = 35;
-
-// cell-number's size down to a 21×21's cell at 560px; in a smaller cell a
-// number shrinks with the cell, never below 8px (15-S6).
-const CELL_NUMBER_PX = 10;
-const CELL_NUMBER_MIN_PX = 8;
-const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
+// Letters and numbers as the NYT's (17-S7), in proportion to the cell's
+// pitch at every grid size and width, with no floor or cap: in Inter, the
+// capitals are 0.475 of the pitch and the digits 0.24.
+const CELL_LETTER_PER_PITCH = 0.65;
+const CELL_NUMBER_PER_PITCH = 1 / 3;
 
 export function PuzzleGrid({
   grid,
@@ -201,11 +196,12 @@ export function PuzzleGrid({
       // outside too, not just between cells.
       className={`grid w-full ${GRID_LINES[gridMode]}`}
       style={{
-        // The letters size against the grid's own width (14-S5): 100cqw is
-        // its content box, so the cell pitch is (100cqw + 1px) / cols.
+        // Cells size against the grid's own width (14-S5): 100cqw is its
+        // content box, so the cell pitch is (100cqw + 1px) / cols.
         containerType: 'inline-size',
-        ['--cell-letter-size' as string]: `calc((100cqw + 1px) * ${CELL_LETTER_PX / CELL_LETTER_PITCH_PX / grid.cols})`,
-        ['--cell-number-size' as string]: `clamp(${CELL_NUMBER_MIN_PX}px, calc((100cqw + 1px) * ${CELL_NUMBER_PX / CELL_NUMBER_PITCH_PX / grid.cols}), ${CELL_NUMBER_PX}px)`,
+        ['--cell-pitch' as string]: `calc((100cqw + 1px) / ${grid.cols})`,
+        ['--cell-letter-size' as string]: `calc(var(--cell-pitch) * ${CELL_LETTER_PER_PITCH})`,
+        ['--cell-number-size' as string]: `calc(var(--cell-pitch) * ${CELL_NUMBER_PER_PITCH})`,
         // minmax(0, 1fr), not bare 1fr: fr tracks default to an implicit
         // min-size of their content's min-content, which lets a small
         // cell's letter text force the track taller/wider than the

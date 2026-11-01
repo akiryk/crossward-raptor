@@ -48,9 +48,9 @@ import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 
 const SAVE_DEBOUNCE_MS = 500;
-// Every grid size fits within this width at most (15-S1), whatever the
+// Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
 // window's height: a short window scrolls the page.
-const GRID_MAX_PX = 560;
+const GRID_MAX_PX = 700;
 
 interface EditorState {
   grid: Grid;
@@ -505,7 +505,7 @@ export function PuzzleGridEditor({
   }
 
   return (
-    // Below 952px of room, a 1000px window, the builder is one column at
+    // Below 1092px of room, a 1140px window (17-S7), the builder is one column at
     // the grid's width, centered, the toggle beside the buttons (15-S3),
     // 10px under them when they wrap (15-S6).
     <div
@@ -513,13 +513,13 @@ export function PuzzleGridEditor({
       data-ready={isReady}
       className="@container/editor m-auto"
     >
-      <div className="mx-auto max-w-[560px] @min-[952px]/editor:max-w-none">
+      <div className="mx-auto max-w-[700px] @min-[1092px]/editor:max-w-none">
         <PuzzleTitle
           value={title}
           onChange={handleTitleChange}
           disabled={isPublished}
         />
-        <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2.5 @min-[952px]/editor:mb-0 @min-[952px]/editor:block">
+        <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2.5 @min-[1092px]/editor:mb-0 @min-[1092px]/editor:block">
           {isPublished ? (
             <PublishedState puzzleId={puzzleId} />
           ) : (
@@ -530,7 +530,7 @@ export function PuzzleGridEditor({
               grid doesn't move (14-S4); narrow, it's beside the buttons and a
               published puzzle has none (15-S3). */}
           <div
-            className={`h-6 items-center @min-[952px]/editor:mt-[27px] @min-[952px]/editor:mb-3 @min-[952px]/editor:flex ${
+            className={`h-6 items-center @min-[1092px]/editor:mt-[27px] @min-[1092px]/editor:mb-3 @min-[1092px]/editor:flex ${
               isPublished ? "hidden" : "flex"
             }`}
           >
@@ -565,7 +565,7 @@ export function PuzzleGridEditor({
         )}
         <div
           data-testid="editor-layout"
-          className="flex flex-col gap-6 @min-[952px]/editor:flex-row @min-[952px]/editor:items-start @min-[952px]/editor:gap-8"
+          className="flex flex-col gap-6 @min-[1092px]/editor:flex-row @min-[1092px]/editor:items-start @min-[1092px]/editor:gap-8"
           onFocus={handleEditorFocus}
           onBlur={handleEditorBlur}
         >
@@ -595,10 +595,10 @@ export function PuzzleGridEditor({
               />
             </div>
             {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
-            {/* Below 952px of room the Hint Box takes the list's place,
+            {/* Below 1092px of room the Hint Box takes the list's place,
                 directly under the grid (15-S4). */}
             {phase === "hints" && shownKey !== null && shownSlot && (
-              <div className="@min-[952px]/editor:hidden">
+              <div className="@min-[1092px]/editor:hidden">
                 <HintBox
                   grid={grid}
                   slot={shownSlot}
@@ -621,7 +621,7 @@ export function PuzzleGridEditor({
             // the Hint Box shows instead (15-S4).
             <div
               data-testid="hints-region"
-              className="hidden min-w-0 flex-1 overflow-y-auto @min-[952px]/editor:block @min-[952px]/editor:self-stretch @min-[952px]/editor:[contain:size]"
+              className="hidden min-w-0 flex-1 overflow-y-auto @min-[1092px]/editor:block @min-[1092px]/editor:self-stretch @min-[1092px]/editor:[contain:size]"
             >
               <HintsPanel
                 grid={grid}

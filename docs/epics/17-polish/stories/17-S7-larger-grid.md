@@ -8,7 +8,9 @@ cell's letter at any grid size or width.
 
 **Status: approved and frozen** (drafted and approved by the human
 2026-11-01, with both pending questions as proposed), in a
-specification-only commit on `main`. Not yet implemented.
+specification-only commit on `main` (3152562). Implemented on `main`;
+`npm run verify` and the full `npm run test:e2e` (862 passed) exit 0.
+Awaiting the human's visual check.
 
 **Blast radius: small.** Client components only: the grid's cell
 typography (`PuzzleGrid`, `LetterCell`, `CellNumber`), the grid width and

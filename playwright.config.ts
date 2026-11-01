@@ -29,7 +29,7 @@ const FULL_MOTION_SPECS = [
   '**/play-reset-settling.spec.ts',
 ];
 
-// Story 15-S1: play's narrow layout starts below about 1290px, so the
+// Story 15-S1: play's narrow layout starts below about 1430px (17-S7), so the
 // default viewport is 1440px wide, wider than Desktop Chrome's 1280×720.
 const VIEWPORT = { width: 1440, height: 900 };
 

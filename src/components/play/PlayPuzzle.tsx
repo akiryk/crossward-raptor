@@ -24,8 +24,8 @@ import { PlayerHints } from './PlayerHints';
 import { PlayHintBar } from './PlayHintBar';
 import { ProminentHint } from './ProminentHint';
 
-// At most 560px, as the build grid, whatever the window's height (15-S1).
-const GRID_MAX_PX = 560;
+// At most 700px (17-S7), as the build grid, whatever the window's height (15-S1).
+const GRID_MAX_PX = 700;
 
 /**
  * Play opens on the first empty cell in reading order, or the first white
@@ -227,20 +227,20 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
 
   return (
     <div data-testid="play-puzzle" data-session-state={displayedSessionState} className="p-6">
-      {/* Narrow below 1242px of room (a 1290px window): no title, controls
+      {/* Narrow below 1382px of room (a 1430px window, 17-S7): no title, controls
           or hint lists, and the hint bar under the grid (15-S5). Both
           arrangements are rendered and the container query picks one. */}
       <div className="@container/play">
-        <h1 data-testid="play-title" className="mb-8 hidden text-title-1 text-primary @min-[1242px]/play:block">
+        <h1 data-testid="play-title" className="mb-8 hidden text-title-1 text-primary @min-[1382px]/play:block">
           {view.title}
         </h1>
         <div
-          className={`mx-auto flex max-w-(--play-grid-width) flex-col gap-3 @min-[1242px]/play:mb-0 @min-[1242px]/play:block @min-[1242px]/play:max-w-none ${narrowMessage ? 'mb-4' : ''}`}
+          className={`mx-auto flex max-w-(--play-grid-width) flex-col gap-3 @min-[1382px]/play:mb-0 @min-[1382px]/play:block @min-[1382px]/play:max-w-none ${narrowMessage ? 'mb-4' : ''}`}
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
-          <div className="contents @min-[1242px]/play:flex @min-[1242px]/play:h-8 @min-[1242px]/play:items-center @min-[1242px]/play:gap-3">
+          <div className="contents @min-[1382px]/play:flex @min-[1382px]/play:h-8 @min-[1382px]/play:items-center @min-[1382px]/play:gap-3">
             {ready && unavailable && (
-              <p data-testid="play-unavailable" role="alert" className="text-body-small text-error @min-[1242px]/play:ml-auto">
+              <p data-testid="play-unavailable" role="alert" className="text-body-small text-error @min-[1382px]/play:ml-auto">
                 This puzzle is no longer available.{' '}
                 <Link href="/puzzles" className="text-button-fill underline transition-colors duration-150 ease-out hover:text-button-hover">Back to puzzles</Link>
               </p>
@@ -250,8 +250,8 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
                 data-testid="play-save-status"
                 data-save-state={saveState}
                 role={saveState === 'error' ? 'alert' : 'status'}
-                className={`text-body-small @min-[1242px]/play:ml-auto ${
-                  saveState === 'error' ? 'text-error' : 'hidden text-muted @min-[1242px]/play:block'
+                className={`text-body-small @min-[1382px]/play:ml-auto ${
+                  saveState === 'error' ? 'text-error' : 'hidden text-muted @min-[1382px]/play:block'
                 }`}
               >
                 {saveState === 'saved' && 'Saved'}
@@ -273,10 +273,10 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             )}
           </div>
           {displayedSessionState === 'starting' && (
-            <p role="status" className="@min-[1242px]/play:mt-3 text-body-normal text-muted">Starting your puzzle…</p>
+            <p role="status" className="@min-[1382px]/play:mt-3 text-body-normal text-muted">Starting your puzzle…</p>
           )}
           {displayedSessionState === 'error' && (
-            <div role="alert" className="@min-[1242px]/play:mt-3 space-y-3">
+            <div role="alert" className="@min-[1382px]/play:mt-3 space-y-3">
               <p className="text-body-normal text-error">We couldn’t start your puzzle. Please try again.</p>
               <Button
                 onClick={() => {
@@ -289,17 +289,17 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             </div>
           )}
           {ready && completionError && !unavailable && (
-            <p data-testid="play-completion-error" role="alert" className="@min-[1242px]/play:mt-3 text-body-small text-error">
+            <p data-testid="play-completion-error" role="alert" className="@min-[1382px]/play:mt-3 text-body-small text-error">
               Completion verification failed. Retry to check your saved entries before continuing.
             </p>
           )}
           {ready && localWarning && (
-            <p data-testid="play-local-save-warning" className="@min-[1242px]/play:mt-3 text-body-small text-muted">
+            <p data-testid="play-local-save-warning" className="@min-[1382px]/play:mt-3 text-body-small text-muted">
               Pending edits can’t be kept on this device. They may be lost if you leave before saving finishes.
             </p>
           )}
           {ready && locked && (
-            <div className="@min-[1242px]/play:mt-3 flex items-center gap-2">
+            <div className="@min-[1382px]/play:mt-3 flex items-center gap-2">
               <span data-testid="play-completed-mark" role="img" aria-label="Completed" className="text-title-3 text-highlight">✓</span>
               <p data-testid="play-lock-message" className="text-body-normal text-primary">
                 This puzzle is complete. Your entries are read-only.
@@ -308,10 +308,10 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           )}
         </div>
         <div
-          className="mx-auto max-w-(--play-grid-width) @min-[1242px]/play:mt-[27px] @min-[1242px]/play:grid @min-[1242px]/play:max-w-none @min-[1242px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1242px]/play:gap-x-[26px] @min-[1242px]/play:gap-y-4"
+          className="mx-auto max-w-(--play-grid-width) @min-[1382px]/play:mt-[27px] @min-[1382px]/play:grid @min-[1382px]/play:max-w-none @min-[1382px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1382px]/play:gap-x-[26px] @min-[1382px]/play:gap-y-4"
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
-          <div className="hidden w-full max-w-(--play-grid-width) @min-[1242px]/play:block">
+          <div className="hidden w-full max-w-(--play-grid-width) @min-[1382px]/play:block">
             <ProminentHint
               label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
               hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
@@ -324,7 +324,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             tabIndex={0}
             aria-label="Puzzle entries"
             aria-busy={checking || undefined}
-            className="w-full max-w-(--play-grid-width) outline-none @min-[1242px]/play:col-start-1 @min-[1242px]/play:row-start-2"
+            className="w-full max-w-(--play-grid-width) outline-none @min-[1382px]/play:col-start-1 @min-[1382px]/play:row-start-2"
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -336,11 +336,11 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
               stretching it. */}
           <div
             data-testid="play-clues"
-            className="hidden min-w-0 overflow-y-auto @min-[1242px]/play:col-start-2 @min-[1242px]/play:row-start-2 @min-[1242px]/play:block @min-[1242px]/play:h-0 @min-[1242px]/play:min-h-full"
+            className="hidden min-w-0 overflow-y-auto @min-[1382px]/play:col-start-2 @min-[1382px]/play:row-start-2 @min-[1382px]/play:block @min-[1382px]/play:h-0 @min-[1382px]/play:min-h-full"
           >
             <PlayerHints slots={slots} hints={view.hints} selectedKey={selectedKey} onSelect={handleHintClick} />
           </div>
-          <div className="@min-[1242px]/play:hidden">
+          <div className="@min-[1382px]/play:hidden">
             <PlayHintBar
               hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               disabled={!editable}

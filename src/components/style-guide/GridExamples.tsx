@@ -57,6 +57,34 @@ function previewSelectionGrid() {
 }
 const PREVIEW_SELECTION_CURSOR: CursorState = { current: { col: 1, row: 0 }, orientation: 'across' };
 
+// A Sunday's corner (17-S7): a 21×21 with a black cell at every third
+// row and column, lettered, so its last rows' numbers have three digits.
+function sundayGrid() {
+  let grid = createGrid({ cols: 21, rows: 21 });
+  const letters = 'QWOM';
+  for (let row = 0; row < 21; row++) {
+    for (let col = 0; col < 21; col++) {
+      if (col % 3 !== 1 || row % 3 !== 1) grid = withLetter(grid, { col, row }, letters[(col + row) % 4]);
+    }
+  }
+  return convertEmptyCellsToBlack(grid);
+}
+
+/** The bottom-left 7×5 cells of a 21×21 at the 700px grid's pitch. */
+export function SundayCornerExample() {
+  return (
+    <div
+      data-testid="sg-grid-corner"
+      className="overflow-hidden"
+      style={{ width: 'calc(699px * 7 / 21 + 1px)', height: 'calc(699px * 5 / 21 + 1px)' }}
+    >
+      <div style={{ width: '700px', marginTop: 'calc(-699px * 16 / 21)' }}>
+        <PuzzleGrid grid={sundayGrid()} mode="play" />
+      </div>
+    </div>
+  );
+}
+
 function buildSampleGrid() {
   let grid = createGrid({ cols: 10, rows: 10 });
   for (const { col, row, letter } of LETTERS) {
@@ -175,6 +203,13 @@ export function GridExamples() {
         </div>
       </section>
 
+      <section>
+        <h2 className="mb-2 text-title-2 text-primary">
+          Grid (a 21×21&apos;s corner at 700px)
+        </h2>
+        <SundayCornerExample />
+      </section>
+
       <section data-testid="sg-grid-play">
         <h2 className="mb-2 text-title-2 text-primary">
           Play: Prominent Hint, grid and Player Hints
@@ -250,7 +285,7 @@ export function HintBoxExample() {
   if (!slot) return null;
 
   return (
-    <div className="max-w-[560px]">
+    <div className="max-w-[700px]">
       <HintBox
         grid={hintsGrid}
         slot={slot}

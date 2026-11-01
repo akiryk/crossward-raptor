@@ -342,7 +342,7 @@ export default function StyleGuidePage() {
           <h2 className="text-title-2 text-primary">
             Play hint bar (play, narrow)
           </h2>
-          <div className="max-w-[560px]">
+          <div className="max-w-[700px]">
             <PlayHintBar hint="Network of squares" onStep={() => {}} />
           </div>
         </section>
