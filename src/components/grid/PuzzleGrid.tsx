@@ -47,7 +47,7 @@ const HINTS_LOCKED_BG: Partial<Record<CellAppearance, string>> = {
   'symmetric-hint': 'bg-hint-cell-locked-on',
 };
 
-// The grid's own focus shows the cursor and its word in yellow; a hint
+// The grid's own focus shows the cursor in yellow and its word in blue; a hint
 // input's focus shows its word in blue (14-S6, 14-S12).
 function hintsHighlightBg(highlight: 'selected' | 'slot', isGridFocused: boolean) {
   if (!isGridFocused) return 'bg-hint-cell-selected';

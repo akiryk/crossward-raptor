@@ -17,13 +17,12 @@
   --palette-interactive-faint: #f5f7fa;
   --palette-interactive-faint-hover: #ebeff7;
   --palette-yellow-bright: #fcff4d;
-  --palette-yellow-medium: #feffb0;
-  --palette-yellow-dull: #e6e6d1;
   --palette-cell-warning: #ceb55a;
   --palette-cell-error: #ff251a;
   --palette-text-error: #e2655f;
   --palette-blue-bright: #4bc0ff;
   --palette-blue-medium: #cfeeff;
+  --palette-blue-dull: #cadae2;
   --palette-cyan: #00f0ff;
   --palette-pink: #ffe4e2;
 }
@@ -37,8 +36,8 @@
   --color-build-cell-off: var(--palette-gray-200);
   --color-build-cell-border: var(--palette-gray-400);
   --color-build-cell-selected-cell: var(--palette-yellow-bright);
-  --color-build-cell-selected-row-on: var(--palette-yellow-medium);
-  --color-build-cell-selected-row-off: var(--palette-yellow-dull);
+  --color-build-cell-selected-row-on: var(--palette-blue-medium);
+  --color-build-cell-selected-row-off: var(--palette-blue-dull);
   --color-preview-cell-on: var(--palette-white);
   --color-preview-cell-off: var(--palette-gray-700);
   --color-preview-cell-warning: var(--palette-cell-warning);
@@ -54,7 +53,7 @@
   --color-hint-cell-border: var(--palette-gray-500);
   --color-hint-cell-selected: var(--palette-blue-medium);
   --color-hint-cell-cursor: var(--palette-yellow-bright);
-  --color-hint-cell-cursor-word: var(--palette-yellow-medium);
+  --color-hint-cell-cursor-word: var(--palette-blue-medium);
   --color-hint-cell-locked-on: var(--palette-gray-200);
   /* the Hint Box (Story 15-S4) */
   --color-hint-rule: var(--palette-gray-700);

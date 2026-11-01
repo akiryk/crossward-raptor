@@ -7,9 +7,11 @@ stands out on large puzzles. In the build phase (and S4's Preview word)
 phase, `hint-cell-cursor-word` becomes `blue-medium` too. `yellow-medium`
 and `yellow-dull` are removed from the palette and the style guide.
 
-**Status: approved** by the human (2026-11-01), including the proposed
-small calls and the four amendments; frozen on `main` (specification
-only).
+**Status: done** (2026-11-01). Approved by the human, including the
+proposed small calls and the four amendments; frozen on `main` in
+5924598 (specification only); implemented and delivered directly on
+`main`. `npm run verify` exit 0 (Vitest 620/620) and full
+`npm run test:e2e` exit 0 (836 passed).
 
 **Blast radius: small.** Three color styles' variables and one new
 palette variable in `globals.css`, the style guide's catalog, and one
