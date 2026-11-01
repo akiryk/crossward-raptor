@@ -72,6 +72,14 @@ and its proposed small calls. Frozen on `main` in 5924598
 (specification only); the implementation was delivered directly on
 `main` (no risk path).
 
+**S6 is approved** (2026-11-01): the human approved
+[17-S6-only-real-words.md](stories/17-S6-only-real-words.md), its
+acceptance `e2e/real-words.spec.ts`, the amendments to
+`e2e/hint-box.spec.ts` (15-S4-6) and `e2e/play-entries.spec.ts` (P2
+Backspace), and both pending questions as proposed. Frozen on `main` in
+a specification-only commit; implementation in progress on `main` (no
+risk path).
+
 ## Verification
 
 S5, on the implementation (precommit tree, committed unchanged), frozen
@@ -82,11 +90,9 @@ used the guarded harness under the standing reset grant
 
 ## Next action
 
-Draft S6, Only real words (EPIC "S6 — Only real words"), per
-[STORY](../../process/STORY.md): the specification and proposed
-acceptance, for the human's approval. Nothing is implemented or frozen
-before that approval.
+Implement S6 on `main` against the frozen acceptance, then run
+`npm run verify` and the full `npm run test:e2e`.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the "S6 — Only real words" section of docs/epics/17-polish/EPIC.md. Draft the S6 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S6-only-real-words.md. Once the human has approved the S6 draft, freeze it and implement S6 on main; otherwise stop for that approval.

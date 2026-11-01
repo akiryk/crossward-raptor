@@ -198,10 +198,10 @@ test.describe('P2 — typing and resuming', () => {
     await expectSelected(page, '0,0');
     await expectLetters(page, { '0,0': '' });
 
+    // (2,1) has no Across word, so the click selects it Down (17-S6), and a
+    // black cell can't be behind it Across; a word's start stops Backspace
+    // as the grid's edge does, above.
     await page.locator('[data-coord="2,1"]').click();
-    await page.keyboard.press('Backspace');
-    await expectSelected(page, '2,1'); // black (1,1) blocks retreat
-    await page.keyboard.press('ArrowDown');
     await page.keyboard.type('q');
     await expectSelected(page, '2,2');
     await page.keyboard.press('Backspace');

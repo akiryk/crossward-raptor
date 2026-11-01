@@ -254,15 +254,17 @@ test.describe('15-S4-6 it follows the cursor', () => {
     await expect(input(page)).toHaveAccessibleName('3 Down hint');
   });
 
-  test('on a cell with no word in the cursor’s direction, the box keeps its word', async ({ page }) => {
-    // CAT / A#A / TEN: the A at (1,0) is in 1 Across only.
+  test('on a cell with a word one way only, the cursor takes it and the box shows it', async ({ page }) => {
+    // CAT / A#A / TEN: the A at (1,0) is in 1 Across only. Amended by 17-S6:
+    // the cursor takes that word's direction, so the box shows 1 Across. The
+    // box keeping its word on a cell with no word is 17-S6-12.
     await open(page, 768, playPuzzleFixture().grid);
     // The cursor starts here, Across, so a click toggles it to Down.
     await cell(page, '0,0').click();
     await expect(input(page)).toHaveAccessibleName('1 Down hint');
     await cell(page, '1,0').click();
     await expect(cell(page, '1,0')).toHaveAttribute('data-highlight', 'selected');
-    await expect(input(page)).toHaveAccessibleName('1 Down hint');
+    await expect(input(page)).toHaveAccessibleName('1 Across hint');
     await expect(word(page)).toHaveText('CAT');
   });
 });
