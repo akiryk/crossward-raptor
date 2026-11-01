@@ -17,9 +17,9 @@ Awaiting the human's visual check.
 8cf2828): approved by the human and independently reviewed the same day,
 then frozen in its own specification-only commit (86497f2) before its
 runtime change. Implemented on `main`; `npm run verify` and the full
-`npm run test:e2e` (875 passed) exit 0. Awaiting the human's visual
-check. Where the text below the Correction differs, the Correction
-governs.
+`npm run test:e2e` (875 passed) exit 0 (73ad3c0). The human's visual
+check passed (2026-11-01). **Done.** Where the text below the
+Correction differs, the Correction governs.
 
 ## Correction (2026-11-01) *(human; approved)*
 

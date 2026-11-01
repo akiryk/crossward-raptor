@@ -81,62 +81,50 @@ Backspace), and both pending questions as proposed. Frozen on `main` in
 used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
 delivered directly on `main` (no risk path).
 
-**S7 is implemented as corrected** (2026-11-01): the
-human approved [17-S7-larger-grid.md](stories/17-S7-larger-grid.md) and
-its acceptance, frozen in 3152562 and implemented in 8cf2828 (no risk
-path). At the visual check they rejected the scaled-up numbers on every
-size but the Sunday and asked for 8px page padding on phones. They chose
-the story's
-[correction](stories/17-S7-larger-grid.md#correction-2026-11-01-human-approved):
-the NYT's type for a Sunday only, the old type for the rest, and 8px side
-padding below a 748px window. It also corrects S7 rather than adding a
-new story. The human approved the correction the same day. An
-independent reviewer (a separate agent, report-only) found the three
-corrected spec files match the correction's table with no frozen case
-weakened (`tsc` and ESLint exit 0), and one blocking doc inconsistency:
-the "No number floor or cap" small call still read as every size. That
-and the non-blocking doc notes (status lines, case counts, the
-discrimination wording, superseded text) were fixed in the story and
-confirmed by the reviewer before the freeze.
+**S7 is done** (2026-11-01): the human approved
+[17-S7-larger-grid.md](stories/17-S7-larger-grid.md) and its acceptance
+(frozen in 3152562, implemented in 8cf2828), then its
+[correction](stories/17-S7-larger-grid.md#correction-2026-11-01-human-approved)
+(the NYT's type on a Sunday only, 8px side padding below a 748px window),
+independently reviewed, frozen in 86497f2 and implemented in 73ad3c0 (no
+risk path). The human's visual check passed the same day.
+
+**S8 is drafted, not approved** (2026-11-01):
+[17-S8-step-controls.md](stories/17-S8-step-controls.md), from the
+human's mockups (`~/Downloads/build-step-controls.png`,
+`hint-step-controls.png`) and their notes: the current step as a
+`title-4` label, one button for the next step, and the toggle row on a
+10px-cornered `interactive-faint` panel. They delegated the smaller
+screens to the implementer without further approval. The draft is
+uncommitted in the worktree: the story, the new acceptance
+`e2e/step-controls.spec.ts`, amendments to 13 frozen files (the story's
+table) and the EPIC's amended Step controls decision and S8 line. One
+pending question: the toggle's gray label in the mockups (proposed:
+keep F6's blue toggle).
 
 ## Verification
 
-S7 correction, frozen in 86497f2 and implemented (the throwaway patch,
-applied unchanged; precommit tree, committed unchanged): `npm run verify`
-exit 0 (Vitest 626/626) and full `npm run test:e2e` exit 0 (875 passed).
-A first E2E run failed before any test, the web server's build stopping on
-`next/font/google`'s Inter download; the immediate rerun passed.
+S8 drafting (story's Discrimination): `main` with the proposed tests,
+35 failed and 144 passed across the 13 browser files, and
+`globals-css.test.ts` fails both F1 style cases. With a throwaway
+implementation (reverted; `/tmp/s8/throwaway.patch`, not in the repo)
+`npm run verify` exit 0 (Vitest 626/626) and the full `npm run test:e2e`
+exit 0 (885 passed).
 
-S7 correction drafting (story's "The correction's discrimination"): with
-a throwaway implementation (reverted; `/tmp/s7/correction-throwaway.patch`)
-the full `npm run test:e2e` had 875 passed; 8cf2828 with the corrected
-tests: 22 failed, 71 passed in the three files.
+S7 correction, frozen in 86497f2 and implemented in 73ad3c0 (precommit
+tree, committed unchanged): `npm run verify` exit 0 (Vitest 626/626) and
+full `npm run test:e2e` exit 0 (875 passed).
 
-S7, on the implementation (precommit tree, committed unchanged), frozen
-acceptance unchanged from 3152562: `npm run verify` exit 0 (Vitest
-626/626) and full `npm run test:e2e` exit 0 (862 passed).
-
-S7 drafting (story's Discrimination): with a throwaway implementation
-(since reverted; patch at `/tmp/s7/throwaway.patch`, not in the repo) and
-the amendments, the full `npm run test:e2e` had 861 passed and 1 failed
-(`session-renewal` A4, `ECONNRESET`; passed 8 of 8 on rerun). Current
-`main` with the proposed tests: 67 failed, 131 passed across the ten
-files. `tsc` and ESLint pass on the tests. `npm run verify` was not run
-(no runtime change).
-
-S6, on the implementation (precommit tree, committed unchanged), frozen
-acceptance unchanged from 1269487: `npm run verify` exit 0 (Vitest
-626/626) and full `npm run test:e2e` exit 0 (848 passed). An earlier
-full run had one transient failure (16-S1-1, `ECONNRESET` on
-`/api/auth/get-session`), which passed in isolation and on the rerun.
 Browser runs used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
 ## Next action
 
-The human's visual check of S7 as corrected: every size at 700px and on
-a phone. If it passes, S7 is done and S8's drafting is next.
+The human reviews S8's draft and answers its pending question. On
+approval, freeze the story, its acceptance, the amendments and the EPIC
+amendment on `main` in a specification-only commit, then implement S8
+directly on `main` (no risk path).
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md. S7's correction is implemented on main; record the human's visual check, then draft S8 only once the human authorizes it.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S8-step-controls.md. Freeze S8 once the human approves its draft, then implement it on main.
