@@ -1,6 +1,6 @@
 'use client';
 
-import type { MouseEvent, ReactNode, Ref } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 export type ButtonVariant = 'normal' | 'alternate';
 export type ButtonSize = 'normal' | 'large';
@@ -79,9 +79,6 @@ export function Button({
   children,
   'data-testid': dataTestId,
   'data-step-id': dataStepId,
-  'aria-expanded': ariaExpanded,
-  'aria-controls': ariaControls,
-  ref,
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -98,10 +95,6 @@ export function Button({
   'data-testid'?: string;
   /** Names a builder step (14-S4). */
   'data-step-id'?: string;
-  /** A disclosure's state, as play's Puzzle options (14-S7). */
-  'aria-expanded'?: boolean;
-  'aria-controls'?: string;
-  ref?: Ref<HTMLButtonElement>;
 }) {
   const numbered = number !== undefined;
   const buttonType =
@@ -120,7 +113,6 @@ export function Button({
 
   return (
     <button
-      ref={ref}
       type={type}
       form={form}
       data-testid={dataTestId}
@@ -128,8 +120,6 @@ export function Button({
       data-button-type={buttonType}
       aria-current={selected ? 'true' : undefined}
       data-done={done ? 'true' : undefined}
-      aria-expanded={ariaExpanded}
-      aria-controls={ariaControls}
       onClick={onClick}
       disabled={disabled}
       className={[

@@ -80,17 +80,6 @@ export async function loadPlayPuzzle(id: string): Promise<PlayPuzzleView | null>
   return playView(puzzle, session);
 }
 
-/** Whether the authenticated player built this published puzzle. Only
- *  chooses the quiet reset shortcut; reset permission never depends on it. */
-export async function isPlayPuzzleBuilder(id: string): Promise<boolean> {
-  const authSession = await requireSession();
-  const puzzle = await prisma.puzzle.findUnique({
-    where: { id, publishedAt: { not: null } },
-    select: { builderId: true },
-  });
-  return puzzle?.builderId === authSession.user.id;
-}
-
 export async function startPlaySession(id: string): Promise<PlayPuzzleView> {
   const authSession = await requireSession();
   const puzzle = await prisma.puzzle.findUnique({

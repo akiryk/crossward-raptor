@@ -7,8 +7,9 @@ button and its Reset dialog. Nothing else in the builder or play resets.
 
 **Status: approved and frozen** (2026-11-01). The human approved this
 specification, its acceptance, the retirements and the proposed
-Decisions on 2026-11-01. Frozen on `main` in a specification-only
-commit; implemented on `story/17-S3-no-reset-in-play`.
+Decisions on 2026-11-01. Frozen on `main` in ceba5ec (specification
+only); implemented on `story/17-S3-no-reset-in-play`, awaiting
+independent review of its PR.
 
 **Blast radius: small, but a risk path.** It removes play's Reset UI and
 the code only that UI used. Removing `isPlayPuzzleBuilder` touches
@@ -154,6 +155,14 @@ library's Reset) and `actions.play-reset.test.ts` (`resetPlaySession`).
   /style-guide renews …", which failed after 128ms and passed 8 of 8
   alone on the same tree. It's unrelated to Reset (the style guide has no
   Reset).
+
+### Implementation verification (2026-11-01, observed)
+
+On `story/17-S3-no-reset-in-play`, before commit, with the frozen
+acceptance unchanged from ceba5ec: `npm run verify` exit 0 (Vitest 620
+of 620; ESLint's one warning is in `request-logger/`, outside S3), and
+the full `npm run test:e2e` exit 0 (816 passed). The changed paths are
+exactly the six runtime paths below.
 
 ## Repo paths
 

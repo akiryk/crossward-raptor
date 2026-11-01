@@ -52,20 +52,24 @@ proposed acceptance `e2e/no-play-reset.spec.ts`, the amendments to
 and `e2e/play-reset-settling.spec.ts`. The human decided that Reset stays
 only in the library, on completed rows (recorded in the story and the
 EPIC). Approved 2026-11-01 with its proposed Decisions and frozen on
-`main` (specification only, with the two deletions). S3 touches `actions.ts`, so it is delivered by branch,
+`main` in ceba5ec (specification only, with the two deletions), then
+implemented on `story/17-S3-no-reset-in-play` and opened as a PR,
+awaiting independent review and merge. S3 touches `actions.ts`, so it is delivered by branch,
 PR and independent review.
 
 ## Verification
 
-S3's draft: the observed discrimination is in the story. Nothing has been
-implemented, so there is no implementation verification yet. Browser runs
+S3: the observed discrimination is in the story. On the story branch,
+precommit, frozen acceptance unchanged from ceba5ec: `npm run verify`
+exit 0 (Vitest 620/620) and full `npm run test:e2e` exit 0 (816 passed). Browser runs
 used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
 ## Next action
 
-Implement S3 on `story/17-S3-no-reset-in-play` and open a PR for
-independent review.
+Independently review S3's PR (`story/17-S3-no-reset-in-play`) per
+[REVIEW](../../process/REVIEW.md), and merge it if no blockers remain.
+The author does not merge it. Then update this handoff and mark S3 done.
 
 ## Resume prompt
 
