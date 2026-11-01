@@ -8,7 +8,7 @@ import {
 import { PuzzleGrid } from '@/components/grid/PuzzleGrid';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { arrowKey, deleteAt, moveTo, place, toggleOrientation, type CursorState } from '@/engine/cursor';
+import { deleteAt, place, type CursorState } from '@/engine/cursor';
 import type { Coord, Grid } from '@/engine/grid';
 import { slotsWithNumbers } from '@/engine/numbering';
 import { isFull } from '@/engine/play';
@@ -17,6 +17,7 @@ import { activeHintKey, buildSlotLookup } from '@/lib/hint-lookup';
 import { adjacentHintKey, hintOrder } from '@/lib/hint-order';
 import { keyToIntent } from '@/lib/keyboard-intent';
 import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
+import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from '@/lib/word-cursor';
 import { createPlayAutosave, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
 import { PlayerHints } from './PlayerHints';
@@ -28,7 +29,7 @@ const GRID_MAX_PX = 560;
 
 /**
  * Play opens on the first empty cell in reading order, or the first white
- * cell of a full grid (17-S2).
+ * cell of a full grid, Across or Down where it has no Across word (17-S2).
  */
 function openingCursor(grid: Grid): CursorState | null {
   let firstActive: Coord | null = null;
@@ -37,17 +38,10 @@ function openingCursor(grid: Grid): CursorState | null {
       const cell = grid.at(col, row);
       if (cell.kind !== 'active') continue;
       firstActive ??= { col, row };
-      if (cell.letter === null) return orient(grid, { col, row });
+      if (cell.letter === null) return wordStart(grid, { col, row });
     }
   }
-  return firstActive ? orient(grid, firstActive) : null;
-}
-
-/** Across, or Down where the cell has no Across word (17-S2). */
-function orient(grid: Grid, coord: Coord): CursorState {
-  const lookup = buildSlotLookup(grid);
-  const across = { current: coord, orientation: 'across' as const };
-  return activeHintKey(lookup, across) ? across : { current: coord, orientation: 'down' };
+  return firstActive ? wordStart(grid, firstActive) : null;
 }
 
 export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView }) {
@@ -194,9 +188,9 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
       changeEntries(result.grid);
       setCursor(result.cursor);
     } else if (intent.type === 'arrow') {
-      setCursor(arrowKey(grid, cursor, intent.direction));
+      setCursor(wordArrowKey(grid, cursor, intent.direction));
     } else {
-      setCursor(toggleOrientation(cursor));
+      setCursor(wordToggle(grid, cursor));
     }
   }
 
@@ -228,7 +222,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
     if (!editable || grid.at(coord.col, coord.row).kind !== 'active') return;
     gridRegion.current?.focus();
     setIsFocused(true);
-    setCursor(cursor ? moveTo(grid, cursor, coord) : { current: coord, orientation: 'across' });
+    setCursor(cursor ? wordMoveTo(grid, cursor, coord) : wordStart(grid, coord));
   }
 
   return (

@@ -8,7 +8,8 @@ highlighted. The build phase is unchanged.
 
 **Status: approved** by the human (2026-11-01), including the settled
 items, both pending questions as proposed and the two amendments; frozen
-on `main` (specification only).
+on `main` in 1269487 (specification only). Implemented and delivered on
+`main` (2026-11-01).
 
 **Blast radius: small.** One new pure helper in `src/lib/`, the hints
 phase's cursor in `PuzzleGridEditor` and play's cursor in `PlayPuzzle`.

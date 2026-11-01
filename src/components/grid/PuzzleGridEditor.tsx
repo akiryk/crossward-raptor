@@ -26,6 +26,7 @@ import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-loo
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
 import { publishReadiness } from "../../lib/publish-readiness";
+import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from "../../lib/word-cursor";
 import {
   saveGrid,
   saveHints,
@@ -72,6 +73,13 @@ function firstActiveCell(grid: Grid): Coord {
   throw new Error("firstActiveCell: grid has no active cells");
 }
 
+// The first white cell, Across; in the hints phase Down where it has no
+// Across word, as play opens (17-S6).
+function startCursor(grid: Grid, phase: Phase): CursorState {
+  const current = firstActiveCell(grid);
+  return phase === "hints" ? wordStart(grid, current) : { current, orientation: "across" };
+}
+
 export function PuzzleGridEditor({
   puzzleId,
   initialGrid,
@@ -93,7 +101,7 @@ export function PuzzleGridEditor({
     const grid = deserializeGrid(initialGrid);
     return {
       grid,
-      cursor: { current: firstActiveCell(grid), orientation: "across" },
+      cursor: startCursor(grid, initialPhase),
       phase: initialPhase,
       hints: initialHints,
       title: initialTitle,
@@ -254,13 +262,20 @@ export function PuzzleGridEditor({
         const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
         return { ...prev, grid, cursor };
       }
+      // The hints phase turns the cursor only onto a word (17-S6); the
+      // build phase's words are still being made.
       if (intent.type === "arrow") {
         return {
           ...prev,
-          cursor: arrowKey(prev.grid, prev.cursor, intent.direction),
+          cursor: prev.phase === "hints"
+            ? wordArrowKey(prev.grid, prev.cursor, intent.direction)
+            : arrowKey(prev.grid, prev.cursor, intent.direction),
         };
       }
-      return { ...prev, cursor: toggleOrientation(prev.cursor) };
+      return {
+        ...prev,
+        cursor: prev.phase === "hints" ? wordToggle(prev.grid, prev.cursor) : toggleOrientation(prev.cursor),
+      };
     });
   }
 
@@ -311,7 +326,9 @@ export function PuzzleGridEditor({
     gridRegionRef.current?.focus();
     setState((prev) => ({
       ...prev,
-      cursor: moveTo(prev.grid, prev.cursor, coord),
+      cursor: prev.phase === "hints"
+        ? wordMoveTo(prev.grid, prev.cursor, coord)
+        : moveTo(prev.grid, prev.cursor, coord),
     }));
   }
 
@@ -384,12 +401,12 @@ export function PuzzleGridEditor({
     flushPendingSaves()
       .then(() => enterHints(puzzleId))
       .then(({ phase, hints, grid }) => {
-        setState((prev) => ({
-          ...prev,
-          phase,
-          hints,
-          grid: deserializeGrid(grid),
-        }));
+        // The cursor starts over by the hints phase's rule: the conversion
+        // may have turned its cell black (17-S6).
+        setState((prev) => {
+          const next = deserializeGrid(grid);
+          return { ...prev, phase, hints, grid: next, cursor: startCursor(next, phase) };
+        });
       })
       .catch((error) => {
         console.error("Failed to enter hints phase", error);

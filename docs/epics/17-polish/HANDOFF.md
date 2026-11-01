@@ -72,27 +72,32 @@ and its proposed small calls. Frozen on `main` in 5924598
 (specification only); the implementation was delivered directly on
 `main` (no risk path).
 
-**S6 is approved** (2026-11-01): the human approved
+**S6 is done** (2026-11-01): the human approved
 [17-S6-only-real-words.md](stories/17-S6-only-real-words.md), its
 acceptance `e2e/real-words.spec.ts`, the amendments to
 `e2e/hint-box.spec.ts` (15-S4-6) and `e2e/play-entries.spec.ts` (P2
 Backspace), and both pending questions as proposed. Frozen on `main` in
-a specification-only commit; implementation in progress on `main` (no
-risk path).
+1269487 (specification only); the implementation (`src/lib/word-cursor.ts`,
+used by the hints phase in `PuzzleGridEditor` and by `PlayPuzzle`) was
+delivered directly on `main` (no risk path).
 
 ## Verification
 
-S5, on the implementation (precommit tree, committed unchanged), frozen
-acceptance unchanged from 5924598: `npm run verify` exit 0 (Vitest
-620/620) and full `npm run test:e2e` exit 0 (836 passed). Browser runs
-used the guarded harness under the standing reset grant
+S6, on the implementation (precommit tree, committed unchanged), frozen
+acceptance unchanged from 1269487: `npm run verify` exit 0 (Vitest
+626/626) and full `npm run test:e2e` exit 0 (848 passed). An earlier
+full run had one transient failure (16-S1-1, `ECONNRESET` on
+`/api/auth/get-session`), which passed in isolation and on the rerun.
+Browser runs used the guarded harness under the standing reset grant
 ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
 
 ## Next action
 
-Implement S6 on `main` against the frozen acceptance, then run
-`npm run verify` and the full `npm run test:e2e`.
+Draft S7, Larger grid (EPIC "S7 — Larger grid"), per
+[STORY](../../process/STORY.md): the specification and proposed
+acceptance, for the human's approval. Nothing is implemented or frozen
+before that approval.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S6-only-real-words.md. Once the human has approved the S6 draft, freeze it and implement S6 on main; otherwise stop for that approval.
+Read docs/epics/17-polish/HANDOFF.md and the "S7 — Larger grid" section of docs/epics/17-polish/EPIC.md. Draft the S7 story specification and proposed acceptance on main; stop for the human's approval before freezing or implementing.
