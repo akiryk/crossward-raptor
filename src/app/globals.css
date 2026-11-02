@@ -25,6 +25,8 @@
   --palette-blue-dull: #cadae2;
   --palette-cyan: #00f0ff;
   --palette-pink: #ffe4e2;
+  --palette-green-faint: #f0f5e5;
+  --palette-green-faint-hover: #eaf0db;
 }
 
 /* --- color styles (Story F1) --- */
@@ -87,6 +89,9 @@
   --color-button-alternate-hover: var(--palette-gray-500);
   --color-puzzle-row: var(--palette-interactive-faint);
   --color-puzzle-row-hover: var(--palette-interactive-faint-hover);
+  /* the play rows (Story 18-S2) */
+  --color-puzzle-row-play: var(--palette-green-faint);
+  --color-puzzle-row-play-hover: var(--palette-green-faint-hover);
   /* the builder's toggle row (Story 17-S8) */
   --color-toggle-row: var(--palette-interactive-faint);
   --color-modal-background: var(--palette-white);

@@ -6,11 +6,12 @@ Two new palette variables, `green-faint` (#F0F5E5) and
 `puzzle-row-hover`. All four appear in the style guide's catalog. No
 component uses the styles yet; S3's green play rows are their first user.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02). Drafted under the
 orchestration the human delegated on 2026-11-02 (see the
 [handoff](../HANDOFF.md)). An independent specification review approved
 it (three wording nits, applied); the orchestrator froze it on `main` in
-a specification-only commit under that delegation.
+specification-only commit `38090fe` under that delegation, then it was
+implemented and delivered on `main`.
 
 **Blast radius: small.** Two palette variables and two color styles in
 `globals.css`, and four catalog rows in `ColorSwatches.tsx`. No component,
@@ -134,6 +135,15 @@ assertion changes.
 - **Mutation on the throwaway:** `puzzle-row-play-hover` pointed at
   `green-faint`: `two-greens.spec.ts` 3 failed (18-S2-2's three cases),
   2 passed (18-S2-1 and setup).
+
+### Implementation (2026-11-02, observed)
+
+Runtime is `globals.css` and `ColorSwatches.tsx` only, the drafting
+throwaway re-applied unchanged (it matches the Decisions and Delegated
+decisions). Frozen acceptance is unchanged from `38090fe`; no CODE-REVIEW
+risk path in the actual diff. `npm run verify` exit 0 (Vitest 641 of
+641). Full `npm run test:e2e` exit 0, 918 passed, 0 failed, under the
+guarded harness's standing reset grant.
 
 ## Repo paths
 

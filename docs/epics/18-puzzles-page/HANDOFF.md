@@ -25,24 +25,25 @@ blockers, or unsafe operations. Run the closeout audit at the end, then
 hand back to me for verification." Each story records its delegated
 decisions under "Delegated decisions" for the human's end-of-epic review.
 
-**S2 approved and frozen** under the delegation:
+**S2 done and delivered on `main`** under the delegation:
 [18-S2-two-greens](stories/18-S2-two-greens.md), acceptance
 `e2e/two-greens.spec.ts` plus additive amendments to
 `src/app/globals-css.test.ts` and `e2e/color-tokens.spec.ts`. An
-independent specification review approved it (wording nits applied).
-Implementation in progress on `main`.
+independent specification review approved it (wording nits applied);
+frozen in specification-only commit `38090fe`, then implemented
+(`globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk path.
 
 ## Verification
 
-On the S1 implementation tree: `npm run verify` exit 0 (Vitest 641 of
-641); full `npm run test:e2e` exit 0, 914 passed, under the standing
-reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-Frozen acceptance unchanged from `1acb507`.
+On the S2 implementation tree: `npm run verify` exit 0 (Vitest 641 of
+641); full `npm run test:e2e` exit 0, 918 passed, 0 failed, under the
+standing reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
+Frozen acceptance unchanged from `38090fe`.
 
 ## Next action
 
-Orchestrator: implement and deliver S2 on `main`; then S3, S4 and the
-closeout audit.
+Orchestrator: draft S3 (status icons and green play rows), have it
+reviewed, freeze and deliver it; then S4 and the closeout audit.
 
 ## Resume prompt
 
