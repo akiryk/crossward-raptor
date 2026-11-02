@@ -64,8 +64,14 @@ Frozen acceptance unchanged from `8a49994`.
 
 ## Next action
 
-Orchestrator: run the independent closeout audit (docs/process/AUDIT.md, docs/epics/README.md#close-an-epic), record it, then hand back to the human for verification.
+All four stories are delivered on `main`. Orchestrator: have a separate
+agent, which authored none of the epic, run the report-only closeout
+audit ([AUDIT](../../process/AUDIT.md),
+[close an epic](../README.md#close-an-epic)). Record its date, coverage,
+findings and dispositions here, and resolve any blockers through scoped
+work. Then hand back to the human with each story's "Delegated
+decisions" collected for their review and end-of-epic verification.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md and docs/epics/18-puzzles-page/EPIC.md. Orchestrate Epic 18's remaining stories end to end on main under the delegation recorded in the handoff, then run the closeout audit and hand back to the human for verification.
+Read docs/epics/18-puzzles-page/HANDOFF.md. As orchestrator under the delegation recorded there, obtain Epic 18's independent closeout audit from a separate agent on main, record and resolve it, then hand back to the human for verification.
