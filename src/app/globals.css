@@ -108,6 +108,11 @@
   --radius-modal: 10px;
 }
 
+/* --- shadow (Story 17-S10) --- */
+@theme static {
+  --shadow-rebus-cell: 0 4px 4px 0 color-mix(in srgb, var(--palette-black) 25%, transparent);
+}
+
 /* --- text styles (Story F2) --- */
 /* Each style's size, weight and line height; `text-<name>` applies all
    three. Line heights are defaults, tuned later. static: emitted whether or

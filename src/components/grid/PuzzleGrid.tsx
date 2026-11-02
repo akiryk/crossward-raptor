@@ -10,6 +10,9 @@ import {
   type GridMode,
 } from '../../lib/cell-appearance';
 import { GridCell } from './GridCell';
+import { RebusEntry, type RebusEntryProps } from './RebusEntry';
+
+const ON_BG = { build: 'bg-build-cell-on', preview: 'bg-preview-cell-on', hints: 'bg-hint-cell-on', 'hints-locked': 'bg-hint-cell-on', play: 'bg-play-cell-on' } as const;
 
 // The cell wrapper -- not GridCell's inner leaf -- carries each mode's
 // background, since it's what the hairline technique's gap/padding
@@ -111,7 +114,9 @@ export function PuzzleGrid({
   isGridFocused = false,
   isLettersLocked = false,
   onCellClick,
+  rebus,
 }: {
+  rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
@@ -175,7 +180,7 @@ export function PuzzleGrid({
           data-selected={highlight === 'selected' ? 'true' : undefined}
           data-highlight={highlight}
           data-cell-state={appearance}
-          className={
+          className={(rebus && rebus.coord.col === col && rebus.coord.row === row ? 'relative ' : '') + (
             gridMode === 'hints' && highlight && cell.kind === 'active'
               ? hintsHighlightBg(highlight, isGridFocused)
               : gridMode === 'hints-locked' && highlight && cell.kind === 'active'
@@ -184,7 +189,7 @@ export function PuzzleGrid({
                   ? PLAY_HIGHLIGHT_BG[highlight]
                   : gridMode === 'preview' && highlight && cell.kind === 'active'
                     ? PREVIEW_HIGHLIGHT_BG[highlight]
-                    : modeBg[appearance]
+                    : modeBg[appearance] ?? '')
           }
         >
           <GridCell
@@ -192,6 +197,9 @@ export function PuzzleGrid({
             number={number}
             onClick={onCellClick ? () => onCellClick({ col, row }) : undefined}
           />
+          {rebus && rebus.coord.col === col && rebus.coord.row === row && (
+            <RebusEntry value={rebus.value} onChange={rebus.onChange} onClose={rebus.onClose} bg={ON_BG[gridMode]} />
+          )}
         </div>
       );
     }

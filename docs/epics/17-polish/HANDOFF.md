@@ -5,7 +5,7 @@
 1. This handoff; AGENTS only if not already supplied.
 2. The [EPIC](EPIC.md).
 
-## Current state (2026-11-01)
+## Current state (2026-11-02)
 
 **The EPIC is approved** (by the human, 2026-10-27). It was drafted on
 `main` from the human's list of design and UX issues and a Rebus mockup of
@@ -131,24 +131,40 @@ should-fix items and nits were addressed and re-checked) and frozen on
 directly on `main` the same day (no risk path); the human's visual check
 of them is pending.
 
-**S10 is approved and frozen** (2026-11-02): the human approved
-[17-S10-rebus.md](stories/17-S10-rebus.md), its acceptance
-`e2e/rebus.spec.ts` and `src/lib/rebus-entry.test.ts` (new), the
-amendment to `e2e/play-entries.spec.ts` (P2: Escape is no longer an
+**S10 is implemented** (2026-11-02), pending the human's visual check:
+the human approved [17-S10-rebus.md](stories/17-S10-rebus.md), its
+acceptance `e2e/rebus.spec.ts` and `src/lib/rebus-entry.test.ts` (new),
+the amendment to `e2e/play-entries.spec.ts` (P2: Escape is no longer an
 unsupported key), and both pending questions as proposed (play's pill;
 leaving an entry places it without advancing). At approval the human added
 a minimum size for a placed rebus (a third of the letter size, then
-centered and cut off), recorded in the story with case 17-S10-12, which
-fails on `main` as expected (observed 2026-11-02). Frozen on `main` in a
-specification-only commit; implementation follows directly on `main` (no
-risk path).
+centered and cut off), case 17-S10-12. Frozen on `main` in 8c7dd39
+(specification only). 17-S10-12's string was then corrected with the
+human's approval and an independent review (approved): "ABCDEFGHIJ" just
+fits a 15×15 cell at the minimum, so it became ten W's, in 6c24efc
+(specification only). The implementation was delivered directly on
+`main` (no risk path).
+
+**Scope addition:** `src/components/ui/WrappingField.tsx` now sizes with
+CSS `field-sizing: content` where supported (its measured height stays
+the fallback). Its ResizeObserver fitted the title one frame after a
+width change, so 17-S10-5, measuring right after narrowing, intermittently
+saw the toggle row 30px low (1 in 5 runs under parallel load).
+
+**The human's visual check is pending** for S10 at desktop sizes and on a
+phone or tablet (the pill opening the on-screen keyboard), and still for
+S9's correction. A "CHEESE" typed while the drafting throwaway was applied
+now shows the rule: shrunk to fit its cell.
 
 ## Verification
 
-S10 drafting (uncommitted; throwaway reverted, patch at
-`/tmp/s10/throwaway.patch`): `main` with the proposed tests failed all 12
-browser runs; with the throwaway, `npm run verify` exit 0 (Vitest
-640/640) and full `npm run test:e2e` exit 0 (909 passed).
+S10 implementation (precommit tree, committed unchanged; frozen
+acceptance unchanged from 6c24efc): `npm run verify` exit 0 (Vitest
+640/640) and full `npm run test:e2e` exit 0 (912 passed, which included
+a since-deleted local debug spec; the 911 committed cases all passed). An earlier full
+run's one failure was a server connection reset (`ECONNRESET`) in
+library-play P5, unrelated. Drafting: `main` failed all browser cases,
+17-S10-12 included (observed 2026-11-02).
 
 S9 and S1 corrections (precommit tree, committed unchanged; frozen
 acceptance unchanged from 9845001): `npm run verify` exit 0 (Vitest
@@ -172,9 +188,10 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Implement S10 on `main` against its frozen acceptance. The human's visual
-check of S9's correction is still pending.
+The human's visual checks of S10 and S9's correction. Every story is then
+done, and the epic's independent, report-only closeout audit follows
+([Close an epic](../README.md#close-an-epic)).
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S10-rebus.md. Record the human's approval and answers, freeze S10 on main and implement it on main; stop if it isn't approved.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/EPIC.md. Run the independent, report-only closeout audit of epic 17 on main once the human's visual checks are recorded there; do not edit files.

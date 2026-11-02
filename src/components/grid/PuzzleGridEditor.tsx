@@ -48,6 +48,8 @@ import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 import { PlayerHints } from "../play/PlayerHints";
 import { slotsWithNumbers } from "../../engine/numbering";
+import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
+import { RebusControl } from "./RebusControl";
 
 const SAVE_DEBOUNCE_MS = 500;
 // Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
@@ -174,6 +176,8 @@ export function PuzzleGridEditor({
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   // The hints 3 Publish found blank, each until its text next changes
   // (17-S1). Not persisted.
+  const [rebusValue, setRebusValue] = useState<string | null>(null);
+  const rebusOpenRef = useRef(false);
   const [missingKeys, setMissingKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -236,7 +240,41 @@ export function PuzzleGridEditor({
     setIsReady(true);
   }, [initialPhase]);
 
+  function canRebus() {
+    return state.publishedAt === null && !isLettersLocked && !(isPreviewing && isPreviewCursorHidden);
+  }
+
+  function openRebus() {
+    if (!canRebus()) return;
+    const { col, row } = state.cursor.current;
+    const cell = state.grid.at(col, row);
+    rebusOpenRef.current = true;
+    setRebusValue(cell.kind === "active" ? cell.letter ?? "" : "");
+  }
+
+  function closeRebusEntry(advance: boolean) {
+    if (!rebusOpenRef.current) return;
+    rebusOpenRef.current = false;
+    const text = rebusValue ?? "";
+    setRebusValue(null);
+    setState((prev) => {
+      const canClear = prev.phase !== "hints";
+      const result = closeRebus(prev.grid, prev.cursor, text, { advance, canClear });
+      if (!isPreviewing) return { ...prev, grid: result.grid, cursor: result.cursor };
+      const shown = closeRebus(intendedGeometry(prev.grid), prev.cursor, text, { advance, canClear });
+      return { ...prev, grid: result.grid, cursor: shown.cursor };
+    });
+    if (advance) gridRegionRef.current?.focus({ preventScroll: true });
+  }
+
   function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (rebusValue === null && rebusIntent(event.key, false) === "open") {
+      if (canRebus()) {
+        event.preventDefault();
+        openRebus();
+      }
+      return;
+    }
     const intent = keyToIntent(event.key);
     if (!intent || isLettersLocked) return;
     event.preventDefault();
@@ -542,6 +580,14 @@ export function PuzzleGridEditor({
                   onToggle={() => setIsLettersLocked((prev) => !prev)}
                 />
               )}
+              {!isPublished && (
+                <RebusControl
+                  variant="link"
+                  isOpen={rebusValue !== null}
+                  disabled={phase === "hints" && isLettersLocked}
+                  onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
+                />
+              )}
             </ToggleRow>
             {/* Wide only, Preview Hints has its own panel over the hints
                 list, on the toggle row's line (17-S9). */}
@@ -606,6 +652,12 @@ export function PuzzleGridEditor({
                 isGridFocused={isGridFocused}
                 isLettersLocked={phase === "hints" && isLettersLocked}
                 onCellClick={handleCellClick}
+                rebus={rebusValue === null ? undefined : {
+                  coord: cursor.current,
+                  value: rebusValue,
+                  onChange: setRebusValue,
+                  onClose: closeRebusEntry,
+                }}
               />
             </div>
             {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}

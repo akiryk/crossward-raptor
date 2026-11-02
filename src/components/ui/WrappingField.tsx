@@ -3,6 +3,11 @@
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import type { ComponentPropsWithoutRef, Ref } from 'react';
 
+// Where the browser sizes a field to its content itself, it does so as it
+// lays the page out, so a new width never shows a stale height for a frame
+// (found by 17-S10-5). Elsewhere the field is measured below.
+const SIZES_TO_CONTENT = typeof CSS !== 'undefined' && CSS.supports('field-sizing', 'content');
+
 /** One line of text that wraps onto as many lines as it needs, the field
  *  growing with it (15-S6): the editor's title and the hint fields. Enter
  *  adds no line break and a pasted one becomes a space. */
@@ -31,7 +36,7 @@ export function WrappingField({
   // then set to the scroll height plus its borders.
   const fit = useCallback(() => {
     const el = own.current;
-    if (!el) return;
+    if (!el || SIZES_TO_CONTENT) return;
     const style = getComputedStyle(el);
     const borders = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
     el.style.height = 'auto';
@@ -72,7 +77,7 @@ export function WrappingField({
         if (event.key === 'Enter') event.preventDefault();
         props.onKeyDown?.(event);
       }}
-      className={`block resize-none overflow-hidden ${props.className ?? ''}`}
+      className={`block resize-none overflow-hidden [field-sizing:content] ${props.className ?? ''}`}
     />
   );
 }

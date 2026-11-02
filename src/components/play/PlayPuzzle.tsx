@@ -18,6 +18,8 @@ import { adjacentHintKey, hintOrder } from '@/lib/hint-order';
 import { keyToIntent } from '@/lib/keyboard-intent';
 import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
 import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from '@/lib/word-cursor';
+import { RebusControl } from '@/components/grid/RebusControl';
+import { closeRebus, rebusIntent } from '@/lib/rebus-entry';
 import { createPlayAutosave, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
 import { PlayerHints } from './PlayerHints';
@@ -58,6 +60,8 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   const [dialog, setDialog] = useState<'incorrect' | 'complete' | null>(null);
   const [celebrating, setCelebrating] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  const [rebusValue, setRebusValue] = useState<string | null>(null);
+  const rebusOpenRef = useRef(false);
   const gridRegion = useRef<HTMLDivElement>(null);
   const autosave = useRef<ReturnType<typeof createPlayAutosave> | null>(null);
   // Identifies the mounted start run; late results of a replaced run are ignored.
@@ -176,9 +180,33 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
     if (autosave.current?.change(entries)) setPuzzle({ ...puzzle, entries });
   }
 
+  function openRebus() {
+    if (!editable || !cursor) return;
+    const cell = grid.at(cursor.current.col, cursor.current.row);
+    rebusOpenRef.current = true;
+    setRebusValue(cell.kind === 'active' ? cell.letter ?? '' : '');
+  }
+
+  function closeRebusEntry(advance: boolean) {
+    if (!rebusOpenRef.current) return;
+    rebusOpenRef.current = false;
+    const text = rebusValue ?? '';
+    setRebusValue(null);
+    if (!cursor) return;
+    const result = closeRebus(grid, cursor, text, { advance, canClear: true });
+    if (result.grid !== grid) changeEntries(result.grid);
+    setCursor(result.cursor);
+    if (advance) gridRegion.current?.focus({ preventScroll: true });
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!editable || !isFocused || !cursor || event.ctrlKey || event.metaKey || event.altKey
       || event.nativeEvent.isComposing) return;
+    if (rebusValue === null && rebusIntent(event.key, false) === 'open') {
+      event.preventDefault();
+      openRebus();
+      return;
+    }
     const intent = keyToIntent(event.key);
     if (!intent) return;
     event.preventDefault();
@@ -329,7 +357,15 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
           >
-            <PuzzleGrid grid={grid} mode="play" highlights={highlights} onCellClick={handleCellClick} />
+            <PuzzleGrid
+              grid={grid}
+              mode="play"
+              highlights={highlights}
+              onCellClick={handleCellClick}
+              rebus={rebusValue === null || !cursor ? undefined : {
+                coord: cursor.current, value: rebusValue, onChange: setRebusValue, onClose: closeRebusEntry,
+              }}
+            />
           </div>
           {/* Beside the grid, the lists scroll in their own box at the grid's
               height (15-S1): a zero height grown to the row's keeps them from
@@ -340,12 +376,20 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           >
             <PlayerHints slots={slots} hints={view.hints} selectedKey={selectedKey} onSelect={handleHintClick} />
           </div>
+          <div className="hidden @min-[1382px]/play:col-start-2 @min-[1382px]/play:row-start-1 @min-[1382px]/play:flex @min-[1382px]/play:items-center">
+            <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
+              onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
+          </div>
           <div className="@min-[1382px]/play:hidden">
             <PlayHintBar
               hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               disabled={!editable}
               onStep={handleStep}
             />
+            <div className="mt-3 flex justify-end">
+              <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
+                onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
+            </div>
           </div>
         </div>
       </div>
