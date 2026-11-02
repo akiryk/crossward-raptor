@@ -612,7 +612,9 @@ test.describe('17-S10 Rebus', () => {
 
     test(`17-S10-12 a rebus too long to fit stops at a third of the letter size, centered and cut off (${size}×${size})`, async ({ page }) => {
       let grid = createGrid({ cols: size, rows: size });
-      grid = withLetter(grid, { col: 0, row: 0 }, 'ABCDEFGHIJ');
+      // Wide letters, so ten overflow even the 15×15's cell at the minimum
+      // size (corrected 2026-11-02: "ABCDEFGHIJ" just fits it there).
+      grid = withLetter(grid, { col: 0, row: 0 }, 'WWWWWWWWWW');
       grid = withLetter(grid, { col: 1, row: 0 }, 'A');
       const id = await seedBuilder(grid, 'grid');
       await openBuilder(page, id);
@@ -620,7 +622,7 @@ test.describe('17-S10 Rebus', () => {
 
       const rebus = await placedText(page, '0,0');
       const single = await placedText(page, '1,0');
-      expect(rebus.text).toBe('ABCDEFGHIJ');
+      expect(rebus.text).toBe('WWWWWWWWWW');
       expect(rebus.lines, 'one line').toBe(1);
       expectNear(rebus.fontSize, single.fontSize / 3, 0.5, 'a third of the letter size');
       expect(rebus.rect.right - rebus.rect.left, 'wider than the cell').toBeGreaterThan(rebus.cell.right - rebus.cell.left);

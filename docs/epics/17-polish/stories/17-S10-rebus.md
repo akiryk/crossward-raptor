@@ -270,8 +270,8 @@ case says otherwise.
     numbered cell is on one line, smaller than a single letter, inside
     the cell and clear of its number. On the 15×15, "OW" keeps the letter
     size.
-12. **17-S10-12 a rebus too long to fit** (15×15 and 21×21): ten
-    characters in a numbered cell are on one line at a third of a single
+12. **17-S10-12 a rebus too long to fit** (15×15 and 21×21): ten W's
+    in a numbered cell are on one line at a third of a single
     letter's size (±0.5px), wider than the cell, centered on it (±1px),
     cut off by an element inside the cell (overflow hidden or clip), inside
     the cell vertically and below its number.
@@ -334,6 +334,14 @@ Tab would then place it and send a save.
   `npm run verify` exit 0 (Vitest 640/640) and the full
   `npm run test:e2e` exit 0 (909 passed), the amended P2 case included.
   No other frozen test needed amending.
+
+### Correction (2026-11-02, approved by the human)
+
+17-S10-12 first used "ABCDEFGHIJ", which at the minimum size (44.9px)
+just fits the 15×15's 45.6px cell, so it couldn't show the cut-off there
+and failed against a correct implementation. It now uses ten W's, wide
+enough to overflow both grids; every assertion is unchanged. Corrected in
+its own specification-only commit before implementation continued.
 
 ## Repo paths
 
