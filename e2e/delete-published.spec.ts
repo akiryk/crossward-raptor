@@ -136,12 +136,6 @@ async function library(page: Page) {
   await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
 }
 
-async function showView(page: Page, view: 'Build' | 'Play') {
-  const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
-  await option.check();
-  await expect(option).toBeChecked();
-}
-
 const trigger = (item: Locator) => item.getByTestId('puzzle-menu-button');
 const menu = (page: Page) => page.getByTestId('puzzle-menu');
 const dialog = (page: Page) => page.getByTestId('puzzle-delete-dialog');
@@ -215,11 +209,11 @@ test.describe('16-S3-1 Delete on published rows', () => {
   test('the menu offers Delete after the visibility item on published rows, and after Duplicate on unpublished ones', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
-      // 16-S4: every row offers Duplicate first.
+      // 16-S4: every row offers Duplicate first. 18-S4: published rows add Open in builder.
       ['grid', ['Duplicate', 'Delete']],
       ['hints', ['Duplicate', 'Delete']],
-      ['private published', ['Duplicate', 'Make public', 'Delete']],
-      ['public published', ['Duplicate', 'Make unlisted', 'Delete']],
+      ['private published', ['Duplicate', 'Open in builder', 'Make public', 'Delete']],
+      ['public published', ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
     ] as const) {
       const fixture = await seedOwn(me, state);
       await library(page);
@@ -286,7 +280,7 @@ test.describe('16-S3-3 declining', () => {
 });
 
 test.describe('16-S3-4 confirming', () => {
-  test('deletes the published puzzle and every session for it, in place, and it leaves both views', async ({ page }) => {
+  test('deletes the published puzzle and every session for it, in place, and it leaves the list', async ({ page }) => {
     const me = await currentBuilderId(page);
     const doomed = await seedPlayPuzzle({ builderId: me, visibility: 'public' });
     const kept = await seedPlayPuzzle({ builderId: me, visibility: 'public' });
@@ -311,7 +305,7 @@ test.describe('16-S3-4 confirming', () => {
     expect(await readPlayPuzzle(kept.id)).toEqual(keptBefore.puzzle);
     expect(await readPlaySessions(kept.id)).toEqual(keptBefore.sessions);
 
-    await showView(page, 'Play');
+    // 18-S4: one list, so no Play view to choose.
     await expect(row(page, kept.title)).toHaveCount(1);
     await expect(row(page, doomed.title)).toHaveCount(0);
     expect(await page.evaluate(() => (window as unknown as { s3Marker?: boolean }).s3Marker), 'no reload').toBe(true);
@@ -421,8 +415,7 @@ test.describe('16-S3-6 a player mid-solve', () => {
       await expect(player.getByTestId('puzzle-not-found')).toBeVisible();
       await expect(player.getByTestId('puzzle-not-found').getByRole('heading', { level: 1 })).toHaveText(GONE);
 
-      await library(player);
-      await showView(player, 'Play');
+      await library(player); // 18-S4: one list, so no Play view to choose.
       await expect(row(player, fixture.title)).toHaveCount(0);
     });
   });

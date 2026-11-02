@@ -99,12 +99,6 @@ async function library(page: Page) {
   await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
 }
 
-async function showView(page: Page, view: 'Build' | 'Play') {
-  const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
-  await option.check();
-  await expect(option).toBeChecked();
-}
-
 /** The row whose title is exactly `title`: a copy's title contains its source's. */
 function row(page: Page, title: string) {
   return page.getByTestId('puzzle-list-item')
@@ -155,13 +149,14 @@ async function expectCopyOf(copyId: string, source: Awaited<ReturnType<typeof re
 }
 
 test.describe('16-S4-1 what the menu offers', () => {
-  test('Duplicate first on every Build row, then the visibility item on published rows, then Delete', async ({ page }) => {
+  // 18-S4: published rows add Open in builder after Duplicate.
+  test('Duplicate first on every own row, then Open in builder and the visibility item on published rows, then Delete', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
       ['grid', ['Duplicate', 'Delete']],
       ['hints', ['Duplicate', 'Delete']],
-      ['private published', ['Duplicate', 'Make public', 'Delete']],
-      ['public published', ['Duplicate', 'Make unlisted', 'Delete']],
+      ['private published', ['Duplicate', 'Open in builder', 'Make public', 'Delete']],
+      ['public published', ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
     ] as const) {
       const source = await seedSource(me, state);
       await library(page);
@@ -214,9 +209,9 @@ test.describe('16-S4-2 duplicating a published puzzle', () => {
     await expect(row(page, `${source.title} (copy)`)).toHaveAttribute('data-published', 'false');
     await expect(row(page, source.title).getByTestId('puzzle-status')).toHaveText('Ready to play');
     await expect(row(page, source.title)).toHaveAttribute('data-visibility', 'public');
-    await showView(page, 'Play');
-    await expect(row(page, source.title)).toHaveCount(1);
-    await expect(row(page, `${source.title} (copy)`), 'an unpublished copy is not in Play').toHaveCount(0);
+    // 18-S4: one list; the unpublished copy links to the editor, the source to play.
+    await expect(row(page, `${source.title} (copy)`).getByTestId('puzzle-play-link'), 'an unpublished copy is not playable').toHaveCount(0);
+    await expect(row(page, source.title).getByTestId('puzzle-play-link')).toHaveCount(1);
   });
 });
 

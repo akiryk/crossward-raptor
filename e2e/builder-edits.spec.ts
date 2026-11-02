@@ -10,6 +10,9 @@ const states: BuilderEditState[] = ['grid', 'hints', 'private published', 'publi
 // 14-S2: Build lists only the caller's puzzles, each opening the editor; Play
 // lists published puzzles with Play and never the editor. Foreign drafts
 // are in neither view. 16-S1: nor is an unplayed foreign unlisted puzzle in Play.
+// 18-S4: one list replaces the views. The caller's drafts open the editor;
+// every published row offers Play and never links to the editor, which the
+// caller's own published rows reach from their menu instead.
 test('O3 the library gives only owners Edit, and foreign published puzzles only Play, across reloads', async ({ page }) => {
   const own = await currentBuilderId(page);
   const other = await seedOtherBuilder();
@@ -20,19 +23,14 @@ test('O3 the library gives only owners Edit, and foreign published puzzles only 
       fixtures.push({ ...await seedBuilderEditPuzzle(name, builder, state), name, builder, state });
     }
   }
-  const showView = async (view: 'Build' | 'Play') => {
-    const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
-    await option.check();
-    await expect(option).toBeChecked();
-  };
   await page.goto('/puzzles');
   for (let visit = 0; visit < 2; visit++) {
     if (visit) await page.reload();
     await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
-    await showView('Build');
     for (const fixture of fixtures) {
       const row = item(page, fixture.name);
-      if (fixture.builder !== own) {
+      const published = fixture.state.includes('published');
+      if (fixture.builder !== own && (!published || fixture.state === 'private published')) {
         await expect(row).toHaveCount(0);
         continue;
       }
@@ -40,20 +38,14 @@ test('O3 the library gives only owners Edit, and foreign published puzzles only 
       await expect(row.getByTestId('puzzle-list-title')).toHaveText(fixture.name);
       await expect(row.getByTestId('puzzle-icon')).toBeVisible(); // 18-S3: the status icon replaces the marker
       await expect(row.getByTestId('puzzle-list-updated')).toBeVisible();
-      await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
-      await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();
-    }
-    await showView('Play');
-    for (const fixture of fixtures) {
-      const row = item(page, fixture.name);
-      if (!fixture.state.includes('published') || (fixture.builder !== own && fixture.state === 'private published')) {
-        await expect(row).toHaveCount(0);
+      await expect(row.getByTestId('puzzle-menu-button')).toHaveCount(fixture.builder === own ? 1 : 0);
+      if (!published) {
+        await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
+        await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();
         continue;
       }
-      await expect(row).toBeVisible();
-      await expect(row.getByTestId('puzzle-list-title')).toHaveText(fixture.name);
       await expect(row.getByTestId('puzzle-play-link')).toHaveAttribute('href', `/puzzles/${fixture.id}/play`);
-      // P5 correction: a published row in Play offers Play, never the editor.
+      // P5 correction: a published row offers Play, never the editor.
       await expect(row.getByTestId('puzzle-edit-link')).toHaveCount(0);
       const paths = await row.locator('a[href]').evaluateAll((links) =>
         links.map((link) => new URL((link as HTMLAnchorElement).href).pathname.replace(/\/$/, '')));
@@ -94,10 +86,15 @@ test('O3 own editing persists through the real editor', async ({ page }) => {
 
 // 14-S4: publishing is final, so the published puzzle opens locked with
 // "Published" and no Unpublish, rather than being unpublished and edited.
+// 18-S4: its row links to play; the row menu's Open in builder opens it.
 test('O3 an own published puzzle opens locked, with no Unpublish', async ({ page }) => {
-  const { id } = await seedBuilderEditPuzzle(title('owned published'), await currentBuilderId(page), 'public published');
+  const name = title('owned published');
+  const { id } = await seedBuilderEditPuzzle(name, await currentBuilderId(page), 'public published');
   await page.goto('/puzzles');
-  await page.locator(`[data-testid="puzzle-edit-link"][href="/puzzles/${id}"]`).click();
+  await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
+  await item(page, name).getByTestId('puzzle-menu-button').click();
+  await page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-open-builder').click();
+  await expect(page).toHaveURL(new RegExp(`/puzzles/${id}$`));
   await waitForEditorReady(page);
   await expect(page.getByTestId('publish-state')).toHaveText('Published');
   await expect(page.getByTestId('puzzle-title')).toBeDisabled();

@@ -70,15 +70,9 @@ async function library(page: Page) {
   await page.goto('/puzzles');
   await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
 }
-/** 14-S2: published puzzles are played from the library's Play view; Build lists the caller's own. */
-async function showView(page: Page, view: 'Build' | 'Play') {
-  const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
-  await option.check();
-  await expect(option).toBeChecked();
-}
+/** 18-S4: one list (14-S2's Play view is gone); published rows link to play. */
 async function playLibrary(page: Page) {
   await library(page);
-  await showView(page, 'Play');
 }
 async function titlesInOrder(page: Page, titles: string[]) {
   const all = await page.getByTestId('puzzle-list-item').allTextContents();
@@ -154,15 +148,11 @@ test.describe('P5 — the library learns about play', () => {
       await expectState(item, 'untouched');
       await expect(item.getByTestId('puzzle-edit-link')).toHaveCount(0);
     }
-    // 14-S2: drafts are only in Build, and only the caller's own.
-    await expect(row(page, unpublished.title)).toHaveCount(0);
-
-    await showView(page, 'Build');
-    const manage = row(page, ownPublic.title).getByTestId('puzzle-edit-link');
-    await expect(manage).toBeVisible();
-    await expect(manage).toHaveAccessibleName(`${ownPublic.title} Ready to play`);
-    expect(await manage.getAttribute('href')).toMatch(new RegExp(`/puzzles/${ownPublic.id}$`));
-    await expect(row(page, othersPublic.title)).toHaveCount(0);
+    // 18-S4: one list; the caller's own published row opens the builder from its menu.
+    await row(page, ownPublic.title).getByTestId('puzzle-menu-button').click();
+    await expect(page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-open-builder')).toHaveText('Open in builder');
+    await page.keyboard.press('Escape');
+    await expect(row(page, othersPublic.title).getByTestId('puzzle-menu-button')).toHaveCount(0);
 
     const draft = row(page, unpublished.title);
     await expect(draft.getByTestId('puzzle-edit-link')).toBeVisible();
@@ -172,7 +162,6 @@ test.describe('P5 — the library learns about play', () => {
     await expect(draft.getByTestId('puzzle-reset-button')).toHaveCount(0);
     await expect(draft).not.toHaveAttribute('data-play-state', /.*/);
 
-    await showView(page, 'Play');
     await row(page, othersPublic.title).getByTestId('puzzle-play-link').click();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${othersPublic.id}/play$`));
     await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
@@ -207,31 +196,23 @@ test.describe('P5 — the library learns about play', () => {
       expect(box).not.toBeNull();
       await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
     }
-    // 14-S2: Play rows open play; Build rows (the caller's own) open the editor.
-    for (const [view, rows] of [
-      ['Play', [
-        [ownPublished, `/puzzles/${ownPublished.id}/play`],
-        [foreignPublished, `/puzzles/${foreignPublished.id}/play`],
-      ]],
-      ['Build', [
-        [ownPublished, `/puzzles/${ownPublished.id}`],
-        [ownDraft, `/puzzles/${ownDraft.id}`],
-      ]],
+    // 18-S4: one list; published rows open play, the caller's drafts the editor.
+    await library(page);
+    for (const [fixture, href] of [
+      [ownPublished, `/puzzles/${ownPublished.id}/play`],
+      [foreignPublished, `/puzzles/${foreignPublished.id}/play`],
+      [ownDraft, `/puzzles/${ownDraft.id}`],
     ] as const) {
-      await library(page);
-      await showView(page, view);
-      for (const [fixture, href] of rows) {
-        const item = row(page, fixture.title);
-        expect(await item.evaluate((el) => el.tagName.toLowerCase())).toBe('li');
-        await expect(item).not.toHaveAttribute('tabindex', /.*/);
-        await expect(item).not.toHaveAttribute('role', /.*/);
-        for (const part of ['puzzle-list-title', 'puzzle-icon', 'puzzle-list-updated']) {
-          expect(await hit(item.getByTestId(part))).toEqual({ href, cursor: 'pointer' });
-        }
+      const item = row(page, fixture.title);
+      expect(await item.evaluate((el) => el.tagName.toLowerCase())).toBe('li');
+      await expect(item).not.toHaveAttribute('tabindex', /.*/);
+      await expect(item).not.toHaveAttribute('role', /.*/);
+      for (const part of ['puzzle-list-title', 'puzzle-icon', 'puzzle-list-updated']) {
+        expect(await hit(item.getByTestId(part))).toEqual({ href, cursor: 'pointer' });
       }
-      // Another builder's draft is listed in neither view.
-      await expect(row(page, foreignDraft.title)).toHaveCount(0);
     }
+    // Another builder's draft isn't listed.
+    await expect(row(page, foreignDraft.title)).toHaveCount(0);
 
     await playLibrary(page);
     await pointAndClick(row(page, foreignPublished.title).getByTestId('puzzle-list-title'));
@@ -241,12 +222,12 @@ test.describe('P5 — the library learns about play', () => {
     await pointAndClick(row(page, ownPublished.title).getByTestId('puzzle-icon'));
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownPublished.id}/play$`));
     await library(page);
-    await showView(page, 'Build');
     await pointAndClick(row(page, ownDraft.title).getByTestId('puzzle-list-title'));
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownDraft.id}$`));
     await library(page);
-    await showView(page, 'Build');
-    await row(page, ownPublished.title).getByTestId('puzzle-edit-link').click();
+    // 18-S4: the menu, a secondary control, opens the caller's published puzzle in the editor.
+    await row(page, ownPublished.title).getByTestId('puzzle-menu-button').click();
+    await page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-open-builder').click();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${ownPublished.id}$`));
     await expect(page.getByTestId('puzzle-editor')).toBeVisible();
     await playLibrary(page);
@@ -292,14 +273,14 @@ test.describe('P5 — the library learns about play', () => {
     await setUpdatedAt(completed.id, new Date('2031-01-04T00:00:00Z'));
     await playLibrary(page);
 
-    // 14-S2: Play lists the published rows; the draft is only in Build.
-    await expect(row(page, draft.title)).toHaveCount(0);
+    // 18-S4: one list, so the draft is listed too, first.
     const group = page.getByTestId('puzzle-group').filter({ has: row(page, completed.title) });
-    for (const fixture of [untouched, inProgress]) {
+    for (const fixture of [draft, untouched, inProgress]) {
       await expect(group.getByTestId('puzzle-list-item').filter({ hasText: fixture.title })).toHaveCount(1);
     }
-    const [u, p, c] = await titlesInOrder(page, [untouched.title, inProgress.title, completed.title]);
-    expect(Math.min(u, p, c)).toBeGreaterThan(-1);
+    const [d, u, p, c] = await titlesInOrder(page, [draft.title, untouched.title, inProgress.title, completed.title]);
+    expect(Math.min(d, u, p, c)).toBeGreaterThan(-1);
+    expect(d).toBeLessThan(p);
     expect(p).toBeLessThan(u);
     expect(u).toBeLessThan(c);
 

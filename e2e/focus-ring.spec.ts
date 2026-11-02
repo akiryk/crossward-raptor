@@ -293,7 +293,8 @@ test.describe('14-S11-4 on the real screens', () => {
     expect(await ringOf(grid), 'grid on keyboard focus').toBe('none');
   });
 
-  test('the library: a row and Build/Play ring on Tab, not on click', async ({ page }) => {
+  // 18-S4: a filter checkbox replaces the Build/Play Radio.
+  test('the library: a row and a filter checkbox ring on Tab, not on click', async ({ page }) => {
     const title = `Focus ring ${Date.now()}`;
     await seedPuzzle({ grid: catGrid(), hints: {}, phase: 'grid' }, title);
     await page.goto('/puzzles');
@@ -305,13 +306,12 @@ test.describe('14-S11-4 on the real screens', () => {
     await blur(page);
     expect(await ringOf(row), 'row blurred').toBe('none');
 
-    const radios = page.locator('[role="radiogroup"]').first();
-    const selected = radios.locator('label').filter({ has: page.locator('input:checked') });
-    await tabTo(page, selected.locator('input'));
-    expect(await ringOf(selected), 'Build/Play on keyboard focus').toBe(FOCUS_RING);
+    const option = page.locator('label').filter({ has: page.getByRole('checkbox', { name: 'Underway', exact: true }) });
+    await tabTo(page, option.locator('input'));
+    expect(await ringOf(option), 'checkbox on keyboard focus').toBe(FOCUS_RING);
     await blur(page);
-    await selected.click();
-    await expect(selected.locator('input')).toBeFocused();
-    expect(await ringOf(selected), 'Build/Play clicked').toBe('none');
+    await option.click();
+    await expect(option.locator('input')).toBeFocused();
+    expect(await ringOf(option), 'checkbox clicked').toBe('none');
   });
 });

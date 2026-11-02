@@ -423,7 +423,7 @@ test.describe('F4-5 footer', () => {
     await expect(page.getByTestId('play-completion-dialog')).toBeVisible();
     await page.goto('/puzzles');
     await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
-    await page.getByTestId('library-view').getByRole('radio', { name: 'Play', exact: true }).check();
+    // 18-S4: one list, so no Play view to choose.
     const item = page.getByTestId('puzzle-list-item').filter({ hasText: fixture.title });
     await item.getByTestId('puzzle-reset-button').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();

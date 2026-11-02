@@ -27,11 +27,6 @@ async function library(page: Page) {
   await page.goto('/puzzles');
   await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
 }
-async function showView(page: Page, view: 'Build' | 'Play') {
-  const option = page.getByTestId('library-view').getByRole('radio', { name: view, exact: true });
-  await option.check();
-  await expect(option).toBeChecked();
-}
 async function openPlay(page: Page, id: string) {
   await page.goto(`/puzzles/${id}/play`);
   await expect(page.getByTestId('play-puzzle')).toHaveAttribute('data-session-state', 'ready');
@@ -48,7 +43,8 @@ function fillAll(grid: Grid): Grid {
 }
 
 test.describe('16-S1 Unlisted', () => {
-  test('16-S1-1 Play lists own puzzles, others’ public ones and others’ unlisted ones the player has started, across a reload', async ({ page }) => {
+  // 18-S4: one list replaces Play and Build; others' puzzles have no menu.
+  test('16-S1-1 the library lists own puzzles, others’ public ones and others’ unlisted ones the player has started, across a reload', async ({ page }) => {
     const me = await currentBuilderId(page);
     const other = await seedOtherBuilder();
     const someoneElse = await seedOtherBuilder();
@@ -67,7 +63,6 @@ test.describe('16-S1 Unlisted', () => {
         await page.reload();
         await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
       }
-      await showView(page, 'Play');
       for (const listed of [ownUnlisted, ownPublic, foreignPublic, foreignStarted]) {
         const item = row(page, listed.title);
         await expect(item).toBeVisible();
@@ -79,20 +74,19 @@ test.describe('16-S1 Unlisted', () => {
         await expect(row(page, hidden.title)).toHaveCount(0);
       }
 
-      await showView(page, 'Build');
-      for (const own of [ownUnlisted, ownPublic]) await expect(row(page, own.title)).toBeVisible();
-      for (const foreign of [foreignPublic, foreignStarted, foreignUnplayed, playedBySomeoneElse]) {
-        await expect(row(page, foreign.title)).toHaveCount(0);
+      for (const own of [ownUnlisted, ownPublic]) await expect(row(page, own.title).getByTestId('puzzle-menu-button')).toHaveCount(1);
+      for (const foreign of [foreignPublic, foreignStarted]) {
+        await expect(row(page, foreign.title).getByTestId('puzzle-menu-button')).toHaveCount(0);
       }
     }
   });
 
-  test('16-S1-2 the link opens another builder’s unlisted puzzle, and from then on it is listed in Play', async ({ page }) => {
+  // 18-S4: one list, so no Play view to choose; it isn't the caller's, so it has no menu.
+  test('16-S1-2 the link opens another builder’s unlisted puzzle, and from then on it is listed', async ({ page }) => {
     const me = await currentBuilderId(page);
     const unlisted = await seedPlayPuzzle({ builderId: await seedOtherBuilder(), visibility: 'private' });
 
     await library(page);
-    await showView(page, 'Play');
     await expect(row(page, unlisted.title)).toHaveCount(0);
 
     await openPlay(page, unlisted.id);
@@ -101,12 +95,10 @@ test.describe('16-S1 Unlisted', () => {
     expect((await readPlaySessions(unlisted.id)).map((s) => s.userId)).toEqual([me]);
 
     await library(page);
-    await showView(page, 'Play');
     const item = row(page, unlisted.title);
     await expect(item).toBeVisible();
     await expect(item).toHaveAttribute('data-play-state', 'untouched');
-    await showView(page, 'Build');
-    await expect(row(page, unlisted.title)).toHaveCount(0);
+    await expect(item.getByTestId('puzzle-menu-button')).toHaveCount(0);
   });
 
   test('16-S1-3 a puzzle published Unlisted is listed for its builder, hidden from another player until they open its link', async ({ page, browser }) => {
@@ -127,20 +119,17 @@ test.describe('16-S1 Unlisted', () => {
 
     await library(page);
     await expect(row(page, title)).toHaveAttribute('data-visibility', 'private');
-    await showView(page, 'Play');
-    await expect(row(page, title)).toBeVisible();
+    await expect(row(page, title)).toBeVisible(); // 18-S4: one list
 
     const otherContext = await browser.newContext({ storageState: { cookies: [], origins: [] } });
     try {
       const other = await otherContext.newPage();
       await signInSeededUser(other);
       await library(other);
-      await showView(other, 'Play');
       await expect(row(other, title)).toHaveCount(0);
 
       await openPlay(other, id);
       await library(other);
-      await showView(other, 'Play');
       await expect(row(other, title)).toBeVisible();
     } finally {
       await otherContext.close();

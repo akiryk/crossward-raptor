@@ -42,6 +42,14 @@ implemented (`StatusIcon.tsx` new, `CrosswordIcon.tsx` deleted,
 `PuzzleRow.tsx`, `globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk
 path.
 
+**S4 approved and frozen** under the delegation:
+[18-S4-filters](stories/18-S4-filters.md). Acceptance:
+`src/lib/puzzle-filters.test.ts` and `e2e/library-filters.spec.ts`
+(new), plus amendments to thirteen frozen files and five retired browser
+cases, all listed in the story. An independent specification review
+approved it (should-fix items applied and re-verified). Implementation
+in progress on `main`. No CODE-REVIEW risk path.
+
 ## Verification
 
 On the S3 implementation tree: `npm run verify` exit 0 (Vitest 641 of
@@ -51,8 +59,8 @@ Frozen acceptance unchanged from `68d031f`.
 
 ## Next action
 
-Orchestrator: draft S4 (filters), have it reviewed, freeze and deliver it;
-then the closeout audit.
+Orchestrator: implement and deliver S4 on `main`; then the closeout
+audit.
 
 ## Resume prompt
 

@@ -35,6 +35,7 @@ test('O1 default puzzle fixtures belong to the suite authenticated user', async 
 
 // 14-S2: the library no longer lists another builder's unpublished puzzle;
 // Build lists the caller's own drafts, Play only published puzzles.
+// 18-S4: one list replaces Build and Play; it still lists only the caller's drafts.
 test('O1 explicit fixture builders are retained and the library lists only the caller\'s drafts', async ({ page }) => {
   const current = await currentBuilderId(page);
   const other = await seedOtherBuilder();
@@ -50,9 +51,4 @@ test('O1 explicit fixture builders are retained and the library lists only the c
   const library = page.getByTestId('puzzle-library');
   await expect(library).toContainText(ownTitle);
   await expect(library).not.toContainText(otherTitle);
-  const play = page.getByTestId('library-view').getByRole('radio', { name: 'Play', exact: true });
-  await play.check();
-  await expect(play).toBeChecked();
-  await expect(library).not.toContainText(otherTitle);
-  await expect(library).not.toContainText(ownTitle);
 });

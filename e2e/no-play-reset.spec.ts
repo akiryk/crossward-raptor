@@ -79,8 +79,7 @@ test.describe('17-S3-1 play has no Reset', () => {
     const fixture = await seedPlay(page, 'complete', 'own');
     await page.goto('/puzzles');
     await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
-    const view = page.getByTestId('library-view').getByRole('radio', { name: 'Play', exact: true });
-    await view.check();
+    // 18-S4: one list, so no Play view to choose.
     const item = page.getByTestId('puzzle-list-item').filter({ hasText: fixture.title });
     await item.getByTestId('puzzle-reset-button').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
