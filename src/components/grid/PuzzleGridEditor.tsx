@@ -261,7 +261,9 @@ export function PuzzleGridEditor({
       const canClear = prev.phase !== "hints";
       const result = closeRebus(prev.grid, prev.cursor, text, { advance, canClear });
       if (!isPreviewing) return { ...prev, grid: result.grid, cursor: result.cursor };
-      const shown = closeRebus(intendedGeometry(prev.grid), prev.cursor, text, { advance, canClear });
+      // The cursor moves over Preview's words once the rebus is placed, as
+      // after a letter (previewKey): the cell may be Preview-black before.
+      const shown = closeRebus(intendedGeometry(result.grid), prev.cursor, text, { advance, canClear });
       return { ...prev, grid: result.grid, cursor: shown.cursor };
     });
     if (advance) gridRegionRef.current?.focus({ preventScroll: true });

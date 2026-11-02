@@ -160,12 +160,19 @@ Preview shows black (emptied by Backspace, 17-S4) crashed the builder.
 The human chose to fix it. New case 17-S10-13 in `e2e/rebus.spec.ts`
 ([the correction](stories/17-S10-rebus.md#correction-2026-11-02-approved-by-the-human-1)),
 independently reviewed (approved; its should-fix addressed) and approved by
-the human, frozen in its own specification-only commit; the one-line fix
-in `PuzzleGridEditor.tsx` follows (no risk path). The audit's other
+the human, frozen on `main` in c8617f1 (specification only). The one-line
+fix in `PuzzleGridEditor.tsx` (Preview's cursor moves over Preview's words
+after the rebus is placed, as after a letter) was delivered directly on
+`main` (no risk path). The audit's other
 findings (stale statuses and docs, an undeclared scope addition already
 recorded above, a dead branch in `PlayReset.tsx`) are left for closeout.
 
 ## Verification
+
+S10's second correction (precommit tree, committed unchanged; frozen
+acceptance unchanged from c8617f1): `npm run verify` exit 0 (Vitest
+640/640) and full `npm run test:e2e` exit 0 (912 passed). Drafting:
+17-S10-13 failed on f03ead4 with the page crashed, and passed with the fix.
 
 S10 implementation (precommit tree, committed unchanged; frozen
 acceptance unchanged from 6c24efc): `npm run verify` exit 0 (Vitest
@@ -197,9 +204,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Implement S10's second correction (the frozen 17-S10-13) on `main`, verify
-and push. Then the epic's independent, report-only closeout audit runs
-again ([Close an epic](../README.md#close-an-epic)).
+Every story is done. The epic's independent, report-only closeout audit
+runs again ([Close an epic](../README.md#close-an-epic)); the first one's
+remaining findings are listed under "S10's second correction".
 
 ## Resume prompt
 
