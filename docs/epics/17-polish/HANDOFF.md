@@ -151,10 +151,19 @@ the fallback). Its ResizeObserver fitted the title one frame after a
 width change, so 17-S10-5, measuring right after narrowing, intermittently
 saw the toggle row 30px low (1 in 5 runs under parallel load).
 
-**The human's visual check is pending** for S10 at desktop sizes and on a
-phone or tablet (the pill opening the on-screen keyboard), and still for
-S9's correction. A "CHEESE" typed while the drafting throwaway was applied
-now shows the rule: shrunk to fit its cell.
+**The human's visual checks passed** (2026-11-02) for S10 and S9's
+correction.
+
+**S10's second correction** (2026-11-02): the epic's first closeout audit
+(report-only, same day) found that placing a rebus in Preview on a cell
+Preview shows black (emptied by Backspace, 17-S4) crashed the builder.
+The human chose to fix it. New case 17-S10-13 in `e2e/rebus.spec.ts`
+([the correction](stories/17-S10-rebus.md#correction-2026-11-02-approved-by-the-human-1)),
+independently reviewed (approved; its should-fix addressed) and approved by
+the human, frozen in its own specification-only commit; the one-line fix
+in `PuzzleGridEditor.tsx` follows (no risk path). The audit's other
+findings (stale statuses and docs, an undeclared scope addition already
+recorded above, a dead branch in `PlayReset.tsx`) are left for closeout.
 
 ## Verification
 
@@ -188,9 +197,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human's visual checks of S10 and S9's correction. Every story is then
-done, and the epic's independent, report-only closeout audit follows
-([Close an epic](../README.md#close-an-epic)).
+Implement S10's second correction (the frozen 17-S10-13) on `main`, verify
+and push. Then the epic's independent, report-only closeout audit runs
+again ([Close an epic](../README.md#close-an-epic)).
 
 ## Resume prompt
 

@@ -489,6 +489,61 @@ test.describe('17-S10 Rebus', () => {
     await expectSavedLetter(id, 0, 0, 'CH');
   });
 
+  test('17-S10-13 Preview: a rebus on a cell emptied to Preview-black brings it back', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const id = await seedBuilder(gridOf(['CAT..', '.....', '.....', '.....', '.....']), 'grid');
+    await openBuilder(page, id);
+    await page.getByTestId('preview-toggle').click();
+    await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'preview');
+
+    // Emptying A leaves (1,0) black in Preview, and the cursor on it (17-S4).
+    await cell(page, '1,0').click();
+    await page.keyboard.press('Backspace');
+    await expect(cell(page, '1,0')).toHaveAttribute('data-cell-state', 'black');
+    await expectSelected(page, '1,0');
+
+    // An empty entry changes nothing.
+    await page.keyboard.press('Escape');
+    await expectOpen(page, '');
+    await page.keyboard.press('Enter');
+    await expectClosed(page);
+    await expect(cell(page, '1,0')).toHaveAttribute('data-cell-state', 'black');
+    await expectSelected(page, '1,0');
+
+    // A rebus brings the word back, and the cursor advances within it.
+    await page.keyboard.press('Escape');
+    await expectOpen(page, '');
+    await page.keyboard.type('ow');
+    await page.keyboard.press('Enter');
+    await expectClosed(page);
+    await expectText(page, '1,0', 'OW');
+    await expect(cell(page, '1,0')).not.toHaveAttribute('data-cell-state', 'black');
+    await expectText(page, '2,0', 'T');
+    await expectSelected(page, '2,0');
+    await expectSavedLetter(id, 1, 0, 'OW');
+
+    // Leaving the entry places it too, without advancing: back on the
+    // grid (focused, not clicked), the cursor is still on (1,0).
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('Backspace');
+    await expect(cell(page, '1,0')).toHaveAttribute('data-cell-state', 'black');
+    await expectSelected(page, '1,0');
+    await page.keyboard.press('Escape');
+    await expectOpen(page, '');
+    await page.keyboard.type('x');
+    await page.keyboard.press('Tab');
+    await expectClosed(page);
+    await expect(editorGrid(page)).not.toBeFocused();
+    await expectText(page, '1,0', 'X');
+    await expectText(page, '2,0', 'T');
+    await expectSavedLetter(id, 1, 0, 'X');
+    await editorGrid(page).focus();
+    await expectSelected(page, '1,0');
+
+    expect(errors).toEqual([]);
+  });
+
   test('17-S10-8 play: Escape and Enter place a rebus that is saved; an unchanged entry saves nothing', async ({ page }) => {
     const fixture = await seedPlay(page);
     await openPlay(page, fixture.id);

@@ -10,7 +10,8 @@ is as large as fits its cell.
 **Status: approved and frozen** (drafted 2026-11-01; approved by the
 human 2026-11-02 with both pending questions answered as proposed and one
 addition, a rebus's minimum size, recorded in "A placed rebus's size" and
-case 17-S10-12). Frozen acceptance must not change to fit the
+case 17-S10-12). A second correction, case 17-S10-13 (a rebus on a
+Preview-black cell), was approved on 2026-11-02 (see Acceptance). Frozen acceptance must not change to fit the
 implementation.
 
 **Blast radius: small to medium.** A new pure helper in `src/lib/`, two
@@ -275,6 +276,8 @@ case says otherwise.
     letter's size (±0.5px), wider than the cell, centered on it (±1px),
     cut off by an element inside the cell (overflow hidden or clip), inside
     the cell vertically and below its number.
+13. **17-S10-13 Preview, a Preview-black cell** *(correction,
+    2026-11-02)*: see the correction below.
 
 ### src/lib/rebus-entry.test.ts (new)
 
@@ -342,6 +345,38 @@ just fits the 15×15's 45.6px cell, so it couldn't show the cut-off there
 and failed against a correct implementation. It now uses ten W's, wide
 enough to overflow both grids; every assertion is unchanged. Corrected in
 its own specification-only commit before implementation continued.
+
+### Correction (2026-11-02, approved by the human)
+
+*Second correction; approved by the human 2026-11-02 after independent
+review, frozen in its own specification-only commit.*
+
+The epic's closeout audit found that placing a rebus in Preview on a cell
+Preview shows black (emptied by Backspace, with the cursor still on it,
+17-S4) crashes the builder ("This page couldn't load"). The close path
+moved the cursor over Preview's words *before* the rebus was placed, where
+the cell is black. The Closing decision already says the cursor advances
+"in Preview over Preview's words as in 17-S4", and a typed letter there
+brings the word back and advances; a rebus now does the same.
+
+- **New case 17-S10-13 Preview, a Preview-black cell:** with Preview on,
+  Backspace empties "A" so (1,0) is black and selected. An empty entry
+  closed with Enter changes nothing. "OW" with Enter is placed, (1,0) is
+  a cell again, "T" is untouched and selected, and "OW" is saved. Back on
+  (1,0) and emptied again, "X" and Tab places "X", saved, and the grid
+  loses focus; focused again (not clicked), the cursor is still on (1,0).
+  The page throws no error.
+- **Runtime:** `PuzzleGridEditor.tsx`'s rebus close moves Preview's cursor
+  over Preview's words after placing, as `previewKey` does for a letter.
+  No other file changes.
+- **Discrimination (observed 2026-11-02):** on `main` (f03ead4) the case
+  fails at placing "OW" with the page crashed. With the one-line fix
+  (reverted; patch at `/tmp/s10-correction/fix.patch`) all 15 tests of
+  `e2e/rebus.spec.ts` pass.
+- **Independent review (2026-11-02):** approved, no blockers. Its
+  should-fix (the Tab step didn't show "without advancing") and its nits
+  were addressed; the revised case was re-run both ways with the same
+  result.
 
 ## Repo paths
 
