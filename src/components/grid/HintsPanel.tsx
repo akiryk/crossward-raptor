@@ -17,6 +17,9 @@ const NUMBER_MIN_PX = 18;
 // While the grid has focus, its cursor word's hint input is filled like
 // the cursor cell (14-S12).
 const SELECTED = '[&_textarea]:bg-hint-cell-cursor';
+// A missing hint's input is filled pink, selected or not; the row stays
+// clear (17-S1, corrected 2026-11-01).
+const MISSING = '[&_textarea]:bg-hint-missing';
 
 /** Hint Inputs, one per word, in the hint skeleton's frame (14-S6). */
 export function HintsPanel({
@@ -79,8 +82,8 @@ export function HintsPanel({
                       data-active={activeKey === key ? 'true' : undefined}
                       data-missing={isMissing ? 'true' : undefined}
                       className={`group flex items-baseline gap-3 not-first:mt-[5px] ${
-                        selectedKey === key ? SELECTED : ''
-                      } ${isMissing ? 'bg-hint-missing' : ''}`}
+                        isMissing ? MISSING : selectedKey === key ? SELECTED : ''
+                      }`}
                     >
                       <span
                         data-testid="hint-label"

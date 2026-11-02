@@ -127,9 +127,15 @@ With it, S1's missing mark fills only the input, not the row
 Amended: `e2e/preview-hints.spec.ts`, `e2e/missing-hints.spec.ts` and
 the EPIC. Independently reviewed the same day (no blockers; its four
 should-fix items and nits were addressed and re-checked) and frozen on
-`main` (specification only).
+`main` in 9845001 (specification only). The corrections were implemented
+directly on `main` the same day (no risk path); the human's visual check
+of them is pending.
 
 ## Verification
+
+S9 and S1 corrections (precommit tree, committed unchanged; frozen
+acceptance unchanged from 9845001): `npm run verify` exit 0 (Vitest
+626/626) and full `npm run test:e2e` exit 0 (897 passed).
 
 S9 implementation (precommit tree, committed unchanged; frozen
 acceptance unchanged from be03d64): `npm run verify` exit 0 (Vitest
@@ -149,9 +155,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Implement the frozen corrections (the throwaway at
-`/tmp/s9/correction-throwaway.patch`) directly on `main`.
+Draft S10 (Rebus) from the EPIC's S10 section, after the human's visual
+check of S9's correction.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the Correction sections of docs/epics/17-polish/stories/17-S9-preview-hints.md and 17-S1-missing-hints.md. The human approved both corrections; have them independently reviewed, freeze them on main, then implement them.
+Read docs/epics/17-polish/HANDOFF.md and the S10 section of docs/epics/17-polish/EPIC.md. Draft S10's specification and acceptance on main for the human's approval; do not implement it.
