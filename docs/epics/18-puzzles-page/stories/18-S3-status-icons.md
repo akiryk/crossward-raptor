@@ -143,7 +143,7 @@ over `e2e` and `src`.
 
 ## Acceptance
 
-*Proposed.* One new file and eleven amended files.
+*Approved and frozen 2026-11-02 (`68d031f`).* One new file and eleven amended files.
 
 ### e2e/status-icons.spec.ts
 

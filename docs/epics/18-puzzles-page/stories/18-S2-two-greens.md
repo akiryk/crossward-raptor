@@ -73,7 +73,7 @@ palette or the catalog (`grep` for `sg-color`, `interactive-faint`,
 
 ## Acceptance
 
-*Proposed.* One new file and two amended files.
+*Approved and frozen 2026-11-02 (`38090fe`).* One new file and two amended files.
 
 ### e2e/two-greens.spec.ts
 

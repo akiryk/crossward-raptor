@@ -112,8 +112,9 @@ lists.
   a group combine with OR. Play and Create combine with OR, as one status
   filter. Size narrows with AND. A group with nothing checked doesn't
   restrict. Size groups with no match are hidden. When nothing matches,
-  the list reads "No puzzles match these filters." Puzzles of other sizes
-  (anyone's) show only when no Size option is checked. Filters persist in
+  the list reads "No puzzles match these filters." Others' "Other sizes"
+  puzzles show only when no Size option is checked (applied to every
+  puzzle of another size; see Delegated decisions). Filters persist in
   the URL's query, not in storage.
 - **Reset** shows once any option is checked, right of the "Filters"
   label, `title-4`, in the blue of the app's text links (the builder's
@@ -162,6 +163,12 @@ lists.
   **For the human's review:** `replaceState` means Back leaves the
   library; `pushState` would instead make Back undo each check. Either is
   a one-line change.
+- **"Other sizes" are hidden for everyone once a Size is checked.** The
+  EPIC says *others'* "Other sizes" puzzles show only when no Size option
+  is checked. Because Size narrows with AND, a puzzle of no listed size
+  can't match any checked Size, so the caller's own are hidden too
+  (`puzzle-filters.ts`, pinned by `puzzle-filters.test.ts`). Recorded by
+  the closeout audit (2026-11-02). **For the human's review.**
 - **The empty unfiltered list** reads "No puzzles yet." It replaces
   Build's "You haven't started a puzzle yet." and Play's "No puzzles to
   play yet.", which assumed a view. The shared test database never
@@ -229,7 +236,7 @@ lists.
 
 ## Acceptance
 
-*Proposed.* Two new files and thirteen amended files.
+*Approved and frozen 2026-11-02 (`8a49994`).* Two new files and thirteen amended files.
 
 ### src/lib/puzzle-filters.test.ts (Vitest)
 

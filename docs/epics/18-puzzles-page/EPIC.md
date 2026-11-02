@@ -30,7 +30,8 @@ icons are in the human's `~/Downloads` (the request said
   exported SVGs if they are funky.
 - **Green play rows:** every row with the play icon has a `green-faint`
   background, `green-faint-hover` on hover (`play-row-mock.png`; the
-  hover mock named in the request isn't in `~/Downloads`).
+  hover mock, missing when this EPIC was approved, was later added as
+  `play-row-hover-mock.png`, per S3).
 - **Filters:** as a builder or player, I want to filter puzzles so I can
   easily find the ones I want. Groups in this order: Play (Unplayed,
   Underway, Complete), Create (Build Phase, Hint Phase, Unlisted), Size
