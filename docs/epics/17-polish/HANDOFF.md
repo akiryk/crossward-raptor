@@ -129,9 +129,9 @@ the EPIC. Independently reviewed the same day (no blockers; its four
 should-fix items and nits were addressed and re-checked) and frozen on
 `main` in 9845001 (specification only). The corrections were implemented
 directly on `main` the same day (no risk path); the human's visual check
-of them is pending.
+of them passed on 2026-11-02.
 
-**S10 is implemented** (2026-11-02), pending the human's visual check:
+**S10 is done** (2026-11-02; visual check passed the same day):
 the human approved [17-S10-rebus.md](stories/17-S10-rebus.md), its
 acceptance `e2e/rebus.spec.ts` and `src/lib/rebus-entry.test.ts` (new),
 the amendment to `e2e/play-entries.spec.ts` (P2: Escape is no longer an
@@ -152,7 +152,8 @@ width change, so 17-S10-5, measuring right after narrowing, intermittently
 saw the toggle row 30px low (1 in 5 runs under parallel load).
 
 **The human's visual checks passed** (2026-11-02) for S10 and S9's
-correction.
+correction. The devices weren't stated (S10's DoD asks for a phone or
+tablet as well); the human accepted the closeout without that detail.
 
 **S10's second correction** (2026-11-02): the epic's first closeout audit
 (report-only, same day) found that placing a rebus in Preview on a cell
@@ -163,9 +164,35 @@ independently reviewed (approved; its should-fix addressed) and approved by
 the human, frozen on `main` in c8617f1 (specification only). The one-line
 fix in `PuzzleGridEditor.tsx` (Preview's cursor moves over Preview's words
 after the rebus is placed, as after a letter) was delivered directly on
-`main` (no risk path). The audit's other
-findings (stale statuses and docs, an undeclared scope addition already
-recorded above, a dead branch in `PlayReset.tsx`) are left for closeout.
+`main` (no risk path).
+
+## Closeout audits
+
+**First audit** (2026-11-02, report-only, a fresh session that authored
+none of the epic, on f03ead4): one blocker, the Preview rebus crash, fixed
+above. **Second audit** (2026-11-02, report-only, a separate agent that
+authored none of the epic, on a6770a4): the fix holds (one line,
+`PuzzleGridEditor.tsx:266`; no acceptance changed); `npm run verify` exit
+0 (Vitest 640/640) and full `npm run test:e2e` exit 0 (912 passed). It
+covered the EPIC, every story, the commits' paths against Repo paths,
+frozen-acceptance history and LEARNINGS (nothing to prune). Not covered:
+the visual check's devices, `field-sizing`'s fallback in browsers without
+it, re-failing 17-S10-13 on pre-fix code, and S1–S9's acceptance arithmetic.
+
+Open findings and the human's dispositions (2026-11-02; all as proposed):
+
+| # | Finding | Disposition |
+| --- | --- | --- |
+| 1 | `docs/epics/README.md:12–13` lists epic 17 as "S1 to draft" | Fix: mark epic 17 closed |
+| 2 | `docs/NYT-CROSSWORD-REFERENCE.md:190–201` still has rebus input as an open question | Fix: S10 settled input and sizing |
+| 3 | `src/components/play/PlayReset.tsx:41–46` handles an absent `puzzleTitle`, but its only caller (`LibraryPlayControls.tsx:117`) always passes one; the optional prop and its comment (line 20) predate 17-S3 | Fix: make the title required and remove the branch; `npm run verify` |
+| 4 | Story statuses: S10 (`:10`) "approved and frozen", S9 (`:8–10`) "correction approved", S7 (`:14`) "Awaiting the human's visual check", S6 (`:9–12`) never says done | Fix: each says done |
+| 5 | `EPIC.md:463` S10 line "Approved and frozen"; nothing marks the epic closed | Fix |
+| 6 | `17-S10-rebus.md:321–335` Discrimination says "all 11 browser cases … 12 runs", before 17-S10-12 (whose pre-implementation failure is recorded here under Verification) | Fix: note the later cases |
+| 7 | This handoff's stale "pending" lines | Fixed in this update |
+| 8 | `EPIC.md:237` calls `build-cell-selected-row-on` yellow-medium; S5 made it blue-medium (`EPIC.md:256`) | Fix |
+| 9 | `WrappingField.tsx` edited in f03ead4 without being declared in S10's Repo paths first | Accepted as recorded above under "Scope addition" |
+| 10 | The first audit wasn't recorded per [Close an epic](../README.md#close-an-epic) | Fixed by this section |
 
 ## Verification
 
@@ -204,10 +231,13 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Every story is done. The epic's independent, report-only closeout audit
-runs again ([Close an epic](../README.md#close-an-epic)); the first one's
-remaining findings are listed under "S10's second correction".
+Closeout, on `main` with direct delivery: fix findings 1–6 and 8 as
+dispositioned above (3 is the only code change: `npm run verify`; no
+browser suite needed unless it fails), recheck each, then mark the epic
+closed in the EPIC, the epic index and this handoff (condensing this
+handoff's story-by-story narrative per [HANDOFF](../../process/HANDOFF.md)),
+commit and push.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/EPIC.md. Run the independent, report-only closeout audit of epic 17 on main once the human's visual checks are recorded there; do not edit files.
+Read docs/epics/17-polish/HANDOFF.md. Fix the closeout audit's findings as dispositioned there and close epic 17 on main; commit and push.
