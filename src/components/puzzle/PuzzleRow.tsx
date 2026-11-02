@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { LibraryPlay } from '@/lib/library-play';
 import type { StatusKind } from '@/lib/puzzle-status';
 import type { Phase } from '@/engine/puzzle';
-import { StatusIcon } from './StatusIcon';
+import { StatusIcon, type IconStatus } from './StatusIcon';
 import { PuzzleRowMenu } from './PuzzleRowMenu';
 import { LibraryPlayControls } from './LibraryPlayControls';
 import { ROW_PRIMARY_LINK } from './library-row';
@@ -28,7 +28,9 @@ export interface LibraryPuzzle {
 }
 
 // Story 18-S3: the status, named for screen readers; the icon shows it.
-const STATUS_TEXT: Record<StatusKind, string> = { grid: 'Build phase', hints: 'Hint phase', published: 'Ready to play' };
+const STATUS_TEXT: Record<IconStatus, string> = {
+  grid: 'Build phase', hints: 'Hint phase', published: 'Ready to play', complete: 'Complete',
+};
 
 // Story 18-S3: rows with the Play icon are green.
 const ROW = 'bg-puzzle-row hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover';
@@ -45,8 +47,9 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
   const link = useRef<HTMLAnchorElement>(null);
   const published = puzzle.publishedAt !== null;
   const play = published ? puzzle.play : null;
-  const marker = play?.state === 'in-progress' ? '[in-play]'
-    : play?.state === 'completed' ? '[complete]' : null;
+  // Story 18-S5: a completed puzzle shows DONE and names it in the hidden text.
+  const status: IconStatus = play?.state === 'completed' ? 'complete' : puzzle.statusKind;
+  const marker = play?.state === 'in-progress' ? '[in-play]' : null;
 
   return (
     <li
@@ -61,7 +64,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-keyboard-focus-host
       className={`relative flex h-[66px] items-center rounded-modal pl-[10px] transition-colors duration-150 ease-out ${puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
-      <StatusIcon status={puzzle.statusKind} />
+      <StatusIcon status={status} />
       <div className="ml-3 flex w-[212px] min-w-0 flex-col gap-1">
         <Link
           ref={link}
@@ -70,8 +73,8 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
           className={`${ROW_PRIMARY_LINK} flex min-w-0 text-title-4 text-primary outline-none`}
         >
           <span data-testid="puzzle-list-title" className="truncate">{puzzle.title}</span>
-          <span data-testid="puzzle-status" data-status-kind={puzzle.statusKind} className="sr-only">
-            {STATUS_TEXT[puzzle.statusKind]}
+          <span data-testid="puzzle-status" data-status-kind={status} className="sr-only">
+            {STATUS_TEXT[status]}
           </span>
           {marker && (
             <>

@@ -28,6 +28,7 @@
   --palette-green: #84c600;
   --palette-green-faint: #f0f5e5;
   --palette-green-faint-hover: #eaf0db;
+  --palette-orange: #ef9d05;
 }
 
 /* --- color styles (Story F1) --- */
@@ -95,6 +96,8 @@
   --color-puzzle-row-play-hover: var(--palette-green-faint-hover);
   /* the Play status icon (Story 18-S3) */
   --color-status-play: var(--palette-green);
+  /* the DONE status icon (Story 18-S5) */
+  --color-status-complete: var(--palette-orange);
   /* the builder's toggle row (Story 17-S8) */
   --color-toggle-row: var(--palette-interactive-faint);
   --color-modal-background: var(--palette-white);

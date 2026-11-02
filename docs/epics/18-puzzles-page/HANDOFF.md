@@ -17,17 +17,13 @@ progress under the extended delegation. The epic is not closed.**
 - [S3 status icons](stories/18-S3-status-icons.md), frozen `68d031f`.
 - [S4 filters](stories/18-S4-filters.md), frozen `8a49994`, implemented
   `3ca7da4`.
-- [S5 DONE icon](stories/18-S5-done-icon.md): independent
-  specification review approved it (should-fix applied); frozen
-  `3b647f4`. A full E2E run of the implementation found one frozen test
-  the spec missed (`duplicate.spec.ts` 16-S4-2); the human approved
-  correcting it to expect "Complete", it was independently reviewed and
-  refrozen in specification-only commit `758f7a6`. **The implementation
-  is uncommitted on `main`** (`globals.css`, `StatusIcon.tsx`,
-  `PuzzleRow.tsx`, `ColorSwatches.tsx`; the drafter's throwaway applied
-  unchanged, checked by the implementing agent). The story still lacks
-  its Implementation section and done status.
-- S6–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
+- [S5 DONE icon](stories/18-S5-done-icon.md), frozen `3b647f4`,
+  frozen-test correction refrozen `758f7a6` (human-approved), implemented
+  and delivered on `main`.
+- [S6 narrow right margin](stories/18-S6-narrow-right-margin.md):
+  drafted by a separate agent; independent specification review approved
+  it with should-fix items, being applied before freeze.
+- S7–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
   not yet drafted.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
@@ -93,27 +89,20 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 - S4 implementation `3ca7da4`: `npm run verify` exit 0 (Vitest 656 of
   656); full `npm run test:e2e` exit 0, 937 passed (S4 implementing
   agent).
-- S5 uncommitted implementation on `758f7a6` (orchestrator):
-  `npm run verify` exit 0, Vitest 656 of 656; frozen acceptance diff
-  against `758f7a6` empty. Full `npm run test:e2e` **not yet passed**:
-  two runs gave exit 1 with 943/1 and 942/2, every failure a test-server
-  `ECONNRESET` in an auth helper (`requestMagicLink`, `getSession`),
-  different tests each time, no assertion failures; load average was
-  about 25. Another agent may have been running E2E in a different
-  repository at the same time, so contention is the likely cause. A
-  third run was stopped at the human's request.
+- S5 implementation (orchestrator): `npm run verify` exit 0 (Vitest
+  656 of 656); full `npm run test:e2e` exit 0, 944 passed, on a quiet
+  machine; frozen acceptance diff against `758f7a6` empty. Earlier full
+  runs failed only on timeouts and `ECONNRESET` while another
+  repository's suite loaded the machine (load 20–35). Check the machine is
+  quiet before a full run.
 
 ## Next action
 
-Orchestrator: make sure no other E2E suite is running on the machine,
-then rerun the full `npm run test:e2e` on the uncommitted S5
-implementation (confirm the frozen acceptance diff against `758f7a6` is
-empty). On exit 0, add the story's Implementation section and done
-status, commit and push S5. If `ECONNRESET` recurs on a quiet machine,
-investigate it as a harness problem. Then draft (separate agent),
-independently review, freeze and implement S6, S7 and S8 in order under
-the extended delegation, serializing browser suites. Then hand back for
-the human's one-at-a-time verification of S5–S8, and mark the epic
+Orchestrator: apply S6's review should-fix items, observe its
+discrimination runs, freeze, implement and deliver; then draft (separate
+agent), independently review, freeze and implement S7 and S8 in order
+under the extended delegation, serializing browser suites. Then hand back
+for the human's one-at-a-time verification of S5–S8, and mark the epic
 closed.
 
 ## Resume prompt

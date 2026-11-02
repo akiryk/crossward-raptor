@@ -7,15 +7,16 @@ palette variable, `orange`, through a new `status-complete` style. The
 row's hidden status text names the state ("Complete"), and the visible
 `[complete]` marker goes. `[in-play]` stays. The row stays green.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02). Drafted under the
 orchestration the human delegated on 2026-11-02 and extended to S5–S8 the
 same day (see the [handoff](../HANDOFF.md)). An independent specification
 review approved it with one should-fix (the variable and style names
 were credited to the human; now a delegated decision) and nits (the
 case count, applied; a stale `[complete]` sentence in
 `status-icons.spec.ts`'s header, left for S8). The orchestrator approved
-and froze it on `main` in a specification-only commit under that
-delegation.
+and froze it on `main` in specification-only commit `3b647f4` under that
+delegation; a frozen-test correction was refrozen in `758f7a6`. It was
+then implemented and delivered on `main`.
 
 **Blast radius: small.** The change touches the status icon (one more
 entry), the row (which icon, which hidden text, one marker fewer), one
@@ -229,6 +230,19 @@ before the implementation was committed.
     regression guards and the 18-S3 amendments noted above.
 - The full `npm run test:e2e` suite was not run while drafting. With the
   implementation it should be S4's 937 plus 7.
+
+### Implementation (2026-11-02, observed)
+
+Runtime is the declared paths only: `globals.css`, `ColorSwatches.tsx`,
+`StatusIcon.tsx` and `PuzzleRow.tsx`. The drafting throwaway was applied
+unchanged; it matches the Decisions and Delegated decisions. Frozen
+acceptance is unchanged from `758f7a6`; no CODE-REVIEW risk path in the
+actual diff. `npm run verify` exit 0 (Vitest 656 of 656). Full
+`npm run test:e2e` exit 0, 944 passed, 0 failed (S4's 937 plus 7), under
+the guarded harness's standing reset grant. Three earlier full runs failed
+only on timeouts and `ECONNRESET` while another repository's test suite
+loaded the machine (load average 20–35); the passing run was on a quiet
+machine.
 
 ## Repo paths
 
