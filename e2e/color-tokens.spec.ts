@@ -77,7 +77,7 @@ const STYLES: Record<string, string> = {
   // 17-S1: a missing hint's row.
   'hint-missing': 'pink',
   primary: 'black',
-  muted: 'gray-500',
+  // 18-S1: muted is translucent black (TRANSLUCENT below), no longer gray-500.
   'link-muted': 'interactive-light',
   highlight: 'blue-bright',
   error: 'text-error',
@@ -106,15 +106,17 @@ const STYLES: Record<string, string> = {
   'focus-ring': 'cyan',
 };
 
-// The one translucent style: black at 40% opacity.
+// The translucent styles: black at 40% opacity. 18-S1 added muted.
 const BACKDROP = 'modal-backdrop';
-const BACKDROP_VARIABLE = 'black';
-const BACKDROP_ALPHA = 0.4;
+const TRANSLUCENT: Record<string, { variable: string; alpha: number }> = {
+  [BACKDROP]: { variable: 'black', alpha: 0.4 },
+  muted: { variable: 'black', alpha: 0.4 },
+};
 
-const ALL_STYLES = [...Object.keys(STYLES), BACKDROP];
+const ALL_STYLES = [...Object.keys(STYLES), ...Object.keys(TRANSLUCENT)];
 
 function variableOf(style: string) {
-  return style === BACKDROP ? BACKDROP_VARIABLE : STYLES[style];
+  return TRANSLUCENT[style]?.variable ?? STYLES[style];
 }
 
 const SENTINEL = '#123456';
@@ -195,7 +197,7 @@ function clearVariable(page: Page, name: string) {
 }
 
 function expectedStyle(style: string, hex: string) {
-  return hexToRgba(hex, style === BACKDROP ? BACKDROP_ALPHA : 1);
+  return hexToRgba(hex, TRANSLUCENT[style]?.alpha ?? 1);
 }
 
 function variableRow(page: Page, name: string) {
@@ -292,7 +294,9 @@ test.describe('F1-4 style-guide color catalog', () => {
       );
     }
 
-    await expect(styleRow(page, BACKDROP)).toContainText('40%');
+    for (const style of Object.keys(TRANSLUCENT)) {
+      await expect(styleRow(page, style)).toContainText('40%');
+    }
   });
 });
 

@@ -47,7 +47,7 @@ const CURSOR = 'rgb(252, 255, 77)'; // yellow-bright
 const CURSOR_WORD = 'rgb(207, 238, 255)'; // blue-medium (17-S5, was yellow-medium)
 const GRAY_200 = 'rgb(221, 224, 230)'; // hint-cell-locked-on; also build's off
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 
 /**
  * A 5×5 with off corners at (4,0) and (0,4), every other cell lettered.

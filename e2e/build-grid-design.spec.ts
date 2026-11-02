@@ -41,7 +41,7 @@ const PREVIEW_WARNING = 'rgb(206, 181, 90)'; // cell-warning
 const PRIMARY = 'rgb(0, 0, 0)'; // black
 const FILL_MUTED = 'rgb(221, 224, 230)'; // gray-200
 const LINE_MUTED = 'rgb(221, 224, 230)'; // gray-200
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 
 /**
  * A 15×15: ABC across the top, ADE down the left, Z at (5,14).

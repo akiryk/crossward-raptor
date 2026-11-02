@@ -75,7 +75,7 @@ const STYLES: Record<string, string> = {
   // 17-S1: a missing hint's row.
   'hint-missing': 'pink',
   primary: 'black',
-  muted: 'gray-500',
+  // 18-S1: muted is black at 40% (MUTED below), no longer gray-500.
   'link-muted': 'interactive-light',
   highlight: 'blue-bright',
   error: 'text-error',
@@ -105,6 +105,8 @@ const STYLES: Record<string, string> = {
 };
 
 const BACKDROP = 'modal-backdrop';
+// 18-S1: muted text is black at 40%, like the backdrop.
+const MUTED = 'muted';
 
 type Declaration = { name: string; value: string; inTheme: boolean };
 
@@ -167,8 +169,17 @@ describe('F1 color styles', () => {
     expect(found[0].value).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 
+  it('declares muted as black at 40% through the black variable', () => {
+    const found = declarations().filter((d) => d.name === `--color-${MUTED}`);
+    expect(found).toHaveLength(1);
+    expect(found[0].inTheme).toBe(true);
+    expect(found[0].value).toContain('var(--palette-black)');
+    expect(found[0].value).toMatch(/40%|0?\.4\b/);
+    expect(found[0].value).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+  });
+
   it('has no @theme colors besides the new styles', () => {
-    const allowed = new Set([...Object.keys(STYLES), BACKDROP].map((n) => `--color-${n}`));
+    const allowed = new Set([...Object.keys(STYLES), BACKDROP, MUTED].map((n) => `--color-${n}`));
     const extra = declarations().filter(
       (d) => d.inTheme && d.name.startsWith('--color-') && !allowed.has(d.name)
     );

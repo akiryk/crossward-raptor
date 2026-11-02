@@ -46,7 +46,7 @@ const SELECTED_CELL = 'rgb(252, 255, 77)'; // yellow-bright
 const SELECTED_ROW = 'rgb(207, 238, 255)'; // blue-medium
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 const PRIMARY = 'rgb(0, 0, 0)'; // black
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 const ERROR = 'rgb(226, 101, 95)'; // text-error
 const HIGHLIGHT = 'rgb(75, 192, 255)'; // blue-bright
 

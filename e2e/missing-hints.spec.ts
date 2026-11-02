@@ -33,7 +33,7 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 const PINK = 'rgb(255, 228, 226)'; // #FFE4E2
 const ERROR = 'rgb(226, 101, 95)'; // text-error
 const BLACK = 'rgb(0, 0, 0)'; // primary
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 const LINE_MUTED = 'rgb(221, 224, 230)'; // gray-200
 const BLUE_MEDIUM = 'rgb(207, 238, 255)'; // hint-box-input
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';

@@ -8,21 +8,24 @@
 ## Current state (2026-11-02)
 
 **Epic approved by the human 2026-11-02**, with every proposal in the
-draft (marked *Approved* in the EPIC). No story is drafted yet; nothing
-is frozen and no runtime code has changed. Each story's specification
-and acceptance still needs the human's approval before its freeze.
+draft (marked *Approved* in the EPIC).
 
-Branch `main`; the approved EPIC is committed there.
+**S1 approved by the human 2026-11-02** ("I approve S1"), including its
+small calls and the ten amended frozen files, and frozen on `main` in a
+specification-only commit:
+[18-S1-muted-text](stories/18-S1-muted-text.md), acceptance
+`e2e/muted-text.spec.ts` plus the ten files listed in the story.
+Implementation in progress on `main`.
 
 ## Verification
 
-Documentation only; no application or browser suites run.
+Drafting runs are recorded in the story's Discrimination section.
 
 ## Next action
 
-Draft S1's specification and proposed acceptance on `main` and obtain the
-human's approval. Nothing is frozen or implemented before that approval.
+Implement S1 (`globals.css`, `ColorSwatches.tsx`), run `npm run verify`
+and the full `npm run test:e2e`, and deliver on `main`.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md and the S1 section of docs/epics/18-puzzles-page/EPIC.md. Write S1's specification and proposed acceptance on main; obtain approval before freezing.
+Read docs/epics/18-puzzles-page/HANDOFF.md and docs/epics/18-puzzles-page/stories/18-S1-muted-text.md. Obtain the human's approval of S1's drafted specification and acceptance on main, then freeze and implement it; deliver directly on main.

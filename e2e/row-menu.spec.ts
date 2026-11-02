@@ -22,12 +22,21 @@ test.use({ viewport: { width: 1280, height: 800 } });
 
 const FOCUS_RING = 'solid 2px rgb(0, 240, 255) offset 0px';
 
-type Rgb = { r: number; g: number; b: number };
+// 18-S1: with alpha, so translucent muted (black at 40%) differs from primary.
+type Rgb = { r: number; g: number; b: number; a: number };
 
 function rgbOf(value: string): Rgb {
-  const m = value.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/);
-  if (!m) throw new Error(`unparseable colour: "${value}"`);
-  return { r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) };
+  const m = value.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)$/);
+  if (m) return { r: Number(m[1]), g: Number(m[2]), b: Number(m[3]), a: m[4] === undefined ? 1 : Number(m[4]) };
+  // color-mix() computes to color(srgb ...)
+  const srgb = value.match(/^color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)$/);
+  if (!srgb) throw new Error(`unparseable colour: "${value}"`);
+  return {
+    r: Math.round(Number(srgb[1]) * 255),
+    g: Math.round(Number(srgb[2]) * 255),
+    b: Math.round(Number(srgb[3]) * 255),
+    a: srgb[4] === undefined ? 1 : Number(srgb[4]),
+  };
 }
 
 /** The colour a color style resolves to on this page. */

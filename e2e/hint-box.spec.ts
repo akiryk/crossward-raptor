@@ -36,7 +36,7 @@ const GRAY_700 = 'rgb(20, 21, 27)';
 const BLUE_MEDIUM = 'rgb(207, 238, 255)';
 const BLUE_BRIGHT = 'rgb(75, 192, 255)'; // line-highlight
 const BLACK = 'rgb(0, 0, 0)'; // primary
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 
 const BOX_PX = 48;
 const RULE_PX = 4;

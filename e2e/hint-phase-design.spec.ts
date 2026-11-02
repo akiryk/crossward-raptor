@@ -37,7 +37,7 @@ const OFF = 'rgb(20, 21, 27)'; // gray-700
 const BORDER = 'rgb(139, 144, 154)'; // gray-500
 const BLUE = 'rgb(207, 238, 255)'; // blue-medium
 const PRIMARY = 'rgb(0, 0, 0)'; // black
-const MUTED = 'rgb(139, 144, 154)'; // gray-500
+const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 
 /**
  * A 5×5 with off corners at (4,0) and (0,4), every other cell lettered.
