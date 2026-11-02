@@ -33,24 +33,26 @@ independent specification review approved it (wording nits applied);
 frozen in specification-only commit `38090fe`, then implemented
 (`globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk path.
 
-**S3 approved and frozen** under the delegation:
+**S3 done and delivered on `main`** under the delegation:
 [18-S3-status-icons](stories/18-S3-status-icons.md), acceptance
 `e2e/status-icons.spec.ts` plus amendments to eleven frozen files listed
 in the story. An independent specification review approved it (wording
-nits applied). Implementation in progress on `main`. No CODE-REVIEW risk
+nits applied); frozen in specification-only commit `68d031f`, then
+implemented (`StatusIcon.tsx` new, `CrosswordIcon.tsx` deleted,
+`PuzzleRow.tsx`, `globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk
 path.
 
 ## Verification
 
-On the S2 implementation tree: `npm run verify` exit 0 (Vitest 641 of
-641); full `npm run test:e2e` exit 0, 918 passed, 0 failed, under the
+On the S3 implementation tree: `npm run verify` exit 0 (Vitest 641 of
+641); full `npm run test:e2e` exit 0, 926 passed, 0 failed, under the
 standing reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-Frozen acceptance unchanged from `38090fe`.
+Frozen acceptance unchanged from `68d031f`.
 
 ## Next action
 
-Orchestrator: implement and deliver S3 on `main`; then S4 and the
-closeout audit.
+Orchestrator: draft S4 (filters), have it reviewed, freeze and deliver it;
+then the closeout audit.
 
 ## Resume prompt
 

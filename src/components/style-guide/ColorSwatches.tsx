@@ -24,6 +24,7 @@ const VARIABLES: { name: string; hex: string }[] = [
   { name: 'blue-dull', hex: '#CADAE2' },
   { name: 'cyan', hex: '#00F0FF' },
   { name: 'pink', hex: '#FFE4E2' },
+  { name: 'green', hex: '#84C600' },
   { name: 'green-faint', hex: '#F0F5E5' },
   { name: 'green-faint-hover', hex: '#EAF0DB' },
 ];
@@ -114,6 +115,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'green-faint-hover',
     swatch: 'bg-puzzle-row-play-hover',
   },
+  { name: 'status-play', variable: 'green', swatch: 'bg-status-play' },
   { name: 'toggle-row', variable: 'interactive-faint', swatch: 'bg-toggle-row' },
   { name: 'modal-background', variable: 'white', swatch: 'bg-modal-background' },
   {

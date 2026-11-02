@@ -9,11 +9,12 @@ text. The `[grid]`, `[hint]` and `[published]` markers go. Rows with the
 Play icon are green. All of this stays within today's Build | Play views,
 so S4 only changes the list and layout.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02). Drafted under the
 orchestration the human delegated on 2026-11-02 (see the
 [handoff](../HANDOFF.md)). An independent specification review approved
-it (wording nits applied); the orchestrator froze it on `main` in a
-specification-only commit under that delegation. For the human's
+it (wording nits applied); the orchestrator froze it on `main` in
+specification-only commit `68d031f` under that delegation, then it was
+implemented and delivered on `main`. For the human's
 end-of-epic review: the gray-style pairing and a completed row's link
 reading "Title Ready to play [complete]".
 
@@ -258,6 +259,19 @@ frozen test is unchanged.
     "build cell 1,0 dark" is #14151B).
   - The status text not `sr-only`: 1 failed (18-S3-3, "visually hidden:
     at most a 1px box").
+
+### Implementation (2026-11-02, observed)
+
+Runtime is the declared paths only: `StatusIcon.tsx` (new),
+`CrosswordIcon.tsx` (deleted), `PuzzleRow.tsx`, `globals.css` and
+`ColorSwatches.tsx`. The drafting throwaway was re-applied; it matches
+the Decisions and Delegated decisions. The only change from it is in
+`PuzzleRow.tsx`: two short comments (the green rows, Play's progress
+marker) and the marker ternary's indentation. Frozen acceptance is
+unchanged from `68d031f`; no CODE-REVIEW risk path in the actual diff.
+`npm run verify` exit 0 (Vitest 641 of 641). Full `npm run test:e2e`
+exit 0, 926 passed, 0 failed, under the guarded harness's standing reset
+grant.
 
 ## Repo paths
 

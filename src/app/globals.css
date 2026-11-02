@@ -25,6 +25,7 @@
   --palette-blue-dull: #cadae2;
   --palette-cyan: #00f0ff;
   --palette-pink: #ffe4e2;
+  --palette-green: #84c600;
   --palette-green-faint: #f0f5e5;
   --palette-green-faint-hover: #eaf0db;
 }
@@ -92,6 +93,8 @@
   /* the play rows (Story 18-S2) */
   --color-puzzle-row-play: var(--palette-green-faint);
   --color-puzzle-row-play-hover: var(--palette-green-faint-hover);
+  /* the Play status icon (Story 18-S3) */
+  --color-status-play: var(--palette-green);
   /* the builder's toggle row (Story 17-S8) */
   --color-toggle-row: var(--palette-interactive-faint);
   --color-modal-background: var(--palette-white);

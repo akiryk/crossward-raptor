@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { LibraryPlay } from '@/lib/library-play';
 import type { StatusKind } from '@/lib/puzzle-status';
 import type { Phase } from '@/engine/puzzle';
-import { CrosswordIcon } from './CrosswordIcon';
+import { StatusIcon } from './StatusIcon';
 import { PuzzleRowMenu } from './PuzzleRowMenu';
 import { LibraryPlayControls } from './LibraryPlayControls';
 import { ROW_PRIMARY_LINK } from './library-row';
@@ -27,7 +27,12 @@ export interface LibraryPuzzle {
   play: LibraryPlay | null;
 }
 
-const STATUS_MARKER: Record<StatusKind, string> = { grid: '[grid]', hints: '[hint]', published: '[published]' };
+// Story 18-S3: the status, named for screen readers; the icon shows it.
+const STATUS_TEXT: Record<StatusKind, string> = { grid: 'Build phase', hints: 'Hint phase', published: 'Ready to play' };
+
+// Story 18-S3: rows with the Play icon are green.
+const ROW = 'bg-puzzle-row hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover';
+const PLAY_ROW = 'bg-puzzle-row-play hover:bg-puzzle-row-play-hover has-[a:focus-visible]:bg-puzzle-row-play-hover';
 
 export function PuzzleRow({ puzzle, view, onDeleted }: {
   puzzle: LibraryPuzzle;
@@ -37,11 +42,10 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
   const link = useRef<HTMLAnchorElement>(null);
   const published = puzzle.publishedAt !== null;
   const play = published ? puzzle.play : null;
-  const marker = view === 'build'
-    ? { testId: 'puzzle-status-badge', text: STATUS_MARKER[puzzle.statusKind] }
-    : play?.state === 'in-progress'
-      ? { testId: 'puzzle-play-state', text: '[in-play]' }
-      : play?.state === 'completed' ? { testId: 'puzzle-play-state', text: '[complete]' } : null;
+  // Only Play view shows a visible marker, the player's progress.
+  const marker = view === 'build' ? null
+    : play?.state === 'in-progress' ? '[in-play]'
+    : play?.state === 'completed' ? '[complete]' : null;
 
   return (
     <li
@@ -54,9 +58,9 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
       data-keyboard-focus-host
-      className="relative flex h-[66px] items-center rounded-modal bg-puzzle-row pl-[10px] transition-colors duration-150 ease-out hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover"
+      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] transition-colors duration-150 ease-out ${puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
-      <CrosswordIcon />
+      <StatusIcon status={puzzle.statusKind} />
       <div className="ml-3 flex w-[212px] min-w-0 flex-col gap-1">
         <Link
           ref={link}
@@ -65,12 +69,13 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
           className={`${ROW_PRIMARY_LINK} flex min-w-0 text-title-4 text-primary outline-none`}
         >
           <span data-testid="puzzle-list-title" className="truncate">{puzzle.title}</span>
+          <span data-testid="puzzle-status" data-status-kind={puzzle.statusKind} className="sr-only">
+            {STATUS_TEXT[puzzle.statusKind]}
+          </span>
           {marker && (
             <>
               <span className="whitespace-pre"> </span>
-              <span data-testid={marker.testId} data-status-kind={view === 'build' ? puzzle.statusKind : undefined} className="shrink-0">
-                {marker.text}
-              </span>
+              <span data-testid="puzzle-play-state" className="shrink-0">{marker}</span>
             </>
           )}
         </Link>
