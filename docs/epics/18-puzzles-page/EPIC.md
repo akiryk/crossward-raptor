@@ -49,6 +49,36 @@ icons are in the human's `~/Downloads` (the request said
 - **Smaller screens:** the implementer's call, prioritizing usability and
   findability. Filters are findable, not the primary element.
 
+## The human's additions after verification (2026-11-02)
+
+During end-of-epic verification the human passed every S1–S4 check, kept
+every delegated decision as built, and added this scope, extending the
+same delegation (independent specification review, then orchestrator
+approval and freeze) to S5–S8:
+
+1. **DONE icon** *(human)*: "We need a 4th icon for puzzles that are
+   complete to distinguish them from puzzles are in play." The export is
+   `~/Downloads/complete-icon.svg` (orange #EF9D05, label "DONE"). It goes
+   on published puzzles the signed-in player has completed, whoever built
+   them; other published puzzles keep Play. The row stays green. The
+   visible `[complete]` marker is removed (hidden status text names it
+   instead); `[in-play]` stays.
+2. **Narrow right margin** *(human)*: below about 900px, `/puzzles` has no
+   right margin, so the rows and the Filters button touch the window's
+   edge. It needs a right margin like the left one ("it could be exact or
+   it could be similar").
+3. **Hint preview alignment** *(human; on the hints page, outside this
+   EPIC's original page scope)*: toggling Preview Hints shifts the left
+   alignment of the Across and Down labels and the numbers, and the labels
+   move vertically. Only the hints' own vertical layout may change; the
+   labels' and numbers' left alignment and the labels' vertical position
+   must stay identical. Use the preview-on alignment (a little more gap
+   between the hints and the grid).
+4. **Audit cleanups** *(human: "Why can't we fix both?")*: remove
+   `Radio`'s now-unused `nav` variant, and correct the frozen tests'
+   stale Build/Play headers and describe titles through STORY's
+   correction procedure.
+
 ## What the code does today (2026-11-02)
 
 - **Colors** (`src/app/globals.css`, epic 13): palette variables, then
@@ -197,8 +227,9 @@ result.
 
 - Searching by title or builder, sorting options, pagination.
 - Changes to `listPuzzles`'s query (which puzzles the caller can see),
-  the builder, play or the dialogs.
-- Other pages' layouts. S1 changes the muted color app-wide, nothing else.
+  the builder (except S7's hints-panel alignment), play or the dialogs.
+- Other pages' layouts. S1 changes the muted color app-wide, nothing else;
+  S7 (added by the human) fixes only the hints panel's alignment.
 - Filter options beyond the human's list (e.g. Public, Other sizes).
 
 ---
@@ -230,3 +261,21 @@ desktop left column, the narrow Filters panel, Reset and the URL state.
 Supersedes the Build | Play tests (`puzzle-library.spec.ts`,
 `library-play.spec.ts` and others using `library-view`), named in the
 story.
+
+### S5 — DONE icon
+
+The fourth status icon for completed puzzles, its palette variable and
+style, its hidden status text, and the removed `[complete]` marker.
+
+### S6 — Narrow right margin
+
+A right margin on `/puzzles` below the two-column breakpoint.
+
+### S7 — Hint preview alignment
+
+Identical label and number alignment with Preview Hints on or off.
+
+### S8 — Audit cleanups
+
+Remove `Radio`'s `nav` variant; correct the stale frozen-test comments
+and describe titles.

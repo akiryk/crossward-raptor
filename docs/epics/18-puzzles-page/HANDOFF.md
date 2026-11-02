@@ -7,9 +7,9 @@
 
 ## Current state (2026-11-02)
 
-**All four stories done and delivered on `main`; closeout audit done, no
-blockers. Awaiting the human's end-of-epic verification; the epic is not
-yet marked closed.**
+**S1–S4 done and delivered on `main`; closeout audit done, no blockers.
+Human verification of S1–S4 passed; S5–S8 added by the human and in
+progress under the extended delegation. The epic is not closed.**
 
 - [S1 muted text](stories/18-S1-muted-text.md): approved by the human,
   frozen `1acb507`.
@@ -17,6 +17,8 @@ yet marked closed.**
 - [S3 status icons](stories/18-S3-status-icons.md), frozen `68d031f`.
 - [S4 filters](stories/18-S4-filters.md), frozen `8a49994`, implemented
   `3ca7da4`.
+- S5–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
+  not yet drafted.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
 18's remaining stories (S2–S4) end to end. I delegate spec approval and
@@ -25,19 +27,19 @@ drafting, spec review, implementation and (where CODE-REVIEW requires)
 PR review/merge. Log delegated decisions in each story. Stop only for
 unresolved material product decisions, blockers, or unsafe operations.
 Run the closeout audit at the end, then hand back to me for
-verification." Each had an independent specification review; none
-touched a CODE-REVIEW risk path, so each was delivered directly on `main`.
+verification." The human extended that delegation to S5–S8 on
+2026-11-02 ("Extend the delegation"). Each story gets an independent
+specification review; none of S2–S4 touched a CODE-REVIEW risk path.
 
-### For the human's review
+### Human verification (2026-11-02)
 
-Each story's **Delegated decisions** section. Flagged items:
-
-- S4: `replaceState` (Back leaves the library) versus `pushState` (Back
-  undoes each check).
-- S4: the checked outline.
-- S4: "Other sizes" hidden for everyone, the caller's own included, once
-  a Size is checked (surfaced by the audit, W1 below).
-- S3: which gray styles the Build and Hint icons use.
+Checked one item at a time on the dev server; all passed: muted text;
+status icons, including the gray styles; green play rows; the desktop
+filters layout, keeping the checked outline; how filters combine,
+keeping "Other sizes" hidden for everyone; URL persistence, keeping
+`replaceState`; the narrow panel; row menus and the play Reset; the
+style guide's Checkbox. Every delegated decision in S2–S4 is kept as
+built. Verification of S5–S8 is still to come.
 
 ## Closeout audit (2026-11-02)
 
@@ -66,13 +68,13 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 - **Stale S3** The EPIC said the hover mock was missing. *Fixed:* notes
   S3 found it.
 - **Stale S4** `Radio`'s `nav` variant now appears only in the style
-  guide, and its comment names Build/Play. *Accepted:* S4 kept it in
-  scope deliberately; removing it is an optional follow-up for the human.
+  guide, and its comment names Build/Play. *Scheduled:* S8, at the
+  human's request.
 - **Stale S5** Frozen test headers and describe titles
   (`e2e/puzzle-library.spec.ts:18–27`, `'14-S2-3 Build'`,
   `'14-S2-4 Play'`; `library-source.test.ts:9–10`) still describe the
-  removed views. *Accepted:* comments only, changeable only through
-  STORY's correction procedure; an optional follow-up.
+  removed views. *Scheduled:* S8, through STORY's correction procedure,
+  at the human's request.
 - **Prunable** This handoff's per-story detail. *Done:* compressed to
   status plus links. No LEARNINGS entry is spent.
 
@@ -88,10 +90,10 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-The human verifies the epic and reviews the delegated decisions. If they
-accept, a session marks Epic 18 closed in this handoff and the
-[epic index](../README.md); any changed decision becomes scoped work.
+Orchestrator: draft, review, freeze and implement S5–S8 in order under
+the extended delegation, then hand back for the human's one-at-a-time
+verification of S5–S8. Then mark the epic closed.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md. Record the human's end-of-epic verification and delegated-decision review on main, then mark Epic 18 closed or scope any requested change.
+Read docs/epics/18-puzzles-page/HANDOFF.md. As orchestrator under the extended delegation recorded there, deliver Epic 18's S5–S8 in order on main, then hand back to the human for verification.
