@@ -1,6 +1,7 @@
 # Epic: Polish
 
-**Approved by the human 2026-10-27.** Drafted the same day from the
+**Closed 2026-11-02**, after two independent closeout audits (see
+[At closeout](#at-closeout-2026-11-02)). **Approved by the human 2026-10-27.** Drafted the same day from the
 human's list of design and UX issues and the NYT-style Rebus mockup. Their
 layout items (the 560px grid, the 1800px main area, the 32px gap and the
 filling hint columns) went into [epic 15](../15-responsive-layout/EPIC.md)
@@ -234,7 +235,8 @@ sharing step is now "publishes Unlisted and plays" (amended there).
 cell Preview shows as white, error or warning selects it, and its word in
 the cursor's direction (Across or Down, as in the build phase) is
 highlighted: the cursor cell is `build-cell-selected-cell`, the rest of
-the word `build-cell-selected-row-on` (yellow-medium; the human's
+the word `build-cell-selected-row-on` (yellow-medium then, blue-medium
+since S5; the human's
 "build-cell-selected-cell-on" names this existing style). Nothing in
 Preview takes `build-cell-selected-row-off`. A word is a run of
 Preview's non-black cells, i.e. a slot of `intendedGeometry`, so error,
@@ -460,7 +462,7 @@ Escape and the Rebus control (S8's link in the builder, the pill in play)
 in the build phase, the hints phase and play: the entry state, the
 enlarged, shadowed cell while entering (the human's `rebus.png` mockup),
 Enter or Escape to close, and the cell's text fitting its letters.
-Approved and frozen 2026-11-02:
+Done 2026-11-02:
 [17-S10-rebus.md](stories/17-S10-rebus.md).
 
 ---
@@ -475,3 +477,19 @@ The 2026-10-31 amendment's questions were answered that day *(human)*:
 fold the addendum into this EPIC, the word rule covers the hints phase and
 play, Preview Hints shows the player's view in place, and the Rebus
 control is a link in the builder and a pill in play.
+
+---
+
+## At closeout (2026-11-02)
+
+All ten stories are done on `main`. Accepted *(human)*:
+
+- `src/components/ui/WrappingField.tsx` was changed in S10's
+  implementation (CSS `field-sizing: content`, its measured height the
+  fallback) without first being declared in S10's Repo paths.
+- The visual checks' devices weren't stated (S10's Definition of done
+  asks for a phone or tablet as well).
+
+Not covered by either audit: `field-sizing`'s fallback in browsers
+without it, re-failing 17-S10-13 on pre-fix code, and S1–S9's
+acceptance arithmetic. Nothing else is left open.

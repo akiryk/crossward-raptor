@@ -7,12 +7,12 @@ advances. The Rebus control does the same without a keyboard: a text link
 in the builder's toggle row and an outlined pill in play. A rebus's text
 is as large as fits its cell.
 
-**Status: approved and frozen** (drafted 2026-11-01; approved by the
+**Status: done** (drafted 2026-11-01; approved by the
 human 2026-11-02 with both pending questions answered as proposed and one
 addition, a rebus's minimum size, recorded in "A placed rebus's size" and
 case 17-S10-12). A second correction, case 17-S10-13 (a rebus on a
-Preview-black cell), was approved on 2026-11-02 (see Acceptance). Frozen acceptance must not change to fit the
-implementation.
+Preview-black cell), was approved on 2026-11-02 (see Acceptance). Delivered directly on
+`main`; the human's visual check passed (2026-11-02).
 
 **Blast radius: small to medium.** A new pure helper in `src/lib/`, two
 new components (the entry and the control), the editor's and play's key,
@@ -321,7 +321,10 @@ Tab would then place it and send a save.
 ### Discrimination (2026-11-01, observed)
 
 - **Current `main` with the proposed tests:** all 11 browser cases fail
-  (both sizes of 17-S10-11 included, 12 runs). The unit file fails to
+  (both sizes of 17-S10-11 included, 12 runs). These counts predate the
+  later cases: 17-S10-12, added at approval, also failed on `main`
+  (observed 2026-11-02), and 17-S10-13 has its own record in the second
+  correction below. The unit file fails to
   load without `rebus-entry.ts`. The amended P2 case passes on `main`, as
   Escape does nothing there.
 - **Throwaway implementation** of these Decisions (reverted; patch outside

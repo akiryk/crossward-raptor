@@ -6,7 +6,7 @@ controls (Preview, or Lock Grid Letters) sit on a rounded panel, the
 toggle row, at the grid's width. The build phase has no Publish, so its
 "Lol." and "Nope." dialogs go.
 
-**Status: approved and frozen** (drafted 2026-11-01). The human approved
+**Status: done** (drafted 2026-11-01). The human approved
 this specification, its acceptance, the amendments and the EPIC amendment
 on 2026-11-01, with the pending question as proposed. Frozen in 898bb5a;
 implemented on `main` the same day. The human's visual check passed

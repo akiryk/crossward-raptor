@@ -7,11 +7,11 @@ cell, measured from the human's screenshot, so a number never touches
 its cell's letter at any width; the other sizes keep their type. Below a
 748px window the page's side padding is 8px (the correction below).
 
-**Status: approved and frozen** (drafted and approved by the human
-2026-11-01, with both pending questions as proposed), in a
+**Status: done** (2026-11-01). Drafted and approved by the human
+2026-11-01, with both pending questions as proposed, and frozen in a
 specification-only commit on `main` (3152562). Implemented on `main`;
 `npm run verify` and the full `npm run test:e2e` (862 passed) exit 0.
-Awaiting the human's visual check.
+The human's visual check asked for the correction below.
 
 **Correction approved** (2026-11-01, after the human's visual check of
 8cf2828): approved by the human and independently reviewed the same day,

@@ -5,9 +5,10 @@ player's view in place: play's grid without its letters, play's Player
 Hints with every hint in full, and play's Prominent Hint. Selecting works
 as in play; nothing can be typed. Off returns to editing as before.
 
-**Status: correction approved** (drafted, approved and frozen in be03d64
-on 2026-11-01, implemented in 6c5427f; the human's visual check asked for
-the correction below, which they approved the same day).
+**Status: done** (drafted, approved and frozen in be03d64 on 2026-11-01,
+implemented in 6c5427f; the human's visual check asked for the
+correction below, which they approved the same day, frozen in 9845001
+and implemented on `main`; its visual check passed 2026-11-02).
 
 ## Correction (2026-11-01) *(human; approved)*
 

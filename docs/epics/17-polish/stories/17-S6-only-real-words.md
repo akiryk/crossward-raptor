@@ -6,7 +6,7 @@ that way; clicking the cursor cell again, Space or a cross-axis arrow
 does nothing where no word runs the other way, so no lone cell is ever
 highlighted. The build phase is unchanged.
 
-**Status: approved** by the human (2026-11-01), including the settled
+**Status: done** (2026-11-01). Approved by the human, including the settled
 items, both pending questions as proposed and the two amendments; frozen
 on `main` in 1269487 (specification only). Implemented and delivered on
 `main` (2026-11-01).

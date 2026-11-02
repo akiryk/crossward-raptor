@@ -5,7 +5,7 @@ small Reset button on a completed Play row and its confirmation dialog.
 Play loses "Puzzle options", its Reset menu item, the builder's Reset
 button and its Reset dialog. Nothing else in the builder or play resets.
 
-**Status: approved and frozen** (2026-11-01). The human approved this
+**Status: done** (2026-11-01). The human approved this
 specification, its acceptance, the retirements and the proposed
 Decisions on 2026-11-01. Frozen on `main` in ceba5ec (specification
 only); implemented on `story/17-S3-no-reset-in-play`, independently

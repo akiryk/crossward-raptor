@@ -17,8 +17,8 @@ export function PlayResetDialog({
   failed: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  /** Names the puzzle where several could be reset, as in the library. */
-  puzzleTitle?: string;
+  /** Names the puzzle, since the library lists several. */
+  puzzleTitle: string;
 }) {
   return (
     <Modal
@@ -38,18 +38,11 @@ export function PlayResetDialog({
         </>
       )}
     >
-      {puzzleTitle === undefined ? (
-        <p>
-          This clears your entries and your completion record, and starts the puzzle over.
-          It cannot be undone.
-        </p>
-      ) : (
-        <p>
-          This clears your entries and your completion record for{' '}
-          <span className="font-semibold text-primary">{puzzleTitle}</span>,
-          and starts the puzzle over. It cannot be undone.
-        </p>
-      )}
+      <p>
+        This clears your entries and your completion record for{' '}
+        <span className="font-semibold text-primary">{puzzleTitle}</span>,
+        and starts the puzzle over. It cannot be undone.
+      </p>
       {pending && <p data-testid="play-reset-pending" role="status">Resetting your puzzle…</p>}
       {failed && !pending && (
         <p data-testid="play-reset-error" role="alert" className="text-error">

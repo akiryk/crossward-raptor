@@ -167,6 +167,12 @@ undecided.
   flagged as worth revisiting).
 - 15×15 default with no hardcoded assumption of it anywhere in the engine,
   so 21×21 and other sizes already work.
+- Rebus squares, settled by 17-S10: Escape (or the Rebus control) opens a
+  rebus entry wherever letters can be typed; it keeps letters and digits,
+  uppercase, at most 10, and Enter or Escape places the string in one
+  cell through the engine's unchanged `place`. A placed rebus is as large
+  as fits its cell, never below a third of the letter size (cut off at
+  the cell's edges beyond that). Symbols aren't accepted.
 
 **Deliberately divergent, or not yet built:**
 
@@ -187,18 +193,5 @@ undecided.
 
 **Open questions this document surfaces:**
 
-- **Rebus support — verified, and the answer is narrow.** The data model,
-  persistence, and rendering all already handle multi-character entries:
-  `Cell.letter` is `string | null`, `withLetter` applies no length check,
-  serialization copies the string through unchanged, `LetterCell` renders
-  it without truncation, and `place`/`deleteAt`/`moveTo` treat the letter
-  as opaque and advance by exactly one cell — which is correct rebus
-  behavior. The single blocker is *input*: `keyToIntent` can only ever
-  emit a one-character letter, since a `KeyboardEvent.key` for a letter
-  key is length 1, and nothing in the editor accumulates keystrokes into a
-  staged string. So rebus needs a new intent (NYT uses Escape) plus
-  accumulator state in the editor, calling `place` once with the assembled
-  string. Real but scoped work, not a redesign. Rendering would also want
-  length-aware font sizing, which is cosmetic.
 - **Should minimum answer length become 3** to match the convention, or
   stay 2 deliberately?
