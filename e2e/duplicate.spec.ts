@@ -207,7 +207,7 @@ test.describe('16-S4-2 duplicating a published puzzle', () => {
     await library(page);
     await expect(row(page, `${source.title} (copy)`).getByTestId('puzzle-status')).toHaveText('Hint phase'); // 18-S3
     await expect(row(page, `${source.title} (copy)`)).toHaveAttribute('data-published', 'false');
-    await expect(row(page, source.title).getByTestId('puzzle-status')).toHaveText('Ready to play');
+    await expect(row(page, source.title).getByTestId('puzzle-status')).toHaveText('Complete'); // 18-S5: the caller's seeded session is solved
     await expect(row(page, source.title)).toHaveAttribute('data-visibility', 'public');
     // 18-S4: one list; the unpublished copy links to the editor, the source to play.
     await expect(row(page, `${source.title} (copy)`).getByTestId('puzzle-play-link'), 'an unpublished copy is not playable').toHaveCount(0);

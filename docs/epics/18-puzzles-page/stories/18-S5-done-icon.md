@@ -20,7 +20,7 @@ delegation.
 **Blast radius: small.** The change touches the status icon (one more
 entry), the row (which icon, which hidden text, one marker fewer), one
 palette variable, one color style and two catalog rows. It adds one spec
-file and amends six frozen test files. No schema, server action, storage,
+file and amends seven frozen test files (one by correction). No schema, server action, storage,
 query or engine change.
 **CODE-REVIEW risk classification:** none of the declared Repo paths is a
 risk path (`src/engine/**`, `src/lib/puzzle-storage.ts`,
@@ -115,14 +115,14 @@ grepped `e2e` and `src` for `[complete]`, `Ready to play`,
   completed row needs no change there.
 - **The style guide** needs no change. Its completed sample row now shows
   DONE with no marker, which 18-S5-2 checks.
-
 - **A solved but unstamped attempt counts as completed** (as
   `classifyLibraryPlay` already reads it), so its row also gets DONE and
   "Complete". Noted by the specification review; no test pins its icon.
 
 ## Acceptance
 
-*Approved and frozen 2026-11-02.* One new file and six amended files.
+*Approved and frozen 2026-11-02.* One new file and seven amended files
+(`duplicate.spec.ts` by the correction below).
 
 ### e2e/done-icon.spec.ts
 
@@ -157,7 +157,8 @@ are checked by their screenshot pixels, as in S3.
 
 ### Amended acceptance
 
-Amended in the specification-only freeze commit. Every other frozen test
+Amended in the specification-only freeze commit (`duplicate.spec.ts` in
+the later correction commit). Every other frozen test
 is unchanged.
 
 | File | Case | Was | Becomes | Reason |
@@ -171,6 +172,16 @@ is unchanged.
 | `e2e/library-filters.spec.ts` | 18-S4-3 "with no filter it lists …" | own and foreign completed rows: `[complete]`, link "Title Ready to play [complete]"; Reset keyed on the marker | no marker; link "Title Complete"; Reset keyed on the status | as above |
 | `src/app/globals-css.test.ts` | `VARIABLES`, `STYLES` (F1) | no `orange`, no `status-complete` | adds `orange: '#EF9D05'` and `'status-complete': 'orange'` | the new variable and style |
 | `e2e/color-tokens.spec.ts` | `VARIABLES`, `STYLES` (F1-1, F1-2, F1-4) | as above | as above | as above |
+| `e2e/duplicate.spec.ts` | 16-S4-2 "duplicating a published puzzle" | the source row's `puzzle-status` reads "Ready to play" | reads "Complete" | its seeded caller session is solved, so the row is completed; added by correction (below) |
+
+### Correction (2026-11-02)
+
+The full browser suite on the implementation (943 passed, 1 failed)
+found `duplicate.spec.ts` 16-S4-2, missing from the table above: it
+seeds the caller a solved session on the source, then expected "Ready to
+play". The human approved the correction ("Expect \"Complete\"");
+independently reviewed; frozen in a separate specification-only commit
+before the implementation was committed.
 
 ### Acceptance choices *(delegated, orchestrator)*
 
