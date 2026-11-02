@@ -81,7 +81,8 @@ test.describe('PB5-2 published status in the list', () => {
     await expect(item).toHaveAttribute('data-published', 'true');
     await expect(item).toHaveAttribute('data-visibility', 'private');
     // 14-S2: the marker reads [published]; visibility stays in data-visibility.
-    await expect(item).toContainText('[published]');
+    // 18-S3: the hidden status reads Ready to play.
+    await expect(item).toContainText('Ready to play');
 
     const publishedAt = await item.getAttribute('data-published-at');
     expect(publishedAt).toBeTruthy();
@@ -97,7 +98,7 @@ test.describe('PB5-2 published status in the list', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-visibility', 'public');
-    await expect(item).toContainText('[published]');
+    await expect(item).toContainText('Ready to play');
   });
 
   // 14-S4: "unpublishing returns the row to unpublished" is retired, since

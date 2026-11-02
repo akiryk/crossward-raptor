@@ -19,7 +19,7 @@ const LIBRARY_FILES = [
   'components/puzzle/PuzzleLibrary.tsx',
   'components/puzzle/PuzzleRow.tsx',
   'components/puzzle/RowHeading.tsx',
-  'components/puzzle/CrosswordIcon.tsx',
+  'components/puzzle/StatusIcon.tsx', // 18-S3: replaces CrosswordIcon.tsx
   'components/puzzle/LibraryDeleteDialog.tsx',
   'components/puzzle/LibraryPlayControls.tsx',
 ];

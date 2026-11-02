@@ -210,9 +210,9 @@ test.describe('16-S4-2 duplicating a published puzzle', () => {
 
     // The library lists the copy as a hints-phase draft and keeps the source as it was.
     await library(page);
-    await expect(row(page, `${source.title} (copy)`).getByTestId('puzzle-status-badge')).toHaveText('[hint]');
+    await expect(row(page, `${source.title} (copy)`).getByTestId('puzzle-status')).toHaveText('Hint phase'); // 18-S3
     await expect(row(page, `${source.title} (copy)`)).toHaveAttribute('data-published', 'false');
-    await expect(row(page, source.title).getByTestId('puzzle-status-badge')).toHaveText('[published]');
+    await expect(row(page, source.title).getByTestId('puzzle-status')).toHaveText('Ready to play');
     await expect(row(page, source.title)).toHaveAttribute('data-visibility', 'public');
     await showView(page, 'Play');
     await expect(row(page, source.title)).toHaveCount(1);

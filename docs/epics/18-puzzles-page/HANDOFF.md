@@ -33,6 +33,13 @@ independent specification review approved it (wording nits applied);
 frozen in specification-only commit `38090fe`, then implemented
 (`globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk path.
 
+**S3 approved and frozen** under the delegation:
+[18-S3-status-icons](stories/18-S3-status-icons.md), acceptance
+`e2e/status-icons.spec.ts` plus amendments to eleven frozen files listed
+in the story. An independent specification review approved it (wording
+nits applied). Implementation in progress on `main`. No CODE-REVIEW risk
+path.
+
 ## Verification
 
 On the S2 implementation tree: `npm run verify` exit 0 (Vitest 641 of
@@ -42,9 +49,9 @@ Frozen acceptance unchanged from `38090fe`.
 
 ## Next action
 
-Orchestrator: draft S3 (status icons and green play rows), have it
-reviewed, freeze and deliver it; then S4 and the closeout audit.
+Orchestrator: implement and deliver S3 on `main`; then S4 and the
+closeout audit.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md and the S2 section of docs/epics/18-puzzles-page/EPIC.md. Orchestrate Epic 18's remaining stories from S2 end to end on main under the delegation recorded in the handoff, then run the closeout audit and hand back to the human for verification.
+Read docs/epics/18-puzzles-page/HANDOFF.md and docs/epics/18-puzzles-page/EPIC.md. Orchestrate Epic 18's remaining stories end to end on main under the delegation recorded in the handoff, then run the closeout audit and hand back to the human for verification.

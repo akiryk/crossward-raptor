@@ -48,7 +48,7 @@ test.describe('L2b-1 the library page', () => {
 
     const item = row(page, title);
     await expect(item.getByTestId('puzzle-list-title')).toHaveText(title);
-    await expect(item.getByTestId('puzzle-status-badge')).toBeVisible();
+    await expect(item.getByTestId('puzzle-icon')).toBeVisible(); // 18-S3: the status icon replaces the marker
 
     const updated = item.getByTestId('puzzle-list-updated');
     await expect(updated).toBeVisible();
@@ -60,7 +60,7 @@ test.describe('L2b-1 the library page', () => {
     await seedGridPhase(title);
     await page.goto('/puzzles');
 
-    await expect(row(page, title).getByTestId('puzzle-status-badge')).toHaveAttribute(
+    await expect(row(page, title).getByTestId('puzzle-status')).toHaveAttribute(
       'data-status-kind',
       'grid'
     );
@@ -74,14 +74,15 @@ test.describe('L2b-1 the library page', () => {
     );
     await page.goto('/puzzles');
 
-    await expect(row(page, title).getByTestId('puzzle-status-badge')).toHaveAttribute(
+    await expect(row(page, title).getByTestId('puzzle-status')).toHaveAttribute(
       'data-status-kind',
       'hints'
     );
   });
 
   // 14-S2: the status reads as the title's bracketed marker, so the two rows
-  // differ in the marker's text rather than a badge background.
+  // differ in the marker's text rather than a badge background. 18-S3: they
+  // differ in their icons and hidden status text.
   test('a published puzzle reads as published, and looks different', async ({ page }) => {
     const unpublishedTitle = uniqueTitle('unpublished');
     const publishedTitle = uniqueTitle('published');
@@ -100,12 +101,12 @@ test.describe('L2b-1 the library page', () => {
 
     await page.goto('/puzzles');
 
-    const publishedBadge = row(page, publishedTitle).getByTestId('puzzle-status-badge');
+    const publishedBadge = row(page, publishedTitle).getByTestId('puzzle-status');
     await expect(publishedBadge).toHaveAttribute('data-status-kind', 'published');
 
-    const unpublishedBadge = row(page, unpublishedTitle).getByTestId('puzzle-status-badge');
-    await expect(publishedBadge).toHaveText('[published]');
-    await expect(unpublishedBadge).toHaveText('[grid]');
+    const unpublishedBadge = row(page, unpublishedTitle).getByTestId('puzzle-status');
+    await expect(publishedBadge).toHaveText('Ready to play');
+    await expect(unpublishedBadge).toHaveText('Build phase');
   });
 
   test('each row has an edit link pointing at that puzzle', async ({ page }) => {

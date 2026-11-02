@@ -38,7 +38,7 @@ test('O3 the library gives only owners Edit, and foreign published puzzles only 
       }
       await expect(row).toBeVisible();
       await expect(row.getByTestId('puzzle-list-title')).toHaveText(fixture.name);
-      await expect(row.getByTestId('puzzle-status-badge')).toBeVisible();
+      await expect(row.getByTestId('puzzle-icon')).toBeVisible(); // 18-S3: the status icon replaces the marker
       await expect(row.getByTestId('puzzle-list-updated')).toBeVisible();
       await expect(row.getByTestId('puzzle-edit-link')).toHaveAttribute('href', `/puzzles/${fixture.id}`);
       await expect(row.getByTestId('puzzle-edit-link')).toBeVisible();

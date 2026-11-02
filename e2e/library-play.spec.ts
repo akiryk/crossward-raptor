@@ -147,7 +147,8 @@ test.describe('P5 — the library learns about play', () => {
       const play = item.getByTestId('puzzle-play-link');
       await expect(play).toBeVisible();
       // 14-S2: the link wraps the title and its marker; an untouched row has none.
-      await expect(play).toHaveAccessibleName(fixture.title);
+      // 18-S3: the hidden status follows the title.
+      await expect(play).toHaveAccessibleName(`${fixture.title} Ready to play`);
       expect(await play.evaluate((el) => el.tagName.toLowerCase())).toBe('a');
       expect(await play.getAttribute('href')).toMatch(new RegExp(`/puzzles/${fixture.id}/play$`));
       await expectState(item, 'untouched');
@@ -159,13 +160,13 @@ test.describe('P5 — the library learns about play', () => {
     await showView(page, 'Build');
     const manage = row(page, ownPublic.title).getByTestId('puzzle-edit-link');
     await expect(manage).toBeVisible();
-    await expect(manage).toHaveAccessibleName(`${ownPublic.title} [published]`);
+    await expect(manage).toHaveAccessibleName(`${ownPublic.title} Ready to play`);
     expect(await manage.getAttribute('href')).toMatch(new RegExp(`/puzzles/${ownPublic.id}$`));
     await expect(row(page, othersPublic.title)).toHaveCount(0);
 
     const draft = row(page, unpublished.title);
     await expect(draft.getByTestId('puzzle-edit-link')).toBeVisible();
-    await expect(draft.getByTestId('puzzle-edit-link')).toHaveAccessibleName(`${unpublished.title} [hint]`);
+    await expect(draft.getByTestId('puzzle-edit-link')).toHaveAccessibleName(`${unpublished.title} Hint phase`);
     await expect(draft.getByTestId('puzzle-play-link')).toHaveCount(0);
     await expect(draft.getByTestId('puzzle-play-state')).toHaveCount(0);
     await expect(draft.getByTestId('puzzle-reset-button')).toHaveCount(0);

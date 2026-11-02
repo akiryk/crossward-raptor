@@ -34,8 +34,8 @@ test.describe('M3-2 list metadata', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-phase', 'grid');
-    // 14-S2: the phase reads as the title's marker.
-    await expect(item).toContainText('[grid]');
+    // 14-S2: the phase reads as the title's marker. 18-S3: as hidden status text.
+    await expect(item).toContainText('Build phase');
     await expect(item).not.toContainText('Hints');
   });
 
@@ -52,7 +52,8 @@ test.describe('M3-2 list metadata', () => {
     await expect(item).toHaveAttribute('data-phase', 'hints');
     await expect(item).toHaveAttribute('data-hints-complete', 'true');
     // 14-S2: completeness stays in data-hints-complete; the marker reads [hint].
-    await expect(item).toContainText('[hint]');
+    // 18-S3: the hidden status reads Hint phase.
+    await expect(item).toContainText('Hint phase');
     await expect(item).not.toContainText('Hints');
   });
 
@@ -68,7 +69,7 @@ test.describe('M3-2 list metadata', () => {
 
     const item = row(page, title);
     await expect(item).toHaveAttribute('data-hints-complete', 'false');
-    await expect(item).toContainText('[hint]');
+    await expect(item).toContainText('Hint phase');
     await expect(item).not.toContainText('Hints');
   });
 

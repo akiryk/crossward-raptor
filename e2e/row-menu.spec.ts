@@ -467,7 +467,7 @@ test.describe('16-S2-7 changing visibility', () => {
       const after = await snapshot(fixture.id);
       expect(after.rest, `${choice}: id, title, grid, hints, phase, dates unchanged`).toEqual(before.rest);
       expect(after.sessions, `${choice}: play sessions unchanged`).toEqual(before.sessions);
-      await expect(item.getByTestId('puzzle-status-badge')).toHaveText('[published]');
+      await expect(item.getByTestId('puzzle-status')).toHaveText('Ready to play'); // 18-S3
 
       await openMenu(page, item);
       expect(await itemTexts(page)).toEqual(['Duplicate', next, 'Delete']); // 16-S3: Delete follows; 16-S4: Duplicate leads
