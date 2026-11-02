@@ -77,7 +77,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'play-hint-bar', variable: 'blue-medium', swatch: 'bg-play-hint-bar' },
   { name: 'hint-missing', variable: 'pink', swatch: 'bg-hint-missing' },
   { name: 'primary', variable: 'black', swatch: 'bg-primary' },
-  { name: 'muted', variable: 'gray-500', swatch: 'bg-muted' },
+  { name: 'muted', variable: 'black at 40%', swatch: 'bg-muted' },
   { name: 'link-muted', variable: 'interactive-light', swatch: 'bg-link-muted' },
   { name: 'highlight', variable: 'blue-bright', swatch: 'bg-highlight' },
   { name: 'error', variable: 'text-error', swatch: 'bg-error' },

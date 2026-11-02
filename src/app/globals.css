@@ -66,7 +66,7 @@
 
   /* text */
   --color-primary: var(--palette-black);
-  --color-muted: var(--palette-gray-500);
+  --color-muted: color-mix(in srgb, var(--palette-black) 40%, transparent);
   --color-link-muted: var(--palette-interactive-light);
   --color-highlight: var(--palette-blue-bright);
   --color-error: var(--palette-text-error);

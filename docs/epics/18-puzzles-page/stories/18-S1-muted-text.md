@@ -4,9 +4,10 @@ The `muted` color style becomes black at 40% opacity, app-wide, so muted
 text takes on the background it sits on. `gray-500` stays in the palette
 for its other styles.
 
-**Status: approved and frozen** (2026-11-02). The human approved the
-specification, its small calls, its acceptance and the ten amendments
-("I approve S1"); frozen on `main` in a specification-only commit.
+**Status: done** (2026-11-02). The human approved the specification,
+its small calls, its acceptance and the ten amendments ("I approve S1");
+frozen on `main` in specification-only commit `1acb507`, then
+implemented and delivered on `main`.
 
 **Blast radius: small.** One color style's value in `globals.css` and its
 style-guide catalog row. No component changes, and no schema, server
@@ -139,6 +140,13 @@ is unchanged.
   and `delete-published`: their frozen cases never assert that muted
   differs from primary. That case is caught by F1-2, 18-S1-1 and the
   `MUTED` files.
+
+### Implementation (2026-11-02, observed)
+
+Runtime is `globals.css` and `ColorSwatches.tsx` only, the drafting
+throwaway re-applied. Frozen acceptance is unchanged from `1acb507`.
+`npm run verify` exit 0 (Vitest 641 of 641). Full `npm run test:e2e`
+exit 0, 914 passed, under the guarded harness's standing reset grant.
 
 ## Repo paths
 
