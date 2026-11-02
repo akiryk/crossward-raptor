@@ -35,6 +35,9 @@ const VARIABLES: Record<string, string> = {
   cyan: '#00F0FF',
   // 17-S1: a missing hint's row.
   pink: '#FFE4E2',
+  // 18-S2: the play rows' fills.
+  'green-faint': '#F0F5E5',
+  'green-faint-hover': '#EAF0DB',
 };
 
 const STYLES: Record<string, string> = {
@@ -93,6 +96,9 @@ const STYLES: Record<string, string> = {
   // 17-S8 removed 'button-done' (14-S12's done 1): nothing uses it.
   'puzzle-row': 'interactive-faint',
   'puzzle-row-hover': 'interactive-faint-hover',
+  // 18-S2: the play rows, mirroring puzzle-row and puzzle-row-hover.
+  'puzzle-row-play': 'green-faint',
+  'puzzle-row-play-hover': 'green-faint-hover',
   // 17-S8: the builder's toggle row.
   'toggle-row': 'interactive-faint',
   'modal-background': 'white',
