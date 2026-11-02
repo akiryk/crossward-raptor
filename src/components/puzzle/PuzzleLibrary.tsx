@@ -1,32 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { NewPuzzleButton } from '@/app/puzzles/NewPuzzleButton';
-import { RadioGroup } from '@/components/ui/Radio';
+import { useSearchParams } from 'next/navigation';
 import { Title } from '@/components/ui/Title';
+import { filterCount, filterPuzzles, filtersQuery, parseFilters, type LibraryFilters as Filters } from '@/lib/puzzle-filters';
 import { groupPuzzles } from '@/lib/puzzle-groups';
+import { LibraryFilters } from './LibraryFilters';
 import { PuzzleRow, type LibraryPuzzle } from './PuzzleRow';
 import { RowHeading } from './RowHeading';
 
-type View = 'build' | 'play';
-const VIEW_KEY = 'crossward:library-view';
-
-/** Story 14-S2: the library, split into Build (your puzzles) and Play (every published one). */
+/** Story 14-S2: the library. Story 18-S4: one list, narrowed by filters kept in the URL. */
 export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; userId: string }) {
-  const [view, setView] = useState<View>('build');
+  const filters = parseFilters(useSearchParams());
   const [ready, setReady] = useState(false);
   // The puzzle just deleted, until its row is gone and the heading has focus.
   const [deletedId, setDeletedId] = useState<string | null>(null);
 
+  // data-ready marks hydration, so tests act only once the controls respond.
   useEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem(VIEW_KEY);
-    } catch {
-      // Storage may be blocked; Build is the default.
-    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setView(stored === 'play' ? 'play' : 'build');
     setReady(true);
   }, []);
 
@@ -41,18 +33,12 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
     setDeletedId(null);
   }, [deletedId, puzzles]);
 
-  function choose(next: View) {
-    setView(next);
-    try {
-      localStorage.setItem(VIEW_KEY, next);
-    } catch {
-      // The choice still applies for this visit.
-    }
+  function choose(next: Filters) {
+    // Replaces the entry, so Back leaves the library rather than undoing a check.
+    window.history.replaceState(null, '', `${window.location.pathname}${filtersQuery(next)}`);
   }
 
-  const shown = view === 'build'
-    ? puzzles.filter((p) => p.builderId === userId)
-    : puzzles.filter((p) => p.publishedAt !== null);
+  const shown = filterPuzzles(puzzles, filters, userId);
   const groups = groupPuzzles(shown.map((puzzle) => ({
     puzzle,
     cols: puzzle.cols,
@@ -60,34 +46,25 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
     phase: puzzle.phase,
     publishedAt: puzzle.publishedAt === null ? null : new Date(puzzle.publishedAt),
     updatedAt: new Date(puzzle.updatedAt),
-    // Build doesn't sink completed puzzles.
-    play: view === 'play' ? puzzle.play : null,
+    play: puzzle.play,
   })));
 
   return (
     <div
       data-testid="puzzle-library"
       data-ready={ready}
-      className="mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5"
+      // From 948px the 200px filters column sits to the left; shifting the list
+      // 100px right centers the pair.
+      className="relative mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5 min-[948px]:left-[100px]"
     >
-      {/* Last-baseline alignment: the Radio's first baseline is its circle, its last is the label text. */}
-      <div data-testid="puzzle-list-header" className="flex items-baseline-last justify-between pt-[10px]">
+      <div data-testid="puzzle-list-header" className="pt-[10px]">
         <Title size={2} as="h1" tabIndex={-1} id="puzzle-library-heading" data-testid="page-heading">Puzzles</Title>
-        <RadioGroup
-          name="library-view"
-          label="Show puzzles"
-          variant="nav"
-          data-testid="library-view"
-          options={[{ value: 'build', label: 'Build' }, { value: 'play', label: 'Play' }]}
-          value={view}
-          onChange={choose}
-        />
       </div>
-      <div data-testid="puzzle-list-rule" className="mt-2 h-px bg-line-dark" />
-      <div data-testid="puzzle-list" className="mt-5 flex flex-col gap-10">
+      <LibraryFilters filters={filters} onChange={choose} />
+      <div data-testid="puzzle-list" className="mt-[27px] flex flex-col gap-10">
         {groups.length === 0 && (
           <p data-testid="puzzle-list-empty" className="text-body-normal text-muted">
-            {view === 'build' ? "You haven't started a puzzle yet." : 'No puzzles to play yet.'}
+            {filterCount(filters) > 0 ? 'No puzzles match these filters.' : 'No puzzles yet.'}
           </p>
         )}
         {groups.map((group) => (
@@ -98,16 +75,13 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
                 <PuzzleRow
                   key={puzzle.id}
                   puzzle={puzzle}
-                  view={view}
+                  own={puzzle.builderId === userId}
                   onDeleted={() => setDeletedId(puzzle.id)}
                 />
               ))}
             </ul>
           </section>
         ))}
-      </div>
-      <div className="mt-5">
-        <NewPuzzleButton />
       </div>
     </div>
   );

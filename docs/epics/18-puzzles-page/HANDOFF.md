@@ -42,25 +42,29 @@ implemented (`StatusIcon.tsx` new, `CrosswordIcon.tsx` deleted,
 `PuzzleRow.tsx`, `globals.css`, `ColorSwatches.tsx`). No CODE-REVIEW risk
 path.
 
-**S4 approved and frozen** under the delegation:
-[18-S4-filters](stories/18-S4-filters.md). Acceptance:
+**S4 done and delivered on `main`** under the delegation:
+[18-S4-filters](stories/18-S4-filters.md), acceptance
 `src/lib/puzzle-filters.test.ts` and `e2e/library-filters.spec.ts`
 (new), plus amendments to thirteen frozen files and five retired browser
 cases, all listed in the story. An independent specification review
-approved it (should-fix items applied and re-verified). Implementation
-in progress on `main`. No CODE-REVIEW risk path.
+approved it (should-fix items applied and re-verified); frozen in
+specification-only commit `8a49994`, then implemented
+(`puzzle-filters.ts`, `ui/Checkbox.tsx` and `LibraryFilters.tsx` new,
+`PuzzleLibrary.tsx`, `PuzzleRow.tsx`, `PuzzleRowMenu.tsx`,
+`LibraryPlayControls.tsx`, `library-row.ts`, the style guide). No
+CODE-REVIEW risk path. For the human's review: `replaceState` versus
+`pushState`, and the checked outline (the story's Delegated decisions).
 
 ## Verification
 
-On the S3 implementation tree: `npm run verify` exit 0 (Vitest 641 of
-641); full `npm run test:e2e` exit 0, 926 passed, 0 failed, under the
+On the S4 implementation tree: `npm run verify` exit 0 (Vitest 656 of
+656); full `npm run test:e2e` exit 0, 937 passed, 0 failed, under the
 standing reset grant ([DEVELOPMENT](../../DEVELOPMENT.md#e2e-environment)).
-Frozen acceptance unchanged from `68d031f`.
+Frozen acceptance unchanged from `8a49994`.
 
 ## Next action
 
-Orchestrator: implement and deliver S4 on `main`; then the closeout
-audit.
+Orchestrator: run the independent closeout audit (docs/process/AUDIT.md, docs/epics/README.md#close-an-epic), record it, then hand back to the human for verification.
 
 ## Resume prompt
 

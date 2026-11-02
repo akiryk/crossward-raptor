@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ModalActions } from '@/components/ui/ModalActions';
 import { PreviewToggle } from '@/components/grid/PreviewToggle';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { RadioGroup } from '@/components/ui/Radio';
 import { TextInput } from '@/components/ui/TextInput';
 import { Title } from '@/components/ui/Title';
@@ -63,6 +64,8 @@ export default function StyleGuidePage() {
   const [labelValue, setLabelValue] = useState('');
   const [largeValue, setLargeValue] = useState('');
   const [errorValue, setErrorValue] = useState('');
+  const [checkboxOff, setCheckboxOff] = useState(false);
+  const [checkboxOn, setCheckboxOn] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [newPuzzleOpen, setNewPuzzleOpen] = useState(false);
   const [notQuiteOpen, setNotQuiteOpen] = useState(false);
@@ -239,6 +242,13 @@ export default function StyleGuidePage() {
           />
         </section>
 
+        {/* Story 18-S4: the library filters' checkbox, unchecked and checked. */}
+        <section data-testid="sg-checkbox" className="space-y-3">
+          <h2 className="text-title-2 text-primary">Checkbox</h2>
+          <div data-testid="sg-checkbox-off"><Checkbox label="Unplayed" checked={checkboxOff} onChange={setCheckboxOff} /></div>
+          <div data-testid="sg-checkbox-on"><Checkbox label="Mini" checked={checkboxOn} onChange={setCheckboxOn} /></div>
+        </section>
+
         <section data-testid="sg-titles" className="space-y-3">
           <h2 className="text-title-2 text-primary">Titles</h2>
           <Title size={1} data-testid="sg-title-1">Title 1</Title>
@@ -288,8 +298,8 @@ export default function StyleGuidePage() {
           {/* Rows are drawn at the library's 679px content width. */}
           <div className="overflow-x-auto">
             <ul className="flex w-[679px] flex-col gap-1">
-              <PuzzleRow puzzle={SAMPLE_ROW} view="build" onDeleted={() => {}} />
-              <PuzzleRow puzzle={SAMPLE_COMPLETE_ROW} view="play" onDeleted={() => {}} />
+              <PuzzleRow puzzle={SAMPLE_ROW} own onDeleted={() => {}} />
+              <PuzzleRow puzzle={SAMPLE_COMPLETE_ROW} own={false} onDeleted={() => {}} />
             </ul>
           </div>
         </section>

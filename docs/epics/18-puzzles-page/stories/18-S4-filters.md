@@ -7,12 +7,14 @@ URL. On desktop, Create A Puzzle and the filters move to a left column
 beside the list. On smaller screens, a "Filters" button opens them in a
 panel above the list. A Reset button clears them.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02). Drafted under the
 orchestration the human delegated on 2026-11-02 (see the
 [handoff](../HANDOFF.md)). An independent specification review approved
 it; its should-fix items and nits were applied and re-verified. The
-orchestrator froze it on `main` in a specification-only commit under
-that delegation.
+orchestrator froze it on `main` in specification-only commit `8a49994`
+under that delegation, then it was implemented and delivered on `main`.
+For the human's end-of-epic review: `replaceState` versus `pushState`,
+and the checked outline (both under Delegated decisions).
 
 **Blast radius: high.** The change replaces the library's view model and
 layout. It adds a pure filter module, a `Checkbox` and a filters
@@ -439,6 +441,23 @@ spacing, the style-guide sample, the Reset wording and the renamed
   - `pushState` instead of `replaceState`: 1 failed (18-S4-5, "no history
     entries").
   - Reset not focusing the label: 1 failed (18-S4-6, `toBeFocused`).
+
+### Implementation (2026-11-02, observed)
+
+Runtime is the declared paths only: `src/lib/puzzle-filters.ts`,
+`ui/Checkbox.tsx` and `LibraryFilters.tsx` (new), `PuzzleLibrary.tsx`,
+`PuzzleRow.tsx`, `PuzzleRowMenu.tsx`, `LibraryPlayControls.tsx`,
+`library-row.ts` and the style guide's `page.tsx`. The drafting
+throwaway was re-applied; it matches the Decisions and Delegated
+decisions, and the Radio, its storage key and the per-view code are
+gone. Changes from it: `filtersQuery` builds the query from a shared
+group table instead of `URLSearchParams` plus casts and a `%2C` fix-up;
+the filters' Reset uses the module's `NO_FILTERS` instead of a second
+literal; and short comments explain `data-ready` (hydration), the 100px
+shift and the column's 77px top. Frozen acceptance is unchanged from
+`8a49994`; no CODE-REVIEW risk path in the actual diff. `npm run verify`
+exit 0 (Vitest 656 of 656). Full `npm run test:e2e` exit 0, 937 passed,
+0 failed, under the guarded harness's standing reset grant.
 
 ## Repo paths
 

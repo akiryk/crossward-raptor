@@ -7,7 +7,8 @@ import { Menu, type MenuItem } from '@/components/ui/Menu';
 import { LibraryDelete } from './LibraryDeleteDialog';
 import type { LibraryPuzzle } from './PuzzleRow';
 
-/** Story 16-S2: a Build row's three-dot menu. Story 16-S4 adds Duplicate, first. */
+/** Story 16-S2: an own row's three-dot menu. Story 16-S4 adds Duplicate, first;
+ *  18-S4 adds Open in builder to published rows. */
 export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; onDeleted: () => void }) {
   const [deleting, setDeleting] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
@@ -32,9 +33,17 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
     },
   };
 
+  // Story 18-S4: a published row links to play, so the builder's published view is here.
+  const openInBuilder: MenuItem = {
+    key: 'open-in-builder',
+    label: 'Open in builder',
+    testId: 'puzzle-menu-open-builder',
+    onSelect: () => router.push(`/puzzles/${puzzle.id}`),
+  };
+
   const remove: MenuItem = { key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', onSelect: () => setDeleting(true) };
   const items: MenuItem[] = published
-    ? [duplicate, {
+    ? [duplicate, openInBuilder, {
       key: 'visibility',
       label: makePublic ? 'Make public' : 'Make unlisted',
       testId: 'puzzle-menu-visibility',

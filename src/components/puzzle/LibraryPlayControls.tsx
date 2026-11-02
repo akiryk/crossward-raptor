@@ -33,11 +33,14 @@ export function LibraryPlayControls({
   title,
   play,
   playLink,
+  besideMenu = false,
 }: {
   puzzleId: string;
   title: string;
   play: LibraryPlay;
   playLink: RefObject<HTMLAnchorElement | null>;
+  /** On the caller's own row, Reset sits left of the row's menu. */
+  besideMenu?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -96,7 +99,7 @@ export function LibraryPlayControls({
         <button
           type="button"
           data-testid="puzzle-reset-button"
-          className={ROW_CONTROL}
+          className={`${ROW_CONTROL} ${besideMenu ? 'right-12' : 'right-3'}`}
           // Some browsers do not focus a clicked button; Modal restores focus
           // to whatever was focused when it opened.
           onClick={(event) => {

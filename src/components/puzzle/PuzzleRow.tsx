@@ -34,17 +34,18 @@ const STATUS_TEXT: Record<StatusKind, string> = { grid: 'Build phase', hints: 'H
 const ROW = 'bg-puzzle-row hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover';
 const PLAY_ROW = 'bg-puzzle-row-play hover:bg-puzzle-row-play-hover has-[a:focus-visible]:bg-puzzle-row-play-hover';
 
-export function PuzzleRow({ puzzle, view, onDeleted }: {
+/** Story 18-S4: a published row links to play and shows the player's
+ *  progress; an unpublished one (always the caller's) links to the builder.
+ *  The caller's own rows keep their menu. */
+export function PuzzleRow({ puzzle, own, onDeleted }: {
   puzzle: LibraryPuzzle;
-  view: 'build' | 'play';
+  own: boolean;
   onDeleted: () => void;
 }) {
   const link = useRef<HTMLAnchorElement>(null);
   const published = puzzle.publishedAt !== null;
   const play = published ? puzzle.play : null;
-  // Only Play view shows a visible marker, the player's progress.
-  const marker = view === 'build' ? null
-    : play?.state === 'in-progress' ? '[in-play]'
+  const marker = play?.state === 'in-progress' ? '[in-play]'
     : play?.state === 'completed' ? '[complete]' : null;
 
   return (
@@ -64,8 +65,8 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
       <div className="ml-3 flex w-[212px] min-w-0 flex-col gap-1">
         <Link
           ref={link}
-          href={view === 'build' ? `/puzzles/${puzzle.id}` : `/puzzles/${puzzle.id}/play`}
-          data-testid={view === 'build' ? 'puzzle-edit-link' : 'puzzle-play-link'}
+          href={published ? `/puzzles/${puzzle.id}/play` : `/puzzles/${puzzle.id}`}
+          data-testid={published ? 'puzzle-play-link' : 'puzzle-edit-link'}
           className={`${ROW_PRIMARY_LINK} flex min-w-0 text-title-4 text-primary outline-none`}
         >
           <span data-testid="puzzle-list-title" className="truncate">{puzzle.title}</span>
@@ -89,11 +90,11 @@ export function PuzzleRow({ puzzle, view, onDeleted }: {
       >
         {puzzle.updatedLabel}
       </span>
-      {view === 'build' && (
+      {own && (
         <PuzzleRowMenu puzzle={puzzle} onDeleted={onDeleted} />
       )}
-      {view === 'play' && play && (
-        <LibraryPlayControls puzzleId={puzzle.id} title={puzzle.title} play={play} playLink={link} />
+      {play && (
+        <LibraryPlayControls puzzleId={puzzle.id} title={puzzle.title} play={play} playLink={link} besideMenu={own} />
       )}
     </li>
   );
