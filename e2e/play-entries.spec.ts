@@ -220,7 +220,9 @@ test.describe('P2 — typing and resuming', () => {
     });
     await pauseBrowserClock(page);
 
-    for (const key of ['Delete', '.', '1', ',', '/', 'Enter', 'Escape']) await page.keyboard.press(key);
+    // Escape opens a rebus entry since 17-S10 (e2e/rebus.spec.ts), so it is
+    // no longer an unsupported key here.
+    for (const key of ['Delete', '.', '1', ',', '/', 'Enter']) await page.keyboard.press(key);
     const region = page.getByTestId('play-grid-region');
     for (const modifier of ['ctrlKey', 'metaKey', 'altKey']) {
       await region.dispatchEvent('keydown', { key: 'x', [modifier]: true });

@@ -131,7 +131,24 @@ should-fix items and nits were addressed and re-checked) and frozen on
 directly on `main` the same day (no risk path); the human's visual check
 of them is pending.
 
+**S10 is approved and frozen** (2026-11-02): the human approved
+[17-S10-rebus.md](stories/17-S10-rebus.md), its acceptance
+`e2e/rebus.spec.ts` and `src/lib/rebus-entry.test.ts` (new), the
+amendment to `e2e/play-entries.spec.ts` (P2: Escape is no longer an
+unsupported key), and both pending questions as proposed (play's pill;
+leaving an entry places it without advancing). At approval the human added
+a minimum size for a placed rebus (a third of the letter size, then
+centered and cut off), recorded in the story with case 17-S10-12, which
+fails on `main` as expected (observed 2026-11-02). Frozen on `main` in a
+specification-only commit; implementation follows directly on `main` (no
+risk path).
+
 ## Verification
+
+S10 drafting (uncommitted; throwaway reverted, patch at
+`/tmp/s10/throwaway.patch`): `main` with the proposed tests failed all 12
+browser runs; with the throwaway, `npm run verify` exit 0 (Vitest
+640/640) and full `npm run test:e2e` exit 0 (909 passed).
 
 S9 and S1 corrections (precommit tree, committed unchanged; frozen
 acceptance unchanged from 9845001): `npm run verify` exit 0 (Vitest
@@ -155,9 +172,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-Draft S10 (Rebus) from the EPIC's S10 section, after the human's visual
-check of S9's correction.
+Implement S10 on `main` against its frozen acceptance. The human's visual
+check of S9's correction is still pending.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and the S10 section of docs/epics/17-polish/EPIC.md. Draft S10's specification and acceptance on main for the human's approval; do not implement it.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S10-rebus.md. Record the human's approval and answers, freeze S10 on main and implement it on main; stop if it isn't approved.

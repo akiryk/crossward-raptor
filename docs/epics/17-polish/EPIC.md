@@ -270,17 +270,18 @@ from the palette and the style guide; nothing uses them after this. Supersedes t
 **Rebus entry by Escape** *(human)*. With a cell selected, Escape opens
 rebus entry for it, starting from the cell's current letters. Typing
 builds the entry; Escape or Enter closes it and places the whole string in
-the cell, which the engine already supports. *Proposed:* only letters and
-digits, uppercase, as single-letter entry does; an empty entry clears the
-cell; the cursor then advances as after a single letter; the cell's text
-shrinks to fit.
+the cell, which the engine already supports. *Settled in S10
+(2026-11-02):* only letters and digits, uppercase, at most 10; an empty
+entry clears the cell (not in the hints phase); the cursor then advances
+as after a single letter; the cell's text shrinks to fit, down to a third
+of the letter size, then is centered and cut off.
 
 **The rebus cell while entering** *(human, mockup 2026-10-31)*. The cell
 being entered enlarges by about a third of a grid cell (36px to 48px in
 the mockup), centered on its cell and above its neighbors, white, with
 the drop shadow x 0, y 4, blur 4, spread 0, rgb(0 0 0 / 0.25). It
-returns to normal when entry closes. *Proposed:* the shadow is a new
-shadow token, used only through a style.
+returns to normal when entry closes. *Settled in S10:* the shadow is a
+new shadow token, used only through a style.
 
 **Rebus can be typed wherever letters can** *(human, 2026-10-27)*: the
 build phase, the hints phase while letters are editable (14-S12) and play.
@@ -292,8 +293,9 @@ phases), it is a "Rebus" text link at the right of S8's toggle row,
 aligned with the grid's right edge, as in the step-controls mockups. **In
 play** *(human, mockup 2026-10-27)*, it is an outlined, pill-shaped
 "Rebus" button at the top of the hints column, right of the Prominent
-Hint. *Proposed:* it shows at every width (in narrow layouts, near the
-grid's buttons or hint bar; values from the human in the story) and is
+Hint. *Settled in S10 (2026-11-02):* it shows at every width (wide, at
+the hints column's left edge beside the Prominent Hint; narrow, under the
+hint bar at the grid's right edge) and is
 inactive while letters can't be typed (Lock Grid Letters, published;
 not Preview Hints since S9's correction, 2026-11-01).
 
@@ -458,6 +460,8 @@ Escape and the Rebus control (S8's link in the builder, the pill in play)
 in the build phase, the hints phase and play: the entry state, the
 enlarged, shadowed cell while entering (the human's `rebus.png` mockup),
 Enter or Escape to close, and the cell's text fitting its letters.
+Approved and frozen 2026-11-02:
+[17-S10-rebus.md](stories/17-S10-rebus.md).
 
 ---
 
