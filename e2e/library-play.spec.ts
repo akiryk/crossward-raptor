@@ -87,14 +87,16 @@ async function expectState(item: Locator, state: 'untouched' | 'in-progress' | '
     await expect(reset).toHaveCount(0);
     return;
   }
-  await expect(cue).toBeVisible();
   // 14-S2: the title's bracketed marker; only a completed row offers Reset.
   if (state === 'in-progress') {
+    await expect(cue).toBeVisible();
     await expect(cue).toHaveText('[in-play]');
     await expect(reset).toHaveCount(0);
     return;
   }
-  await expect(cue).toHaveText('[complete]');
+  // 18-S5: no [complete] marker; the hidden status text reads Complete.
+  await expect(cue).toHaveCount(0);
+  await expect(item.getByTestId('puzzle-status')).toHaveText('Complete');
   await expect(reset).toBeVisible();
   await expect(reset).toHaveAccessibleName('Reset');
 }

@@ -653,11 +653,12 @@ test.describe('14-S2-4 Play', () => {
     const foreignDraft = await seedOwn(other, 'grid', 'foreign draft');
     await openLibrary(page);
 
-    for (const [fixture, marker, state, builder] of [
-      [untouchedOwn, null, 'untouched', 'Ada Builder'],
-      [untouchedForeign, null, 'untouched', ''],
-      [inPlay, '[in-play]', 'in-progress', 'Grace Maker'],
-      [complete, '[complete]', 'completed', 'Grace Maker'],
+    // 18-S5: a completed row has no marker; its hidden status reads Complete.
+    for (const [fixture, marker, state, builder, status] of [
+      [untouchedOwn, null, 'untouched', 'Ada Builder', 'Ready to play'],
+      [untouchedForeign, null, 'untouched', '', 'Ready to play'],
+      [inPlay, '[in-play]', 'in-progress', 'Grace Maker', 'Ready to play'],
+      [complete, null, 'completed', 'Grace Maker', 'Complete'],
     ] as const) {
       const item = row(page, fixture.title);
       await expect(item).toHaveCount(1);
@@ -671,7 +672,7 @@ test.describe('14-S2-4 Play', () => {
       const link = item.getByTestId('puzzle-play-link');
       await expect(link).toHaveAttribute('href', `/puzzles/${fixture.id}/play`);
       // 18-S3: the hidden status follows the title.
-      await expect(link).toHaveAccessibleName(marker === null ? `${fixture.title} Ready to play` : `${fixture.title} Ready to play ${marker}`);
+      await expect(link).toHaveAccessibleName(marker === null ? `${fixture.title} ${status}` : `${fixture.title} ${status} ${marker}`);
       await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(state === 'completed' ? 1 : 0);
       await expect(item.getByTestId('puzzle-edit-link')).toHaveCount(0);
       await expect(item.getByTestId('puzzle-status-badge')).toHaveCount(0);

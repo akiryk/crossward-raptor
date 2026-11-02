@@ -300,21 +300,22 @@ test.describe('18-S4-3 one list', () => {
       await expect(item.getByTestId('puzzle-play-state')).toHaveCount(0);
       await expect(item.getByTestId('puzzle-menu-button')).toHaveCount(1);
     }
-    for (const [fixture, marker, mine] of [
-      [own.unlisted, null, true],
-      [own.complete, '[complete]', true],
-      [foreign.untouched, null, false],
-      [foreign.inPlay, '[in-play]', false],
-      [foreign.complete, '[complete]', false],
+    // 18-S5: a completed row has no marker; its hidden status reads Complete.
+    for (const [fixture, marker, mine, status] of [
+      [own.unlisted, null, true, 'Ready to play'],
+      [own.complete, null, true, 'Complete'],
+      [foreign.untouched, null, false, 'Ready to play'],
+      [foreign.inPlay, '[in-play]', false, 'Ready to play'],
+      [foreign.complete, null, false, 'Complete'],
     ] as const) {
       const item = row(page, fixture.title);
       await expect(item).toHaveCount(1);
       const link = item.getByTestId('puzzle-play-link');
       await expect(link).toHaveAttribute('href', `/puzzles/${fixture.id}/play`);
-      await expect(link).toHaveAccessibleName(marker === null ? `${fixture.title} Ready to play` : `${fixture.title} Ready to play ${marker}`);
+      await expect(link).toHaveAccessibleName(marker === null ? `${fixture.title} ${status}` : `${fixture.title} ${status} ${marker}`);
       await expect(item.getByTestId('puzzle-edit-link')).toHaveCount(0);
       await expect(item.getByTestId('puzzle-menu-button'), `${fixture.title} menu`).toHaveCount(mine ? 1 : 0);
-      await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(marker === '[complete]' ? 1 : 0);
+      await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(status === 'Complete' ? 1 : 0);
     }
     await expect(row(page, foreignDraft.title)).toHaveCount(0);
     await expect(row(page, foreignUnlisted.title)).toHaveCount(0);

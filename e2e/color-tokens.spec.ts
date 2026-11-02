@@ -40,6 +40,8 @@ const VARIABLES: Record<string, string> = {
   green: '#84C600', // 18-S3: the Play status icon
   'green-faint': '#F0F5E5',
   'green-faint-hover': '#EAF0DB',
+  // 18-S5: the DONE status icon.
+  orange: '#EF9D05',
 };
 
 // style -> the variable it references
@@ -104,6 +106,8 @@ const STYLES: Record<string, string> = {
   'puzzle-row-play-hover': 'green-faint-hover',
   // 18-S3: the Play status icon.
   'status-play': 'green',
+  // 18-S5: the DONE status icon.
+  'status-complete': 'orange',
   // 17-S8: the builder's toggle row.
   'toggle-row': 'interactive-faint',
   'modal-background': 'white',
