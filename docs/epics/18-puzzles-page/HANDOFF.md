@@ -17,7 +17,14 @@ progress under the extended delegation. The epic is not closed.**
 - [S3 status icons](stories/18-S3-status-icons.md), frozen `68d031f`.
 - [S4 filters](stories/18-S4-filters.md), frozen `8a49994`, implemented
   `3ca7da4`.
-- S5–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
+- [S5 DONE icon](stories/18-S5-done-icon.md): independent
+  specification review approved it (should-fix applied); frozen
+  `3b647f4`. **Implementation was in flight** when the orchestrating
+  session handed off: an implementing agent was applying it uncommitted
+  on `main` and running `npm run verify` and the full E2E suite. Its
+  result was not observed, so treat any uncommitted runtime as
+  unverified.
+- S6–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
   not yet drafted.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
@@ -90,10 +97,16 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-Orchestrator: draft, review, freeze and implement S5–S8 in order under
-the extended delegation, then hand back for the human's one-at-a-time
-verification of S5–S8. Then mark the epic closed.
+Orchestrator: check `git status`. If S5's implementation is present and
+its story has an "Implementation" section, confirm frozen acceptance is
+unchanged from `3b647f4`, rerun `npm run verify` and the full
+`npm run test:e2e`, then commit and push it; otherwise have a separate
+agent implement S5 from the frozen spec. Then draft (separate agent),
+independently review, freeze and implement S6, S7 and S8 in order under
+the extended delegation, serializing browser suites. Then hand back for
+the human's one-at-a-time verification of S5–S8, and mark the epic
+closed.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md. As orchestrator under the extended delegation recorded there, deliver Epic 18's S5–S8 in order on main, then hand back to the human for verification.
+Read docs/epics/18-puzzles-page/HANDOFF.md. As orchestrator under the extended delegation recorded there, finish delivering Epic 18's S5–S8 in order on main, then hand back to the human for verification.
