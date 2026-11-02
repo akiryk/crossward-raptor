@@ -5,9 +5,87 @@ player's view in place: play's grid without its letters, play's Player
 Hints with every hint in full, and play's Prominent Hint. Selecting works
 as in play; nothing can be typed. Off returns to editing as before.
 
-**Status: approved and frozen** (drafted 2026-11-01; the human approved
-the story, its acceptance and both pending questions as proposed the same
-day).
+**Status: correction approved** (drafted, approved and frozen in be03d64
+on 2026-11-01, implemented in 6c5427f; the human's visual check asked for
+the correction below, which they approved the same day).
+
+## Correction (2026-11-01) *(human; approved)*
+
+The human's visual check: "When Preview Hints is on, the only change
+should be to the hints themselves. We should not show the blue highlight
+area. The point of this toggle is to let the builder see what the hints
+look like, not to preview playing the game." Their answers the same day:
+the grid stays fully editable, and there is no toggle in the narrow
+layout. The correction **supersedes** the story's opening paragraph, "On, it
+shows the player's view in place" under "The human's direction", these
+sections below: "On: the player's view", "Selecting as in play; typing
+does nothing", "Editing pauses", "Narrow" and "Unchanged"'s inactive
+toggle, the "Blast radius" paragraph's `PreviewToggle` inactive state,
+`ProminentHint`, `PlayHintBar` and `clearLetters`, and both pending
+questions' answers (they no longer apply).
+
+1. **Only the hints list changes.** On, the hints list shows play's
+   `PlayerHints` in the hints list's box, two columns, each hint in full
+   and wrapped, no input and no answer word, as before. Nothing else
+   changes: the grid keeps its letters, the editor's colors and numbers
+   (not `data-grid-mode="play"`), and there is **no Prominent Hint**.
+2. **The grid stays fully editable** *(human)*. Clicks, arrows, letters
+   and Backspace work as when editing, and are saved. **Lock Grid
+   Letters works as always**: never disabled, no inactive look. The
+   `PreviewToggle` `disabled` state added for S9 is removed.
+3. **No blue in the Player Hints** *(human, approved as proposed)*. The
+   Player Hints show no selected hint (play's `play-cell-selected-row`
+   blue), and clicking one does nothing. The grid's selection is the
+   editor's own, as when editing. The human's "blue highlight area" was
+   the blue Prominent Hint over the grid (point 1 removes it; play keeps
+   it). Asked separately, they chose no selected Player Hint and no
+   clicks. The grid's own selection colors (S5) are unchanged.
+4. **Not in the narrow layout** *(human)*. Below a 1140px window there is
+   no hints list, so there's no Preview Hints toggle. The toggle row and
+   the Hint Box are as before S9. If the window narrows while it's on,
+   it stays on unseen (the list is hidden) and shows again when the
+   window widens; it isn't saved either way.
+5. **Unchanged:** the wide `preview-hints-row` panel and its toggle, the
+   build phase and a published puzzle having none, not saved, and 3
+   Publish turning Preview Hints off when it opens "Not quite!", so S1's
+   marks show on the inputs.
+
+### The correction's acceptance
+
+`e2e/preview-hints.spec.ts` is amended in a specification-only commit:
+
+| Case | Frozen (be03d64) | Corrected |
+| --- | --- | --- |
+| 17-S9-1 (3) | the panel; none in the build phase or published; a reload | unchanged |
+| 17-S9-2 (1) | play's grid without letters; Player Hints in full; the Prominent Hint over the grid; off, editing | the grid unchanged (letters, not play's mode, no Prominent Hint, the grid doesn't move); Player Hints in full; off, editing |
+| 17-S9-3 (3) | selecting as in play; a Player Hint click selects; typing does nothing | the grid is editable: a letter typed while on shows, and is saved past the autosave; a cell click selects in the editor's colors; no Player Hint is marked, before or after a Player Hint click, which changes nothing |
+| 17-S9-4 (2) | Lock Grid Letters inactive; 3 Publish turns it off | Lock Grid Letters works while on (enabled, full opacity, a click toggles it, and locked, a typed letter changes nothing); 3 Publish turns it off (unchanged) |
+| 17-S9-5 (3) | narrow: the toggle after Lock Grid Letters, play's hint bar | narrow (1000, 375 and 320px): no Preview Hints toggle and no `preview-hints-row` |
+
+The file's header comment says the same. Runtime: `PuzzleGridEditor.tsx`
+(the play view, its keys, clicks, Prominent Hint, hint bar and narrow
+toggle removed; the list shows `PlayerHints` without `selectedKey` or
+`onSelect`) and `PreviewToggle.tsx` (the `disabled` state removed). The
+Player Hints keep play's pointer cursor, since `PlayerHints` is
+unchanged (out of scope).
+
+### The correction's discrimination (2026-11-01, observed)
+
+- **6c5427f with the corrected tests** (with S1's, below): 16 failed and
+  8 passed: every changed case in both files failed (8 in each); the
+  passes are unchanged cases (17-S9-1, the 3 Publish case and S1's
+  unchanged cases).
+- **Throwaway implementation** of both corrections on 6c5427f, then
+  reverted (patch outside the repo,
+  `/tmp/s9/correction-throwaway.patch`): the two files 24 passed, the
+  full `npm run test:e2e` 897 passed, and `npm run verify` exit 0
+  (Vitest 626/626). Its first run failed the drafted cell-click case,
+  which asserted "not play's colors"; the hints phase's
+  `hint-cell-cursor` and `hint-cell-cursor-word` resolve to play's
+  values, so the case now asserts the hints phase's own styles.
+- **After the independent review's amendments** (the unmarked input not
+  `PINK`, typing while locked, comments), rerun the same day: on
+  6c5427f 16 failed and 8 passed; with the throwaway, 24 passed.
 
 **Blast radius: small.** `PuzzleGridEditor` (state, keys, clicks and
 layout) and `PreviewToggle` (an inactive state). It reuses play's

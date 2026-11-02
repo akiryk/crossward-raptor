@@ -101,7 +101,7 @@ label, one button for the next step, the toggle row on a 10px-cornered
 `toggle-row` panel, no build-phase Publish or "Lol."/"Nope.", and 1's
 "done" look removed. The human's visual check passed the same day.
 
-**S9 is implemented, awaiting the human's visual check** (2026-11-01):
+**S9 was implemented** (2026-11-01):
 the human approved
 [17-S9-preview-hints.md](stories/17-S9-preview-hints.md), its acceptance
 `e2e/preview-hints.spec.ts` (no frozen test amended) and both pending
@@ -114,6 +114,20 @@ reviewed against the Decisions and tidied) was delivered directly on
 `preview-hints-row` panel over the hints list; narrow, after Lock Grid
 Letters) showing play's grid without letters, Player Hints and Prominent
 Hint (narrow, play's hint bar), selection as in play and no typing.
+
+**S9's visual check asked for a correction** (2026-11-01), which the
+human approved the same day, including "no blue in the Player Hints" as
+proposed (their "blue highlight area" was the Prominent Hint; the grid's
+S5 colors are unchanged): only the hints list changes (Player Hints in full, no
+blue selection, clicks do nothing); the grid stays editable, Lock Grid
+Letters works as always, no Prominent Hint, no narrow toggle
+([S9's correction](stories/17-S9-preview-hints.md#correction-2026-11-01-human-approved)).
+With it, S1's missing mark fills only the input, not the row
+([S1's correction](stories/17-S1-missing-hints.md#correction-2026-11-01-human-approved)).
+Amended: `e2e/preview-hints.spec.ts`, `e2e/missing-hints.spec.ts` and
+the EPIC. Independently reviewed the same day (no blockers; its four
+should-fix items and nits were addressed and re-checked) and frozen on
+`main` (specification only).
 
 ## Verification
 
@@ -135,9 +149,9 @@ Browser runs used the guarded harness under the standing reset grant
 
 ## Next action
 
-The human's visual check of S9 at desktop sizes (Definition of Done). If
-it passes, record it here; S10 (Rebus) is next, when authorized.
+Implement the frozen corrections (the throwaway at
+`/tmp/s9/correction-throwaway.patch`) directly on `main`.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md. Record the human's S9 visual check, then draft S10 (Rebus) when the human authorizes it.
+Read docs/epics/17-polish/HANDOFF.md and the Correction sections of docs/epics/17-polish/stories/17-S9-preview-hints.md and 17-S1-missing-hints.md. The human approved both corrections; have them independently reviewed, freeze them on main, then implement them.

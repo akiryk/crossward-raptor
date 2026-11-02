@@ -190,7 +190,8 @@ Added 2026-10-31:
 8. **The hints phase and play select only real words.**
 9. **The grid grows to 700px,** with numbers clear of the letters.
 10. **The builder's step controls** show the current step and the next.
-11. **Preview Hints** shows the player's view in the hints phase.
+11. **Preview Hints** shows the hints as the player sees them in the
+    hints phase.
 
 ## Decisions
 
@@ -201,8 +202,9 @@ behavior names each superseded test and its replacement, retired in its
 specification-only freeze commit; tests assert structural properties.
 
 **Missing hints** *(human)*. Clicking 3 Publish while required hints are
-missing marks each missing hint's row: a `pink` background (#FFE4E2, a new
-palette variable and a new color style), and the `error` color on the 1px
+missing marks each missing hint's row: a `pink` background on its input
+(#FFE4E2, a new palette variable and a new color style; the whole row
+until S1's correction, 2026-11-01), and the `error` color on the 1px
 input line, the hint number and the answer word. A row's mark clears at
 its first keystroke *(human)*. *Proposed:* the "Not quite!" dialog still
 opens; the marks show with it and stay after it closes. A hint emptied
@@ -292,8 +294,8 @@ play** *(human, mockup 2026-10-27)*, it is an outlined, pill-shaped
 "Rebus" button at the top of the hints column, right of the Prominent
 Hint. *Proposed:* it shows at every width (in narrow layouts, near the
 grid's buttons or hint bar; values from the human in the story) and is
-inactive while letters can't be typed (Lock Grid Letters, Preview Hints,
-published).
+inactive while letters can't be typed (Lock Grid Letters, published;
+not Preview Hints since S9's correction, 2026-11-01).
 
 **Only real words can be selected** *(human, 2026-10-31)*. In the hints
 phase and play, the cursor's direction is always one with a word through
@@ -350,6 +352,10 @@ editing as before. *Proposed:* selecting a cell or hint works as in play,
 but typing does nothing. Lock Grid Letters and Rebus are inactive while
 it's on. It isn't saved. In the narrow layout it sits in the toggle row
 (values in the story).
+*Corrected 2026-11-01 (human, S9's visual check):* only the hints list
+changes, to play's Player Hints in full with no selection mark; the grid
+keeps its letters and stays editable, Lock Grid Letters works as always,
+there is no Prominent Hint, and there is no toggle in the narrow layout.
 
 **No grid-engine change.** Preview selection uses existing engine
 functions over `intendedGeometry`. Rebus input is a new keyboard intent in
@@ -442,9 +448,9 @@ look. Supersedes 14-S4's step-button and too-early tests, 14-S12's done
 ### S9 — Preview Hints
 
 The hints phase's Preview Hints toggle, its position over the Across
-column, and the player's view it shows: the grid without letters,
-read-only Player Hints with full text and the Prominent Hint. Editing
-pauses while it's on.
+column, and the hints it shows as read-only Player Hints with full text
+(corrected 2026-11-01: only the hints change, the grid stays editable,
+wide only).
 
 ### S10 — Rebus
 

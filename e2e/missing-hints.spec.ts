@@ -11,9 +11,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 //
 // In the hints phase, clicking 3 Publish while any required hint is blank
 // (empty or only spaces) still opens "Not quite!", and marks every blank
-// hint's row (`data-missing="true"`): the row's background is the new
-// `hint-missing` style (the `pink` palette variable, #FFE4E2), and the
-// hint number (`hint-label`), the answer word (`hint-answer`) and the
+// hint's row (`data-missing="true"`): the input's background is the new
+// `hint-missing` style (the `pink` palette variable, #FFE4E2), the row's
+// own stays clear (corrected 2026-11-01, the human's visual check), and
+// the hint number (`hint-label`), the answer word (`hint-answer`) and the
 // input's 1px bottom line are the `error` color, focused or not. The input
 // is `aria-invalid="true"`. Marking moves nothing.
 //
@@ -99,11 +100,12 @@ async function closeDialog(page: Page) {
   await expect(tooEarly(page)).toHaveCount(0);
 }
 
-/** A marked row: the attribute, pink, and error on the number, word and line. */
+/** A marked row: the attribute, a pink input, and error on the number, word and line. */
 async function expectMarked(page: Page, key: string) {
   const r = row(page, key);
   await expect(r, key).toHaveAttribute('data-missing', 'true');
-  await expect(r, `${key} background`).toHaveCSS('background-color', PINK);
+  await expect(r, `${key} row background`).toHaveCSS('background-color', TRANSPARENT);
+  await expect(rowInput(page, key), `${key} input background`).toHaveCSS('background-color', PINK);
   await expect(r.getByTestId('hint-label'), `${key} number`).toHaveCSS('color', ERROR);
   await expect(r.getByTestId('hint-answer'), `${key} word`).toHaveCSS('color', ERROR);
   await expect(rowInput(page, key), `${key} line`).toHaveCSS('border-bottom-color', ERROR);
@@ -115,6 +117,7 @@ async function expectUnmarked(page: Page, key: string) {
   const r = row(page, key);
   await expect(r, key).not.toHaveAttribute('data-missing', /.*/);
   await expect(r, `${key} background`).toHaveCSS('background-color', TRANSPARENT);
+  await expect(rowInput(page, key), `${key} input background`).not.toHaveCSS('background-color', PINK);
   await expect(r.getByTestId('hint-label'), `${key} number`).toHaveCSS('color', BLACK);
   await expect(rowInput(page, key), `${key} invalid`).not.toHaveAttribute('aria-invalid', 'true');
 }
@@ -310,7 +313,8 @@ test.describe('17-S1-4 style guide', () => {
 
     const marked = section.locator('[data-testid="hint-row"][data-missing="true"]');
     await expect(marked).toHaveCount(1);
-    await expect(marked).toHaveCSS('background-color', PINK);
+    await expect(marked).toHaveCSS('background-color', TRANSPARENT);
+    await expect(marked.getByTestId('hint-input')).toHaveCSS('background-color', PINK);
     await expect(marked.getByTestId('hint-label')).toHaveCSS('color', ERROR);
     await expect(marked.getByTestId('hint-answer')).toHaveCSS('color', ERROR);
     await expect(marked.getByTestId('hint-input')).toHaveCSS('border-bottom-color', ERROR);
@@ -318,5 +322,6 @@ test.describe('17-S1-4 style guide', () => {
     const unmarked = section.locator('[data-testid="hint-row"]:not([data-missing])');
     await expect(unmarked.first()).toBeVisible();
     await expect(unmarked.first()).toHaveCSS('background-color', TRANSPARENT);
+    await expect(unmarked.first().getByTestId('hint-input')).not.toHaveCSS('background-color', PINK);
   });
 });

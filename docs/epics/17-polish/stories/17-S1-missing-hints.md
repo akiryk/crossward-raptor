@@ -8,6 +8,39 @@ error red. A row returns to normal as soon as the builder types in it.
 its acceptance and the two amendments on 2026-10-31; frozen on `main` in
 96a3cd6 (specification only) and delivered directly on `main`.
 
+## Correction (2026-11-01) *(human; approved)*
+
+The human's visual check during S9: the pink row is "too much red/pink
+error highlighting". With their mockup (`Image #5`, 2026-11-01): **only
+the input is filled `hint-missing`**, as a selected row's input is
+filled `hint-cell-cursor`. The row's own background stays clear. The
+number, the answer word and the input's 1px bottom line keep the
+`error` color, and nothing else changes. A marked input stays pink when
+its row is selected or focused, as the Hint Box's marked input does.
+The Hint Box is unchanged (only its input was already filled).
+
+It **supersedes** the opening paragraph's "the hint's row turns pink",
+"The row's background is the new `hint-missing` color style" under "What
+a mark looks like", and that section's "The cursor word's input fill … still
+applies on a marked row, inside its pink": a marked input is pink,
+whether or not its row is the cursor word's.
+
+Acceptance amended in `e2e/missing-hints.spec.ts` in a
+specification-only commit, together with S9's correction:
+
+| Case | Frozen (96a3cd6) | Corrected |
+| --- | --- | --- |
+| `expectMarked` (17-S1-1 to 17-S1-3) | the row's background `PINK` | the row's background transparent, the input's `PINK` |
+| `expectUnmarked` | the row's background transparent | also the input's background not `PINK` |
+| 17-S1-4 style guide | the marked row `PINK` | the marked row transparent, its input `PINK`; the unmarked input not `PINK` |
+
+Runtime: `HintsPanel.tsx` only (the style guide's sample uses it).
+
+Discrimination (2026-11-01, observed): on 6c5427f the corrected file
+failed 8 cases (every `expectMarked` caller and the style guide); with
+the throwaway (`/tmp/s9/correction-throwaway.patch`, one `HintsPanel`
+class change) all passed. See S9's correction for the full suite.
+
 **Blast radius: small.** One new palette variable and color style, a
 `TextInput` option, marks in `HintsPanel` and `HintBox`, one piece of
 editor state and a style-guide sample. No schema, server action or engine
