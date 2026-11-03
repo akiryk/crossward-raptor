@@ -50,38 +50,43 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
   })));
 
   return (
-    <div
-      data-testid="puzzle-library"
-      data-ready={ready}
-      // From 948px the 200px filters column sits to the left; shifting the list
-      // 100px right centers the pair.
-      className="relative mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5 min-[948px]:left-[100px]"
-    >
-      <div data-testid="puzzle-list-header" className="pt-[10px]">
-        <Title size={2} as="h1" tabIndex={-1} id="puzzle-library-heading" data-testid="page-heading">Puzzles</Title>
-      </div>
-      <LibraryFilters filters={filters} onChange={choose} />
-      <div data-testid="puzzle-list" className="mt-[27px] flex flex-col gap-10">
-        {groups.length === 0 && (
-          <p data-testid="puzzle-list-empty" className="text-body-normal text-muted">
-            {filterCount(filters) > 0 ? 'No puzzles match these filters.' : 'No puzzles yet.'}
-          </p>
-        )}
-        {groups.map((group) => (
-          <section key={group.size ?? 'other'} data-testid="puzzle-group" data-size={group.size ?? 'other'}>
-            <RowHeading label={group.label} dimensions={group.dimensions} />
-            <ul className="mt-[18px] flex flex-col gap-1">
-              {group.puzzles.map(({ puzzle }) => (
-                <PuzzleRow
-                  key={puzzle.id}
-                  puzzle={puzzle}
-                  own={puzzle.builderId === userId}
-                  onDeleted={() => setDeletedId(puzzle.id)}
-                />
-              ))}
-            </ul>
-          </section>
-        ))}
+    // Story 18-S6: in one column the list's content sits 21px inside its
+    // hairline (1px plus 20px); reserving 21px on the right centers that
+    // content, so its right margin matches its left one.
+    <div className="pr-[21px] min-[948px]:pr-0">
+      <div
+        data-testid="puzzle-library"
+        data-ready={ready}
+        // From 948px the 200px filters column sits to the left; shifting the list
+        // 100px right centers the pair.
+        className="relative mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5 min-[948px]:left-[100px]"
+      >
+        <div data-testid="puzzle-list-header" className="pt-[10px]">
+          <Title size={2} as="h1" tabIndex={-1} id="puzzle-library-heading" data-testid="page-heading">Puzzles</Title>
+        </div>
+        <LibraryFilters filters={filters} onChange={choose} />
+        <div data-testid="puzzle-list" className="mt-[27px] flex flex-col gap-10">
+          {groups.length === 0 && (
+            <p data-testid="puzzle-list-empty" className="text-body-normal text-muted">
+              {filterCount(filters) > 0 ? 'No puzzles match these filters.' : 'No puzzles yet.'}
+            </p>
+          )}
+          {groups.map((group) => (
+            <section key={group.size ?? 'other'} data-testid="puzzle-group" data-size={group.size ?? 'other'}>
+              <RowHeading label={group.label} dimensions={group.dimensions} />
+              <ul className="mt-[18px] flex flex-col gap-1">
+                {group.puzzles.map(({ puzzle }) => (
+                  <PuzzleRow
+                    key={puzzle.id}
+                    puzzle={puzzle}
+                    own={puzzle.builderId === userId}
+                    onDeleted={() => setDeletedId(puzzle.id)}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );

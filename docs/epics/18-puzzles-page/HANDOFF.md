@@ -20,16 +20,9 @@ progress under the extended delegation. The epic is not closed.**
 - [S5 DONE icon](stories/18-S5-done-icon.md), frozen `3b647f4`,
   frozen-test correction refrozen `758f7a6` (human-approved), implemented
   and delivered on `main`.
-- [S6 narrow right margin](stories/18-S6-narrow-right-margin.md):
-  **proposed, untracked** with `e2e/narrow-margin.spec.ts`; throwaway
-  at `/tmp/18-S6-throwaway.patch` (not applied). The independent review
-  approved it twice with should-fix items, all applied. Orchestrator
-  decisions recorded in the story: S6 also fixes the date overflow it
-  would cause, and titles come before the date (the date may wrap to two
-  lines below 948px, 90px minimum title column). The same reviewer's
-  final confirmation pass: **approve**, nothing blocking or should-fix
-  remaining; ready to freeze. Discrimination observed by the drafter (in
-  the story).
+- [S6 narrow right margin](stories/18-S6-narrow-right-margin.md),
+  frozen `2921834` after an approving independent review, implemented
+  and delivered on `main`.
 - [S7 hint preview alignment](stories/18-S7-hint-preview-alignment.md):
   **proposed, untracked** with `e2e/hint-preview-alignment.spec.ts`;
   throwaway at `/tmp/18-S7-throwaway.patch`. Not yet independently
@@ -113,6 +106,11 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
   runs failed only on timeouts and `ECONNRESET` while another
   repository's suite loaded the machine (load 20–35). Check the machine is
   quiet before a full run.
+- S6 implementation (orchestrator): `npm run verify` exit 0 (Vitest
+  656 of 656); full `npm run test:e2e` exit 0, 960 passed (944 + S6's
+  16), load about 2; frozen acceptance diff against `2921834` empty.
+  The `/tmp` throwaways did not survive a reboot; S6's was already in
+  the worktree.
 
 ## Next action
 

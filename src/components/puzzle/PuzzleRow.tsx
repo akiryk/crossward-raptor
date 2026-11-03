@@ -32,6 +32,18 @@ const STATUS_TEXT: Record<IconStatus, string> = {
   grid: 'Build phase', hints: 'Hint phase', published: 'Ready to play', complete: 'Complete',
 };
 
+// Story 18-S6: room kept clear on the right for the row's controls, so the
+// date (in the row's flow, after the title column) stops before them: 12px
+// past the menu (12px in, 24px wide) and the play Reset (12px, or 48px
+// beside the menu, in; up to 40px wide). In a narrow row the date wraps
+// first, then the title column shrinks, to no less than 90px.
+function rightRoom(menu: boolean, reset: boolean) {
+  if (menu && reset) return 'pr-[100px]';
+  if (reset) return 'pr-16';
+  if (menu) return 'pr-12';
+  return 'pr-3';
+}
+
 // Story 18-S3: rows with the Play icon are green.
 const ROW = 'bg-puzzle-row hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover';
 const PLAY_ROW = 'bg-puzzle-row-play hover:bg-puzzle-row-play-hover has-[a:focus-visible]:bg-puzzle-row-play-hover';
@@ -62,10 +74,10 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
       data-keyboard-focus-host
-      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] transition-colors duration-150 ease-out ${puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
+      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, play?.state === 'completed' && play.sessionId !== null)} transition-colors duration-150 ease-out ${puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
       <StatusIcon status={status} />
-      <div className="ml-3 flex w-[212px] min-w-0 flex-col gap-1">
+      <div className="ml-3 flex w-[212px] min-w-[90px] flex-col gap-1">
         <Link
           ref={link}
           href={published ? `/puzzles/${puzzle.id}/play` : `/puzzles/${puzzle.id}`}
@@ -89,7 +101,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       </div>
       <span
         data-testid="puzzle-list-updated"
-        className="pointer-events-none absolute left-[280px] top-[11px] text-body-normal text-muted"
+        className="pointer-events-none ml-3 mt-[11px] shrink-[1000] self-start text-body-normal text-muted min-[948px]:whitespace-nowrap"
       >
         {puzzle.updatedLabel}
       </span>
