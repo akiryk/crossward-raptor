@@ -128,9 +128,9 @@ test.describe('14-S11-2 keyboard focus shows the ring', () => {
     }
   });
 
-  test('a form and a nav Radio option are ringed as a whole, also after an arrow key; the circle is not', async ({ page }) => {
+  test('a form Radio option is ringed as a whole, also after an arrow key; the circle is not', async ({ page }) => {
     await styleGuide(page);
-    for (const group of ['sg-radio-form', 'sg-radio-nav']) {
+    for (const group of ['sg-radio-form']) {
       const options = radioOptions(page, group);
       const selected = options.filter({ has: page.locator('input:checked') });
       await tabTo(page, selected.locator('input'));
@@ -216,7 +216,7 @@ test.describe('14-S11-3 mouse focus shows no ring', () => {
     await expect(toggle.locator('input')).toBeFocused();
     expect(await ringOf(toggle), 'toggle clicked').toBe('none');
 
-    for (const group of ['sg-radio-form', 'sg-radio-nav']) {
+    for (const group of ['sg-radio-form']) {
       const option = radioOptions(page, group).last();
       await option.click();
       await expect(option.locator('input')).toBeFocused();

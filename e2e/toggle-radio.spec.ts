@@ -12,16 +12,17 @@ import { waitForNewPuzzleReady } from './helpers/wait-for-ready';
 // never a focus ring. The label doesn't change on hover or focus.
 //
 // A Radio option is a 16px round 2px ring with an 8px dot inside when
-// selected, and its label sits 8px right of the ring. The `form` variant
+// selected, and its label sits 8px right of the ring. The `form` Radio
 // (stacked, the puzzle size) has `line-dark` unselected rings and
-// `body-small` `primary` labels (14-S3). The `nav` variant (a row, Build/Play) has
-// `link-muted` unselected rings and labels and `title-4` labels that are
-// `button-active` when selected. A selected ring and dot are
-// `button-active`. Hovering an unselected option shows `button-hover`
-// (ring, and nav label); a selected one doesn't change on hover. Keyboard
-// focus shows `button-hover` on any option, never a focus ring. The
-// new-puzzle size picker is a `form` Radio. `/style-guide` catalogs the
-// variations.
+// `body-small` `primary` labels (14-S3). A selected ring and dot are
+// `button-active`. Hovering an unselected option shows `button-hover` on its
+// ring; a selected one doesn't change on hover. Keyboard focus shows
+// `button-hover` on any option, never a focus ring. The new-puzzle size
+// picker is a `form` Radio. `/style-guide` catalogs the variations.
+//
+// 18-S8 removed the `nav` Radio (a row, Build/Play, with `link-muted` rings
+// and `title-4` labels), so its checks went: its style-guide sample in F6-1,
+// the F6-4 cases and its label in F6-7.
 //
 // Buttons, the toggle, Radio and links change color, and the knob slides,
 // over 150ms `ease-out`, so style reads wait for the element's running
@@ -258,7 +259,7 @@ async function expectLabelColor(page: Page, o: Option, style: string, label: str
 
 // --- F6-1: the catalog ---
 test.describe('F6-1 catalog', () => {
-  test('sg-toggles shows an off and an on Preview toggle; sg-radios shows a form and a nav Radio', async ({ page }) => {
+  test('sg-toggles shows an off and an on Preview toggle; sg-radios shows a form Radio', async ({ page }) => {
     await catalog(page);
     const off = toggleParts(page, 'sg-toggle-off');
     const on = toggleParts(page, 'sg-toggle-on');
@@ -269,7 +270,7 @@ test.describe('F6-1 catalog', () => {
     await expect(off.label).toHaveText('Preview');
     await expect(on.label).toHaveText('Preview');
 
-    for (const [testId, count] of [['sg-radio-form', 4], ['sg-radio-nav', 2]] as const) {
+    for (const [testId, count] of [['sg-radio-form', 4]] as const) {
       const group = page.getByTestId('sg-radios').getByTestId(testId);
       await expect(group, testId).toHaveAttribute('role', 'radiogroup');
       await expect(group, testId).toHaveAttribute('aria-label', /\S/);
@@ -277,7 +278,6 @@ test.describe('F6-1 catalog', () => {
       await expect(group.getByRole('radio'), testId).toHaveCount(count);
       await expect(group.getByRole('radio', { checked: true }), `${testId} one selected`).toHaveCount(1);
     }
-    await expect(radioOptions(page, 'sg-radio-nav').locator('[data-radio-label]')).toHaveText(['Build', 'Play']);
   });
 
   test('no horizontal overflow at 1280px or 375px', async ({ page }) => {
@@ -448,78 +448,13 @@ test.describe('F6-3 form Radio', () => {
 });
 
 // --- F6-4: the nav Radio ---
-test.describe('F6-4 nav Radio', () => {
-  test('options sit in a row; selected ring, dot and label are button-active, unselected ring and label link-muted; labels are title-4', async ({ page }) => {
-    await catalog(page);
-    const options = radioOptions(page, 'sg-radio-nav');
-    const a = await box(options.nth(0));
-    const b = await box(options.nth(1));
-    expect(b.x, 'second option right of the first').toBeGreaterThanOrEqual(a.x + a.width);
-    expect(Math.abs(b.y + b.height / 2 - (a.y + a.height / 2)), 'options on one row').toBeLessThanOrEqual(1);
-
-    for (let i = 0; i < 2; i++) {
-      const o = optionParts(options.nth(i));
-      if (await o.input.isChecked()) {
-        await expectRing(page, o, 'button-active', `option ${i}`);
-        await expectDot(page, o, 'button-active', `option ${i}`);
-        await expectLabelColor(page, o, 'button-active', `option ${i}`);
-      } else {
-        await expectRing(page, o, 'link-muted', `option ${i}`);
-        await expect(o.dot, `option ${i} dot`).toBeHidden();
-        await expectLabelColor(page, o, 'link-muted', `option ${i}`);
-      }
-      await expectTextStyle(page, o.label, 'title-4', 14, 600, `option ${i} label`);
-      await expectLabelBeside(o, `option ${i}`);
-    }
-  });
-
-  test('hover turns an unselected ring and label button-hover; keyboard focus turns ring, dot and label button-hover', async ({ page }) => {
-    await catalog(page);
-    const options = radioOptions(page, 'sg-radio-nav');
-    const selected = optionParts(options.filter({ has: page.locator('input:checked') }));
-    const unselected = optionParts(options.filter({ hasNot: page.locator('input:checked') }));
-
-    await unselected.label.hover();
-    await expectRing(page, unselected, 'button-hover', 'hovered unselected');
-    await expectLabelColor(page, unselected, 'button-hover', 'hovered unselected');
-    await parkMouse(page);
-    await expectRing(page, unselected, 'link-muted', 'unhovered');
-    await expectLabelColor(page, unselected, 'link-muted', 'unhovered');
-
-    const rest = [await styleOf(selected.input), await styleOf(selected.dot), await styleOf(selected.label)];
-    await selected.label.hover();
-    expect(
-      [await styleOf(selected.input), await styleOf(selected.dot), await styleOf(selected.label)],
-      'hovered selected'
-    ).toEqual(rest);
-    await parkMouse(page);
-
-    await focusByKeyboard(page, selected.input);
-    await expectRing(page, selected, 'button-hover', 'focused selected');
-    await expectDot(page, selected, 'button-hover', 'focused selected');
-    await expectLabelColor(page, selected, 'button-hover', 'focused selected');
-    await blur(page);
-    await expectLabelColor(page, selected, 'button-active', 'blurred selected');
-  });
-
-  test('clicking the other option moves the selection and its colors', async ({ page }) => {
-    await catalog(page);
-    const options = radioOptions(page, 'sg-radio-nav');
-    const build = optionParts(options.nth(0));
-    const play = optionParts(options.nth(1));
-    await expect(build.input).toBeChecked();
-
-    await play.label.click();
-    await expect(play.input).toBeChecked();
-    await expect(build.input).not.toBeChecked();
-    await parkMouse(page);
-    await blur(page);
-    await expectLabelColor(page, play, 'button-active', 'now selected');
-    await expectLabelColor(page, build, 'link-muted', 'now unselected');
-    await expectRing(page, build, 'link-muted', 'now unselected');
-    await expect(build.dot).toBeHidden();
-  });
-});
+// 18-S8 retired F6-4 "nav Radio" (3 cases: "options sit in a row; selected
+// ring, dot and label are button-active, unselected ring and label
+// link-muted; labels are title-4", "hover turns an unselected ring and label
+// button-hover; keyboard focus turns ring, dot and label button-hover",
+// "clicking the other option moves the selection and its colors"): the
+// `nav` variant and its style-guide sample are gone. F6-3 covers the form
+// Radio.
 
 // --- F6-5: the new-puzzle size picker ---
 test.describe('F6-5 size picker', () => {
@@ -615,9 +550,6 @@ test.describe('F6-7 color transitions', () => {
   test('buttons, the toggle, Radio and links change color, and the knob slides, over 150ms ease-out', async ({ page }) => {
     await catalog(page);
     const form = optionParts(radioOptions(page, 'sg-radio-form').filter({ has: page.locator('input:checked') }));
-    const navUnselected = optionParts(
-      radioOptions(page, 'sg-radio-nav').filter({ hasNot: page.locator('input:checked') })
-    );
     const off = toggleParts(page, 'sg-toggle-off');
     const parts: [string, Locator, string[]][] = [
       ['button', page.getByTestId('sg-button').first(), ['background-color', 'border-color', 'color']],
@@ -626,7 +558,7 @@ test.describe('F6-7 color transitions', () => {
       ['toggle label', off.label, ['color']],
       ['radio ring', form.input, ['border-color']],
       ['radio dot', form.dot, ['background-color']],
-      ['nav radio label', navUnselected.label, ['color']],
+      // 18-S8: the nav Radio's label row went with the variant.
       ['link', page.getByTestId('sg-links').locator('a').first(), ['color']],
     ];
     for (const [name, locator, properties] of parts) {

@@ -145,7 +145,8 @@ test.describe('L3-2 grouped library', () => {
   });
 
   // 14-S2 retired "the thumbnail draws the puzzle's actual black squares":
-  // every row shows one fixed icon (e2e/puzzle-library.spec.ts, 14-S2-2).
+  // every row showed one fixed icon (e2e/puzzle-library.spec.ts, 14-S2-2),
+  // since 18-S3 the status icon (e2e/status-icons.spec.ts).
 
   test('edit sits beside its title, not across the window', async ({ page }) => {
     await page.setViewportSize({ width: 2400, height: 900 });

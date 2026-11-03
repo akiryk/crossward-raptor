@@ -21,15 +21,15 @@ import { signInSeededUser } from './helpers/seed-session';
 // The row's link carries visually hidden text naming the status ("Ready to
 // play", "Build phase", "Hint phase") after the title, so the link reads
 // "<title> <status>", then any play marker. The `[grid]`, `[hint]` and
-// `[published]` markers are gone; play rows keep `[in-play]` and
-// `[complete]`.
+// `[published]` markers are gone; play rows keep `[in-play]` (and kept
+// `[complete]` until 18-S5, below).
 //
 // A row with the Play icon is `puzzle-row-play` (#F0F5E5), turning
 // `puzzle-row-play-hover` (#EAF0DB) on hover and while its link has keyboard
 // focus; other rows keep `puzzle-row` (#F5F7FA) and `puzzle-row-hover`
-// (#EBEFF7). Still within the Build | Play views. 18-S4 replaced the views
-// with one list (e2e/library-filters.spec.ts), so these cases no longer
-// choose a view.
+// (#EBEFF7). 18-S3 was written within the Build | Play views. 18-S4
+// replaced the views with one list (e2e/library-filters.spec.ts), so these
+// cases no longer choose a view.
 //
 // 18-S5 gave a published puzzle the caller has completed a fourth icon,
 // DONE, named "Complete" in the hidden text, and removed `[complete]`
