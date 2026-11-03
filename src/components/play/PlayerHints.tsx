@@ -19,16 +19,20 @@ export function PlayerHints({
   hints,
   selectedKey,
   onSelect,
+  stacksWhenNarrow = false,
 }: {
   slots: readonly NumberedSlot[];
   hints: Record<string, string>;
   selectedKey: string | null;
   onSelect?: (key: string) => void;
+  /** The builder's Preview Hints (18-S7): one column below 650px of room,
+   *  as the Hint Inputs stack. Play and the style guide don't set it. */
+  stacksWhenNarrow?: boolean;
 }) {
   const maxNumberDigits = Math.max(1, ...slots.map((slot) => String(slot.number).length));
 
-  return (
-    <div className="flex gap-8">
+  const columns = (
+    <div className={stacksWhenNarrow ? 'flex flex-col gap-8 @min-[650px]:flex-row' : 'flex gap-8'}>
       {COLUMNS.map(({ orientation, heading }) => (
         <section
           key={orientation}
@@ -69,4 +73,7 @@ export function PlayerHints({
       ))}
     </div>
   );
+
+  // Story 18-S7: stacked in the builder as HintsPanel's columns are (15-S2, 17-S7).
+  return stacksWhenNarrow ? <div className="@container">{columns}</div> : columns;
 }

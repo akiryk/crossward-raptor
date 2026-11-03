@@ -23,17 +23,13 @@ progress under the extended delegation. The epic is not closed.**
 - [S6 narrow right margin](stories/18-S6-narrow-right-margin.md),
   frozen `2921834` after an approving independent review, implemented
   and delivered on `main`.
-- [S7 hint preview alignment](stories/18-S7-hint-preview-alignment.md):
-  **proposed, untracked** with `e2e/hint-preview-alignment.spec.ts`;
-  throwaway at `/tmp/18-S7-throwaway.patch`. Not yet independently
-  reviewed; its acceptance hasn't been run. **The human decided
-  (2026-11-02):** in the builder, Preview Hints stacks wherever the
-  editing list stacks (below 650px of room), and play is unchanged. In
-  the stacked range (1140–1429px) Down's height may change on toggle;
-  Across and every left edge never move. Orchestrator: the build-phase
-  skeleton gets the same 6px inset. A drafter was writing the second
-  decision into the story when this session ended; check that the story
-  states it.
+- [S7 hint preview alignment](stories/18-S7-hint-preview-alignment.md),
+  frozen `14958ed` after an independent confirmation review (approve
+  with should-fix, resolved), implemented by a separate agent and
+  delivered on `main`. The human's decisions (Preview stacks below 650px
+  of room; only Down's height may change there) and the orchestrator's
+  (the skeleton's inset and scrollbar room) are recorded in the story,
+  with the observed discrimination.
 - S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
   not yet drafted.
 
@@ -111,6 +107,12 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
   16), load about 2; frozen acceptance diff against `2921834` empty.
   The `/tmp` throwaways did not survive a reboot; S6's was already in
   the worktree.
+- S7 implementation (orchestrator): `npm run verify` exit 0 (Vitest
+  656 of 656); full `npm run test:e2e` exit 0, 990 passed (960 + S7's
+  30), on the second run. The first run had 989 passed and 1 failed:
+  `builder-controls` 14-S4-6 "Play it! at rest link-muted", a one-shot
+  color read after a mouse move. That file then passed 3 of 3 alone
+  (`--repeat-each=3`). Frozen acceptance diff against `14958ed` empty.
 
 ## Next action
 

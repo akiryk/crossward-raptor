@@ -13,7 +13,9 @@ export function HintSkeleton({ grid }: { grid: Grid }) {
   const slots = slotsWithNumbers(convertEmptyCellsToBlack(grid));
 
   return (
-    <div data-testid="hint-skeleton" aria-hidden="true" className="@container min-w-0 flex-1 @max-[1092px]/editor:hidden">
+    // Story 18-S7: the hints list's scrollbar room (the gutter needs a
+    // non-visible overflow), so Create Hints moves nothing sideways.
+    <div data-testid="hint-skeleton" aria-hidden="true" className="@container min-w-0 flex-1 overflow-hidden [scrollbar-gutter:stable] @max-[1092px]/editor:hidden">
       {/* One column below 650px of room beside the grid, a 1430px window (15-S2, 17-S7). */}
       <div className="flex flex-col gap-8 @min-[650px]:flex-row">
         {COLUMNS.map(({ orientation, heading }) => (
@@ -21,7 +23,9 @@ export function HintSkeleton({ grid }: { grid: Grid }) {
             key={orientation}
             data-testid="hint-skeleton-column"
             data-orientation={orientation}
-            className="min-w-0 flex-1"
+            // Story 18-S7: the Hint Inputs' 6px inset; the lines still run
+            // to the column's right edge.
+            className="min-w-0 flex-1 pl-[6px]"
           >
             <p className="text-title-4 text-muted pt-2">{heading}</p>
             <div className="mt-8">

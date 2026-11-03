@@ -59,7 +59,9 @@ export function HintsPanel({
             key={orientation}
             data-testid="hint-column"
             data-orientation={orientation}
-            className="min-w-0 flex-1"
+            // Story 18-S7: labels and numbers 6px in, where Player Hints'
+            // are; the inputs still run to the column's right edge.
+            className="min-w-0 flex-1 pl-[6px]"
           >
             <h3
               data-testid="hint-column-heading"

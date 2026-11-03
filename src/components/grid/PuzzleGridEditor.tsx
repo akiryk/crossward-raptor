@@ -686,14 +686,17 @@ export function PuzzleGridEditor({
             // Beside the grid, the list scrolls in its own box at the grid's
             // height (15-S1): size containment keeps its content from
             // stretching the row, so the grid sets the row's height. Narrow,
-            // the Hint Box shows instead (15-S4).
+            // the Hint Box shows instead (15-S4). Story 18-S7: the
+            // scrollbar's room is kept, so the Down column doesn't move
+            // when the list starts or stops overflowing.
             <div
               data-testid="hints-region"
-              className="hidden min-w-0 flex-1 overflow-y-auto @min-[1092px]/editor:block @min-[1092px]/editor:self-stretch @min-[1092px]/editor:[contain:size]"
+              className="hidden min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] @min-[1092px]/editor:block @min-[1092px]/editor:self-stretch @min-[1092px]/editor:[contain:size]"
             >
               {isHintsPreview ? (
-                // Only how the hints read: no selection, no clicks (17-S9).
-                <PlayerHints slots={slotsWithNumbers(grid)} hints={hints} selectedKey={null} />
+                // Only how the hints read: no selection, no clicks (17-S9),
+                // in the Hint Inputs' columns (18-S7).
+                <PlayerHints slots={slotsWithNumbers(grid)} hints={hints} selectedKey={null} stacksWhenNarrow />
               ) : (
                 <HintsPanel
                   grid={grid}
