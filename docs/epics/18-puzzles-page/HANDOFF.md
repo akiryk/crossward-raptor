@@ -143,4 +143,4 @@ Then record the audit here and mark the epic closed in the epic index.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md. Walk the human through verifying Epic 18's S5–S8 one item at a time on the dev server, record the results, and close the epic on main if they pass.
+Read docs/epics/18-puzzles-page/HANDOFF.md. Run an independent, report-only closeout audit of Epic 18's S5–S9 per docs/process/AUDIT.md and report the findings; don't edit files.
