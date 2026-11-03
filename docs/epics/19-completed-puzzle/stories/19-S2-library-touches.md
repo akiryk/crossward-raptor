@@ -1,6 +1,6 @@
 # Story S2 — Orange completed rows, room below the puzzles, a smaller Sign out
 
-**Status: approved, frozen.** The human added this story to the epic on
+**Status: implemented on `main` (frozen 57e32e9); full e2e pending.** The human added this story to the epic on
 2026-11-03, during S1, with its values stated; the orchestrator applied
 S1's delegated approval and freeze to it (recorded as an assumption in
 the handoff). Frozen on `main` in a specification-only commit.
@@ -60,6 +60,15 @@ delivery to `main`.
 On 15eca84 (S1, no S2 runtime): the five e2e files ran 15 failed, 25
 passed, the failures being every new and amended case; Vitest's two
 amended files ran 3 failed, 7 passed.
+
+### Implementation verification (2026-11-03, observed)
+
+Frozen acceptance unchanged from 57e32e9. `npm run verify` exit 0 (Vitest
+656 of 656). Lint has two warnings: `request-logger/` (pre-existing) and
+`e2e/done-icon.spec.ts` `PLAY_ROW_HOVER` unused, left by this story's
+amendment (a spec-only cleanup, not done). The five S2 e2e files plus
+`two-greens` and `puzzle-library`: 66 passed. The full `npm run
+test:e2e` has not run on this tree.
 
 ## Repo paths
 

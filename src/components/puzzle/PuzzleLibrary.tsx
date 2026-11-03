@@ -59,13 +59,13 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
         data-ready={ready}
         // From 948px the 200px filters column sits to the left; shifting the list
         // 100px right centers the pair.
-        className="relative mx-auto mt-[90px] flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5 min-[948px]:left-[100px]"
+        className="relative mx-auto mt-[90px] mb-8 flex min-h-[630px] w-full max-w-[700px] flex-col border-l border-line-muted pl-5 min-[948px]:left-[100px]"
       >
         <div data-testid="puzzle-list-header" className="pt-[10px]">
           <Title size={2} as="h1" tabIndex={-1} id="puzzle-library-heading" data-testid="page-heading">Puzzles</Title>
         </div>
         <LibraryFilters filters={filters} onChange={choose} />
-        <div data-testid="puzzle-list" className="mt-[27px] flex flex-col gap-10">
+        <div data-testid="puzzle-list" className="mt-[27px] mb-8 flex flex-col gap-10">
           {groups.length === 0 && (
             <p data-testid="puzzle-list-empty" className="text-body-normal text-muted">
               {filterCount(filters) > 0 ? 'No puzzles match these filters.' : 'No puzzles yet.'}

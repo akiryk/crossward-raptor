@@ -44,7 +44,7 @@ export function MastheadAction({
       type="button"
       data-testid={testId}
       onClick={onClick}
-      className="-my-1 cursor-pointer text-body-large text-link-muted outline-none transition-colors duration-150 ease-out hover:text-button-hover focus-visible:text-button-hover"
+      className="-my-1 cursor-pointer text-button-normal text-link-muted outline-none transition-colors duration-150 ease-out hover:text-button-hover focus-visible:text-button-hover"
     >
       {children}
     </button>

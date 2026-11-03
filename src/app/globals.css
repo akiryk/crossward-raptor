@@ -28,6 +28,8 @@
   --palette-green: #84c600;
   --palette-green-faint: #f0f5e5;
   --palette-green-faint-hover: #eaf0db;
+  --palette-orange-faint: #f9f2e6;
+  --palette-orange-hover: #f7ecd7;
   --palette-orange: #ef9d05;
 }
 
@@ -94,6 +96,8 @@
   /* the play rows (Story 18-S2) */
   --color-puzzle-row-play: var(--palette-green-faint);
   --color-puzzle-row-play-hover: var(--palette-green-faint-hover);
+  --color-puzzle-row-complete: var(--palette-orange-faint);
+  --color-puzzle-row-complete-hover: var(--palette-orange-hover);
   /* the Play status icon (Story 18-S3) */
   --color-status-play: var(--palette-green);
   /* the DONE status icon (Story 18-S5) */

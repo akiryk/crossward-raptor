@@ -47,6 +47,8 @@ function rightRoom(menu: boolean, reset: boolean) {
 // Story 18-S3: rows with the Play icon are green.
 const ROW = 'bg-puzzle-row hover:bg-puzzle-row-hover has-[a:focus-visible]:bg-puzzle-row-hover';
 const PLAY_ROW = 'bg-puzzle-row-play hover:bg-puzzle-row-play-hover has-[a:focus-visible]:bg-puzzle-row-play-hover';
+// Story 19-S2: rows with the DONE icon are orange.
+const COMPLETE_ROW = 'bg-puzzle-row-complete hover:bg-puzzle-row-complete-hover has-[a:focus-visible]:bg-puzzle-row-complete-hover';
 
 /** Story 18-S4: a published row links to play and shows the player's
  *  progress; an unpublished one (always the caller's) links to the builder.
@@ -74,7 +76,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
       data-keyboard-focus-host
-      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, play?.state === 'completed' && play.sessionId !== null)} transition-colors duration-150 ease-out ${puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
+      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, play?.state === 'completed' && play.sessionId !== null)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
       <StatusIcon status={status} />
       <div className="ml-3 flex w-[212px] min-w-[90px] flex-col gap-1">
