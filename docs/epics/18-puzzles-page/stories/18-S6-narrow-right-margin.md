@@ -6,7 +6,7 @@ Filters panel and the puzzle rows no longer touch the window's right
 edge. A narrower row keeps a usable title, and its date wraps to fit
 before its menu and Reset. The two-column layout does not change.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02; implemented `0093427`). Drafted under the
 orchestration the human delegated on 2026-11-02 and extended to S5–S8 the
 same day (see the [handoff](../HANDOFF.md)). An independent specification
 review approved it with should-fix items, which are applied here:
@@ -328,7 +328,8 @@ during the runs.
 
 - **Throwaway implementation**, then removed. It touches
   `PuzzleLibrary.tsx` and `PuzzleRow.tsx`.
-  - The patch is kept outside the repo at `/tmp/18-S6-throwaway.patch`.
+  - The patch is kept outside the repo at `/tmp/18-S6-throwaway.patch`
+    (lost in a later reboot; the observations below stand as recorded).
     It matches the diff that was tested (`cmp`), and it applies cleanly
     to this tree (`git apply --check`).
   - `npm run verify` exit 0: Vitest 656 of 656, with `tsc` and ESLint

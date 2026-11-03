@@ -9,9 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, approved
-  2026-11-02; S1–S9 delivered and verified; S1–S4 audited; S5–S9
-  await a closeout audit)
+- [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, closed
+  2026-11-03; accepted items listed there)
 - [Polish](17-polish/HANDOFF.md) (epic 17, closed 2026-11-02; accepted
   items listed there)
 - [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, closed

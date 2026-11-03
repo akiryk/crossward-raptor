@@ -5,7 +5,7 @@ column's first hint number: its left, top, size and color stay
 identical. The rows after it may move, since the two lists' row heights
 differ.
 
-**Status: approved and frozen** (2026-11-02). Found by the human during S5–S8
+**Status: done** (2026-11-02; implemented `6db5d86`). Found by the human during S5–S8
 verification: "the number in the first row of both Across and Down
 columns … should not move at all. … Size doesn't change, color doesn't
 change, x-value doesn't change, y-value doesn't change." Not covered by

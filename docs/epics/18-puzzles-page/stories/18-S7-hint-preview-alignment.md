@@ -10,7 +10,7 @@ Inputs' columns: two side by side from a 1430px window, one column
 below. The build phase's skeleton takes the same 6px inset and the
 list's scrollbar room, so Create Hints still moves nothing sideways.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the
+**Status: done** (2026-11-02; implemented `351b137`). Drafted under the
 orchestration the human delegated on 2026-11-02 and extended to S5–S8 the
 same day (see the [handoff](../HANDOFF.md)). Revised the same day for the
 human's and the orchestrator's decisions below (Preview stacks too,
@@ -224,8 +224,8 @@ column).
 
 ### Amended acceptance
 
-Applied in the working tree (uncommitted) and to be committed in the
-specification-only freeze commit. Every other frozen test is unchanged.
+Committed in the specification-only freeze commit `14958ed`. Every
+other frozen test is unchanged.
 Both headers' "72px right of the grid" was already stale: the frozen
 cases measure the columns 32px from the grid (14-S6-5, 14-S5-6). The
 same amendment corrects it to the columns' 32px, with the labels,

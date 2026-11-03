@@ -12,7 +12,7 @@ we fix both?"):
 Nothing visible changes in the app, except that the style guide loses
 its nav Radio sample.
 
-**Status: approved and frozen** (2026-11-02). Drafted under the orchestration the
+**Status: done** (2026-11-02; implemented `6a5ddac`). Drafted under the orchestration the
 human delegated on 2026-11-02 and extended to S5–S8 the same day (see the
 [handoff](../HANDOFF.md)). An independent specification review approved
 it with should-fix items, applied here: two more stale "Build row's menu"

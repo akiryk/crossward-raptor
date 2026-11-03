@@ -202,7 +202,8 @@ before the implementation was committed.
 
 - **Throwaway implementation**, then reverted. It touches `globals.css`,
   `ColorSwatches.tsx`, `StatusIcon.tsx` and `PuzzleRow.tsx`. The patch is
-  kept outside the repo at `/tmp/18-s5-throwaway.patch` and applies
+  kept outside the repo at `/tmp/18-s5-throwaway.patch` (lost in a
+  later reboot; the observations below stand as recorded) and applies
   cleanly to this tree (`git apply --check`).
   - `npm run verify` exit 0 (Vitest 656 of 656, including `tsc` and
     ESLint over the proposed tests; only the existing `request-logger`
@@ -249,7 +250,8 @@ machine.
 Acceptance (immutable after freeze): `e2e/done-icon.spec.ts`,
 `e2e/status-icons.spec.ts`, `e2e/library-play.spec.ts`,
 `e2e/puzzle-library.spec.ts`, `e2e/library-filters.spec.ts`,
-`src/app/globals-css.test.ts` and `e2e/color-tokens.spec.ts`.
+`src/app/globals-css.test.ts`, `e2e/color-tokens.spec.ts` and
+`e2e/duplicate.spec.ts` (the frozen-test correction, refrozen `758f7a6`).
 
 Runtime:
 

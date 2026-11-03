@@ -5,11 +5,11 @@
 1. This handoff; AGENTS only if not already supplied.
 2. The [EPIC](EPIC.md), then each story's "Delegated decisions".
 
-## Current state (2026-11-02)
+## Current state (2026-11-03)
 
-**S1–S9 done and delivered on `main`. Closeout audit of S1–S4 done, no
-blockers; human verification of S1–S9 passed. S5–S9 have no closeout
-audit yet. The epic is not closed.**
+**Closed 2026-11-03.** S1–S9 done and delivered on `main`; human
+verification of S1–S9 passed; closeout audits of S1–S4 and S5–S9 found
+no blockers, dispositions below.
 
 - [S1 muted text](stories/18-S1-muted-text.md): approved by the human,
   frozen `1acb507`.
@@ -46,8 +46,9 @@ PR review/merge. Log delegated decisions in each story. Stop only for
 unresolved material product decisions, blockers, or unsafe operations.
 Run the closeout audit at the end, then hand back to me for
 verification." The human extended that delegation to S5–S8 on
-2026-11-02 ("Extend the delegation"). Each story gets an independent
-specification review; none of S2–S4 touched a CODE-REVIEW risk path.
+2026-11-02 ("Extend the delegation"). Each delegated story (S2–S8) got
+an independent specification review; S9, approved by the human directly,
+did not. None of S2–S9 touched a CODE-REVIEW risk path.
 
 ### Human verification (2026-11-02)
 
@@ -66,42 +67,51 @@ S9, and confirmed that everything else in S5–S8 passed, with every
 delegated decision kept as built. The human then checked S9 on the
 dev server (toggling Preview Hints): passed.
 
-## Closeout audit (2026-11-02)
+## Closeout audit, S1–S4 (2026-11-02)
 
-An independent, report-only agent that authored none of the epic audited
-it on `main` at `110f2af` per [AUDIT](../../process/AUDIT.md).
+Independent and report-only, on `main` at `110f2af`. No blockers; every
+finding was fixed or done in S8 (`4420aed`, `6a5ddac`).
 
-**Coverage:** the epic's docs and all four stories; the epic's runtime
-and test files; LEARNINGS, CODE-REVIEW, the epic index; `git` history
-and diffs from each freeze to HEAD, the risk paths since the epic began
-(empty) and leftover greps (`CrosswordIcon`, `library-view`, Build/Play).
-It confirmed that frozen acceptance changed only in the freeze commits,
-that the stories' file counts and suite arithmetic hold, and that the
-engine is untouched. **Not checked:** the E2E suite (shared database),
-the mockups in `~/Downloads`, visuals, and every amendment-table row
-(the counts were verified, the rows spot-checked).
+## Closeout audit, S5–S9 (2026-11-03)
 
-**Findings and dispositions** (none a blocker):
+An independent, report-only session that authored none of the epic
+audited S5–S9 on `main` at `38c9161` per [AUDIT](../../process/AUDIT.md);
+this session, which did not audit, recorded it.
 
-- **W1** S4 restated the EPIC's "Others' 'Other sizes'" rule as
-  "anyone's". *Fixed:* S4 now quotes the EPIC and records the reading as
-  a delegated decision for the human.
-- **W2** The handoff's verification named no commit. *Fixed* below.
-- **Stale S1** The epic index said "S1 next". *Fixed.*
-- **Stale S2** S2–S4 acceptance still said "*Proposed.*" *Fixed:* now
-  "Approved and frozen" with each freeze commit.
-- **Stale S3** The EPIC said the hover mock was missing. *Fixed:* notes
-  S3 found it.
-- **Stale S4** `Radio`'s `nav` variant now appears only in the style
-  guide, and its comment names Build/Play. *Scheduled:* S8, at the
-  human's request.
-- **Stale S5** Frozen test headers and describe titles
-  (`e2e/puzzle-library.spec.ts:18–27`, `'14-S2-3 Build'`,
-  `'14-S2-4 Play'`; `library-source.test.ts:9–10`) still describe the
-  removed views. *Scheduled:* S8, through STORY's correction procedure,
-  at the human's request.
-- **Prunable** This handoff's per-story detail. *Done:* compressed to
-  status plus links. No LEARNINGS entry is spent.
+**Coverage:** the EPIC and S5–S9; frozen test files diffed from each
+freeze (and S5's `758f7a6`) to HEAD, unchanged; each implementation
+commit's files against its story; risk paths (`src/engine`,
+`puzzle-storage.ts`, `actions.ts`, `prisma`) unchanged since the epic
+began; suite arithmetic (937 + 7 + 16 + 30 − 3 + 12 = 999, matching
+`playwright test --list`); S8's `nav` grep; `npm run verify` exit 0
+(Vitest 656 of 656). **Not checked:** the full E2E suite (shared
+database; pass counts are the orchestrator's), visuals and the
+`~/Downloads` DONE export, S7's scrollbar room (untestable headless),
+review transcripts, S6's 375px width table.
+
+**Findings and dispositions** (none a blocker; the human chose the
+small fixes, applied in the closing commit):
+
+- **W1** This handoff said every story had an independent specification
+  review; S9 had none. *Fixed* above.
+- **W2** S5's Repo paths omitted `e2e/duplicate.spec.ts`, refrozen in
+  `758f7a6`. *Fixed.*
+- **St1** S6–S9 still read "approved and frozen". *Fixed:* done, with
+  each implementation commit.
+- **St2** S7 called its amended acceptance uncommitted. *Fixed:* names
+  `14958ed`.
+- **St3** The S1–S4 audit listed S8's work as scheduled. *Fixed:*
+  compressed above.
+- **St4** S5's and S6's throwaway patches in `/tmp` were lost in a
+  reboot. *Fixed:* both stories say so; the observations stand.
+- **U1** `PuzzleRow.tsx`'s right padding repeats
+  `LibraryPlayControls.tsx`'s Reset condition (`play.state ===
+  'completed' && play.sessionId !== null`). *Accepted:* S6's tests cover
+  the seeded widths; share the condition when either side next changes.
+- **U2** `Radio.tsx` keeps an inert color transition on the label since
+  `nav` went. *Accepted:* harmless, S8 left it deliberately.
+- **Prunable** No LEARNINGS entry is spent (#2, #6, #7 are still relied
+  on); the S1–S4 audit section is compressed.
 
 ## Verification
 
@@ -137,10 +147,9 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-Closing needs an independent, report-only closeout audit of S5–S9
-([epic index](../README.md#close-an-epic)), unless the human waives it.
-Then record the audit here and mark the epic closed in the epic index.
+None in this epic. The next epic starts from the
+[epic index](../README.md).
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md. Run an independent, report-only closeout audit of Epic 18's S5–S9 per docs/process/AUDIT.md and report the findings; don't edit files.
+Read docs/epics/README.md. Draft the next epic's EPIC.md on main from the human's brief, for the human's approval; don't draft stories or implement.
