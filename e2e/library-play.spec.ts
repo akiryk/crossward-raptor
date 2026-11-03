@@ -503,7 +503,7 @@ test.describe('P5 — the library learns about play', () => {
         await page.keyboard.type(letter.toLowerCase());
       }
     }
-    await expect(page.getByTestId('play-completed-mark')).toBeVisible();
+    await expect(page.getByTestId('play-lock-message')).toBeVisible();
     await expect.poll(async () => (await ownRows(fixture))[0]?.completedAt).not.toBeNull();
     await page.goBack();
     await expect(page).toHaveURL(/\/puzzles$/);

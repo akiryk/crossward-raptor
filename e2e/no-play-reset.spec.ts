@@ -6,14 +6,16 @@ import { playPuzzleFixture, seedPlayPuzzle, seedPlaySession } from './helpers/pl
 import { seedPuzzle } from './helpers/seed-puzzle';
 import { waitForEditorReady } from './helpers/wait-for-ready';
 
-// Story 17-S3 — No Reset in play.
+// Story 17-S3 — No Reset in play, amended by 19-S1.
 //
-// A player resets a puzzle only from the library (/puzzles): the small
-// Reset button on a completed Play row, and its confirmation dialog. Play
-// has no "Puzzle options", no Reset menu item, no builder's Reset button
-// and no Reset dialog, for every player, wide or narrow, in progress or
-// completed. The builder (build phase, hints phase, published) has none
-// either. A player starts an unfinished puzzle over by deleting letters.
+// A player resets an unfinished puzzle nowhere in play: play has no
+// "Puzzle options", no Reset menu item, no builder's Reset button and no
+// Reset dialog, for every player, wide or narrow. A player starts an
+// unfinished puzzle over by deleting letters. A completed puzzle has one
+// Reset in play, the link beside "The puzzle is complete." (19-S1, which
+// e2e/completed-play.spec.ts covers), and the library's small Reset on a
+// completed Play row. The builder (build phase, hints phase, published)
+// has none.
 //
 // The library's Reset is unchanged; e2e/library-play.spec.ts covers it.
 //
@@ -56,7 +58,18 @@ async function expectNoReset(page: Page) {
   await expect(page.getByRole('dialog')).toHaveCount(0);
 }
 
-test.describe('17-S3-1 play has no Reset', () => {
+/** 19-S1: a completed puzzle's only Reset is the link by its message, and no dialog is open. */
+async function expectOnlyCompletedReset(page: Page) {
+  for (const id of PLAY_RESET_PARTS) await expect(page.getByTestId(id), id).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /puzzle options/i })).toHaveCount(0);
+  const reset = page.getByRole('button', { name: /reset/i });
+  await expect(reset).toHaveCount(1);
+  await expect(reset).toHaveAttribute('data-testid', 'play-reset-link');
+  await expect(page.getByRole('menuitem', { name: /reset/i })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+}
+
+test.describe('17-S3-1 play has no Reset (19-S1: but a completed puzzle\'s link)', () => {
   for (const viewport of [WIDE, NARROW]) {
     test.describe(`at ${viewport.width}px`, () => {
       test.use({ viewport });
@@ -67,8 +80,10 @@ test.describe('17-S3-1 play has no Reset', () => {
         test(`${builder === 'own' ? "the builder's" : "another builder's"} puzzle, ${attempt === 'none' ? 'first opened' : attempt}`, async ({ page }) => {
           const fixture = await seedPlay(page, attempt, builder);
           await openPlay(page, fixture.id);
-          if (attempt === 'complete') await expect(page.getByTestId('play-lock-message')).toBeVisible();
-          await expectNoReset(page);
+          if (attempt === 'complete') {
+            await expect(page.getByTestId('play-lock-message')).toBeVisible();
+            await expectOnlyCompletedReset(page);
+          } else await expectNoReset(page);
         });
       }
     });

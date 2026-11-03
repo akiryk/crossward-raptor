@@ -11,6 +11,9 @@ Decisions on 2026-11-01. Frozen on `main` in ceba5ec (specification
 only); implemented on `story/17-S3-no-reset-in-play`, independently
 reviewed as PR #32 and merged into `main` in 8cb74a8. **Done.**
 
+*Superseded in part by [19-S1](../../19-completed-puzzle/stories/19-S1-completed-puzzle.md)
+(2026-11-03, human): a completed puzzle has a Reset link in play.*
+
 **Blast radius: small, but a risk path.** It removes play's Reset UI and
 the code only that UI used. Removing `isPlayPuzzleBuilder` touches
 `src/app/puzzles/actions.ts` (CODE-REVIEW risk path), so delivery is a

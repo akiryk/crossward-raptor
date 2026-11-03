@@ -198,13 +198,12 @@ test.describe('15-S5-3 messages', () => {
     await expect(alert).toHaveCount(0);
   });
 
-  test('at 768px: a complete puzzle shows the completed mark and message 16px above the grid', async ({ page }) => {
+  test('at 768px: a complete puzzle shows the message 16px above the grid, with no mark (19-S1)', async ({ page }) => {
     await open(page, 768, { complete: true });
     const message = page.getByTestId('play-lock-message');
-    const mark = page.getByTestId('play-completed-mark');
     await expect(message).toBeVisible();
-    await expect(mark).toBeVisible();
-    const bottom = Math.max((await rect(message)).bottom, (await rect(mark)).bottom);
+    await expect(page.getByTestId('play-completed-mark')).toHaveCount(0);
+    const bottom = (await rect(message)).bottom;
     expect((await rect(grid(page))).y - bottom, '16px above the grid').toBeCloseTo(MESSAGE_GAP_PX, 0);
   });
 });

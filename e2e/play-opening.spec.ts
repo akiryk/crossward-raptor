@@ -15,7 +15,7 @@ import { playPuzzleFixture, seedPlayPuzzle, seedPlaySession } from './helpers/pl
 // or the hint bar (narrow) shows its hint, and typing works at once.
 // Opening doesn't scroll the page. The opening cursor is an ordinary
 // cursor: clicking its cell toggles the direction. A completed puzzle
-// opens with nothing selected, as before.
+// opens with nothing selected, as before, and no Prominent Hint (19-S1).
 //
 // The Prominent Hint's text is title-3 primary (was body-large), on the
 // label's baseline, in a bar still 52px tall.
@@ -155,7 +155,7 @@ test.describe('17-S2-1 play opens on the first empty cell', () => {
     await expect(page.getByTestId('play-lock-message')).toBeVisible();
     await expect(page.locator('[data-selected="true"], [data-highlight="slot"]')).toHaveCount(0);
     await expect(region(page)).not.toBeFocused();
-    await expect(bar(page)).toHaveText('');
+    await expect(bar(page), '19-S1: no Prominent Hint once complete').toHaveCount(0);
   });
 
   test.describe('on a short window', () => {

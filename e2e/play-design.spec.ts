@@ -17,9 +17,10 @@ import { playPuzzleFixture, seedPlayPuzzle, seedPlaySession } from './helpers/pl
 // play-cell-selected-row, 10px corners, 12px by 16px padding, at least
 // 52px tall. It shows the selected word's number and direction ("1A") in
 // title-4 primary and its hint in title-3 primary (17-S2, was body-large),
-// on one baseline, and stays, empty, while no word is selected. Play opens
-// on 1 Across with the grid focused (17-S2), so a test starts there
-// without clicking (0,0), which would toggle to Down.
+// on one baseline, and stays, empty, while no word is selected; a
+// completed puzzle has none (19-S1). Play opens on 1 Across with the grid
+// focused (17-S2), so a test starts there without clicking (0,0), which
+// would toggle to Down.
 //
 // Player Hints, compact (the human's mockup): "Across" and "Down" in
 // title-4 primary, level with the grid's first row; the numbers 72px
@@ -48,7 +49,6 @@ const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 const PRIMARY = 'rgb(0, 0, 0)'; // black
 const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
 const ERROR = 'rgb(226, 101, 95)'; // text-error
-const HIGHLIGHT = 'rgb(75, 192, 255)'; // blue-bright
 
 // The fixture (helpers/play-route): a 3×3, CAT / A#A / TEN, off cell (1,1).
 // 1-across (0,0)–(2,0) "Feline", 3-across (0,2)–(2,2) "Twice five",
@@ -310,7 +310,7 @@ test.describe('14-S7-3 Player Hints', () => {
     await hint(page, '1-across').click();
     await expect(page.locator('[data-selected="true"]')).toHaveCount(0);
     await expect(page.getByTestId('play-grid-region')).not.toBeFocused();
-    await expect(bar(page)).toHaveText('');
+    await expect(bar(page), '19-S1: no Prominent Hint once complete').toHaveCount(0);
     expect(await bg(hint(page, '1-across'))).toBe(TRANSPARENT);
   });
 });
@@ -354,7 +354,7 @@ test.describe('14-S7-4 title, controls and status', () => {
     expect(await style(status, 'color')).toBe(ERROR);
   });
 
-  test('a complete puzzle: the mark in highlight, the message body-normal primary, no word selected', async ({ page }) => {
+  test('a complete puzzle: no mark (19-S1), the message body-normal primary, no word selected', async ({ page }) => {
     const puzzle = playPuzzleFixture();
     const fixture = await seedPlayPuzzle({ builderId: await currentBuilderId(page), puzzle });
     await seedPlaySession(await currentBuilderId(page), fixture.id, puzzle.grid);
@@ -362,10 +362,10 @@ test.describe('14-S7-4 title, controls and status', () => {
     const message = page.getByTestId('play-lock-message');
     await expect(message).toBeVisible();
     await expectText(message, '14px', '400', '20px', PRIMARY);
-    expect(await style(page.getByTestId('play-completed-mark'), 'color')).toBe(HIGHLIGHT);
+    await expect(page.getByTestId('play-completed-mark')).toHaveCount(0);
     await cell(page, '0,0').click();
     await expect(page.locator('[data-selected="true"]')).toHaveCount(0);
-    await expect(bar(page)).toHaveText('');
+    await expect(bar(page), '19-S1: no Prominent Hint once complete').toHaveCount(0);
   });
 });
 

@@ -82,7 +82,7 @@ async function expectEntries(page: Page, expected: SerializedGrid) {
 }
 
 async function expectComplete(page: Page, id: string) {
-  await expect(page.getByTestId('play-completed-mark')).toBeVisible();
+  await expect(page.getByTestId('play-completed-mark')).toHaveCount(0); // 19-S1: no checkmark
   await expect(page.getByTestId('play-lock-message')).toBeVisible();
   await expect.poll(async () => (await readPlaySessions(id))[0]?.completedAt).toBeInstanceOf(Date);
   await expectEntries(page, correct);
@@ -304,7 +304,7 @@ test.describe('P3 — finishing a puzzle', () => {
     expect(actions).toBe(2); // Inspect first and accept the canonical solved grid.
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('play-lock-message')).toBeVisible();
-    await expect(page.getByTestId('play-completed-mark')).toBeVisible();
+    await expect(page.getByTestId('play-completed-mark')).toHaveCount(0); // 19-S1: no checkmark
     await typeAt(page, '0,0', 'q');
     await expectEntries(page, correct);
     await page.reload();

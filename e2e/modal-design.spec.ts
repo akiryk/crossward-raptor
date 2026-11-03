@@ -469,7 +469,7 @@ test.describe('F4-6 OK buttons', () => {
     await ok.click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByTestId('play-lock-message')).toBeVisible();
-    await expect(page.getByTestId('play-completed-mark')).toBeVisible();
+    await expect(page.getByTestId('play-completed-mark')).toHaveCount(0); // 19-S1: no checkmark
   });
 });
 
