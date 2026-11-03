@@ -49,7 +49,11 @@ guide's sample; direct delivery to `main`.
 
 ## Acceptance
 
-*Frozen 2026-11-03.*
+*Frozen 2026-11-03 (17148c7).* Correction, same day: 19-S3-2's
+style-guide case now signs in before visiting `/style-guide`, which
+requires a session, so the sample never rendered. It was a fixture fix
+only, with assertions unchanged, approved by the human and by an
+independent reviewer, and committed spec-only.
 
 - **New `e2e/menu-reset.spec.ts`:** 19-S3-1 the own completed row's
   menu and its Reset (order, color, no standalone button, no Reset on

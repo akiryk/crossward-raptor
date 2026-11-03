@@ -245,6 +245,7 @@ test.describe('19-S3-2 a hairline sets Delete apart', () => {
   });
 
   test('the style guide sample shows it before Delete', async ({ page }) => {
+    await signInSeededUser(page);
     await page.goto('/style-guide');
     const sample = page.getByTestId('sg-row-menu');
     await trigger(sample).click();
