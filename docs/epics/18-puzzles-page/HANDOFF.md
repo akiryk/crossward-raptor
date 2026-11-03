@@ -7,10 +7,10 @@
 
 ## Current state (2026-11-02)
 
-**S1–S8 done and delivered on `main`. Closeout audit of S1–S4 done, no
-blockers; human verification of S1–S4 passed. S5–S8, added by the human
-and delivered under the extended delegation, await the human's
-verification. The epic is not closed.**
+**S1–S9 done and delivered on `main`. Closeout audit of S1–S4 done, no
+blockers; human verification of S1–S8 passed. S9, which the human added
+during that verification, awaits the human's check on the dev server.
+The epic is not closed.**
 
 - [S1 muted text](stories/18-S1-muted-text.md): approved by the human,
   frozen `1acb507`.
@@ -36,7 +36,8 @@ verification. The epic is not closed.**
   patches rebuilt after the reboot, implemented and delivered on `main`.
 - [S9 first hint numbers fixed](stories/18-S9-first-hint-fixed.md),
   added by the human during S5–S8 verification and approved by the human
-  directly (outside the S5–S8 delegation); frozen in the commit adding it.
+  directly (outside the S5–S8 delegation); frozen `5a4c797`,
+  implemented and delivered on `main`.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
 18's remaining stories (S2–S4) end to end. I delegate spec approval and
@@ -57,7 +58,13 @@ filters layout, keeping the checked outline; how filters combine,
 keeping "Other sizes" hidden for everyone; URL persistence, keeping
 `replaceState`; the narrow panel; row menus and the play Reset; the
 style guide's Checkbox. Every delegated decision in S2–S4 is kept as
-built. Verification of S5–S8 is still to come.
+built.
+
+Then S5–S8, also on the dev server: all passed except one item. With
+Preview Hints toggled, each column's first hint number rose 4px. The
+human added [S9](stories/18-S9-first-hint-fixed.md) for it, approved
+S9, and confirmed that everything else in S5–S8 passed, with every
+delegated decision kept as built.
 
 ## Closeout audit (2026-11-02)
 
@@ -121,17 +128,21 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 - S8 implementation (orchestrator): `npm run verify` exit 0 (Vitest
   656 of 656); full `npm run test:e2e` exit 0, 987 passed (990 less the
   3 retired F6-4 cases); the story's `nav` grep finds nothing.
+- S9 implementation (orchestrator): `npm run verify` exit 0 (Vitest
+  656 of 656); full `npm run test:e2e` exit 0, 999 passed (987 + S9's
+  12), on the second run. The first had 995 passed and 4 failed
+  (`enter-hints` H1-1 ×3 with "session closed", `row-menu` 16-S2-8
+  `ECONNRESET`) at load 10; those files then passed 25 of 25 alone.
+  Frozen acceptance diff against `5a4c797` empty.
 
 ## Next action
 
-Human verification of S5–S8, one item at a time on the dev server: the
-DONE icon on completed puzzles (S5); the right margin and the date below
-948px (S6); Preview Hints at 1440px and 1280px, and Create Hints (S7);
-the style guide's single form Radio (S8). Review each story's delegated
-decisions, including S7's skeleton inset in the build phase. Then record
-the result here and mark the epic closed in the [epic
-index](../README.md). The closeout audit above predates S5–S8; run
-another before closing only if the human asks.
+The human checks S9 on the dev server: toggling Preview Hints at 1440px
+and 1280px, each column's first number stays put (in one column, Down's
+stays put relative to the Down label). If it passes, record it here and
+mark the epic closed in the [epic index](../README.md). The closeout
+audit above predates S5–S9; run another before closing only if the
+human asks.
 
 ## Resume prompt
 

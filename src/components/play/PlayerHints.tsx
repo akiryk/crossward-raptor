@@ -26,7 +26,8 @@ export function PlayerHints({
   selectedKey: string | null;
   onSelect?: (key: string) => void;
   /** The builder's Preview Hints (18-S7): one column below 650px of room,
-   *  as the Hint Inputs stack. Play and the style guide don't set it. */
+   *  as the Hint Inputs stack, and each column's first number where the
+   *  Hint Inputs' is (18-S9). Play and the style guide don't set it. */
   stacksWhenNarrow?: boolean;
 }) {
   const maxNumberDigits = Math.max(1, ...slots.map((slot) => String(slot.number).length));
@@ -41,7 +42,9 @@ export function PlayerHints({
           className="min-w-0 flex-1"
         >
           <h2 className="px-[6px] pt-2 text-title-4 text-primary">{heading}</h2>
-          <ol className="mt-[11px]">
+          {/* Story 18-S9: 4px lower in the builder, as a Hint Input's
+              number sits on its text, below the input's 4px padding. */}
+          <ol className={stacksWhenNarrow ? 'mt-[15px]' : 'mt-[11px]'}>
             {slots.filter((slot) => slot.orientation === orientation).map((slot) => {
               const key = `${slot.number}-${orientation}`;
               return (
