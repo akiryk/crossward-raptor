@@ -26,9 +26,10 @@ progress under the extended delegation. The epic is not closed.**
   approved it twice with should-fix items, all applied. Orchestrator
   decisions recorded in the story: S6 also fixes the date overflow it
   would cause, and titles come before the date (the date may wrap to two
-  lines below 948px, 90px minimum title column). A final confirmation
-  review was running when this session ended; its verdict is not
-  recorded. Discrimination observed by the drafter (in the story).
+  lines below 948px, 90px minimum title column). The same reviewer's
+  final confirmation pass: **approve**, nothing blocking or should-fix
+  remaining; ready to freeze. Discrimination observed by the drafter (in
+  the story).
 - [S7 hint preview alignment](stories/18-S7-hint-preview-alignment.md):
   **proposed, untracked** with `e2e/hint-preview-alignment.spec.ts`;
   throwaway at `/tmp/18-S7-throwaway.patch`. Not yet independently
@@ -115,8 +116,7 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-Orchestrator: get a fresh independent confirmation review of S6's
-proposed story, spec and patch; then freeze S6 (spec-only commit),
+Orchestrator: approve and freeze S6 (spec-only commit),
 implement it from the throwaway (separate agent), and deliver after
 `verify` and a full `test:e2e`. Then S7: check that the story records the
 human's decisions above, independently review it, run its discrimination
