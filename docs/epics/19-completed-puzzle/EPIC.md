@@ -8,6 +8,9 @@ below the puzzles and a smaller Sign out, added by the human the same day;
 [19-S3](stories/19-S3-reset-in-menu.md) Reset in the row menu with Delete
 set apart, added after the human checked S1 and S2.
 
+**Closed 2026-11-03.** S1–S3 delivered on `main`; the closeout audit
+found no blockers ([handoff](HANDOFF.md)).
+
 When a player finishes a puzzle correctly, the confetti plays, the puzzle
 locks, and a message says it's complete. This epic tidies that screen and
 lets the player play it again from there.
@@ -41,8 +44,9 @@ Reset link):
 
 ## Non-goals
 
-- The library's Reset, the confirmation dialog's wording, and
-  `resetPlaySession` (reused unchanged).
+- The library's Reset dialog, the confirmation dialog's wording, and
+  `resetPlaySession` (reused unchanged). S3 moves the library's Reset
+  button into the own completed row's menu.
 - The narrow hint bar under the grid (the request names the desktop
   rectangle above the grid).
 - The completion dialog and confetti.
