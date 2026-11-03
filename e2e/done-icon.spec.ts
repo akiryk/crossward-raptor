@@ -19,7 +19,8 @@ import { signInSeededUser } from './helpers/seed-session';
 //
 // The row's visually hidden status text reads "Complete", so its link reads
 // "<title> Complete". The visible `[complete]` marker is gone; `[in-play]`
-// stays. The completed row keeps Reset; resetting it from the library
+// stays. The completed row keeps Reset (19-S3: the caller's own row in
+// its menu); resetting it from the library
 // turns it back to Play. 19-S2: the completed row is orange
 // (`puzzle-row-complete` #F9F2E6, `puzzle-row-complete-hover` #F7ECD7),
 // not green.
@@ -36,7 +37,6 @@ const ORANGE = '#EF9D05';
 const GREEN = '#84C600';
 const WHITE = '#FFFFFF';
 const PLAY_ROW = '#F0F5E5';
-const PLAY_ROW_HOVER = '#EAF0DB';
 // 19-S2: the completed rows.
 const COMPLETE_ROW = '#F9F2E6';
 const COMPLETE_ROW_HOVER = '#F7ECD7';
@@ -367,7 +367,14 @@ test.describe('18-S5-3 the hidden status names the completed state; [complete] i
       await expectHiddenStatus(item, fixture.title, 'done', null);
       await expect(item).not.toContainText('[complete]');
       await expect(item.getByTestId('puzzle-play-state')).toHaveCount(0);
-      await expect(item.getByTestId('puzzle-reset-button')).toBeVisible();
+      // 19-S3: the caller's own row offers Reset in its menu.
+      if (fixture === foreignComplete) await expect(item.getByTestId('puzzle-reset-button')).toBeVisible();
+      else {
+        await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(0);
+        await item.getByTestId('puzzle-menu-button').click();
+        await expect(page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-reset')).toBeVisible();
+        await page.keyboard.press('Escape');
+      }
     }
 
     const playing = row(page, inPlay.title);

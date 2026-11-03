@@ -96,7 +96,9 @@ test.describe('17-S3-1 play has no Reset (19-S1: but a completed puzzle\'s link)
     await page.waitForSelector('[data-testid="puzzle-library"][data-ready="true"]');
     // 18-S4: one list, so no Play view to choose.
     const item = page.getByTestId('puzzle-list-item').filter({ hasText: fixture.title });
-    await item.getByTestId('puzzle-reset-button').click();
+    // 19-S3: the caller's own completed row offers Reset in its menu.
+    await item.getByTestId('puzzle-menu-button').click();
+    await page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-reset').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
     await page.getByTestId('play-reset-confirm').click();
     await expect(page.getByTestId('play-reset-dialog')).toHaveCount(0);

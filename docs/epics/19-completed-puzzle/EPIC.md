@@ -4,7 +4,9 @@
 approval and freeze ("Delegate freeze"). Stories:
 [19-S1](stories/19-S1-completed-puzzle.md) the completed puzzle in play;
 [19-S2](stories/19-S2-library-touches.md) orange completed rows, room
-below the puzzles and a smaller Sign out, added by the human the same day.
+below the puzzles and a smaller Sign out, added by the human the same day;
+[19-S3](stories/19-S3-reset-in-menu.md) Reset in the row menu with Delete
+set apart, added after the human checked S1 and S2.
 
 When a player finishes a puzzle correctly, the confetti plays, the puzzle
 locks, and a message says it's complete. This epic tidies that screen and

@@ -82,6 +82,8 @@ async function expectState(item: Locator, state: 'untouched' | 'in-progress' | '
   await expect(item).toHaveAttribute('data-play-state', state);
   const cue = item.getByTestId('puzzle-play-state');
   const reset = item.getByTestId('puzzle-reset-button');
+  // 19-S3: the caller's own row offers Reset in its menu, not as a button.
+  const own = (await item.getByTestId('puzzle-menu-button').count()) > 0;
   if (state === 'untouched') {
     await expect(cue).toHaveCount(0);
     await expect(reset).toHaveCount(0);
@@ -97,11 +99,24 @@ async function expectState(item: Locator, state: 'untouched' | 'in-progress' | '
   // 18-S5: no [complete] marker; the hidden status text reads Complete.
   await expect(cue).toHaveCount(0);
   await expect(item.getByTestId('puzzle-status')).toHaveText('Complete');
+  if (own) {
+    await expect(reset).toHaveCount(0);
+    return;
+  }
   await expect(reset).toBeVisible();
   await expect(reset).toHaveAccessibleName('Reset');
 }
+/** 19-S3: what opens the row's reset, and takes focus back when it is dismissed. */
+async function resetOpener(item: Locator) {
+  const menu = item.getByTestId('puzzle-menu-button');
+  return (await menu.count()) > 0 ? menu : item.getByTestId('puzzle-reset-button');
+}
 async function openReset(item: Locator) {
-  await item.getByTestId('puzzle-reset-button').click();
+  const opener = await resetOpener(item);
+  await opener.click();
+  if ((await opener.getAttribute('data-testid')) === 'puzzle-menu-button') {
+    await item.page().getByTestId('puzzle-menu').getByTestId('puzzle-menu-reset').click();
+  }
   await expect(item.page().getByTestId('play-reset-dialog')).toBeVisible();
 }
 async function expectPlayCell(page: Page, col: number, row: number, letter: string) {
@@ -318,7 +333,7 @@ test.describe('P5 — the library learns about play', () => {
     }
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
-    await expect(item.getByTestId('puzzle-reset-button')).toBeFocused();
+    await expect(await resetOpener(item)).toBeFocused();
   });
 
   for (const dismissal of ['Cancel', 'Escape', 'backdrop', 'Close'] as const) {
@@ -333,7 +348,7 @@ test.describe('P5 — the library learns about play', () => {
       else if (dismissal === 'backdrop') await page.getByTestId('modal-backdrop').click({ position: { x: 2, y: 2 } });
       else await page.getByTestId('play-reset-dialog').getByTestId('modal-close').click();
       await expect(page.getByTestId('play-reset-dialog')).toHaveCount(0);
-      await expect(item.getByTestId('puzzle-reset-button')).toBeFocused();
+      await expect(await resetOpener(item)).toBeFocused();
       await expectState(item, 'completed');
       expect(await readPlaySessions(fixture.id)).toEqual(before);
     });

@@ -111,7 +111,8 @@ async function libraryAt(page: Page, width: number): Promise<Seeded[]> {
     seeded.push({ id, title, menu: true, reset: false, marker: false });
   }
   const own = await seedCompleted(me, me);
-  seeded.push({ id: own.id, title: own.title, menu: true, reset: true, marker: false });
+  // 19-S3: the caller's own completed row offers Reset in its menu.
+  seeded.push({ id: own.id, title: own.title, menu: true, reset: false, marker: false });
   const other = await seedOtherBuilder();
   const foreign = await seedCompleted(other, me);
   seeded.push({ id: foreign.id, title: foreign.title, menu: false, reset: true, marker: false });

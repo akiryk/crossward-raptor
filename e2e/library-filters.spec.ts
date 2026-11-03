@@ -315,7 +315,8 @@ test.describe('18-S4-3 one list', () => {
       await expect(link).toHaveAccessibleName(marker === null ? `${fixture.title} ${status}` : `${fixture.title} ${status} ${marker}`);
       await expect(item.getByTestId('puzzle-edit-link')).toHaveCount(0);
       await expect(item.getByTestId('puzzle-menu-button'), `${fixture.title} menu`).toHaveCount(mine ? 1 : 0);
-      await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(status === 'Complete' ? 1 : 0);
+      // 19-S3: the caller's own completed row offers Reset in its menu instead.
+      await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(status === 'Complete' && !mine ? 1 : 0);
     }
     await expect(row(page, foreignDraft.title)).toHaveCount(0);
     await expect(row(page, foreignUnlisted.title)).toHaveCount(0);
@@ -332,27 +333,24 @@ test.describe('18-S4-3 one list', () => {
     }
   });
 
-  test('the caller’s own completed puzzle has Reset 12px left of its menu, and the menu opens it in the builder', async ({ page }) => {
+  // 19-S3: Reset moved into the menu, before Delete.
+  test('the caller’s own completed puzzle offers Reset in its menu, and the menu opens it in the builder', async ({ page }) => {
     const me = await freshBuilder(page);
     const own = await seedPublished(me, me, 'complete');
     await openLibrary(page);
     const item = row(page, own.title);
     const menuButton = item.getByTestId('puzzle-menu-button');
-    const resetButton = item.getByTestId('puzzle-reset-button');
+    await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(0);
 
-    const m = await box(menuButton);
-    const r = await box(resetButton);
-    expect(m.x - (r.x + r.width), 'Reset 12px left of the menu button').toBeCloseTo(12, 0);
-    expect(Math.abs((r.y + r.height / 2) - (m.y + m.height / 2)), 'on one line').toBeLessThanOrEqual(2);
-
-    await resetButton.click();
+    await menuButton.click();
+    await page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-reset').click();
     await expect(page.getByTestId('play-reset-dialog')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('play-reset-dialog')).toHaveCount(0);
 
     await menuButton.click();
     const items = page.getByTestId('puzzle-menu').getByRole('menuitem');
-    expect((await items.allTextContents()).map((t) => t.trim())).toEqual(['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']);
+    expect((await items.allTextContents()).map((t) => t.trim())).toEqual(['Duplicate', 'Open in builder', 'Make unlisted', 'Reset', 'Delete']);
     await page.getByTestId('puzzle-menu').getByTestId('puzzle-menu-open-builder').click();
     await expect(page).toHaveURL(new RegExp(`/puzzles/${own.id}$`));
     await waitForEditorReady(page);
