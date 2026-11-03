@@ -1,6 +1,6 @@
 # Story S3 — Reset in the row menu, Delete set apart
 
-**Status: implemented on local `main`; full e2e pending.** The human added this story on
+**Status: delivered on `main`.** The human added this story on
 2026-11-03 after checking S1 and S2 on the dev server, and delegated its
 approval and freeze ("Delegate freeze").
 
@@ -86,8 +86,15 @@ behavior. The amendment to `done-icon.spec.ts` also drops the unused
 `npm run verify` exit 0 (Vitest 656 of 656; one existing lint warning
 in `request-logger/`). The seven acceptance files plus `row-menu`,
 `delete-published` and `duplicate`: 122 passed, 1 failed, the
-style-guide case that the correction above fixes. It was not rerun
-after the correction. The full `npm run test:e2e` has not run.
+style-guide case that the correction above fixes.
+
+After the correction, on 78f3d38: `e2e/menu-reset.spec.ts` 8 passed;
+the full `npm run test:e2e` 1020 passed, exit 0; `npm run verify` exit
+0 (Vitest 656 of 656). An earlier full run failed only 18-S5-5 in
+`done-icon.spec.ts` (a rounded-corner pixel 3 off, mid row-color
+transition after the reset). That case is not S3's and fails the same
+way on 4fb3b5d (1 of 11 repeats), so it is an existing flake, left
+unchanged under frozen acceptance.
 
 ## Repo paths
 
