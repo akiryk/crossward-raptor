@@ -8,9 +8,8 @@
 ## Current state (2026-11-02)
 
 **S1–S9 done and delivered on `main`. Closeout audit of S1–S4 done, no
-blockers; human verification of S1–S8 passed. S9, which the human added
-during that verification, awaits the human's check on the dev server.
-The epic is not closed.**
+blockers; human verification of S1–S9 passed. S5–S9 have no closeout
+audit yet. The epic is not closed.**
 
 - [S1 muted text](stories/18-S1-muted-text.md): approved by the human,
   frozen `1acb507`.
@@ -64,7 +63,8 @@ Then S5–S8, also on the dev server: all passed except one item. With
 Preview Hints toggled, each column's first hint number rose 4px. The
 human added [S9](stories/18-S9-first-hint-fixed.md) for it, approved
 S9, and confirmed that everything else in S5–S8 passed, with every
-delegated decision kept as built.
+delegated decision kept as built. The human then checked S9 on the
+dev server (toggling Preview Hints): passed.
 
 ## Closeout audit (2026-11-02)
 
@@ -137,12 +137,9 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-The human checks S9 on the dev server: toggling Preview Hints at 1440px
-and 1280px, each column's first number stays put (in one column, Down's
-stays put relative to the Down label). If it passes, record it here and
-mark the epic closed in the [epic index](../README.md). The closeout
-audit above predates S5–S9; run another before closing only if the
-human asks.
+Closing needs an independent, report-only closeout audit of S5–S9
+([epic index](../README.md#close-an-epic)), unless the human waives it.
+Then record the audit here and mark the epic closed in the epic index.
 
 ## Resume prompt
 
