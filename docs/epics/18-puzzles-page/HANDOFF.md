@@ -21,9 +21,26 @@ progress under the extended delegation. The epic is not closed.**
   frozen-test correction refrozen `758f7a6` (human-approved), implemented
   and delivered on `main`.
 - [S6 narrow right margin](stories/18-S6-narrow-right-margin.md):
-  drafted by a separate agent; independent specification review approved
-  it with should-fix items, being applied before freeze.
-- S7–S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
+  **proposed, untracked** with `e2e/narrow-margin.spec.ts`; throwaway
+  at `/tmp/18-S6-throwaway.patch` (not applied). The independent review
+  approved it twice with should-fix items, all applied. Orchestrator
+  decisions recorded in the story: S6 also fixes the date overflow it
+  would cause, and titles come before the date (the date may wrap to two
+  lines below 948px, 90px minimum title column). A final confirmation
+  review was running when this session ended; its verdict is not
+  recorded. Discrimination observed by the drafter (in the story).
+- [S7 hint preview alignment](stories/18-S7-hint-preview-alignment.md):
+  **proposed, untracked** with `e2e/hint-preview-alignment.spec.ts`;
+  throwaway at `/tmp/18-S7-throwaway.patch`. Not yet independently
+  reviewed; its acceptance hasn't been run. **The human decided
+  (2026-11-02):** in the builder, Preview Hints stacks wherever the
+  editing list stacks (below 650px of room), and play is unchanged. In
+  the stacked range (1140–1429px) Down's height may change on toggle;
+  Across and every left edge never move. Orchestrator: the build-phase
+  skeleton gets the same 6px inset. A drafter was writing the second
+  decision into the story when this session ended; check that the story
+  states it.
+- S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
   not yet drafted.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
@@ -98,12 +115,16 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
 
 ## Next action
 
-Orchestrator: apply S6's review should-fix items, observe its
-discrimination runs, freeze, implement and deliver; then draft (separate
-agent), independently review, freeze and implement S7 and S8 in order
-under the extended delegation, serializing browser suites. Then hand back
-for the human's one-at-a-time verification of S5–S8, and mark the epic
-closed.
+Orchestrator: get a fresh independent confirmation review of S6's
+proposed story, spec and patch; then freeze S6 (spec-only commit),
+implement it from the throwaway (separate agent), and deliver after
+`verify` and a full `test:e2e`. Then S7: check that the story records the
+human's decisions above, independently review it, run its discrimination
+(commands in the story), freeze, implement and deliver. Then draft,
+review, freeze and implement S8. Serialize browser suites, and before a
+full run check `uptime` and that no other repository's suites are
+running: contention caused every earlier failure. Then hand back for the
+human's one-at-a-time verification of S5–S8, and mark the epic closed.
 
 ## Resume prompt
 
