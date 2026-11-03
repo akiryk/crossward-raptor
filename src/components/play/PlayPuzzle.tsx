@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import {
-  inspectPlayCompletion, savePlayEntries, startPlaySession, type PlayPuzzleView,
+  inspectPlayCompletion, resetPlaySession, savePlayEntries, startPlaySession, type PlayPuzzleView,
 } from '@/app/puzzles/actions';
 import { PuzzleGrid } from '@/components/grid/PuzzleGrid';
 import { Button } from '@/components/ui/Button';
@@ -20,14 +20,18 @@ import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
 import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from '@/lib/word-cursor';
 import { RebusControl } from '@/components/grid/RebusControl';
 import { closeRebus, rebusIntent } from '@/lib/rebus-entry';
-import { createPlayAutosave, type PlaySaveState } from './play-autosave';
+import { createPlayAutosave, playDraftKey, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
 import { PlayerHints } from './PlayerHints';
 import { PlayHintBar } from './PlayHintBar';
+import { PlayResetDialog } from './PlayReset';
 import { ProminentHint } from './ProminentHint';
 
 // At most 700px (17-S7), as the build grid, whatever the window's height (15-S1).
 const GRID_MAX_PX = 700;
+
+// A link, as the library filters' Reset (18-S4), at the message's size (19-S1).
+const RESET_LINK = 'cursor-pointer text-body-normal text-link-muted outline-none transition-colors duration-150 ease-out hover:text-button-hover focus-visible:text-button-hover';
 
 /**
  * Play opens on the first empty cell in reading order, or the first white
@@ -61,6 +65,10 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   const [celebrating, setCelebrating] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
   const [rebusValue, setRebusValue] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetPending, setResetPending] = useState(false);
+  const [resetFailed, setResetFailed] = useState(false);
+  const resetBusy = useRef(false);
   const rebusOpenRef = useRef(false);
   const gridRegion = useRef<HTMLDivElement>(null);
   const autosave = useRef<ReturnType<typeof createPlayAutosave> | null>(null);
@@ -174,6 +182,43 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   // (15-S5), 16px from it.
   const narrowMessage = displayedSessionState !== 'ready'
     || saveState === 'error' || completionError || localWarning || locked;
+  // A completed puzzle has no controls row ("Saved") unless it has
+  // something to report (19-S1).
+  const controlsRow = !locked || unavailable || saveState === 'error';
+
+  function cancelReset() {
+    if (resetBusy.current) return;
+    setResetOpen(false);
+    setResetFailed(false);
+  }
+
+  /** Replaces the completed attempt with a blank one and plays it (19-S1). */
+  async function confirmReset() {
+    const sessionId = view.session?.id;
+    if (resetBusy.current || !sessionId) return;
+    resetBusy.current = true;
+    setResetPending(true);
+    setResetFailed(false);
+    let started: PlayPuzzleView;
+    try {
+      started = await resetPlaySession(view.id, sessionId);
+    } catch {
+      setResetFailed(true);
+      return;
+    } finally {
+      resetBusy.current = false;
+      setResetPending(false);
+    }
+    try {
+      localStorage.removeItem(playDraftKey(sessionId));
+    } catch {
+      // The new session ID already prevents recovering the obsolete draft.
+    }
+    const run = currentRun.current;
+    autosave.current?.stop();
+    setResetOpen(false);
+    await beginSession(started, () => run !== null && currentRun.current === run);
+  }
 
   function changeEntries(next: Grid) {
     const entries = serializeGrid(next);
@@ -266,7 +311,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           className={`mx-auto flex max-w-(--play-grid-width) flex-col gap-3 @min-[1382px]/play:mb-0 @min-[1382px]/play:block @min-[1382px]/play:max-w-none ${narrowMessage ? 'mb-4' : ''}`}
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
-          <div className="contents @min-[1382px]/play:flex @min-[1382px]/play:h-8 @min-[1382px]/play:items-center @min-[1382px]/play:gap-3">
+          <div className={controlsRow ? 'contents @min-[1382px]/play:flex @min-[1382px]/play:h-8 @min-[1382px]/play:items-center @min-[1382px]/play:gap-3' : 'contents'}>
             {ready && unavailable && (
               <p data-testid="play-unavailable" role="alert" className="text-body-small text-error @min-[1382px]/play:ml-auto">
                 This puzzle is no longer available.{' '}
@@ -279,7 +324,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
                 data-save-state={saveState}
                 role={saveState === 'error' ? 'alert' : 'status'}
                 className={`text-body-small @min-[1382px]/play:ml-auto ${
-                  saveState === 'error' ? 'text-error' : 'hidden text-muted @min-[1382px]/play:block'
+                  saveState === 'error' ? 'text-error' : `hidden text-muted ${controlsRow ? '@min-[1382px]/play:block' : ''}`
                 }`}
               >
                 {saveState === 'saved' && 'Saved'}
@@ -327,24 +372,43 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             </p>
           )}
           {ready && locked && (
-            <div className="@min-[1382px]/play:mt-3 flex items-center gap-2">
-              <span data-testid="play-completed-mark" role="img" aria-label="Completed" className="text-title-3 text-highlight">✓</span>
+            <div className={`flex max-w-(--play-grid-width) items-baseline justify-between gap-3 ${controlsRow ? '@min-[1382px]/play:mt-3' : ''}`}>
               <p data-testid="play-lock-message" className="text-body-normal text-primary">
-                This puzzle is complete. Your entries are read-only.
+                The puzzle is complete.
               </p>
+              {!unavailable && view.session && (
+                <button
+                  type="button"
+                  data-testid="play-reset-link"
+                  className={RESET_LINK}
+                  // Some browsers do not focus a clicked button; Modal restores focus
+                  // to whatever was focused when it opened.
+                  onClick={(event) => {
+                    event.currentTarget.focus();
+                    setResetFailed(false);
+                    setResetOpen(true);
+                  }}
+                >
+                  Reset
+                </button>
+              )}
             </div>
           )}
         </div>
         <div
-          className="mx-auto max-w-(--play-grid-width) @min-[1382px]/play:mt-[27px] @min-[1382px]/play:grid @min-[1382px]/play:max-w-none @min-[1382px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1382px]/play:gap-x-[26px] @min-[1382px]/play:gap-y-4"
+          className={`mx-auto max-w-(--play-grid-width) ${locked ? '@min-[1382px]/play:mt-8' : '@min-[1382px]/play:mt-[27px]'} @min-[1382px]/play:grid @min-[1382px]/play:max-w-none @min-[1382px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1382px]/play:gap-x-[26px] @min-[1382px]/play:gap-y-4`}
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
-          <div className="hidden w-full max-w-(--play-grid-width) @min-[1382px]/play:block">
-            <ProminentHint
-              label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
-              hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
-            />
-          </div>
+          {/* A completed puzzle has no Prominent Hint or Rebus control, so the
+              grid and the Player Hints take the first row (19-S1). */}
+          {!locked && (
+            <div className="hidden w-full max-w-(--play-grid-width) @min-[1382px]/play:block">
+              <ProminentHint
+                label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
+                hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
+              />
+            </div>
+          )}
           <div
             ref={gridRegion}
             data-testid="play-grid-region"
@@ -352,7 +416,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
             tabIndex={0}
             aria-label="Puzzle entries"
             aria-busy={checking || undefined}
-            className="w-full max-w-(--play-grid-width) outline-none @min-[1382px]/play:col-start-1 @min-[1382px]/play:row-start-2"
+            className={`w-full max-w-(--play-grid-width) outline-none @min-[1382px]/play:col-start-1 ${locked ? '@min-[1382px]/play:row-start-1' : '@min-[1382px]/play:row-start-2'}`}
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -372,24 +436,28 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
               stretching it. */}
           <div
             data-testid="play-clues"
-            className="hidden min-w-0 overflow-y-auto @min-[1382px]/play:col-start-2 @min-[1382px]/play:row-start-2 @min-[1382px]/play:block @min-[1382px]/play:h-0 @min-[1382px]/play:min-h-full"
+            className={`hidden min-w-0 overflow-y-auto @min-[1382px]/play:col-start-2 ${locked ? '@min-[1382px]/play:row-start-1' : '@min-[1382px]/play:row-start-2'} @min-[1382px]/play:block @min-[1382px]/play:h-0 @min-[1382px]/play:min-h-full`}
           >
             <PlayerHints slots={slots} hints={view.hints} selectedKey={selectedKey} onSelect={handleHintClick} />
           </div>
-          <div className="hidden @min-[1382px]/play:col-start-2 @min-[1382px]/play:row-start-1 @min-[1382px]/play:flex @min-[1382px]/play:items-center">
-            <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
-              onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
-          </div>
+          {!locked && (
+            <div className="hidden @min-[1382px]/play:col-start-2 @min-[1382px]/play:row-start-1 @min-[1382px]/play:flex @min-[1382px]/play:items-center">
+              <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
+                onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
+            </div>
+          )}
           <div className="@min-[1382px]/play:hidden">
             <PlayHintBar
               hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               disabled={!editable}
               onStep={handleStep}
             />
-            <div className="mt-3 flex justify-end">
-              <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
-                onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
-            </div>
+            {!locked && (
+              <div className="mt-3 flex justify-end">
+                <RebusControl variant="pill" isOpen={rebusValue !== null} disabled={!editable}
+                  onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))} />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -419,6 +487,14 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
       >
         <p>You completed the puzzle!</p>
       </Modal>
+      <PlayResetDialog
+        open={resetOpen}
+        pending={resetPending}
+        failed={resetFailed}
+        onConfirm={() => void confirmReset()}
+        onCancel={cancelReset}
+        puzzleTitle={view.title}
+      />
       {celebrating && <PlayConfetti onFinished={finishCelebration} />}
     </div>
   );

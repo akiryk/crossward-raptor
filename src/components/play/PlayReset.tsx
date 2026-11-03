@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 
-/** The library's Reset confirmation (17-S3: play has no Reset). */
+/** The Reset confirmation, for the library and a completed puzzle in play (19-S1). */
 export function PlayResetDialog({
   open,
   pending,

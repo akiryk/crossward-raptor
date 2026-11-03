@@ -4,10 +4,10 @@ A completed puzzle shows, under the title, only "The puzzle is complete."
 and a Reset link at the grid's right edge. Reset confirms, then the
 puzzle plays again from a blank attempt.
 
-**Status: approved, frozen.** The human approved the request and
+**Status: implemented on `main`.** The human approved the request and
 delegated approval and freeze on 2026-11-03 ("Delegate freeze"); the
 wording "The puzzle is complete." is the human's choice. Frozen on
-`main` in a specification-only commit.
+`main` in d3a5ccc (specification only).
 
 **Blast radius: small, no risk path.** `src/components/play/` only;
 `resetPlaySession` in `actions.ts` is reused unchanged. Direct delivery
@@ -95,6 +95,16 @@ On `main` (4e5d462) with the proposed tests, `npm run test:e2e` over the
 nine files above: 29 failed, 114 passed. The failures are every 19-S1
 case except the guards, and every amended case. The guards and every
 unamended case pass.
+
+### Implementation verification (2026-11-03, observed)
+
+With the frozen acceptance unchanged from d3a5ccc, before commit:
+`npm run verify` exit 0 (Vitest 656 of 656; ESLint's one warning is in
+`request-logger/`, outside S1). The nine acceptance files plus
+`wide-layout.spec.ts`: 163 passed. The full `npm run test:e2e`: 1008
+passed, 1 failed, `puzzle-library.spec.ts` 14-S2-6 "a failed delete keeps
+the dialog …" (library delete, untouched by S1), which then passed 5 of 5
+alone. The full suite reruns on the final tree before push (HANDOFF).
 
 ## Repo paths
 
