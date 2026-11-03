@@ -34,6 +34,9 @@ verification. The epic is not closed.**
 - [S8 audit cleanups](stories/18-S8-audit-cleanups.md), frozen
   `4420aed` after an independent review and a confirmation review of the
   patches rebuilt after the reboot, implemented and delivered on `main`.
+- [S9 first hint numbers fixed](stories/18-S9-first-hint-fixed.md),
+  added by the human during S5–S8 verification and approved by the human
+  directly (outside the S5–S8 delegation); frozen in the commit adding it.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
 18's remaining stories (S2–S4) end to end. I delegate spec approval and

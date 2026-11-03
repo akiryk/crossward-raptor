@@ -78,6 +78,10 @@ approval and freeze) to S5–S8:
    `Radio`'s now-unused `nav` variant, and correct the frozen tests'
    stale Build/Play headers and describe titles through STORY's
    correction procedure.
+5. **First hint numbers fixed** *(human, during S5–S8 verification,
+   approved by the human without delegation)*: toggling Preview Hints
+   must not move either column's first hint number: not its left, top,
+   size or color.
 
 ## What the code does today (2026-11-02)
 
@@ -227,7 +231,8 @@ result.
 
 - Searching by title or builder, sorting options, pagination.
 - Changes to `listPuzzles`'s query (which puzzles the caller can see),
-  the builder (except S7's hints-panel alignment), play or the dialogs.
+  the builder (except S7's and S9's hints-panel alignment), play or the
+  dialogs.
 - Other pages' layouts. S1 changes the muted color app-wide, nothing else;
   S7 (added by the human) fixes only the hints panel's alignment.
 - Filter options beyond the human's list (e.g. Public, Other sizes).
@@ -279,3 +284,7 @@ Identical label and number alignment with Preview Hints on or off.
 
 Remove `Radio`'s `nav` variant; correct the stale frozen-test comments
 and describe titles.
+
+### S9 — First hint numbers fixed
+
+Neither column's first hint number moves when Preview Hints toggles.
