@@ -20,7 +20,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // skeleton: "Across" and "Down" in title-4 muted, one placeholder per word
 // (counted as the grid numbers them), each an 18px fill-muted dot, a 12px
 // gap and a 1px line-muted line up to 320px; rows 58px apart (a 40px
-// gap); columns 32px apart; 32px below the label; 72px right of the grid.
+// gap); columns 32px apart; 32px below the label; columns 32px right of
+// the grid. 18-S7: each column's labels and dots start 6px in, 38px right
+// of the grid for Across.
 // In Preview, build phase, a legend 16px below the grid names the error
 // and warning cells present, error first: a 24px dot in the cell's fill,
 // 6px, then the text in body-normal primary; 20px between items.
@@ -278,7 +280,7 @@ test.describe('14-S5-6 hint skeleton', () => {
     expect(l.x + l.width, 'line to the column\'s right edge').toBeCloseTo(across.x + across.width, 0);
   });
 
-  test('rows 58px apart, 32px below the label; columns 32px apart; 32px right of the grid', async ({ page }) => {
+  test('rows 58px apart, 32px below the label; columns 32px apart, dots 6px in; 32px right of the grid', async ({ page }) => {
     await open(page, dailyGrid());
     await cell(page, '1,1').click();
     await page.keyboard.press('f');
@@ -294,11 +296,11 @@ test.describe('14-S5-6 hint skeleton', () => {
     expect(firstRow.y - (label.y + label.height), 'below the label').toBeCloseTo(32, 0);
 
     const downDot = await box(rows(page, 'down').first().getByTestId('hint-skeleton-dot'));
-    expect(downDot.x - (first.x + first.width), 'between columns').toBeCloseTo(32, 0);
+    expect(downDot.x - (first.x + first.width), 'between columns, plus the 6px inset').toBeCloseTo(38, 0);
 
     const g = await box(grid(page));
     const acrossDot = await box(rows(page, 'across').first().getByTestId('hint-skeleton-dot'));
-    expect(acrossDot.x - (g.x + g.width), 'from the grid').toBeCloseTo(32, 0);
+    expect(acrossDot.x - (g.x + g.width), 'from the grid, plus the 6px inset').toBeCloseTo(38, 0);
   });
 
   test("the labels sit level with the grid's first row", async ({ page }) => {

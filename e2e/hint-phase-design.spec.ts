@@ -22,9 +22,11 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Hints: "Across" and "Down" in title-4 primary; the number in title-4
 // primary where the dot was, the line 12px after the dot's 18px; the
 // first line 45px below the label, lines 58px apart, up to 320px; columns
-// 32px apart, 72px right of the grid. The input's text is body-normal
-// primary. Below the line, 4px down and right-aligned with it, the answer
-// in label, letter-spaced 10%, muted, primary while the input has focus.
+// 32px apart, 32px right of the grid. 18-S7: labels and numbers 6px in
+// (lines 36px), as the skeleton's labels and dots, 38px right of the grid.
+// The input's text is body-normal primary. Below the line, 4px down and
+// right-aligned with it, the answer in label, letter-spaced 10%, muted,
+// primary while the input has focus.
 //
 // Cell letters and numbers are primary in every phase: build, Preview,
 // the hints phase and play.
@@ -261,7 +263,7 @@ test.describe("14-S6-5 the skeleton's frame", () => {
     }
   });
 
-  test('the line starts 30px into the column and fills it; lines 58px apart, the first 45px below the label', async ({ page }) => {
+  test('the line starts 36px into the column and fills it; lines 58px apart, the first 45px below the label', async ({ page }) => {
     await open(page, cornersGrid());
     const across = await box(column(page, 'across'));
     const label = await box(heading(page, 'across'));
@@ -269,7 +271,7 @@ test.describe("14-S6-5 the skeleton's frame", () => {
     const first = await lineOf(inputs.nth(0));
     const second = await lineOf(inputs.nth(1));
 
-    expect(first.x - across.x, 'the dot\'s 18px and the 12px gap').toBeCloseTo(30, 0);
+    expect(first.x - across.x, 'the 6px inset, the dot\'s 18px and the 12px gap').toBeCloseTo(36, 0);
     expect(first.right, 'line to the column\'s right edge').toBeCloseTo(across.x + across.width, 0);
     expect(first.y - (label.y + label.height), 'below the label').toBeCloseTo(45, 0);
     expect(second.y - first.y, 'line to line').toBeCloseTo(58, 0);
