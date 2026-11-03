@@ -40,6 +40,9 @@ const VARIABLES: Record<string, string> = {
   green: '#84C600', // 18-S3: the Play status icon
   'green-faint': '#F0F5E5',
   'green-faint-hover': '#EAF0DB',
+  // 19-S2: the completed rows' fills.
+  'orange-faint': '#F9F2E6',
+  'orange-hover': '#F7ECD7',
   // 18-S5: the DONE status icon.
   orange: '#EF9D05',
 };
@@ -104,6 +107,9 @@ const STYLES: Record<string, string> = {
   // 18-S2: the play rows, mirroring puzzle-row and puzzle-row-hover.
   'puzzle-row-play': 'green-faint',
   'puzzle-row-play-hover': 'green-faint-hover',
+  // 19-S2: the completed rows, mirroring puzzle-row-play.
+  'puzzle-row-complete': 'orange-faint',
+  'puzzle-row-complete-hover': 'orange-hover',
   // 18-S3: the Play status icon.
   'status-play': 'green',
   // 18-S5: the DONE status icon.

@@ -98,7 +98,7 @@ describe('F7 Title, Logo and Masthead source', () => {
     expectUtilities(code, [
       'bg-masthead',
       'border-line-muted',
-      'text-body-large',
+      'text-button-normal', // 19-S2: Sign out, was text-body-large
       'text-link-muted',
       'text-button-hover',
       'MastheadAction',

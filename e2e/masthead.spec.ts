@@ -17,7 +17,8 @@ import { waitForNewPuzzleReady } from './helpers/wait-for-ready';
 // `line-muted` hairline along its bottom. The logo, a link home, has 20px
 // to the top, the left and the hairline, so the bar is 61px tall. When
 // signed in, a "Sign out" link-looking button sits 20px from the right,
-// centred on the logo, in `body-large` `link-muted`. Hovering or keyboard
+// centred on the logo, in `button-normal` `link-muted` (19-S2; was
+// `body-large`). Hovering or keyboard
 // focus turns the logo's strokes and letters, or Sign out, `button-hover`
 // over 150ms `ease-out`; keyboard focus also shows the focus ring (14-S11).
 //
@@ -326,7 +327,7 @@ test.describe('F7-3 Masthead signed out', () => {
 
 // --- F7-4: Masthead signed in ---
 test.describe('F7-4 Masthead signed in', () => {
-  test('Sign out is a body-large link-muted text button, centred on the logo and 20px from the right', async ({ page }) => {
+  test('Sign out is a button-normal link-muted text button, centred on the logo and 20px from the right', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await puzzles(page);
     const header = page.getByTestId('app-header');
@@ -335,7 +336,7 @@ test.describe('F7-4 Masthead signed in', () => {
     await expect(signOut).toHaveText('Sign out');
     expect((await styleOf(signOut)).tag, 'element').toBe('button');
 
-    await expectTextStyle(page, signOut, 'body-large', 18, 400, 'sign out');
+    await expectTextStyle(page, signOut, 'button-normal', 14, 600, 'sign out');
     const s = await styleOf(signOut);
     expectColor(s.color, await token(page, 'link-muted'), 'sign out color');
     expect(parseColor(s.background).a, 'no fill').toBe(0);

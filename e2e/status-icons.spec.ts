@@ -53,6 +53,9 @@ const ROW = '#F5F7FA';
 const ROW_HOVER = '#EBEFF7';
 const PLAY_ROW = '#F0F5E5';
 const PLAY_ROW_HOVER = '#EAF0DB';
+// 19-S2: a completed (DONE) row.
+const COMPLETE_ROW = '#F9F2E6';
+const COMPLETE_ROW_HOVER = '#F7ECD7';
 
 type Status = 'build' | 'hint' | 'play';
 // status -> the grid's color, the band's color, the hidden text
@@ -479,16 +482,18 @@ test.describe('18-S3-4 the phase markers are removed; the play markers stay', ()
 });
 
 test.describe('18-S3-5 play rows are green', () => {
-  // 18-S5: the foreign completed row draws DONE and stays green.
-  test('a Play- or DONE-icon row is puzzle-row-play, puzzle-row-play-hover on hover and keyboard focus, not on mouse focus', async ({ page }) => {
+  // 18-S5: the foreign completed row draws DONE; 19-S2: it's orange.
+  test('a Play-icon row is puzzle-row-play, a DONE-icon row puzzle-row-complete, each its hover on hover and keyboard focus, not on mouse focus', async ({ page }) => {
     const me = await freshBuilder(page);
     const other = await seedOtherBuilder();
     const ownPublished = await seedOwn(me, 'private published', 'unlisted');
     const foreign = await seedPublished(other, me, 'complete');
 
-    for (const fixture of [ownPublished, foreign]) {
+    for (const [fixture, rest, hover] of [
+      [ownPublished, PLAY_ROW, PLAY_ROW_HOVER], [foreign, COMPLETE_ROW, COMPLETE_ROW_HOVER],
+    ] as const) {
       await openLibrary(page);
-      await expectRowColors(page, row(page, fixture.title), PLAY_ROW, PLAY_ROW_HOVER, fixture.title);
+      await expectRowColors(page, row(page, fixture.title), rest, hover, fixture.title);
     }
   });
 
