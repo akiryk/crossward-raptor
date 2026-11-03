@@ -8,8 +8,13 @@ import { LibraryDelete } from './LibraryDeleteDialog';
 import type { LibraryPuzzle } from './PuzzleRow';
 
 /** Story 16-S2: an own row's three-dot menu. Story 16-S4 adds Duplicate, first;
- *  18-S4 adds Open in builder to published rows. */
-export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; onDeleted: () => void }) {
+ *  18-S4 adds Open in builder to published rows; 19-S3 adds a completed
+ *  row's Reset before Delete, which a hairline sets apart. */
+export function PuzzleRowMenu({ puzzle, onDeleted, onReset }: {
+  puzzle: LibraryPuzzle;
+  onDeleted: () => void;
+  onReset?: () => void;
+}) {
   const [deleting, setDeleting] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const published = puzzle.publishedAt !== null;
@@ -41,7 +46,12 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
     onSelect: () => router.push(`/puzzles/${puzzle.id}`),
   };
 
-  const remove: MenuItem = { key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', onSelect: () => setDeleting(true) };
+  const remove: MenuItem = {
+    key: 'delete', label: 'Delete', testId: 'puzzle-menu-delete', tone: 'error', separated: true, onSelect: () => setDeleting(true),
+  };
+  const reset: MenuItem[] = onReset
+    ? [{ key: 'reset', label: 'Reset', testId: 'puzzle-menu-reset', tone: 'error', onSelect: onReset }]
+    : [];
   const items: MenuItem[] = published
     ? [duplicate, openInBuilder, {
       key: 'visibility',
@@ -57,7 +67,7 @@ export function PuzzleRowMenu({ puzzle, onDeleted }: { puzzle: LibraryPuzzle; on
           return false;
         }
       },
-    }, remove]
+    }, ...reset, remove]
     : [duplicate, remove];
 
   return (

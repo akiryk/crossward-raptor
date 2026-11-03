@@ -299,7 +299,7 @@ export default function StyleGuidePage() {
               className="relative"
               items={[
                 { key: 'visibility', label: 'Make public', onSelect: () => {} },
-                { key: 'delete', label: 'Delete', tone: 'error', onSelect: () => {} },
+                { key: 'delete', label: 'Delete', tone: 'error', separated: true, onSelect: () => {} },
               ]}
             />
           </div>

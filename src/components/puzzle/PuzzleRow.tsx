@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import type { LibraryPlay } from '@/lib/library-play';
 import type { StatusKind } from '@/lib/puzzle-status';
@@ -34,13 +34,12 @@ const STATUS_TEXT: Record<IconStatus, string> = {
 
 // Story 18-S6: room kept clear on the right for the row's controls, so the
 // date (in the row's flow, after the title column) stops before them: 12px
-// past the menu (12px in, 24px wide) and the play Reset (12px, or 48px
-// beside the menu, in; up to 40px wide). In a narrow row the date wraps
+// past the menu (12px in, 24px wide) or the play Reset (12px in, up to 40px
+// wide; 19-S3: only on rows without a menu). In a narrow row the date wraps
 // first, then the title column shrinks, to no less than 90px.
 function rightRoom(menu: boolean, reset: boolean) {
-  if (menu && reset) return 'pr-[100px]';
-  if (reset) return 'pr-16';
   if (menu) return 'pr-12';
+  if (reset) return 'pr-16';
   return 'pr-3';
 }
 
@@ -59,11 +58,13 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
   onDeleted: () => void;
 }) {
   const link = useRef<HTMLAnchorElement>(null);
+  const [resetting, setResetting] = useState(false);
   const published = puzzle.publishedAt !== null;
   const play = published ? puzzle.play : null;
   // Story 18-S5: a completed puzzle shows DONE and names it in the hidden text.
   const status: IconStatus = play?.state === 'completed' ? 'complete' : puzzle.statusKind;
   const marker = play?.state === 'in-progress' ? '[in-play]' : null;
+  const resettable = play?.state === 'completed' && play.sessionId !== null;
 
   return (
     <li
@@ -76,7 +77,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
       data-keyboard-focus-host
-      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, play?.state === 'completed' && play.sessionId !== null)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
+      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, resettable)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
       <StatusIcon status={status} />
       <div className="ml-3 flex w-[212px] min-w-[90px] flex-col gap-1">
@@ -108,10 +109,18 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
         {puzzle.updatedLabel}
       </span>
       {own && (
-        <PuzzleRowMenu puzzle={puzzle} onDeleted={onDeleted} />
+        <PuzzleRowMenu puzzle={puzzle} onDeleted={onDeleted} onReset={resettable ? () => setResetting(true) : undefined} />
       )}
       {play && (
-        <LibraryPlayControls puzzleId={puzzle.id} title={puzzle.title} play={play} playLink={link} besideMenu={own} />
+        <LibraryPlayControls
+          puzzleId={puzzle.id}
+          title={puzzle.title}
+          play={play}
+          playLink={link}
+          open={resetting}
+          setOpen={setResetting}
+          button={!own}
+        />
       )}
     </li>
   );

@@ -8,36 +8,34 @@
 
 ## Current state (2026-11-03)
 
-Both stories are implemented and pushed to `origin/main`.
-
-- [S1](stories/19-S1-completed-puzzle.md): frozen d3a5ccc, implemented
-  15eca84.
-- [S2](stories/19-S2-library-touches.md): added by the human during S1.
-  The delegation of approval and freeze was given for S1; the
-  orchestrator applied it to S2, whose values the human stated (if the
-  human objects, S2 returns to approval). Frozen 57e32e9, implemented in
-  the commit after it.
+- [S1](stories/19-S1-completed-puzzle.md) and
+  [S2](stories/19-S2-library-touches.md): delivered, pushed in 4fb3b5d.
+  The human checked them on the dev server and asked for S3.
+- [S3](stories/19-S3-reset-in-menu.md): added by the human, who
+  delegated its approval and freeze. Frozen 17148c7. A frozen-test
+  correction (the style-guide case signs in) was approved by the human,
+  independently reviewed, and committed spec-only in 1423acd. Implemented
+  in the commit after it. **S3 is not pushed**: `origin/main` is 4fb3b5d.
 
 Neither story touches a CODE-REVIEW risk path: direct delivery to `main`.
 
 ## Verification
 
-- S1 tree (15eca84): `npm run verify` exit 0; full e2e 1008 passed,
-  1 failed, `puzzle-library.spec.ts` 14-S2-6 "a failed delete keeps the
-  dialog …" (library delete, untouched), which then passed 5 of 5 alone.
-- Final tree (S2, 645a25b): `npm run verify` exit 0; full
-  `npm run test:e2e` 1013 passed, exit 0 (a first attempt failed to build
-  the test server while fetching the Google Inter font; the rerun built).
-- Open nit: lint warns that `PLAY_ROW_HOVER` is unused in the frozen
-  `e2e/done-icon.spec.ts` (from S2's amendment). Removing it needs a
-  spec-only commit; optional.
+- S1/S2 final tree (645a25b): `npm run verify` exit 0; full e2e 1013
+  passed.
+- S3: see the story's "Implementation verification". `verify` exit 0;
+  the focused e2e run was green apart from the since-corrected case. The
+  full `npm run test:e2e` has not run.
 
 ## Next action
 
-The human verifies both stories on the dev server. Then an independent,
-report-only closeout audit of the epic, per the
-[epic index](../README.md#close-an-epic).
+Run `npm run test:e2e -- e2e/menu-reset.spec.ts`, then the full
+`npm run test:e2e` on local `main`. If both pass along with `npm run
+verify`, push `main`, set S3's status to delivered, and update this
+handoff. Then the human checks S3 on the dev server, and after that
+comes the epic's independent closeout audit
+([epic index](../README.md#close-an-epic)).
 
 ## Resume prompt
 
-Read docs/epics/19-completed-puzzle/HANDOFF.md. Perform the independent closeout audit of epic 19 (S1 and S2) on main; report only, edit nothing.
+Read docs/epics/19-completed-puzzle/HANDOFF.md and docs/epics/19-completed-puzzle/stories/19-S3-reset-in-menu.md. Run S3's e2e checks on local main and, once they and verify pass, push main.

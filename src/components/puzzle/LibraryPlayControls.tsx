@@ -27,22 +27,26 @@ export function LibraryFreshness() {
   return null;
 }
 
-/** The library Reset for a completed attempt; focus returns to the row's link. */
+/** The library Reset for a completed attempt; focus returns to the row's link.
+ *  Story 19-S3: the caller's own row opens it from its menu, so the row
+ *  owns `open` and only another builder's row shows the Reset button. */
 export function LibraryPlayControls({
   puzzleId,
   title,
   play,
   playLink,
-  besideMenu = false,
+  open,
+  setOpen,
+  button,
 }: {
   puzzleId: string;
   title: string;
   play: LibraryPlay;
   playLink: RefObject<HTMLAnchorElement | null>;
-  /** On the caller's own row, Reset sits left of the row's menu. */
-  besideMenu?: boolean;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  button: boolean;
 }) {
-  const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const busy = useRef(false);
@@ -95,11 +99,11 @@ export function LibraryPlayControls({
 
   return (
     <>
-      {completed && (
+      {completed && button && (
         <button
           type="button"
           data-testid="puzzle-reset-button"
-          className={`${ROW_CONTROL} ${besideMenu ? 'right-12' : 'right-3'}`}
+          className={`${ROW_CONTROL} right-3`}
           // Some browsers do not focus a clicked button; Modal restores focus
           // to whatever was focused when it opened.
           onClick={(event) => {

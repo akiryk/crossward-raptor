@@ -1,6 +1,6 @@
 # Story S3 — Reset in the row menu, Delete set apart
 
-**Status: frozen; implementation pending.** The human added this story on
+**Status: implemented on local `main`; full e2e pending.** The human added this story on
 2026-11-03 after checking S1 and S2 on the dev server, and delegated its
 approval and freeze ("Delegate freeze").
 
@@ -80,6 +80,14 @@ The failures are every amended case and 19-S3-1's first case, 19-S3-2 and
 (the foreign row keeps its button) pass because they guard unchanged
 behavior. The amendment to `done-icon.spec.ts` also drops the unused
 `PLAY_ROW_HOVER` (S2's lint nit).
+
+### Implementation verification (2026-11-03, observed)
+
+`npm run verify` exit 0 (Vitest 656 of 656; one existing lint warning
+in `request-logger/`). The seven acceptance files plus `row-menu`,
+`delete-published` and `duplicate`: 122 passed, 1 failed, the
+style-guide case that the correction above fixes. It was not rerun
+after the correction. The full `npm run test:e2e` has not run.
 
 ## Repo paths
 

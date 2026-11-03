@@ -7,6 +7,8 @@ export interface MenuItem {
   label: string;
   testId?: string;
   tone?: 'primary' | 'error';
+  /** Story 19-S3: a hairline, 16px below the item above, sets this item apart. */
+  separated?: boolean;
   /** Sync: the menu closes and focuses its button. Async: the menu stays
    *  open and its items `aria-disabled` until it settles, closing on true. */
   onSelect: () => void | Promise<boolean>;
@@ -139,7 +141,8 @@ export function Menu({ label, items, alert, onOpen, className = '' }: {
             onKeyDown={onMenuKey}
             className="flex min-w-[160px] flex-col rounded-modal border border-line-muted bg-modal-background py-1"
           >
-            {items.map((item) => (
+            {items.map((item) => [
+              item.separated && <div key={`${item.key}-separator`} role="separator" className="mt-4 h-px shrink-0 bg-line-muted" />,
               <button
                 key={item.key}
                 type="button"
@@ -151,8 +154,8 @@ export function Menu({ label, items, alert, onOpen, className = '' }: {
                 onClick={() => void choose(item)}
               >
                 {item.label}
-              </button>
-            ))}
+              </button>,
+            ])}
           </div>
           {alert}
         </div>
