@@ -7,9 +7,10 @@
 
 ## Current state (2026-11-02)
 
-**S1–S4 done and delivered on `main`; closeout audit done, no blockers.
-Human verification of S1–S4 passed; S5–S8 added by the human and in
-progress under the extended delegation. The epic is not closed.**
+**S1–S8 done and delivered on `main`. Closeout audit of S1–S4 done, no
+blockers; human verification of S1–S4 passed. S5–S8, added by the human
+and delivered under the extended delegation, await the human's
+verification. The epic is not closed.**
 
 - [S1 muted text](stories/18-S1-muted-text.md): approved by the human,
   frozen `1acb507`.
@@ -30,8 +31,9 @@ progress under the extended delegation. The epic is not closed.**
   of room; only Down's height may change there) and the orchestrator's
   (the skeleton's inset and scrollbar room) are recorded in the story,
   with the observed discrimination.
-- S8 ([EPIC](EPIC.md#the-humans-additions-after-verification-2026-11-02)):
-  not yet drafted.
+- [S8 audit cleanups](stories/18-S8-audit-cleanups.md), frozen
+  `4420aed` after an independent review and a confirmation review of the
+  patches rebuilt after the reboot, implemented and delivered on `main`.
 
 S2–S4 ran under the human's 2026-11-02 delegation: "Orchestrate Epic
 18's remaining stories (S2–S4) end to end. I delegate spec approval and
@@ -113,19 +115,21 @@ the mockups in `~/Downloads`, visuals, and every amendment-table row
   `builder-controls` 14-S4-6 "Play it! at rest link-muted", a one-shot
   color read after a mouse move. That file then passed 3 of 3 alone
   (`--repeat-each=3`). Frozen acceptance diff against `14958ed` empty.
+- S8 implementation (orchestrator): `npm run verify` exit 0 (Vitest
+  656 of 656); full `npm run test:e2e` exit 0, 987 passed (990 less the
+  3 retired F6-4 cases); the story's `nav` grep finds nothing.
 
 ## Next action
 
-Orchestrator: approve and freeze S6 (spec-only commit),
-implement it from the throwaway (separate agent), and deliver after
-`verify` and a full `test:e2e`. Then S7: check that the story records the
-human's decisions above, independently review it, run its discrimination
-(commands in the story), freeze, implement and deliver. Then draft,
-review, freeze and implement S8. Serialize browser suites, and before a
-full run check `uptime` and that no other repository's suites are
-running: contention caused every earlier failure. Then hand back for the
-human's one-at-a-time verification of S5–S8, and mark the epic closed.
+Human verification of S5–S8, one item at a time on the dev server: the
+DONE icon on completed puzzles (S5); the right margin and the date below
+948px (S6); Preview Hints at 1440px and 1280px, and Create Hints (S7);
+the style guide's single form Radio (S8). Review each story's delegated
+decisions, including S7's skeleton inset in the build phase. Then record
+the result here and mark the epic closed in the [epic
+index](../README.md). The closeout audit above predates S5–S8; run
+another before closing only if the human asks.
 
 ## Resume prompt
 
-Read docs/epics/18-puzzles-page/HANDOFF.md. As orchestrator under the extended delegation recorded there, finish delivering Epic 18's S5–S8 in order on main, then hand back to the human for verification.
+Read docs/epics/18-puzzles-page/HANDOFF.md. Walk the human through verifying Epic 18's S5–S8 one item at a time on the dev server, record the results, and close the epic on main if they pass.

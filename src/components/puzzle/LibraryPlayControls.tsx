@@ -27,7 +27,7 @@ export function LibraryFreshness() {
   return null;
 }
 
-/** Play's Reset for a completed attempt; focus returns to the row's link. */
+/** The library Reset for a completed attempt; focus returns to the row's link. */
 export function LibraryPlayControls({
   puzzleId,
   title,

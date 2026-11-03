@@ -5,7 +5,7 @@ import { deletePuzzle } from '@/app/puzzles/actions';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 
-/** Build's Delete confirmation, opened from the row menu (16-S2). */
+/** The library's Delete confirmation, opened from the row menu (16-S2). */
 export function LibraryDelete({ puzzleId, title, published, onDeleted, open, setOpen }: {
   puzzleId: string;
   title: string;

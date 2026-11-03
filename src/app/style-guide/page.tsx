@@ -73,7 +73,6 @@ export default function StyleGuidePage() {
   const [toggleOff, setToggleOff] = useState(false);
   const [toggleOn, setToggleOn] = useState(true);
   const [formChoice, setFormChoice] = useState('mini');
-  const [navChoice, setNavChoice] = useState('build');
 
   return (
     <div className="p-6">
@@ -227,18 +226,6 @@ export default function StyleGuidePage() {
             ]}
             value={formChoice}
             onChange={setFormChoice}
-          />
-          <RadioGroup
-            data-testid="sg-radio-nav"
-            name="sg-radio-nav"
-            label="Build or play"
-            variant="nav"
-            options={[
-              { value: 'build', label: 'Build' },
-              { value: 'play', label: 'Play' },
-            ]}
-            value={navChoice}
-            onChange={setNavChoice}
           />
         </section>
 

@@ -2,8 +2,6 @@
 
 import type { ReactNode } from 'react';
 
-export type RadioVariant = 'form' | 'nav';
-
 export type RadioOption<V extends string> = {
   value: V;
   label: ReactNode;
@@ -11,29 +9,17 @@ export type RadioOption<V extends string> = {
   attributes?: Record<`data-${string}`, string>;
 };
 
-// Story F6. `form` is a stacked choice inside a form (the puzzle size);
-// `nav` is a row of blue choices (Build/Play). Hovering an unselected
-// option, or focusing any option by keyboard, shows the hover color, and
-// colors change over 150ms.
-const RING = {
-  form: 'border-line-dark',
-  nav: 'border-link-muted',
-};
+// Story F6. A stacked choice inside a form (the puzzle size). Hovering an
+// unselected option, or focusing any option by keyboard, shows the hover
+// color, and colors change over 150ms.
+const RING = 'border-line-dark';
 
-const LABEL = {
-  form: { selected: 'text-body-small text-primary', unselected: 'text-body-small text-primary' },
-  nav: {
-    selected: 'text-title-4 text-button-active group-has-[:focus-visible]:text-button-hover',
-    unselected:
-      'text-title-4 text-link-muted group-hover:text-button-hover group-has-[:focus-visible]:text-button-hover',
-  },
-};
+const LABEL = 'text-body-small text-primary';
 
 export function RadioGroup<V extends string>({
   name,
   label,
   labelledBy,
-  variant = 'form',
   options,
   value,
   onChange,
@@ -44,7 +30,6 @@ export function RadioGroup<V extends string>({
   label?: string;
   /** The id of a visible heading that names the group, used instead of `label`. */
   labelledBy?: string;
-  variant?: RadioVariant;
   options: RadioOption<V>[];
   value: V;
   onChange: (value: V) => void;
@@ -56,14 +41,14 @@ export function RadioGroup<V extends string>({
       aria-label={labelledBy ? undefined : label}
       aria-labelledby={labelledBy}
       data-testid={dataTestId}
-      data-variant={variant}
-      className={variant === 'nav' ? 'flex flex-wrap items-center gap-6' : 'flex flex-col gap-3'}
+      data-variant="form"
+      className="flex flex-col gap-3"
     >
       {options.map((option) => {
         const selected = option.value === value;
         const ring = selected
           ? 'border-button-active focus-visible:border-button-hover'
-          : `${RING[variant]} group-hover:border-button-hover focus-visible:border-button-hover`;
+          : `${RING} group-hover:border-button-hover focus-visible:border-button-hover`;
         return (
           <label
             key={option.value}
@@ -88,7 +73,7 @@ export function RadioGroup<V extends string>({
                 />
               )}
             </span>
-            <span data-radio-label className={`transition-colors duration-150 ease-out ${LABEL[variant][selected ? 'selected' : 'unselected']}`}>
+            <span data-radio-label className={`transition-colors duration-150 ease-out ${LABEL}`}>
               {option.label}
             </span>
           </label>
