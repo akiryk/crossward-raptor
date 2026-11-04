@@ -4,8 +4,8 @@ In the build phase, a gray Start Over link at the toggle row's right end
 asks "Clear Puzzle", then empties the whole grid so the builder can start
 again.
 
-**Status: approved and frozen 2026-11-04.** The human approved the
-specification and acceptance 2026-11-04.
+**Status: done 2026-11-04.** The human approved the specification and
+acceptance 2026-11-04; frozen at 54583c1, implemented on `main`.
 
 **Blast radius: small, no risk path.** `src/components/grid/` only; no
 engine, server action or storage change (the grid saves through the
@@ -100,6 +100,20 @@ fixed in drafting: 20-S1-3 now waits for the letter to save before
 reloading, and 20-S1-5 refocuses the grid after the Preview toggle took
 focus. With it, the full `npm run test:e2e` passed (1028), so no other
 frozen case needs amending.
+
+### Implementation (2026-11-04, observed)
+
+Over the implementation, with the frozen tests unchanged from 54583c1:
+`start-over.spec.ts` and `rebus.spec.ts` 24 passed; `npm run verify`
+exit 0 (656 unit tests); full `npm run test:e2e` exit 0, 1028 passed.
+Two earlier full runs each had one different failure outside this
+story's surface (14-S4-6's published Play it! colour caught
+mid-transition; 15-S2-6 wide play at 2400px); each passed alone
+repeated (10/10, 5/5) and the third full run was clean.
+
+A Start Over confirmed from the keyboard would have its focus returned
+to Start Over by `Modal`; the editor refocuses the grid after the dialog
+closes, so confirming always leaves the grid focused.
 
 ## Repo paths
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
-import { withLetter } from "../../engine/grid";
+import { createGrid, withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
@@ -50,6 +50,7 @@ import { PlayerHints } from "../play/PlayerHints";
 import { slotsWithNumbers } from "../../engine/numbering";
 import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
 import { RebusControl } from "./RebusControl";
+import { StartOverDialog, StartOverLink } from "./StartOverDialog";
 
 const SAVE_DEBOUNCE_MS = 500;
 // Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
@@ -174,6 +175,10 @@ export function PuzzleGridEditor({
   const [isEnterHintsDialogOpen, setIsEnterHintsDialogOpen] = useState(false);
   const [isNotQuiteOpen, setIsNotQuiteOpen] = useState(false);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const [isStartOverOpen, setIsStartOverOpen] = useState(false);
+  // Set on confirming Start Over: once the dialog has closed (and Modal has
+  // returned focus to its opener), the grid takes focus (20-S1).
+  const focusGridAfterStartOverRef = useRef(false);
   // The hints 3 Publish found blank, each until its text next changes
   // (17-S1). Not persisted.
   const [rebusValue, setRebusValue] = useState<string | null>(null);
@@ -267,6 +272,38 @@ export function PuzzleGridEditor({
       return { ...prev, grid: result.grid, cursor: shown.cursor };
     });
     if (advance) gridRegionRef.current?.focus({ preventScroll: true });
+  }
+
+  useEffect(() => {
+    if (isStartOverOpen || !focusGridAfterStartOverRef.current) return;
+    focusGridAfterStartOverRef.current = false;
+    gridRegionRef.current?.focus({ preventScroll: true });
+  }, [isStartOverOpen]);
+
+  // An open rebus entry is placed as leaving it does, and the grid keeps
+  // focus for after the dialog (20-S1).
+  function handleStartOver() {
+    if (rebusOpenRef.current) {
+      closeRebusEntry(false);
+      gridRegionRef.current?.focus({ preventScroll: true });
+    }
+    setIsStartOverOpen(true);
+  }
+
+  // Every cell white and empty, the size kept; the cursor starts over on
+  // the first cell, Across. Saved by the grid's autosave; no undo.
+  function handleConfirmStartOver() {
+    const blank = createGrid({ cols: state.grid.cols, rows: state.grid.rows });
+    setState((prev) => ({
+      ...prev,
+      grid: blank,
+      cursor: { current: { col: 0, row: 0 }, orientation: "across" },
+    }));
+    if (isPreviewing) {
+      setIsPreviewCursorHidden(intendedGeometry(blank).at(0, 0).kind === "black");
+    }
+    focusGridAfterStartOverRef.current = true;
+    setIsStartOverOpen(false);
   }
 
   function handleGridKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
@@ -583,12 +620,17 @@ export function PuzzleGridEditor({
                 />
               )}
               {!isPublished && (
-                <RebusControl
-                  variant="link"
-                  isOpen={rebusValue !== null}
-                  disabled={phase === "hints" && isLettersLocked}
-                  onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
-                />
+                // In the build phase Start Over is the row's right end, Rebus
+                // 20px before it (20-S1).
+                <div className="flex items-center gap-5">
+                  <RebusControl
+                    variant="link"
+                    isOpen={rebusValue !== null}
+                    disabled={phase === "hints" && isLettersLocked}
+                    onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
+                  />
+                  {phase === "grid" && <StartOverLink onClick={handleStartOver} />}
+                </div>
               )}
             </ToggleRow>
             {/* Wide only, Preview Hints has its own panel over the hints
@@ -616,6 +658,11 @@ export function PuzzleGridEditor({
           open={isEnterHintsDialogOpen}
           onConfirm={handleConfirmEnterHints}
           onCancel={handleCancelEnterHints}
+        />
+        <StartOverDialog
+          open={isStartOverOpen}
+          onConfirm={handleConfirmStartOver}
+          onCancel={() => setIsStartOverOpen(false)}
         />
         <TooEarlyDialog open={isNotQuiteOpen} onClose={() => setIsNotQuiteOpen(false)} />
         {isPublishDialogOpen && (

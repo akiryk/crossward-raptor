@@ -10,23 +10,24 @@
 The human approved the EPIC 2026-11-04, including the proposed details
 in its Decisions (5fde635).
 
-- [S1](stories/20-S1-start-over.md): the human approved the
-  specification and acceptance 2026-11-04; frozen on `main` (this
-  commit). Implementation next, on `main`.
+- [S1](stories/20-S1-start-over.md): done. Frozen at 54583c1,
+  implemented and pushed on `main` (direct delivery).
 - S2 Preview cell tooltips: not yet specified.
 
-Authorized: S1's freeze and implementation on `main`, direct delivery.
+Nothing is authorized beyond S1.
 
 ## Verification
 
-S1 drafting: the proposed tests' discrimination and a throwaway
-implementation's runs are recorded in the story. `npm run verify` not
-run (no runtime change).
+S1: `npm run verify` exit 0; full `npm run test:e2e` exit 0 (1028
+passed) on the implementation; frozen acceptance unchanged from 54583c1.
+Two unrelated one-off failures in earlier full runs are recorded in the
+story.
 
 ## Next action
 
-Implement the frozen S1 on `main`.
+Draft S2 Preview cell tooltips' specification and proposed acceptance
+for the human's approval, once authorized.
 
 ## Resume prompt
 
-Read docs/epics/20-building-refinements/HANDOFF.md and docs/epics/20-building-refinements/stories/20-S1-start-over.md. Freeze S1 once the human approves it, then implement it on main; direct delivery.
+Read docs/epics/20-building-refinements/HANDOFF.md and the EPIC. Draft S2 Preview cell tooltips' specification and proposed acceptance for the human's approval; no runtime change.
