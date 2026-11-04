@@ -33,6 +33,17 @@ Recorded as given:
 The human doesn't want a way to clear all hints, or to clear the grid in
 the hints phase.
 
+Added after S2 shipped (2026-11-04), recorded as given:
+
+3. The tool tip works as planned, but now that i see it in action I
+   realize there's a problem. Let's say you have two gold cells next to
+   each other. If I hover over one of them, I see the tooltip for
+   2-character words (consider avoiding them). If I then hover over the
+   next cell, the tooltip flashed out of visibility and a new one appears
+   located anchored to the new cell. This creates an awkward jankiness.
+   I'd like to have the tooltip appear once and then remain in place as
+   long as I hover over one of the gold cells. Same goes for red cells.
+
 ## What the code does today
 
 - The build phase's toggle row (`ToggleRow`, `BuilderSteps.tsx`; 17-S8)
@@ -55,6 +66,8 @@ the hints phase.
 
 1. **S1 Start Over:** the link, its confirm dialog and clearing the grid.
 2. **S2 Preview cell tooltips:** the hover popover on red and gold cells.
+3. **S3 The tooltip stays over a group** (added 2026-11-04, after S2): it
+   stays put while the mouse moves over touching cells of its color.
 
 The stories are independent. Both are expected to stay in
 `src/components/grid/` (plus a small `ui/` primitive for S2), off the
@@ -99,6 +112,15 @@ Proposed by the agent, approved with the EPIC:
   on the legend.
 - **The legend stays** under the grid, unchanged. It covers touch
   devices, where there's no hover.
+
+From the human's answers for S3 (2026-11-04):
+
+- **The tooltip stays** above the first cell hovered while the mouse is
+  over touching cells (sharing a side) of the same color; crossing the
+  line between them never hides it. Onto a touching cell of the other
+  color it moves there with that text, never hidden in between. Over an
+  unmarked cell or off the grid it goes at once; a separate group gets
+  its own.
 
 ## Non-goals
 

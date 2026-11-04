@@ -50,7 +50,8 @@ Delegated details, proposed:
   color: the cursor's cell and its word keep their tooltips under the
   yellow and blue, so a click on a gold cell doesn't take its tooltip
   away. One tooltip at most; moving to another marked cell moves it and
-  changes its text at once. It goes when the pointer leaves for an
+  changes its text at once (within a group of touching cells of one
+  color, superseded by [S3](20-S3-tooltip-stays.md)). It goes when the pointer leaves for an
   unmarked cell or leaves the grid, and when the hovered cell's mark goes
   (e.g. a letter typed into it) or changes (its text changes with it).
 - **It doesn't get in the way:** it takes no pointer events, so the cells
