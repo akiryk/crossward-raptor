@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, type PointerEvent } from 'react';
 import type { Cell, Coord, Grid } from '../../engine/grid';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { intendedGeometry } from '../../engine/puzzle-geometry';
@@ -9,6 +12,7 @@ import {
   type CellAppearance,
   type GridMode,
 } from '../../lib/cell-appearance';
+import { Tooltip } from '../ui/Tooltip';
 import { GridCell } from './GridCell';
 import { RebusEntry, type RebusEntryProps } from './RebusEntry';
 
@@ -81,6 +85,13 @@ const PREVIEW_HIGHLIGHT_BG = {
   slot: 'bg-build-cell-selected-row-on',
 } as const;
 
+// What a marked cell means, on mouse hover in Preview (20-S2). It
+// follows the cell's mark, not the cursor's colors painted over it.
+const PREVIEW_TOOLTIP: Partial<Record<CellAppearance, string>> = {
+  recommended: 'Consider avoiding two-letter words.',
+  required: 'Filling in these cells will result in a symmetrical puzzle.',
+};
+
 const GRID_LINES: Record<string, string> = {
   build: 'bg-build-cell-border',
   preview: 'bg-preview-cell-border',
@@ -128,6 +139,12 @@ export function PuzzleGrid({
   isLettersLocked?: boolean;
   onCellClick?: (coord: Coord) => void;
 }) {
+  // The cell under the mouse, in Preview; a touch or pen shows nothing.
+  const [hovered, setHovered] = useState<HTMLElement | null>(null);
+  function handlePointerOver(e: PointerEvent<HTMLDivElement>) {
+    if (e.pointerType !== 'mouse') return;
+    setHovered((e.target as HTMLElement).closest<HTMLElement>('[data-coord]'));
+  }
   // Builder empties are undecided geometry; player empties are fixed active
   // cells. A player's guesses must never change the published numbering.
   const numbers = buildCellNumberLookup(mode === 'play' ? grid : convertEmptyCellsToBlack(grid));
@@ -156,6 +173,7 @@ export function PuzzleGrid({
             : PLAY_BG;
 
   const cells = [];
+  let tooltip: string | undefined;
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
       const cell = grid.at(col, row) as Cell;
@@ -171,6 +189,9 @@ export function PuzzleGrid({
         isHintsPhase,
         mode,
       });
+      if (gridMode === 'preview' && hovered?.dataset.coord === `${col},${row}`) {
+        tooltip = PREVIEW_TOOLTIP[appearance];
+      }
       cells.push(
         <div
           key={`${col},${row}`}
@@ -214,6 +235,8 @@ export function PuzzleGrid({
       // --grid-line-width so the same one-pixel division surrounds the
       // outside too, not just between cells.
       className={`grid w-full ${GRID_LINES[gridMode]}`}
+      onPointerOver={handlePointerOver}
+      onPointerLeave={() => setHovered(null)}
       style={{
         // Cells size against the grid's own width (14-S5): 100cqw is its
         // content box, so the cell pitch is (100cqw + 1px) / cols.
@@ -245,6 +268,9 @@ export function PuzzleGrid({
       }}
     >
       {cells}
+      <Tooltip anchor={tooltip ? hovered : null} testId="preview-tooltip">
+        {tooltip}
+      </Tooltip>
     </div>
   );
 }

@@ -3,9 +3,9 @@
 In Preview, hovering a red or gold cell with the mouse shows a small dark
 tooltip above it that says what the color means.
 
-**Status: frozen 2026-11-04.** The human approved the specification and
-acceptance as drafted 2026-11-04 (keeping `text-label`); implementation in
-progress on `main`.
+**Status: done 2026-11-04.** The human approved the specification and
+acceptance as drafted 2026-11-04 (keeping `text-label`), frozen at
+3a96758; implemented and delivered on `main`.
 
 **Blast radius: small, no risk path.** `src/components/grid/` plus a new
 `src/components/ui/Tooltip.tsx`; no engine, server action or storage
@@ -122,6 +122,15 @@ only. With it, the full `npm run test:e2e` had 1037 passed and 1 failed:
 surface. It also fails on clean `main` (1 of 5 repeated: "play rounded
 corner ... #F0F5E5"), so it is an existing intermittent failure, not
 this story's.
+
+### Implementation (2026-11-04, observed)
+
+`Tooltip` places itself in a portal, before paint, from its anchor's box;
+`PuzzleGrid` tracks the mouse-hovered cell (pointer events of type
+`mouse`) and shows the tooltip while that cell's mark has a text.
+`PuzzleGridEditor` needed no change. `npm run verify` exit 0; the story
+file `--repeat-each=3`, 31 passed; full `npm run test:e2e` exit 0 (1038
+passed). Acceptance unchanged from 3a96758.
 
 ## Repo paths
 
