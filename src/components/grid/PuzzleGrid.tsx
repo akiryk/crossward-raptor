@@ -139,12 +139,9 @@ export function PuzzleGrid({
   isLettersLocked?: boolean;
   onCellClick?: (coord: Coord) => void;
 }) {
-  // The cell under the mouse, in Preview; a touch or pen shows nothing.
-  const [hovered, setHovered] = useState<HTMLElement | null>(null);
-  function handlePointerOver(e: PointerEvent<HTMLDivElement>) {
-    if (e.pointerType !== 'mouse') return;
-    setHovered((e.target as HTMLElement).closest<HTMLElement>('[data-coord]'));
-  }
+  // The cell under the mouse, in Preview, and the cell its tooltip stays
+  // over (20-S3); a touch or pen shows nothing.
+  const [hover, setHover] = useState<{ cell: HTMLElement; anchor: HTMLElement } | null>(null);
   // Builder empties are undecided geometry; player empties are fixed active
   // cells. A player's guesses must never change the published numbering.
   const numbers = buildCellNumberLookup(mode === 'play' ? grid : convertEmptyCellsToBlack(grid));
@@ -173,7 +170,7 @@ export function PuzzleGrid({
             : PLAY_BG;
 
   const cells = [];
-  let tooltip: string | undefined;
+  const appearances = new Map<string, CellAppearance>();
   for (let row = 0; row < grid.rows; row++) {
     for (let col = 0; col < grid.cols; col++) {
       const cell = grid.at(col, row) as Cell;
@@ -189,9 +186,7 @@ export function PuzzleGrid({
         isHintsPhase,
         mode,
       });
-      if (gridMode === 'preview' && hovered?.dataset.coord === `${col},${row}`) {
-        tooltip = PREVIEW_TOOLTIP[appearance];
-      }
+      appearances.set(`${col},${row}`, appearance);
       cells.push(
         <div
           key={`${col},${row}`}
@@ -226,6 +221,43 @@ export function PuzzleGrid({
     }
   }
 
+  // Whether two cells are of one group: touching cells, side by side or
+  // one above the other, all of the same mark (20-S3).
+  function isSameGroup(from: string, to: string) {
+    const mark = appearances.get(from);
+    if (!mark || !PREVIEW_TOOLTIP[mark] || appearances.get(to) !== mark) return false;
+    const seen = new Set([from]);
+    const queue = [from];
+    while (queue.length > 0) {
+      const coord = queue.shift()!;
+      if (coord === to) return true;
+      const [col, row] = coord.split(',').map(Number);
+      for (const next of [`${col - 1},${row}`, `${col + 1},${row}`, `${col},${row - 1}`, `${col},${row + 1}`]) {
+        if (!seen.has(next) && appearances.get(next) === mark) {
+          seen.add(next);
+          queue.push(next);
+        }
+      }
+    }
+    return false;
+  }
+  // The tooltip stays over the first cell of the hovered cell's group;
+  // otherwise it's over the hovered cell, with that cell's text.
+  function anchorFor(cell: HTMLElement, anchor: HTMLElement) {
+    return isSameGroup(anchor.dataset.coord!, cell.dataset.coord!) ? anchor : cell;
+  }
+  const anchor = hover && anchorFor(hover.cell, hover.anchor);
+  const tooltip =
+    gridMode === 'preview' && hover ? PREVIEW_TOOLTIP[appearances.get(hover.cell.dataset.coord!)!] : undefined;
+
+  function handlePointerOver(e: PointerEvent<HTMLDivElement>) {
+    if (e.pointerType !== 'mouse') return;
+    const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-coord]');
+    // The lines between cells change nothing.
+    if (!cell) return;
+    setHover({ cell, anchor: anchor && tooltip ? anchorFor(cell, anchor) : cell });
+  }
+
   return (
     <div
       data-testid="puzzle-grid"
@@ -236,7 +268,7 @@ export function PuzzleGrid({
       // outside too, not just between cells.
       className={`grid w-full ${GRID_LINES[gridMode]}`}
       onPointerOver={handlePointerOver}
-      onPointerLeave={() => setHovered(null)}
+      onPointerLeave={() => setHover(null)}
       style={{
         // Cells size against the grid's own width (14-S5): 100cqw is its
         // content box, so the cell pitch is (100cqw + 1px) / cols.
@@ -268,7 +300,7 @@ export function PuzzleGrid({
       }}
     >
       {cells}
-      <Tooltip anchor={tooltip ? hovered : null} testId="preview-tooltip">
+      <Tooltip anchor={tooltip ? anchor : null} testId="preview-tooltip">
         {tooltip}
       </Tooltip>
     </div>

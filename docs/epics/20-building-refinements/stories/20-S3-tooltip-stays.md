@@ -4,8 +4,9 @@ In Preview, once a red or gold cell's tooltip shows, it stays where it is
 while the mouse moves over the touching cells of the same color, instead
 of flashing away and reappearing over each one.
 
-**Status: frozen 2026-11-04.** The human approved the specification and
-acceptance as drafted 2026-11-04; implementation in progress on `main`.
+**Status: done 2026-11-04.** The human approved the specification and
+acceptance as drafted 2026-11-04; frozen at 58b5f59, implemented and
+pushed on `main` (direct delivery).
 
 **Blast radius: small, no risk path.** `src/components/grid/PuzzleGrid.tsx`
 (and `src/components/ui/Tooltip.tsx` only if needed); no engine, server
@@ -104,8 +105,18 @@ passed this file and `preview-tooltips.spec.ts` twice
 (`--repeat-each=2`, 31 passed). With it, the full `npx playwright test`
 had 1039 passed and 4 failed, all outside Preview: 16-S4-2 and two
 16-S4-3 cases (`duplicate.spec.ts`) and P5's Escape case
-(`library-play.spec.ts`). Not yet rechecked alone; the implementation's
-full run settles whether they are this story's.
+(`library-play.spec.ts`). Not this story's: they passed in the
+implementation's full run (below).
+
+### Verification (2026-11-04, observed)
+
+On the implementation (`PuzzleGrid.tsx` only): `npm run verify` exit 0;
+`preview-tooltip-stays.spec.ts` and `preview-tooltips.spec.ts`
+`--repeat-each=2` 31 passed; full `npm run test:e2e` exit 0 (1043
+passed). An earlier full run had one failure, 14-S7-1
+(`play-design.spec.ts`), an `ECONNRESET` on the session request; that
+file passed alone (`--repeat-each=2`, 39 passed). Frozen acceptance
+unchanged from 58b5f59.
 
 ## Repo paths
 
