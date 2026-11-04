@@ -40,7 +40,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // The Rebus control (`rebus-control`, a button named "Rebus") does what
 // Escape does, and closes an open entry as Enter does. In the builder it is
 // a text link at the right end of the toggle row, 16px in (12px below a
-// 748px window), `link-muted`, the toggle label's size; inactive (disabled,
+// 748px window), `link-muted`, the toggle label's size (20-S1: in the
+// build phase Start Over is the row's right end, 20px after it); inactive (disabled,
 // 50% opacity, not-allowed cursor) while Lock Grid Letters is on, and
 // absent when published. In play it is an outlined pill: wide, at the top
 // of the hints column, at its left edge, centered on the Prominent Hint;
@@ -385,7 +386,7 @@ test.describe('17-S10 Rebus', () => {
     await expectClosed(page);
   });
 
-  test('17-S10-5 the builder\'s Rebus link: the toggle row\'s right end; it opens and closes the entry', async ({ page }) => {
+  test('17-S10-5 the builder\'s Rebus link: 20px before Start Over; it opens and closes the entry', async ({ page }) => {
     const id = await seedBuilder(createGrid({ cols: 5, rows: 5 }), 'grid');
     await openBuilder(page, id);
     const row = page.getByTestId('toggle-row');
@@ -396,9 +397,10 @@ test.describe('17-S10 Rebus', () => {
     await expect(link).toHaveAttribute('aria-pressed', 'false');
     await expect(row.getByTestId('rebus-control')).toHaveCount(1);
 
+    // 20-S1: was 16px from the row's right end; Start Over is there now.
     const panel = await box(row);
     const at = await box(link);
-    expectNear(panel.right - at.right, 16, 1, 'right inset');
+    expectNear((await box(page.getByTestId('start-over'))).left - at.right, 20, 1, 'Start Over 20px after it');
     expectNear(at.top + at.height / 2, panel.top + panel.height / 2, 1, 'centered');
     expect(parseColor(await css(link, 'color'))).toEqual({ ...(await token(page, 'link-muted')), a: 1 });
     const label = page.getByTestId('preview-toggle').locator('[data-toggle-label]');
@@ -419,7 +421,7 @@ test.describe('17-S10 Rebus', () => {
     await page.setViewportSize(PHONE);
     const narrowPanel = await box(row);
     const narrowAt = await box(control(page));
-    expectNear(narrowPanel.right - narrowAt.right, 12, 1, 'narrow right inset');
+    expectNear((await box(page.getByTestId('start-over'))).left - narrowAt.right, 20, 1, 'narrow: Start Over 20px after it');
     expectNear(narrowAt.top + narrowAt.height / 2, narrowPanel.top + narrowPanel.height / 2, 1, 'narrow centered');
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);

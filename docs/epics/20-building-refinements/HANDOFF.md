@@ -8,19 +8,25 @@
 ## Current state (2026-11-04)
 
 The human approved the EPIC 2026-11-04, including the proposed details
-in its Decisions. No
-stories, tests or runtime changes yet. Nothing is authorized beyond
-drafting.
+in its Decisions (5fde635).
+
+- [S1](stories/20-S1-start-over.md): the human approved the
+  specification and acceptance 2026-11-04; frozen on `main` (this
+  commit). Implementation next, on `main`.
+- S2 Preview cell tooltips: not yet specified.
+
+Authorized: S1's freeze and implementation on `main`, direct delivery.
 
 ## Verification
 
-Documentation only; no application or browser suites run.
+S1 drafting: the proposed tests' discrimination and a throwaway
+implementation's runs are recorded in the story. `npm run verify` not
+run (no runtime change).
 
 ## Next action
 
-Once the human approves the EPIC, write S1's specification and proposed
-acceptance for the human's approval before freezing. Don't implement.
+Implement the frozen S1 on `main`.
 
 ## Resume prompt
 
-Read docs/epics/20-building-refinements/HANDOFF.md. Write the specification and proposed acceptance for S1 Start Over (EPIC.md "Stories") on main, for the human's approval; don't freeze or implement.
+Read docs/epics/20-building-refinements/HANDOFF.md and docs/epics/20-building-refinements/stories/20-S1-start-over.md. Freeze S1 once the human approves it, then implement it on main; direct delivery.
