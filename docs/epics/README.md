@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Building refinements](20-building-refinements/HANDOFF.md) (epic 20,
+  EPIC approved 2026-11-04)
 - [The completed puzzle](19-completed-puzzle/HANDOFF.md) (epic 19, closed
   2026-11-03; accepted items listed there)
 - [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, closed
