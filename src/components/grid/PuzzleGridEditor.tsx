@@ -620,17 +620,12 @@ export function PuzzleGridEditor({
                 />
               )}
               {!isPublished && (
-                // In the build phase Start Over is the row's right end, Rebus
-                // 20px before it (20-S1).
-                <div className="flex items-center gap-5">
-                  <RebusControl
-                    variant="link"
-                    isOpen={rebusValue !== null}
-                    disabled={phase === "hints" && isLettersLocked}
-                    onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
-                  />
-                  {phase === "grid" && <StartOverLink onClick={handleStartOver} />}
-                </div>
+                <RebusControl
+                  variant="link"
+                  isOpen={rebusValue !== null}
+                  disabled={phase === "hints" && isLettersLocked}
+                  onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
+                />
               )}
             </ToggleRow>
             {/* Wide only, Preview Hints has its own panel over the hints
@@ -709,7 +704,19 @@ export function PuzzleGridEditor({
                 }}
               />
             </div>
-            {phase === "grid" && isPreviewing && <PreviewLegend grid={grid} />}
+            {/* Under the grid in the build phase: the color key from the
+                left, Reset Grid at the right on the key's first line, in one
+                spot with or without the key (20-S4). */}
+            {phase === "grid" && !isPublished && (
+              <div className="flex items-start gap-5">
+                <div className="min-w-0 flex-1">
+                  {isPreviewing && <PreviewLegend grid={grid} />}
+                </div>
+                <div className="mt-4 flex h-6 shrink-0 items-center">
+                  <StartOverLink onClick={handleStartOver} />
+                </div>
+              </div>
+            )}
             {/* Below 1092px of room the Hint Box takes the list's place,
                 directly under the grid (15-S4). */}
             {phase === "hints" && shownKey !== null && shownSlot && (

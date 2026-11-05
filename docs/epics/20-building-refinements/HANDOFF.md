@@ -5,7 +5,7 @@
 1. This handoff; AGENTS only if not already supplied.
 2. The [EPIC](EPIC.md).
 
-## Current state (2026-11-04)
+## Current state (2026-11-05)
 
 The human approved the EPIC 2026-11-04, including the proposed details
 in its Decisions (5fde635).
@@ -20,11 +20,11 @@ in its Decisions (5fde635).
   drafted, frozen at 58b5f59, implemented and pushed on `main` (direct
   delivery).
 
-- [S4](stories/20-S4-reset-grid.md): added at the human's request after
-  S3 (the EPIC records it). Approved as drafted 2026-11-05 and frozen;
-  implementation in progress on `main` (direct delivery). The drafting
-  check's throwaway implementation is in `git stash` ("20-S4 throwaway
-  implementation (drafting check)").
+- [S4](stories/20-S4-reset-grid.md): done. Added at the human's request
+  after S3 (the EPIC records it); approved as drafted 2026-11-05, frozen
+  at 47ba956, implemented and pushed on `main` (direct delivery). The
+  drafting check's throwaway, now redundant, is still in `git stash`
+  ("20-S4 throwaway implementation (drafting check)").
 
 A full closeout audit ran 2026-11-04 over S1–S3 (no blockers; two minor
 S3 tooltip edge cases and three stale EPIC lines, which the human
@@ -52,12 +52,14 @@ passed; full `npm run test:e2e` exit 0 (1043 passed) on the
 implementation; frozen acceptance unchanged from 58b5f59. One earlier
 full run's transient failure is recorded in the story.
 
+S4: `npm run verify` exit 0; full `npm run test:e2e` exit 0 (1045
+passed) on the implementation; frozen acceptance unchanged from 47ba956.
+
 ## Next action
 
-S4: implement and deliver against the frozen acceptance. After that, epic 20's closeout audit by a
-session that authored none of S4 (see the
+Epic 20's closeout audit by a session that authored none of S4 (see the
 [epic index](../README.md#close-an-epic)).
 
 ## Resume prompt
 
-Read docs/epics/20-building-refinements/HANDOFF.md and docs/epics/20-building-refinements/stories/20-S4-reset-grid.md. Once the human approves S4, freeze and implement it on main; direct delivery.
+Read docs/epics/20-building-refinements/HANDOFF.md and the EPIC. Run epic 20's closeout audit per the epic index; report findings, nothing beyond the audit.

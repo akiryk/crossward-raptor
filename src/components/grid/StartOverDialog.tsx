@@ -3,8 +3,8 @@
 import { Modal } from '../ui/Modal';
 import { ModalActions } from '../ui/ModalActions';
 
-// The build phase's Start Over (20-S1): a link at the toggle row's right
-// end. Like the Rebus link, a click never takes focus from the grid.
+// The build phase's Reset Grid (20-S1, under the grid since 20-S4). Like
+// the Rebus link, a click never takes focus from the grid.
 export function StartOverLink({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -14,7 +14,7 @@ export function StartOverLink({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       className="shrink-0 cursor-pointer text-label text-subtle outline-hidden transition-colors duration-150 ease-out hover:text-primary focus-visible:text-primary"
     >
-      Start Over
+      Reset Grid
     </button>
   );
 }
@@ -31,12 +31,12 @@ export function StartOverDialog({
   return (
     <Modal
       open={open}
-      title="Clear Puzzle"
+      title="Reset Grid"
       onClose={onCancel}
       testId="start-over-dialog"
       footer={
         <ModalActions
-          confirmLabel="Clear Puzzle"
+          confirmLabel="Reset Grid"
           cancelLabel="Cancel"
           onConfirm={onConfirm}
           onCancel={onCancel}

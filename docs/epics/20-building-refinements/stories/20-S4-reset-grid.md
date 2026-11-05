@@ -4,8 +4,9 @@ S1's Start Over becomes "Reset Grid" and leaves the toggle row: it sits
 under the grid at its right edge, on the color key's line, and Rebus goes
 back to the toggle row's right end.
 
-**Status: frozen 2026-11-05.** The human approved the specification and
-acceptance as drafted 2026-11-05; implementation in progress on `main`.
+**Status: done 2026-11-05.** The human approved the specification and
+acceptance as drafted 2026-11-05; frozen at 47ba956, implemented and
+pushed on `main` (direct delivery).
 
 **Blast radius: small, no risk path.** `src/components/grid/` only; no
 engine, server action or storage change. Direct delivery to `main`
@@ -107,6 +108,12 @@ the first three files `--repeat-each=2`, 51 passed. The full
 which led to its amendment above; with it, `no-play-reset.spec.ts` 15
 passed. One earlier run failed to build on a Google font fetch, and the
 retry built.
+
+### Implementation (2026-11-05, observed)
+
+The drafting check's throwaway, applied unchanged to the two runtime
+files: `npm run verify` exit 0; full `npm run test:e2e` exit 0 (1045
+passed); frozen acceptance unchanged from 47ba956.
 
 ## Repo paths
 
