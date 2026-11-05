@@ -20,9 +20,17 @@ in its Decisions (5fde635).
   drafted, frozen at 58b5f59, implemented and pushed on `main` (direct
   delivery).
 
-All of the EPIC's stories are done. A closeout audit started 2026-11-04
-was paused, unfinished, when the human asked for S3; it needs a full
-run.
+- [S4](stories/20-S4-reset-grid.md): added at the human's request after
+  S3 (the EPIC records it). Approved as drafted 2026-11-05 and frozen;
+  implementation in progress on `main` (direct delivery). The drafting
+  check's throwaway implementation is in `git stash` ("20-S4 throwaway
+  implementation (drafting check)").
+
+A full closeout audit ran 2026-11-04 over S1–S3 (no blockers; two minor
+S3 tooltip edge cases and three stale EPIC lines, which the human
+accepted as is). Not yet recorded as the closeout: the session that ran
+it then drafted S4, so a closeout audit by a session that authored none
+of S4 is still needed once S4 is done.
 
 Noticed while drafting S2: 18-S5-5 (`done-icon.spec.ts`) fails
 intermittently on clean `main` (1 of 5 repeated), a library row's colour.
@@ -46,10 +54,10 @@ full run's transient failure is recorded in the story.
 
 ## Next action
 
-Epic 20's closeout audit, once the human authorizes it (see the
-[epic index](../README.md#close-an-epic)); the paused run must be redone
-in full.
+S4: implement and deliver against the frozen acceptance. After that, epic 20's closeout audit by a
+session that authored none of S4 (see the
+[epic index](../README.md#close-an-epic)).
 
 ## Resume prompt
 
-Read docs/epics/20-building-refinements/HANDOFF.md and the EPIC. Run epic 20's closeout audit per the epic index; report findings, nothing beyond the audit.
+Read docs/epics/20-building-refinements/HANDOFF.md and docs/epics/20-building-refinements/stories/20-S4-reset-grid.md. Once the human approves S4, freeze and implement it on main; direct delivery.

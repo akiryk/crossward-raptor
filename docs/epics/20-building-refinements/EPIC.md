@@ -44,6 +44,14 @@ Added after S2 shipped (2026-11-04), recorded as given:
    I'd like to have the tooltip appear once and then remain in place as
    long as I hover over one of the gold cells. Same goes for red cells.
 
+Added after S3 shipped (2026-11-04), recorded as given:
+
+4. before closeout i have yet another tweak. I don't like the link to
+   "Start over" up by the "rebus" button. It's conceptually completely
+   unrelated. Let's move it to be right aligned just like rebus -- but
+   under the grid. It should baseline align with the text in the
+   color-key legend. Instead of "Start Over" change to say "Reset Grid."
+
 ## What the code does today
 
 - The build phase's toggle row (`ToggleRow`, `BuilderSteps.tsx`; 17-S8)
@@ -68,6 +76,8 @@ Added after S2 shipped (2026-11-04), recorded as given:
 2. **S2 Preview cell tooltips:** the hover popover on red and gold cells.
 3. **S3 The tooltip stays over a group** (added 2026-11-04, after S2): it
    stays put while the mouse moves over touching cells of its color.
+4. **S4 Reset Grid under the grid** (added 2026-11-04, after S3): S1's
+   link renamed and moved under the grid, on the color key's line.
 
 The stories are independent. Both are expected to stay in
 `src/components/grid/` (plus a small `ui/` primitive for S2), off the
@@ -121,6 +131,15 @@ From the human's answers for S3 (2026-11-04):
   color it moves there with that text, never hidden in between. Over an
   unmarked cell or off the grid it goes at once; a separate group gets
   its own.
+
+From the human's request and answers for S4 (2026-11-04), superseding
+S1's name, dialog words and placement above:
+
+- **Reset Grid** replaces "Start Over" on the link, the dialog's title and
+  its confirm button; the body is unchanged.
+- **Under the grid**, right-aligned, its baseline the color key's text
+  baseline. It's always there in the build phase, in the same spot with
+  or without the key. Rebus goes back to the toggle row's right end.
 
 ## Non-goals
 

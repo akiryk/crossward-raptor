@@ -15,7 +15,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Reset in play, the link beside "The puzzle is complete." (19-S1, which
 // e2e/completed-play.spec.ts covers), and the library's small Reset on a
 // completed Play row. The builder (build phase, hints phase, published)
-// has none.
+// has none; its build phase's only reset is Reset Grid (`start-over`,
+// 20-S4), which clears the grid it is building.
 //
 // The library's Reset is unchanged; e2e/library-play.spec.ts covers it.
 //
@@ -54,6 +55,17 @@ async function openPlay(page: Page, id: string) {
 async function expectNoReset(page: Page) {
   for (const id of PLAY_RESET_PARTS) await expect(page.getByTestId(id), id).toHaveCount(0);
   await expect(page.getByRole('button', { name: /reset|puzzle options/i })).toHaveCount(0);
+  await expect(page.getByRole('menuitem', { name: /reset/i })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+}
+
+/** 20-S4: the build phase's only reset is Reset Grid, and no dialog is open. */
+async function expectOnlyResetGrid(page: Page) {
+  for (const id of PLAY_RESET_PARTS) await expect(page.getByTestId(id), id).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /puzzle options/i })).toHaveCount(0);
+  const reset = page.getByRole('button', { name: /reset/i });
+  await expect(reset).toHaveCount(1);
+  await expect(reset).toHaveAttribute('data-testid', 'start-over');
   await expect(page.getByRole('menuitem', { name: /reset/i })).toHaveCount(0);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 }
@@ -117,7 +129,8 @@ test.describe('17-S3-2 the builder has no Reset', () => {
     );
     await page.goto(`/puzzles/${id}`);
     await waitForEditorReady(page);
-    await expectNoReset(page);
+    // 20-S4: was expectNoReset; Reset Grid is named "Reset Grid".
+    await expectOnlyResetGrid(page);
   });
 
   test('the hints phase', async ({ page }) => {
