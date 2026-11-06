@@ -113,6 +113,19 @@ small fixes, applied in the closing commit):
 - **Prunable** No LEARNINGS entry is spent (#2, #6, #7 are still relied
   on); the S1–S4 audit section is compressed.
 
+## Open item after closeout
+
+- **18-S5-5 fails intermittently** (`e2e/done-icon.spec.ts`), found
+  during epic 20 (2026-11-04): on clean `main`, 1 of 5 repeated runs
+  failed on the Play row's rounded-corner pixel ("play rounded corner
+  ... #F0F5E5"). Suspected, not reproduced: after Reset, `expectIcon`
+  takes one screenshot while the row's 150ms `transition-colors`
+  (`PuzzleRow.tsx`) may still be fading from the completed row's green;
+  `expectRowColors` polls, `expectIcon` doesn't. Same shape as 14-S4-6
+  above. A fix is a frozen-test correction per
+  [STORY](../../process/STORY.md); confirm the cause first (LEARNINGS
+  #1). Not a priority; it costs full-suite reruns.
+
 ## Verification
 
 - S4 implementation `3ca7da4`: `npm run verify` exit 0 (Vitest 656 of
