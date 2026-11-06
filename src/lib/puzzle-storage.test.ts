@@ -7,7 +7,10 @@ import {
   serializePuzzle,
   deserializePuzzle,
   createBlankPuzzle,
+  deserializeLockedWords,
+  type SerializedGrid,
 } from './puzzle-storage';
+import type { LockedWord } from './locked-words';
 
 function gridsEqual(a: Grid, b: Grid): boolean {
   if (a.cols !== b.cols || a.rows !== b.rows) return false;
@@ -106,5 +109,47 @@ describe('P1-1 createBlankPuzzle', () => {
     expect(gridsEqual(a.grid, b.grid)).toBe(true);
     expect(a.hints).toEqual(b.hints);
     expect(a.phase).toBe(b.phase);
+  });
+});
+
+// --- 21-S2-2: locked words are saved with the grid ---
+// An optional lockedWords list in the saved grid JSON; a grid saved
+// without it, before epic 21, loads with none. Do not edit this block to
+// match an implementation.
+describe('21-S2-2 locked words in the saved grid', () => {
+  const ABC: LockedWord = { col: 0, row: 0, orientation: 'across', length: 3 };
+  const AXY: LockedWord = { col: 0, row: 0, orientation: 'down', length: 3 };
+
+  function abcGrid(): Grid {
+    let grid = createGrid({ cols: 4, rows: 4 });
+    grid = withLetter(grid, { col: 0, row: 0 }, 'A');
+    grid = withLetter(grid, { col: 1, row: 0 }, 'B');
+    grid = withLetter(grid, { col: 2, row: 0 }, 'C');
+    grid = withLetter(grid, { col: 0, row: 1 }, 'X');
+    grid = withLetter(grid, { col: 0, row: 2 }, 'Y');
+    return grid;
+  }
+
+  it('round-trips through JSON with the grid', () => {
+    const stored = JSON.parse(JSON.stringify(serializeGrid(abcGrid(), [ABC, AXY]))) as SerializedGrid;
+
+    expect(deserializeLockedWords(stored)).toEqual([ABC, AXY]);
+    expect(gridsEqual(deserializeGrid(stored), abcGrid())).toBe(true);
+  });
+
+  it('a grid with no locked words is saved as before, with no list', () => {
+    expect(serializeGrid(abcGrid())).not.toHaveProperty('lockedWords');
+    expect(serializeGrid(abcGrid(), [])).not.toHaveProperty('lockedWords');
+  });
+
+  it('a grid stored without the list loads with none', () => {
+    const before: SerializedGrid = {
+      cols: 2,
+      rows: 1,
+      cells: [[{ kind: 'active', letter: 'A' }, { kind: 'active', letter: null }]],
+    };
+
+    expect(deserializeLockedWords(before)).toEqual([]);
+    expect(deserializeLockedWords(serializeGrid(abcGrid()))).toEqual([]);
   });
 });

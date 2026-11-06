@@ -201,9 +201,10 @@ From the human's request and interview answers (2026-11-06):
   once when the cursor is in a locked word. Mouse, keyboard and touch
   all work, since it follows the cursor. It and the timer go when the
   cursor leaves the word or the grid loses focus.
-- **Look:** a square ⅔ of a cell's width and height. It sits just past
-  the last letter: right of it and vertically centered for across, below
-  it and horizontally centered for down. Its corners are square on the
+- **Look:** a square ⅔ of a cell's width and height, at most 32px (the
+  human, at S2's approval). It sits just past the last letter: right of
+  it and vertically centered for across, below it and horizontally
+  centered for down. Its corners are square on the
   side touching the cell and rounded 4px on the far side. At rest it's a
   gray-500 background with a white icon; on hover, gray-700 with white.
 - **The icon:** Heroicons solid `lock-closed` / `lock-open` (MIT), copied

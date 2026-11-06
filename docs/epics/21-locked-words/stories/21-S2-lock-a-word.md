@@ -4,8 +4,9 @@ A button beside a finished word locks it. A locked word shows gray
 letters and a gray outline around it and its end cells, with tick marks
 in the end cells, and stays locked when the puzzle is reopened.
 
-**Status: drafted 2026-11-06; acceptance tests not yet written; not
-approved.** Depends on S1's word run.
+**Status: approved and frozen 2026-11-06** (the human approved this
+specification and acceptance, choosing ⅔ of a cell with a 32px cap).
+Depends on S1's word run.
 
 **Blast radius: medium, risk path.** Saving locks changes
 `src/lib/puzzle-storage.ts` (stored serialization). It may also touch
@@ -28,8 +29,8 @@ brief:
 - **The button** appears after the cursor has stayed 1 second in an
   unlocked lockable word (the timer restarts on each key or move), or at
   once in a locked word. It goes when the cursor leaves or the grid loses
-  focus. It's a square ⅔ of a cell: right of the last letter and
-  vertically centered for across, below it and horizontally centered for
+  focus. It's a square ⅔ of a cell, at most 32px: right of the last
+  letter and vertically centered for across, below it and horizontally centered for
   down. Its near corners are square and its far corners rounded 4px. At
   rest it's gray-500 with a white icon; on hover, gray-700 (#14151b) with
   white. It shows the open padlock when unlocked and closed when locked
@@ -70,10 +71,9 @@ Delegated details, proposed:
   hints panel's gap, the line under the grid) and takes no layout space.
   It shows only while the grid is at its full 700px (narrower is S5's).
 
-**Pending for the human at drafting:** at ⅔ of a cell, the button is
-~31px on a daily grid but **~93px on a mini** (5×5, 140px cells), and
-it would cover part of the hints panel in the wide layout. Options: keep
-⅔ at every size, or ⅔ with a cap (e.g. 32px).
+**The button's size** (the human, 2026-11-06, at approval): ⅔ of a
+cell, capped at 32px. A daily's (~31px) and a Sunday's (~22px) are
+unchanged; a mini's is 32px rather than ~93px.
 
 ## Non-goals
 
@@ -81,7 +81,25 @@ it would cover part of the hints panel in the wide layout. Options: keep
 - The tooltip (S4), the toggle-row button (S5) and Reset Grid (S6).
 - Locking with Preview on, in the hints phase or once published.
 
-## Acceptance (proposed, to be written)
+## Acceptance (frozen 2026-11-06)
+
+The tests fix these names and hooks (delegated details):
+
+- `src/lib/locked-words.ts`: `LockedWord` `{ col, row, orientation,
+  length }`; `lockableWord(grid, cursor)` (S1's run of 3+ letters, or
+  `null`); `endCells(grid, word)`; `isCellLocked(lockedWords, coord)` (a
+  letter of any locked word); `lockedWordAt(lockedWords, cursor)`;
+  `toggleLock(lockedWords, word)` (a new list).
+- `src/lib/puzzle-storage.ts`: `serializeGrid(grid, lockedWords?)` writes
+  `lockedWords` only when there are some, so a grid without locks saves
+  exactly as before; `deserializeLockedWords(stored)` gives `[]` without
+  the list.
+- In the page: the button by role and name; its `<svg>` has `data-icon`
+  `lock-open` / `lock-closed`; the outline is `data-testid="word-outline"`
+  (its box the word and end cells', its border 1px gray-500); a tick is
+  `data-testid="lock-tick"`.
+- Create Hints drops the list (its `serializePuzzle` writes the grid
+  alone), so `actions.ts` is untouched.
 
 ### Unit
 
@@ -99,8 +117,8 @@ it would cover part of the hints panel in the wide layout. Options: keep
    cell, or after the cursor leaves or the grid blurs.
 4. **21-S2-4 placement and look:** across, right of the last letter and
    vertically centered. Down, below it and horizontally centered. ⅔ of a
-   cell, the stated corners, gray-500 at rest, gray-700 on hover. Open
-   padlock.
+   cell, and 32px on a mini (the cap), the stated corners, gray-500 at
+   rest, gray-700 on hover. Open padlock.
 5. **21-S2-5 lock:** a click locks. Letters are gray-500, the outline
    stays after the cursor leaves, the end cells have ticks, the grid
    keeps focus. Returning to the word shows the closed padlock at once.
@@ -113,6 +131,17 @@ it would cover part of the hints panel in the wide layout. Options: keep
 9. **21-S2-9 saved:** after a reload the lock, outline and ticks are back.
 10. **21-S2-10 Preview and the hints phase:** with Preview on, no button,
     outline or ticks, and letters are black. In the hints phase the same.
+
+### Discrimination (2026-11-06, observed on `main`)
+
+- 21-S2-1 fails (no `./locked-words` module). 21-S2-2: its round-trip and
+  load-without-list tests fail (`deserializeLockedWords` is not a
+  function); "saved as before, with no list" passes, as a guard.
+- `e2e/lock-word.spec.ts`: 13 of 14 fail, each on the missing button
+  (run before the mini case was added; it waits on the same button).
+  "None for a 2-letter word or an empty cell" (21-S2-3) passes, as a
+  guard.
+- Not yet run against a throwaway implementation.
 
 ## Repo paths
 
