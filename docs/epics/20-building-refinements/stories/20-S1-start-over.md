@@ -1,8 +1,9 @@
 # Story S1 — Start Over
 
-In the build phase, a gray Start Over link at the toggle row's right end
-asks "Clear Puzzle", then empties the whole grid so the builder can start
-again.
+In the build phase, a gray link asks for confirmation, then empties the
+whole grid so the builder can start again. As first built, it was "Start
+Over" at the toggle row's right end, asking "Clear Puzzle"; S4 renamed and
+moved it (below).
 
 **Status: done 2026-11-04.** The human approved the specification and
 acceptance 2026-11-04; frozen at 54583c1, implemented on `main`.

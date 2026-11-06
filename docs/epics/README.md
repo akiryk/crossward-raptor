@@ -12,7 +12,7 @@ reading or additional product specifications.
 - [Locked words](21-locked-words/HANDOFF.md) (epic 21, drafted
   2026-11-06; EPIC awaiting approval)
 - [Building refinements](20-building-refinements/HANDOFF.md) (epic 20,
-  EPIC approved 2026-11-04)
+  closed 2026-11-06; accepted items listed there)
 - [The completed puzzle](19-completed-puzzle/HANDOFF.md) (epic 19, closed
   2026-11-03; accepted items listed there)
 - [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, closed
