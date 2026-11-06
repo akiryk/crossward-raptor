@@ -2,7 +2,8 @@
 
 Hovering over the lock button for about a second explains it.
 
-**Status: implemented, awaiting independent review.** Approved and
+**Status: done 2026-11-06,** independently reviewed (no blockers) and
+delivered on `main` as a49795a. Approved and
 frozen 2026-11-06 at a8f4dff by the orchestrating agent, under the
 human's delegation (HANDOFF). Depends on S2.
 

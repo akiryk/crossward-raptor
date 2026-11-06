@@ -22,10 +22,11 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   Frozen at 3dc7c6b by the orchestrator (delegated); implemented in
   6e20297 on `main` (off the risk paths), independently reviewed with no
   blockers.
-- [S4 The lock button's tooltip](stories/21-S4-lock-tooltip.md): drafted.
-  Next.
+- [S4 The lock button's tooltip](stories/21-S4-lock-tooltip.md): **done**.
+  Frozen at a8f4dff (delegated); implemented in a49795a on `main` (off
+  the risk paths), independently reviewed with no blockers.
 - [S5 Lock Word in the toggle row](stories/21-S5-toggle-row-lock.md):
-  drafted.
+  drafted. Next.
 - [S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):
   drafted.
 
@@ -47,21 +48,26 @@ epic, data deletion beyond the guarded test reset, or a true blocker.
 Epic 20 is closed (ba55af6). Epic 18's 18-S5-5 intermittent can fail a
 full browser run; it's a recorded open item, unrelated to this epic.
 
-## Verification (2026-11-06, S3 at 6e20297)
+## Verification (2026-11-06)
 
-- Implementer: `npm run verify` exit 0 (692 unit tests); full
-  `npm run test:e2e` exit 0 (1074 passed), on the tree committed.
-- Reviewer: `npm run verify` exit 0 (692). Full `npm run test:e2e` exit 1:
-  1073 passed, 1 failed, `play-design.spec.ts` 14-S7-1 on an
-  `ECONNRESET` in the auth helper (a dev server was being restarted
-  during the run). That spec plus `locked-cells.spec.ts` re-run: 30
-  passed, exit 0.
-- Frozen acceptance unchanged since 3dc7c6b.
+- **S4 at a49795a:** the implementer ran `npm run verify` (exit 0, 692
+  tests) and the full E2E suite (exit 0, 1080 passed). The reviewer's
+  `npm run verify` exited 0. The reviewer's full E2E run exited 1: 1076
+  passed and 4 failed, all timeouts in `row-menu.spec.ts` (16-S2, the
+  puzzle list, not touched). Rerun alone, it passed: 16 tests, exit 0.
+- **S3 at 6e20297:** the implementer's full E2E run exited 0 with 1074
+  passed. The reviewer's had 1 failure, an `ECONNRESET` in the auth helper
+  of `play-design.spec.ts` while a dev server restarted. Rerun with
+  `locked-cells`, that spec passed: 30 tests, exit 0. `npm run verify`
+  exited 0 for both agents.
+- The frozen acceptance for S3 and S4 is unchanged since each freeze.
 
 ## For the human's visual check (collected so far)
 
 - S3: the Rebus link greys out on a locked letter or end cell; typing over
   a locked word skips it silently.
+- S4: hover the padlock about a second for the bubble. On a down word,
+  it sits above the button, over the word's last letter.
 - S2/S3: while the cursor is in a locked across word, the lock button sits
   over the end cell after it, so clicking that cell unlocks the word.
 - PR #33's notes: the button stays when Tab moves past it to Reset Grid;
@@ -70,7 +76,7 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-Orchestrate S4 through S6 under the delegation above, in order: draft,
+Orchestrate S5 and S6 under the delegation above, in order: draft,
 self-approve and freeze each story, then implement it, independently
 review it (and merge it if it's on a risk path) and verify it. Then run
 the independent closeout audit and stop for the human's visual testing.
