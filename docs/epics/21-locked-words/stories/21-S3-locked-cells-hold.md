@@ -3,8 +3,8 @@
 Typing, Backspace, Delete and Rebus can't change a locked word's letters
 or fill its end cells.
 
-**Status: drafted 2026-11-06; acceptance tests not yet written; not
-approved.** Depends on S2.
+**Status: approved and frozen 2026-11-06** by the orchestrating agent,
+under the human's delegation (HANDOFF). Depends on S2.
 
 **Blast radius: small to medium, expected off the risk paths.** The rules
 wrap the engine's `place`/`deleteAt` from `src/lib/` and the editor;
@@ -33,15 +33,29 @@ From the human (2026-11-06, EPIC "Protection"):
 - **Rebus** (the link and Escape) is disabled on a protected cell.
 - **Preview on:** still protected, though not marked (EPIC).
 
-Delegated details, proposed:
+### Delegated decisions
+
+Proposed by the drafting agent, for the human's visual check:
 
 - **Advancing past a protected cell** follows `place`'s rule: one cell in
   the cursor's direction if that cell is there, otherwise stay.
+- **Moving back off a protected cell** follows `deleteAt`'s rule: one
+  cell back if that cell is there, otherwise stay. On an end cell this
+  clears nothing, not even the cell it moves onto (the engine, on an
+  empty cell, would clear it).
 - **Backspace from an empty unprotected cell** whose previous cell is
-  protected moves onto it and clears nothing. That's the same rule.
-- **A rebus already open** when its cell becomes protected can't happen,
-  since locking happens with the entry closed. If it could, closing it
-  changes nothing.
+  protected lands there and clears nothing. Elsewhere both keys act as
+  `place` and `deleteAt`.
+- **An end cell holding a letter** (possible only in a grid locked
+  before S3) is never cleared.
+- **Nothing changed** means the same grid object, so no autosave runs.
+- **Delete** is not a builder key today (`keyToIntent` maps only
+  Backspace), so it already changes nothing. S3 doesn't add it.
+- **Rebus:** the link is disabled while the cursor is on a protected
+  cell. An entry can't be open on one, since the cursor can't move while
+  it's open and locking needs the entry closed.
+- **Preview on:** the same rules, with the cursor moving over Preview's
+  words as it does today.
 - **Reset Grid** is S6's.
 
 ## Non-goals
@@ -49,35 +63,65 @@ Delegated details, proposed:
 - New visual marks (S2 owns the look).
 - Protection in the hints phase (ignored) or play.
 
-## Acceptance (proposed, to be written)
+## Acceptance (frozen 2026-11-06)
 
-### Unit: `src/lib/locked-words.test.ts` (extended) or a new `locked-keys.test.ts`
+The tests fix these names and hooks (delegated details):
 
-1. **21-S3-1 typing:** over a locked letter and over an end cell the grid
-   is unchanged and the cursor advances. At the grid's edge it stays.
-2. **21-S3-2 deleting:** on a locked letter, on an end cell, and from an
-   empty cell after a locked one: nothing is cleared, and the cursor
-   moves back.
+- `src/lib/locked-keys.ts` (new, pure): `isCellProtected(grid,
+  lockedWords, coord)` (a letter or end cell of any locked word);
+  `placeProtected(grid, lockedWords, cursor, letter)` and
+  `deleteProtected(grid, lockedWords, cursor)`, each `{ grid, cursor }`
+  like the engine's `place` and `deleteAt`, the same `grid` when nothing
+  changed.
+- In the page: the Rebus link is `data-testid="rebus-control"`
+  (`disabled`), an open entry `rebus-entry`. Words are locked through
+  S2's button.
 
-### `e2e/locked-cells.spec.ts` (new)
+### Unit: `src/lib/locked-keys.test.ts` (new)
 
-3. **21-S3-3 KIND / MIND:** across KOOKABURRA locked. Down from its second
-   K, typing KIND and (after clearing) MIND both leave K-I-N-D, with the
-   K unchanged.
+1. **21-S3-1 typing:** a locked letter (either direction) and an end cell
+   are unchanged and the cursor advances; at the grid's edge or a black
+   cell it stays; elsewhere it places as before; KIND and MIND down from
+   a locked K both give K-I-N-D. Also which cells are protected.
+2. **21-S3-2 deleting:** on a locked letter or an end cell nothing is
+   cleared (not even the cell before an end cell) and the cursor moves
+   back, or stays at the edge; an end cell's stray letter is kept; from
+   an empty cell after a locked letter the cursor lands on it; elsewhere
+   as before; Backspace ×5 after KIND.
+
+### `e2e/locked-cells.spec.ts` (new, 1440px)
+
+KOOKABURRA across row 3 of a daily, locked with its button.
+
+3. **21-S3-3 KIND / MIND:** down from its second K, typing KIND, and
+   (separately) MIND, both leave K-I-N-D, the cursor past the D.
 4. **21-S3-4 Backspace through:** after KIND, Backspace ×5 clears D, N
-   and I and leaves the K. The cursor ends above the K.
-5. **21-S3-5 end cells:** typing into a locked word's end cell (across
-   and down) leaves it empty, and the word doesn't grow.
-6. **21-S3-6 Rebus:** on a locked letter, the Rebus link is disabled and
-   Escape opens nothing.
+   and I, rests on the K, and ends above it. Across the word, Backspace
+   walks back clearing nothing.
+5. **21-S3-5 end cells:** typing across into either end cell leaves it
+   empty and the cursor moves on. Typing down through one does too, and
+   KOOKABURRA is still the locked word. Backspace on one moves back onto
+   the letter above and keeps it.
+6. **21-S3-6 Rebus:** on a locked letter and on an end cell the link is
+   disabled and Escape opens nothing. On an empty cell it works.
 7. **21-S3-7 Preview:** with Preview on, typing on and backspacing
-   through a locked letter change nothing.
+   through locked letters change nothing.
 8. **21-S3-8 unlocked again:** after unlocking, the same keys change the
-   letters as before.
+   letters and end cells as before.
+
+### Discrimination (2026-11-06, observed on `main`)
+
+- 21-S3-1 and 21-S3-2 fail to load (no `./locked-keys` module). Not run
+  against a throwaway implementation (that run was denied).
+- `e2e/locked-cells.spec.ts`: 8 of 10 fail, each on the missing
+  protection (M overtypes the K, the K or A is cleared, an end cell
+  takes S or B, the Rebus link stays enabled, X overtypes U in Preview,
+  Backspace clears instead of moving). "Typing KIND" (21-S3-3, K over K)
+  and 21-S3-8 pass, as guards.
 
 ## Repo paths
 
-Acceptance: the files above. Runtime: `src/lib/locked-words.ts`,
+Acceptance: the files above. Runtime: `src/lib/locked-keys.ts` (new),
 `src/components/grid/PuzzleGridEditor.tsx`,
 `src/components/grid/RebusControl.tsx` (if needed). Docs: this story,
 `../EPIC.md`, `../HANDOFF.md`.
