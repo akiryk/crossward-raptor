@@ -3,7 +3,8 @@
 Typing, Backspace, Delete and Rebus can't change a locked word's letters
 or fill its end cells.
 
-**Status: implemented, awaiting independent review.** Approved and
+**Status: done 2026-11-06,** independently reviewed (no blockers) and
+delivered on `main` as 6e20297. Approved and
 frozen 2026-11-06 at 3dc7c6b by the orchestrating agent, under the
 human's delegation (HANDOFF). Depends on S2.
 
@@ -128,8 +129,8 @@ KOOKABURRA across row 3 of a daily, locked with its button.
 - The editor's letter and Backspace keys go through `placeProtected` /
   `deleteProtected`, Preview's too (protection is checked on the real
   grid's locks; the cursor still moves over Preview's words). A Backspace
-  in Preview that only moves the cursor now moves it; before, a key that
-  cleared nothing did nothing.
+  in Preview that only moves the cursor now moves it (only possible on
+  or onto a protected cell; unlocked cells behave as before).
 - Rebus: `canRebus` (Escape and the link) is false on a protected cell,
   and the link is disabled there while no entry is open.
 - **Visual check:** the Rebus link greys out (50% opacity) on a locked
