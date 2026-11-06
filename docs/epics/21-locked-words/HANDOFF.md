@@ -26,7 +26,19 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   Frozen at a8f4dff (delegated); implemented in a49795a on `main` (off
   the risk paths), independently reviewed with no blockers.
 - [S5 Lock Word in the toggle row](stories/21-S5-toggle-row-lock.md):
-  drafted. Next.
+  **drafting, uncommitted in the worktree:** the story's Delegated
+  decisions, Acceptance and Discrimination, plus
+  `e2e/lock-word-toggle-row.spec.ts` (17 tests; on `main` 13 fail on the
+  missing `lock-word-control`, 4 pass as guards). The 375px row fits.
+  **Before freezing, add keyboard use** (the orchestrator's decision under
+  the delegation; the EPIC's "Mouse, keyboard and touch all work"):
+  moving focus from the grid to the toggle-row button keeps the cursor's
+  word as its target, as S2's button does. It stays enabled, and Enter
+  or Space toggles it; after that it keeps focus in its new state. Add
+  21-S5-6 (375px): reach it by Tab or Shift+Tab from the grid (whichever
+  the DOM order gives), Enter locks, Space unlocks. Replace the story's
+  "Not decided here: keyboard use" note, rerun the discrimination check,
+  then freeze. The drafting agent stalled before doing this.
 - [S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):
   drafted.
 
@@ -76,11 +88,14 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-Orchestrate S5 and S6 under the delegation above, in order: draft,
+Finish S5's drafting (keyboard test, above), freeze it, then orchestrate
+S5 and S6 under the delegation above, in order: draft,
 self-approve and freeze each story, then implement it, independently
 review it (and merge it if it's on a risk path) and verify it. Then run
 the independent closeout audit and stop for the human's visual testing.
-Keep this handoff current after each story.
+Keep this handoff current after each story. Drafting and implementing
+agents should leave the dev server alone, since each E2E prep stops it. The
+orchestrator restarts `npm run dev` once at the end.
 
 ## Resume prompt
 
