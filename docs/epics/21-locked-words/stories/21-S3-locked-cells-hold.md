@@ -3,8 +3,9 @@
 Typing, Backspace, Delete and Rebus can't change a locked word's letters
 or fill its end cells.
 
-**Status: approved and frozen 2026-11-06** by the orchestrating agent,
-under the human's delegation (HANDOFF). Depends on S2.
+**Status: implemented, awaiting independent review.** Approved and
+frozen 2026-11-06 at 3dc7c6b by the orchestrating agent, under the
+human's delegation (HANDOFF). Depends on S2.
 
 **Blast radius: small to medium, expected off the risk paths.** The rules
 wrap the engine's `place`/`deleteAt` from `src/lib/` and the editor;
@@ -118,6 +119,22 @@ KOOKABURRA across row 3 of a daily, locked with its button.
   takes S or B, the Rebus link stays enabled, X overtypes U in Preview,
   Backspace clears instead of moving). "Typing KIND" (21-S3-3, K over K)
   and 21-S3-8 pass, as guards.
+
+### Implementation notes (2026-11-06)
+
+- **Paths:** `src/lib/locked-keys.ts` (new) and `PuzzleGridEditor.tsx`
+  only. No risk path, and `src/engine/` is unchanged. `RebusControl.tsx`
+  already took `disabled`.
+- The editor's letter and Backspace keys go through `placeProtected` /
+  `deleteProtected`, Preview's too (protection is checked on the real
+  grid's locks; the cursor still moves over Preview's words). A Backspace
+  in Preview that only moves the cursor now moves it; before, a key that
+  cleared nothing did nothing.
+- Rebus: `canRebus` (Escape and the link) is false on a protected cell,
+  and the link is disabled there while no entry is open.
+- **Visual check:** the Rebus link greys out (50% opacity) on a locked
+  letter or end cell. Typing over a locked word skips it silently, with
+  no other feedback, as the EPIC says.
 
 ## Repo paths
 

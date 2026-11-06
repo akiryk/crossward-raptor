@@ -8,7 +8,6 @@ import { createGrid, withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
-  deleteAt,
   moveTo,
   place,
   toggleOrientation,
@@ -23,6 +22,7 @@ import {
   type SerializedGrid,
 } from "../../lib/puzzle-storage";
 import { lockableWord, lockedWordAt, toggleLock, type LockedWord } from "../../lib/locked-words";
+import { deleteProtected, isCellProtected, placeProtected } from "../../lib/locked-keys";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
@@ -262,8 +262,14 @@ export function PuzzleGridEditor({
     setIsReady(true);
   }, [initialPhase]);
 
+  // A locked word's letters and end cells take no rebus (21-S3).
   function canRebus() {
-    return state.publishedAt === null && !isLettersLocked && !(isPreviewing && isPreviewCursorHidden);
+    return (
+      state.publishedAt === null &&
+      !isLettersLocked &&
+      !(isPreviewing && isPreviewCursorHidden) &&
+      !isCellProtected(state.grid, state.lockedWords, state.cursor.current)
+    );
   }
 
   function openRebus() {
@@ -372,7 +378,8 @@ export function PuzzleGridEditor({
       // letter there overtypes and never changes the shape (14-S12).
       if (intent.type === "letter") {
         if (prev.publishedAt !== null) return prev;
-        const { grid, cursor } = place(prev.grid, prev.cursor, intent.letter);
+        // A locked word's letters and end cells hold (21-S3).
+        const { grid, cursor } = placeProtected(prev.grid, prev.lockedWords, prev.cursor, intent.letter);
         return { ...prev, grid, cursor };
       }
       if (intent.type === "delete") {
@@ -381,7 +388,7 @@ export function PuzzleGridEditor({
         // legal repair is an overtype once geometry is frozen, so a
         // cleared cell could only ever leave a hole.
         if (prev.phase === "hints") return prev;
-        const { grid, cursor } = deleteAt(prev.grid, prev.cursor);
+        const { grid, cursor } = deleteProtected(prev.grid, prev.lockedWords, prev.cursor);
         return { ...prev, grid, cursor };
       }
       // The hints phase turns the cursor only onto a word (17-S6); the
@@ -407,14 +414,17 @@ export function PuzzleGridEditor({
     const shown = intendedGeometry(prev.grid);
     if (intent.type === "letter") {
       if (prev.publishedAt !== null) return prev;
-      const grid = place(prev.grid, prev.cursor, intent.letter).grid;
+      // Locked cells hold with Preview on too (21-S3).
+      const grid = placeProtected(prev.grid, prev.lockedWords, prev.cursor, intent.letter).grid;
       const { cursor } = place(intendedGeometry(grid), prev.cursor, intent.letter);
       return { ...prev, grid, cursor };
     }
     if (intent.type === "delete") {
       if (prev.publishedAt !== null) return prev;
-      const deleted = deleteAt(shown, prev.cursor);
-      if (deleted.grid === shown) return prev;
+      const deleted = deleteProtected(shown, prev.lockedWords, prev.cursor);
+      if (deleted.grid === shown) {
+        return deleted.cursor === prev.cursor ? prev : { ...prev, cursor: deleted.cursor };
+      }
       return {
         ...prev,
         grid: withLetter(prev.grid, deleted.cursor.current, null),
@@ -692,7 +702,10 @@ export function PuzzleGridEditor({
                 <RebusControl
                   variant="link"
                   isOpen={rebusValue !== null}
-                  disabled={phase === "hints" && isLettersLocked}
+                  disabled={
+                    (phase === "hints" && isLettersLocked) ||
+                    (rebusValue === null && isCellProtected(grid, lockedWords, cursor.current))
+                  }
                   onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
                 />
               )}
