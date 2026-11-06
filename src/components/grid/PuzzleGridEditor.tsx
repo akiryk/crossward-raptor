@@ -49,6 +49,7 @@ import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 import { PlayerHints } from "../play/PlayerHints";
 import { slotsWithNumbers } from "../../engine/numbering";
 import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
+import { buildWord } from "../../lib/build-word";
 import { RebusControl } from "./RebusControl";
 import { StartOverDialog, StartOverLink } from "./StartOverDialog";
 
@@ -564,6 +565,11 @@ export function PuzzleGridEditor({
     }
     highlights.set(cellNumberKey(cursor.current), "selected");
   }
+  // In the build phase only the cursor's word is blue-medium, not the
+  // other words in its row or column (21-S1).
+  const cursorWord = isPreviewing || phase === "hints"
+    ? undefined
+    : new Set((buildWord(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
 
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
   // pair on the shared ancestor of the grid and the hint inputs tracks
@@ -691,6 +697,7 @@ export function PuzzleGridEditor({
               <PuzzleGrid
                 grid={grid}
                 highlights={highlights}
+                cursorWord={cursorWord}
                 mode={isPreviewing ? "preview" : "build"}
                 isHintsPhase={phase === "hints"}
                 isGridFocused={isGridFocused}

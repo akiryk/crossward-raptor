@@ -3,9 +3,9 @@
 In the build phase with Preview off, only the word the cursor is in is
 blue-medium; every other cell of its row or column is dull blue.
 
-**Status: approved and frozen 2026-11-06 (the human approved the EPIC
-and this acceptance, choosing dull blue for symmetric hints); runtime not
-started.**
+**Status: done 2026-11-06.** Approved and frozen at 69407b0 (the human
+approved the EPIC and this acceptance, choosing dull blue for symmetric
+hints); implemented and delivered on `main`.
 
 **Blast radius: small, expected off the risk paths.** `src/lib/` and
 `src/components/grid/`; no engine, server action or storage change.
@@ -108,6 +108,15 @@ symmetric hint becomes dull blue, the human's choice.
 - That run kept symmetric hints blue-medium, the draft's proposal. The
   human chose dull blue at approval; 21-S1-2's symmetric hint and the two
   amended (9,0) rows were then changed to match, before freeze.
+
+### Implementation results (2026-11-06, observed)
+
+- Frozen acceptance unchanged since 69407b0 (`git diff` empty).
+- `npm run verify` exit 0 (664 unit tests).
+- Full `npm run test:e2e`: the first run 1048 passed, 1 failed on
+  18-S5-5's recorded intermittent; the rerun 1049 passed, exit 0.
+- Actual changed paths: the declared runtime paths only, none on a
+  CODE-REVIEW risk path; delivered directly to `main`.
 
 ## Repo paths
 

@@ -126,9 +126,13 @@ export function PuzzleGrid({
   isLettersLocked = false,
   onCellClick,
   rebus,
+  cursorWord,
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
+  /** Build phase: the cursor's word, keyed via cellNumberKey; the rest of
+   *  its slot is plain 'slot' (21-S1). */
+  cursorWord?: ReadonlySet<string>;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   mode?: GridMode;
@@ -183,6 +187,7 @@ export function PuzzleGrid({
         isInSlot: highlight === 'slot',
         isSymmetricHint: hints.has(key),
         isRecommended: recommended.has(key),
+        isOutsideWord: cursorWord !== undefined && !cursorWord.has(key),
         isHintsPhase,
         mode,
       });

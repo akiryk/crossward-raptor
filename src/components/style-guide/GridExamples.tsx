@@ -5,6 +5,7 @@ import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { intendedGeometry } from '../../engine/puzzle-geometry';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { cellNumberKey } from '../../lib/cell-number-lookup';
+import { buildWord } from '../../lib/build-word';
 import { PuzzleGrid } from '../grid/PuzzleGrid';
 import { HintSkeleton } from '../grid/HintSkeleton';
 import { PreviewLegend } from '../grid/PreviewLegend';
@@ -16,9 +17,10 @@ import { PlayerHints } from '../play/PlayerHints';
 import { ProminentHint } from '../play/ProminentHint';
 
 // A 10x10 with two crossing words (row 2 across, col 3 down, sharing (3,2)).
-// The cursor sits mid-run in the down slot so that slot spans both lettered
-// cells (rows 0-3) and empty ones (rows 4,6-9) -- the D8 fixture requires
-// both in the one highlighted slot. Everything off column 3 stays empty,
+// The cursor sits in the down word STRP (rows 0-3), so its slot spans both
+// the word's lettered cells and empty ones (rows 4-9) -- the D8 fixture
+// requires both in the one highlighted slot, and 21-S1 colors only the
+// cursor's word as lettered. Everything off column 3 stays empty,
 // giving plain 'empty' cells outside the slot; the down/across letters'
 // 180-degree counterparts (none of which are lettered) render as
 // 'symmetric-hint'.
@@ -32,13 +34,12 @@ const LETTERS: { col: number; row: number; letter: string }[] = [
   { col: 3, row: 3, letter: 'P' },
 ];
 
-const CURSOR: CursorState = { current: { col: 3, row: 5 }, orientation: 'down' };
+const CURSOR: CursorState = { current: { col: 3, row: 1 }, orientation: 'down' };
 
-// The build sample's cursor (3,5) is empty, so after conversion it's black
-// and produces no highlight at all -- the focused-grid sample needs its own
-// cursor, inside the four-cell down slot conversion leaves at column 3
-// (rows 0-3; row 4 onward is unfilled and becomes black), so the sample
-// shows the cursor, its word, other on cells and off cells together.
+// The focused-grid sample's cursor: the same cell, inside the four-cell
+// down slot conversion leaves at column 3 (rows 0-3; row 4 onward is
+// unfilled and becomes black), so the sample shows the cursor, its word,
+// other on cells and off cells together.
 const GRID_FOCUS_CURSOR: CursorState = { current: { col: 3, row: 1 }, orientation: 'down' };
 
 // The locked sample shows the word of a focused hint input: GRID, across
@@ -135,7 +136,11 @@ export function GridExamples() {
           Grid (build phase)
         </h2>
         <div className="max-w-sm">
-          <PuzzleGrid grid={grid} highlights={highlights} />
+          <PuzzleGrid
+            grid={grid}
+            highlights={highlights}
+            cursorWord={new Set((buildWord(grid, CURSOR.current, CURSOR.orientation) ?? []).map(cellNumberKey))}
+          />
         </div>
       </section>
 
