@@ -143,6 +143,27 @@ The tests fix these names and hooks (delegated details):
   guard.
 - Not yet run against a throwaway implementation.
 
+### Implementation notes (2026-11-06)
+
+- **Scope additions:** the editor page loads through `loadPuzzle`, which
+  returned the engine's `Puzzle` and lost the list, so a reload showed no
+  locks (21-S2-9). `loadPuzzle` (`actions.ts`) now also returns the
+  stored `lockedWords`, and `src/app/puzzles/[id]/page.tsx` passes them
+  on. `GridCell.tsx` passes the gray letter through to `LetterCell`. Create
+  Hints is unchanged and drops the list, and the editor clears its own.
+- **Colors:** the lock UI uses the palette variables (`--palette-gray-500`,
+  `-700`, `-white`) directly. A new `--color-*` style would have meant
+  amending the frozen token lists in `globals-css.test.ts` and
+  `color-tokens.spec.ts`.
+- **Reset Grid** also removes every lock, as S6's Clear Every Cell will,
+  so no outline is left on an empty grid before S6.
+- **The icon's paths** are Heroicons v2 solid's, written from the
+  published icons. Rendered, they show a closed and an open padlock.
+  Fetching the originals to compare byte for byte was denied in this
+  session.
+- Tabbing from the grid to the button no longer counts as the editor
+  losing focus. Before, the button went before it could take focus.
+
 ## Repo paths
 
 Acceptance: the files above. Runtime: `src/lib/locked-words.ts` (new),

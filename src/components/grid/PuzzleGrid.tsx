@@ -12,6 +12,8 @@ import {
   type CellAppearance,
   type GridMode,
 } from '../../lib/cell-appearance';
+import { endCells, isCellLocked, lockedWordCells, type LockedWord } from '../../lib/locked-words';
+import { LockIcon } from '../ui/LockIcon';
 import { Tooltip } from '../ui/Tooltip';
 import { GridCell } from './GridCell';
 import { RebusEntry, type RebusEntryProps } from './RebusEntry';
@@ -117,6 +119,19 @@ const CELL_NUMBER_PX = 10;
 const CELL_NUMBER_MIN_PX = 8;
 const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
 
+// The lock button is 2/3 of a cell, at most 32px (21-S2).
+const LOCK_BUTTON_MAX_PX = 32;
+
+/** The grid area spanning the cells, for an absolutely placed overlay. */
+function gridArea(coords: Coord[]) {
+  const cols = coords.map((c) => c.col);
+  const rows = coords.map((c) => c.row);
+  return {
+    gridColumn: `${Math.min(...cols) + 1} / ${Math.max(...cols) + 2}`,
+    gridRow: `${Math.min(...rows) + 1} / ${Math.max(...rows) + 2}`,
+  };
+}
+
 export function PuzzleGrid({
   grid,
   highlights,
@@ -127,6 +142,9 @@ export function PuzzleGrid({
   onCellClick,
   rebus,
   cursorWord,
+  lockedWords = [],
+  lockTarget = null,
+  onToggleLock,
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
@@ -142,6 +160,12 @@ export function PuzzleGrid({
   /** Hints phase: Lock Grid Letters is on. */
   isLettersLocked?: boolean;
   onCellClick?: (coord: Coord) => void;
+  /** Build phase, Preview off: the locked words, outlined, with gray
+   *  letters and ticked end cells (21-S2). */
+  lockedWords?: readonly LockedWord[];
+  /** Build phase, Preview off: the word whose lock button shows. */
+  lockTarget?: { word: LockedWord; isLocked: boolean } | null;
+  onToggleLock?: () => void;
 }) {
   // The cell under the mouse, in Preview, and the cell its tooltip stays
   // over (20-S3); a touch or pen shows nothing.
@@ -216,6 +240,7 @@ export function PuzzleGrid({
           <GridCell
             cell={cell}
             number={number}
+            isLocked={isCellLocked(lockedWords, { col, row })}
             onClick={onCellClick ? () => onCellClick({ col, row }) : undefined}
           />
           {rebus && rebus.coord.col === col && rebus.coord.row === row && (
@@ -263,6 +288,66 @@ export function PuzzleGrid({
     setHover({ cell, anchor: anchor && tooltip ? anchorFor(cell, anchor) : cell });
   }
 
+  // Locked words' outlines and end-cell ticks, and the lock button with its
+  // word's outline (21-S2). Each is absolutely placed in its cells' grid
+  // area, so it takes no cell's place.
+  const outlined = [...lockedWords];
+  if (lockTarget && !lockTarget.isLocked) outlined.push(lockTarget.word);
+  const ticked = new Map<string, Coord>();
+  for (const word of lockedWords) {
+    for (const end of endCells(grid, word)) ticked.set(`${end.col},${end.row}`, end);
+  }
+  const overlays = [
+    ...outlined.map((word) => (
+      <div
+        key={`outline ${word.col},${word.row} ${word.orientation}`}
+        data-testid="word-outline"
+        aria-hidden="true"
+        className="pointer-events-none absolute border border-(--palette-gray-500)"
+        style={{ ...gridArea([...lockedWordCells(word), ...endCells(grid, word)]), inset: 'calc(-1 * var(--grid-line-width))' }}
+      />
+    )),
+    ...[...ticked].map(([key, end]) => (
+      <div key={`tick ${key}`} className="pointer-events-none absolute inset-0" style={gridArea([end])} aria-hidden="true">
+        <div
+          data-testid="lock-tick"
+          className="absolute top-0 right-0 h-1/4 w-1/4 bg-(--palette-gray-500)"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
+        />
+      </div>
+    )),
+  ];
+  if (lockTarget) {
+    const { word, isLocked } = lockTarget;
+    const cells = lockedWordCells(word);
+    const isAcross = word.orientation === 'across';
+    overlays.push(
+      <button
+        key="lock-button"
+        type="button"
+        aria-label={isLocked ? 'Unlock word' : 'Lock word'}
+        // A click leaves the keyboard focus on the grid.
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onToggleLock}
+        // Enter and Space are the button's, not the grid's.
+        onKeyDown={(e) => e.stopPropagation()}
+        className={`absolute z-10 flex items-center justify-center bg-(--palette-gray-500) text-(--palette-white) hover:bg-(--palette-gray-700) ${
+          isAcross ? 'rounded-r-[4px]' : 'rounded-b-[4px]'
+        }`}
+        style={{
+          ...gridArea([cells[cells.length - 1]]),
+          width: `min(${LOCK_BUTTON_MAX_PX}px, calc(100% * 2 / 3))`,
+          height: `min(${LOCK_BUTTON_MAX_PX}px, calc(100% * 2 / 3))`,
+          ...(isAcross
+            ? { left: 'calc(100% + var(--grid-line-width))', top: '50%', transform: 'translateY(-50%)' }
+            : { top: 'calc(100% + var(--grid-line-width))', left: '50%', transform: 'translateX(-50%)' }),
+        }}
+      >
+        <LockIcon isLocked={isLocked} className="h-3/5 w-3/5" />
+      </button>
+    );
+  }
+
   return (
     <div
       data-testid="puzzle-grid"
@@ -271,7 +356,7 @@ export function PuzzleGrid({
       // in the phase's border style, with gap and padding both
       // --grid-line-width so the same one-pixel division surrounds the
       // outside too, not just between cells.
-      className={`grid w-full ${GRID_LINES[gridMode]}`}
+      className={`relative grid w-full ${GRID_LINES[gridMode]}`}
       onPointerOver={handlePointerOver}
       onPointerLeave={() => setHover(null)}
       style={{
@@ -305,6 +390,7 @@ export function PuzzleGrid({
       }}
     >
       {cells}
+      {overlays}
       <Tooltip anchor={tooltip ? anchor : null} testId="preview-tooltip">
         {tooltip}
       </Tooltip>

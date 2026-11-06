@@ -7,6 +7,7 @@ import { requireSession } from '@/lib/require-session';
 import {
   createBlankPuzzle,
   deserializeGrid,
+  deserializeLockedWords,
   deserializePuzzle,
   serializeGrid,
   serializePuzzle,
@@ -18,6 +19,7 @@ import { hintsComplete } from '@/engine/hints';
 import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
+import type { LockedWord } from '@/lib/locked-words';
 import { clearLetters } from '@/engine/grid';
 import { isCompatiblePlayEntries } from '@/lib/play-entries';
 import { isFull, isSolved } from '@/engine/play';
@@ -26,6 +28,8 @@ import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 export type Visibility = 'private' | 'public';
 
 export type PuzzleWithMeta = Puzzle & {
+  /** The build phase's locked words, stored with the grid (21-S2). */
+  lockedWords: LockedWord[];
   id: string;
   title: string;
   publishedAt: Date | null;
@@ -521,6 +525,7 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
 
   return {
     ...puzzle,
+    lockedWords: deserializeLockedWords(record.grid as unknown as SerializedGrid),
     id: record.id,
     title: record.title,
     publishedAt: record.publishedAt,

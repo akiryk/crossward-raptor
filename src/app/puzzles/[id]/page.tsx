@@ -19,7 +19,7 @@ export default async function PuzzleDetailPage({
     <div className="px-2 py-6 min-[748px]:px-6">
       <PuzzleGridEditor
         puzzleId={puzzle.id}
-        initialGrid={serializeGrid(puzzle.grid)}
+        initialGrid={serializeGrid(puzzle.grid, puzzle.lockedWords)}
         initialPhase={puzzle.phase}
         initialHints={puzzle.hints}
         initialTitle={puzzle.title}
