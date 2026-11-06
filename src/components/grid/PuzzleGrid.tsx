@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import type { Cell, Coord, Grid } from '../../engine/grid';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { intendedGeometry } from '../../engine/puzzle-geometry';
@@ -17,6 +17,13 @@ import { LockIcon } from '../ui/LockIcon';
 import { Tooltip } from '../ui/Tooltip';
 import { GridCell } from './GridCell';
 import { RebusEntry, type RebusEntryProps } from './RebusEntry';
+
+/** Mouse hover over the lock button before its tooltip shows (21-S4). */
+const LOCK_TOOLTIP_DELAY_MS = 1000;
+const LOCK_TOOLTIP = {
+  unlocked: "Lock this word so you don't accidentally change it",
+  locked: 'Enable changing this word',
+} as const;
 
 const ON_BG = { build: 'bg-build-cell-on', preview: 'bg-preview-cell-on', hints: 'bg-hint-cell-on', 'hints-locked': 'bg-hint-cell-on', play: 'bg-play-cell-on' } as const;
 
@@ -170,6 +177,31 @@ export function PuzzleGrid({
   // The cell under the mouse, in Preview, and the cell its tooltip stays
   // over (20-S3); a touch or pen shows nothing.
   const [hover, setHover] = useState<{ cell: HTMLElement; anchor: HTMLElement } | null>(null);
+  // The lock button's tooltip (21-S4): shown after a second of mouse hover
+  // (a touch or pen shows nothing), for the word it was hovered in. It
+  // goes when the mouse leaves or the button does.
+  const lockKey = lockTarget
+    ? `${lockTarget.word.col},${lockTarget.word.row} ${lockTarget.word.orientation}`
+    : null;
+  const [lockTip, setLockTip] = useState<{ anchor: HTMLElement; key: string } | null>(null);
+  const lockTipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelLockTip = () => {
+    if (lockTipTimer.current) clearTimeout(lockTipTimer.current);
+    lockTipTimer.current = null;
+    setLockTip(null);
+  };
+  useEffect(() => () => {
+    if (lockTipTimer.current) clearTimeout(lockTipTimer.current);
+  }, []);
+  // A timer from a button that's gone (no leave event) never shows.
+  useEffect(() => {
+    if (lockKey === null && lockTipTimer.current) {
+      clearTimeout(lockTipTimer.current);
+      lockTipTimer.current = null;
+    }
+  }, [lockKey]);
+  const lockTipAnchor =
+    lockTip && lockTip.key === lockKey && lockTip.anchor.isConnected ? lockTip.anchor : null;
   // Builder empties are undecided geometry; player empties are fixed active
   // cells. A player's guesses must never change the published numbering.
   const numbers = buildCellNumberLookup(mode === 'play' ? grid : convertEmptyCellsToBlack(grid));
@@ -329,6 +361,16 @@ export function PuzzleGrid({
         // A click leaves the keyboard focus on the grid.
         onMouseDown={(e) => e.preventDefault()}
         onClick={onToggleLock}
+        onPointerEnter={(e) => {
+          if (e.pointerType !== 'mouse' || !lockKey) return;
+          const anchor = e.currentTarget;
+          cancelLockTip();
+          lockTipTimer.current = setTimeout(() => {
+            lockTipTimer.current = null;
+            setLockTip({ anchor, key: lockKey });
+          }, LOCK_TOOLTIP_DELAY_MS);
+        }}
+        onPointerLeave={cancelLockTip}
         // Enter and Space are the button's, not the grid's.
         onKeyDown={(e) => e.stopPropagation()}
         className={`absolute z-10 flex items-center justify-center bg-(--palette-gray-500) text-(--palette-white) hover:bg-(--palette-gray-700) ${
@@ -393,6 +435,9 @@ export function PuzzleGrid({
       {overlays}
       <Tooltip anchor={tooltip ? anchor : null} testId="preview-tooltip">
         {tooltip}
+      </Tooltip>
+      <Tooltip anchor={lockTipAnchor} testId="lock-tooltip">
+        {lockTarget?.isLocked ? LOCK_TOOLTIP.locked : LOCK_TOOLTIP.unlocked}
       </Tooltip>
     </div>
   );

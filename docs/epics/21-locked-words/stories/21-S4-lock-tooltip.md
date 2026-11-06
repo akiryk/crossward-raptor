@@ -2,8 +2,9 @@
 
 Hovering over the lock button for about a second explains it.
 
-**Status: approved and frozen 2026-11-06** by the orchestrating agent,
-under the human's delegation (HANDOFF). Depends on S2.
+**Status: implemented, awaiting independent review.** Approved and
+frozen 2026-11-06 at a8f4dff by the orchestrating agent, under the
+human's delegation (HANDOFF). Depends on S2.
 
 **Blast radius: small, expected off the risk paths.**
 `src/components/grid/` (maybe a delay option in
@@ -80,6 +81,22 @@ TANGENT across row 3 of a daily.
 - 21-S4-5a and 21-S4-5b pass, as guards against a tooltip shown on focus
   or on a tap. The 500ms "not yet" checks guard against a tooltip with
   no delay.
+
+### Implementation notes (2026-11-06)
+
+- **Paths:** `src/components/grid/PuzzleGrid.tsx` only. No risk path;
+  `Tooltip.tsx` is unchanged (the delay lives in the grid).
+- The button's `pointerenter` starts a 1000ms timer only when
+  `pointerType` is `mouse`, so touch and pen never start it; `pointerleave`
+  cancels it and hides the tooltip. The tooltip is tied to the word it was
+  hovered in and to a connected button, so it goes when the button does,
+  and a pending timer is dropped when the button goes. Its text follows
+  the lock state, so a click switches it in place.
+- Checks on the working tree over a8f4dff: `npm run verify` exit 0 (692
+  unit tests); full `npm run test:e2e` exit 0, 1080 passed, no reruns.
+- **Visual check:** hover the padlock for a second: a dark bubble with
+  the text appears above the button (on a down word, over its last
+  letter); it goes at once on leaving, and clicking swaps the text.
 
 ## Repo paths
 
