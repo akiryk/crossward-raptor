@@ -34,21 +34,18 @@ full browser run; it's a recorded open item, unrelated to this epic.
 - `npm run verify`: exit 0 (677 unit tests).
 - `npm run test:e2e -- e2e/lock-word.spec.ts`: 16 passed, exit 0.
 - Frozen acceptance unchanged since b45a4c6 (`git diff` empty).
-- **Full `npm run test:e2e`: not observed.** A run was in progress at
-  handoff; its result wasn't read. It must be run again.
+- Full `npm run test:e2e`: 1064 passed, exit 0. Started after the last
+  code change, so it covers 1e35aa2's code (only docs changed since).
 
 ## Next action
 
-On `story/21-S2-lock-a-word`, run the full `npm run test:e2e` (the
-DEVELOPMENT standing reset grant applies). If it passes, apart from
-18-S5-5's recorded intermittent, which passes on a rerun, record the result
-here, push the branch, and open a PR naming the story, the actual changed
-paths, the scope additions and the verification. The author doesn't merge.
-Independent review follows.
+On `story/21-S2-lock-a-word`, push the branch and open a PR naming the
+story, the actual changed paths, the scope additions and the
+verification above. The author doesn't merge. Independent review follows.
 
 ## Resume prompt
 
 Read docs/epics/21-locked-words/HANDOFF.md and
 docs/epics/21-locked-words/stories/21-S2-lock-a-word.md. Finish S2's
-delivery on story/21-S2-lock-a-word: run the full E2E gate, push the
-branch and open its PR; don't merge.
+delivery on story/21-S2-lock-a-word: push the branch and open its PR;
+don't merge.
