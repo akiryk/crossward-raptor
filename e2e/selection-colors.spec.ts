@@ -92,14 +92,15 @@ function rootVariable(page: Page, name: string) {
 test.describe('17-S5-1 the build phase', () => {
   test('the cursor yellow-bright; its word blue-medium where on, blue-dull where off', async ({ page }) => {
     await open(page, buildGrid(), 'grid');
-    await cell(page, '3,0').click();
+    await cell(page, '2,0').click();
     await expect(cell(page, '4,0')).toHaveAttribute('data-highlight', 'slot');
 
+    // 21-S1: the cursor is in ABC, so its word is ABC within the top row.
     const expected: [string, string, string][] = [
-      ['3,0', CURSOR, 'the cursor cell'],
+      ['2,0', CURSOR, 'the cursor cell'],
       ['1,0', BLUE_MEDIUM, 'a lettered cell in its word'],
-      ['9,0', BLUE_MEDIUM, 'a symmetric hint in its word'],
-      ['4,0', BLUE_DULL, 'an off cell in its word'],
+      ['9,0', BLUE_DULL, 'a symmetric hint in its row, outside its word'],
+      ['4,0', BLUE_DULL, 'an off cell in its row'],
       ['0,1', WHITE, 'a lettered cell outside it'],
       ['5,5', BUILD_OFF, 'an off cell outside it'],
     ];

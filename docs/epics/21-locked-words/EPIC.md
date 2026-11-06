@@ -1,7 +1,7 @@
 # Epic: Locked words
 
 **Decisions agreed with the human in an interview 2026-11-06** (recorded
-below). The written EPIC awaits the human's approval; each story's
+below). **The human approved the written EPIC 2026-11-06.** Each story's
 specification and acceptance still need approval before freeze.
 
 In the build phase, a builder can lock a finished word so its letters
@@ -182,8 +182,8 @@ From the human's request and interview answers (2026-11-06):
   ended by an empty cell or the grid's edge. With the cursor on an empty
   cell there's no word.
 - **The highlight (S1):** the cursor's word is blue-medium. Every other
-  cell in its row or column is dull blue, lettered or not. The cursor
-  stays yellow. A run of 2 or more letters counts as a word for the
+  cell in its row or column is dull blue, lettered or not, symmetric
+  hints included (the human, at approval). The cursor stays yellow. A run of 2 or more letters counts as a word for the
   highlight; a lone letter doesn't. Preview and the hints phase are
   unchanged.
 - **A lockable word** has at least **3** letters.

@@ -102,15 +102,15 @@ test.describe('14-S5-1 build grid colors', () => {
 
   test('on, off, the selected cell, the selected word on and off, and the lines', async ({ page }) => {
     await open(page, dailyGrid());
-    await cell(page, '3,0').click();
-    // The selected word is the whole top row, across.
+    await cell(page, '2,0').click();
+    // The selected row is the whole top row, across; its word is ABC (21-S1).
     await expect(cell(page, '4,0')).toHaveAttribute('data-highlight', 'slot');
 
     const expected: [string, string, string][] = [
-      ['3,0', SELECTED_CELL, 'the selected cell'],
+      ['2,0', SELECTED_CELL, 'the selected cell'],
       ['1,0', ROW_ON, 'a lettered cell in the selected word'],
-      ['9,0', ROW_ON, 'a symmetry-white cell in the selected word'],
-      ['4,0', ROW_OFF, 'an off cell in the selected word'],
+      ['9,0', ROW_OFF, 'a symmetry-white cell in the selected row, outside its word'],
+      ['4,0', ROW_OFF, 'an off cell in the selected row'],
       ['0,1', WHITE, 'a lettered cell outside it'],
       ['14,14', WHITE, 'a symmetry-white cell outside it'],
       ['5,5', BUILD_OFF, 'an off cell outside it'],
