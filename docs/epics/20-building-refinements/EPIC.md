@@ -79,10 +79,10 @@ Added after S3 shipped (2026-11-04), recorded as given:
 4. **S4 Reset Grid under the grid** (added 2026-11-04, after S3): S1's
    link renamed and moved under the grid, on the color key's line.
 
-The stories are independent. Both are expected to stay in
-`src/components/grid/` (plus a small `ui/` primitive for S2), off the
-CODE-REVIEW risk paths, so direct delivery to `main`. Each story checks
-this against its actual paths.
+S1 and S2 are independent; S3 builds on S2 and S4 on S1. All are
+expected to stay in `src/components/grid/` (plus a small `ui/`
+primitive for S2), off the CODE-REVIEW risk paths, so direct delivery
+to `main`. Each story checks this against its actual paths.
 
 ## Decisions
 
