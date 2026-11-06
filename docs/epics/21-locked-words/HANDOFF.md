@@ -15,8 +15,8 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   (`src/lib/build-word.ts`) is the run S2 and S3 reuse.
 - [S2 Lock and unlock a word](stories/21-S2-lock-a-word.md): **approved
   and frozen** 2026-11-06 at b45a4c6 (on `main`, pushed). **Implemented**
-  on branch `story/21-S2-lock-a-word`, committed locally, **not pushed, no
-  PR yet**. The story's "Implementation notes" record the scope additions
+  on branch `story/21-S2-lock-a-word`, pushed, **[PR #33](https://github.com/akiryk/crossward-raptor/pull/33)
+  open, awaiting independent review**. The story's "Implementation notes" record the scope additions
   (`loadPuzzle` in `actions.ts`, the editor page, `GridCell.tsx`) and
   tradeoffs. Risk path: needs a PR and independent review.
 - [S3 Locked cells hold](stories/21-S3-locked-cells-hold.md): drafted.
@@ -39,13 +39,12 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-On `story/21-S2-lock-a-word`, push the branch and open a PR naming the
-story, the actual changed paths, the scope additions and the
-verification above. The author doesn't merge. Independent review follows.
+Review PR #33 independently, following REVIEW. Merge it only if there are
+no blockers and the required verification and CI pass. The author must not
+merge it.
 
 ## Resume prompt
 
 Read docs/epics/21-locked-words/HANDOFF.md and
-docs/epics/21-locked-words/stories/21-S2-lock-a-word.md. Finish S2's
-delivery on story/21-S2-lock-a-word: push the branch and open its PR;
-don't merge.
+docs/epics/21-locked-words/stories/21-S2-lock-a-word.md. Review PR #33
+independently per REVIEW, merging only if it passes.
