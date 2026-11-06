@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
 import { createGrid, withLetter } from "../../engine/grid";
@@ -18,9 +18,11 @@ import { intendedGeometry } from "../../engine/puzzle-geometry";
 import { hintsComplete } from "../../engine/hints";
 import {
   deserializeGrid,
+  deserializeLockedWords,
   serializeGrid,
   type SerializedGrid,
 } from "../../lib/puzzle-storage";
+import { lockableWord, lockedWordAt, toggleLock, type LockedWord } from "../../lib/locked-words";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
@@ -57,9 +59,14 @@ const SAVE_DEBOUNCE_MS = 500;
 // Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
 // window's height: a short window scrolls the page.
 const GRID_MAX_PX = 700;
+// How long the cursor stays in an unlocked word before its lock button
+// shows (21-S2).
+const LOCK_BUTTON_DELAY_MS = 1000;
 
 interface EditorState {
   grid: Grid;
+  /** The build phase's locked words, saved with the grid (21-S2). */
+  lockedWords: LockedWord[];
   cursor: CursorState;
   phase: Phase;
   hints: Record<string, string>;
@@ -107,6 +114,7 @@ export function PuzzleGridEditor({
     const grid = deserializeGrid(initialGrid);
     return {
       grid,
+      lockedWords: deserializeLockedWords(initialGrid),
       cursor: startCursor(grid, initialPhase),
       phase: initialPhase,
       hints: initialHints,
@@ -127,6 +135,7 @@ export function PuzzleGridEditor({
   // guard then rejects. Comparing against the last-saved value instead is
   // reentrant: replayed with the same value, it keeps skipping.
   const lastSavedGridRef = useRef(state.grid);
+  const lastSavedLockedWordsRef = useRef(state.lockedWords);
   const lastSavedHintsRef = useRef(state.hints);
   const lastSavedTitleRef = useRef(state.title);
   // Pending debounced-save timers, tracked so a publish click can cancel
@@ -169,6 +178,12 @@ export function PuzzleGridEditor({
   // hint's blue, and fills the cursor word's hint (14-S12).
   const [isGridFocused, setIsGridFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
+  // The cursor whose word's lock button shows (21-S2): set once the cursor
+  // has stayed a second, or by toggling the lock. Every key or move makes
+  // a new cursor, so the second starts again.
+  const [lockDwell, setLockDwell] = useState<CursorState | null>(null);
+  // The button beside the word shows only at the grid's full width.
+  const [isGridFullWidth, setIsGridFullWidth] = useState(true);
   // The Hint Box's word (15-S4): the cursor's, or the one it last showed
   // while the cursor's cell has no word in its direction.
   const [boxKey, setBoxKey] = useState<string | null>(null);
@@ -189,18 +204,19 @@ export function PuzzleGridEditor({
   );
 
   useEffect(() => {
-    if (lastSavedGridRef.current === state.grid) return;
+    if (lastSavedGridRef.current === state.grid && lastSavedLockedWordsRef.current === state.lockedWords) return;
     lastSavedGridRef.current = state.grid;
+    lastSavedLockedWordsRef.current = state.lockedWords;
     gridSaveTimer.current = setTimeout(() => {
       gridSaveTimer.current = null;
-      saveGrid(puzzleId, serializeGrid(state.grid)).catch((error) => {
+      saveGrid(puzzleId, serializeGrid(state.grid, state.lockedWords)).catch((error) => {
         console.error("Failed to save puzzle grid", error);
       });
     }, SAVE_DEBOUNCE_MS);
     return () => {
       if (gridSaveTimer.current !== null) clearTimeout(gridSaveTimer.current);
     };
-  }, [state.grid, puzzleId]);
+  }, [state.grid, state.lockedWords, puzzleId]);
 
   useEffect(() => {
     if (lastSavedHintsRef.current === state.hints) return;
@@ -276,6 +292,30 @@ export function PuzzleGridEditor({
   }
 
   useEffect(() => {
+    const timer = setTimeout(() => setLockDwell(state.cursor), LOCK_BUTTON_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [state.cursor, state.grid, isFocused]);
+
+  useEffect(() => {
+    const region = gridRegionRef.current;
+    if (!region) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setIsGridFullWidth(entry.contentRect.width >= GRID_MAX_PX - 0.5);
+    });
+    observer.observe(region);
+    return () => observer.disconnect();
+  }, []);
+
+  function handleToggleLock() {
+    setState((prev) => {
+      const word = lockedWordAt(prev.lockedWords, prev.cursor) ?? lockableWord(prev.grid, prev.cursor);
+      return word ? { ...prev, lockedWords: toggleLock(prev.lockedWords, word) } : prev;
+    });
+    // The button stays, in its new state.
+    setLockDwell(state.cursor);
+  }
+
+  useEffect(() => {
     if (isStartOverOpen || !focusGridAfterStartOverRef.current) return;
     focusGridAfterStartOverRef.current = false;
     gridRegionRef.current?.focus({ preventScroll: true });
@@ -295,9 +335,11 @@ export function PuzzleGridEditor({
   // the first cell, Across. Saved by the grid's autosave; no undo.
   function handleConfirmStartOver() {
     const blank = createGrid({ cols: state.grid.cols, rows: state.grid.rows });
+    // No locked word is left on an empty grid (S6 adds keeping them).
     setState((prev) => ({
       ...prev,
       grid: blank,
+      lockedWords: [],
       cursor: { current: { col: 0, row: 0 }, orientation: "across" },
     }));
     if (isPreviewing) {
@@ -430,7 +472,7 @@ export function PuzzleGridEditor({
       titleSaveTimer.current = null;
     }
     return Promise.all([
-      saveGrid(puzzleId, serializeGrid(state.grid)),
+      saveGrid(puzzleId, serializeGrid(state.grid, state.lockedWords)),
       saveHints(puzzleId, state.hints),
       saveTitle(puzzleId, state.title),
     ]);
@@ -480,7 +522,8 @@ export function PuzzleGridEditor({
         // may have turned its cell black (17-S6).
         setState((prev) => {
           const next = deserializeGrid(grid);
-          return { ...prev, phase, hints, grid: next, cursor: startCursor(next, phase) };
+          // The conversion drops the locked words: the hints phase has none.
+          return { ...prev, phase, hints, grid: next, lockedWords: [], cursor: startCursor(next, phase) };
         });
       })
       .catch((error) => {
@@ -527,6 +570,7 @@ export function PuzzleGridEditor({
 
   const {
     grid,
+    lockedWords,
     cursor,
     phase,
     hints,
@@ -571,6 +615,20 @@ export function PuzzleGridEditor({
     ? undefined
     : new Set((buildWord(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
 
+  // Locks show only in the build phase with Preview off (21-S2). The
+  // button shows at once in a locked word, after a second in another word
+  // of 3 or more letters, and only while the grid (or the button) has focus.
+  const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
+  const lockedHere = isLockShown ? lockedWordAt(lockedWords, cursor) : null;
+  const lockable = isLockShown && !lockedHere ? lockableWord(grid, cursor) : null;
+  const lockTarget = !isFocused || !isGridFullWidth
+    ? null
+    : lockedHere
+      ? { word: lockedHere, isLocked: true }
+      : lockable && lockDwell === cursor
+        ? { word: lockable, isLocked: false }
+        : null;
+
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
   // pair on the shared ancestor of the grid and the hint inputs tracks
   // "focus is somewhere that should keep the grid looking selected."
@@ -580,8 +638,13 @@ export function PuzzleGridEditor({
   function handleEditorFocus() {
     setIsFocused(true);
   }
-  function handleEditorBlur() {
+  // Focus moving within (the grid to its lock button) changes nothing: the
+  // button would go before it could take focus (21-S2). Leaving entirely,
+  // the button's second starts over on return.
+  function handleEditorBlur(event: ReactFocusEvent<HTMLDivElement>) {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
     setIsFocused(false);
+    setLockDwell(null);
   }
 
   return (
@@ -698,6 +761,9 @@ export function PuzzleGridEditor({
                 grid={grid}
                 highlights={highlights}
                 cursorWord={cursorWord}
+                lockedWords={isLockShown ? lockedWords : undefined}
+                lockTarget={lockTarget}
+                onToggleLock={handleToggleLock}
                 mode={isPreviewing ? "preview" : "build"}
                 isHintsPhase={phase === "hints"}
                 isGridFocused={isGridFocused}

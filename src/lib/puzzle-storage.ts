@@ -2,6 +2,7 @@ import { createGrid, withLetter } from '../engine/grid';
 import type { Cell, Grid } from '../engine/grid';
 import type { Puzzle, Phase } from '../engine/puzzle';
 import { dimensionsFor, DEFAULT_SIZE, type PuzzleSize } from './puzzle-size';
+import type { LockedWord } from './locked-words';
 
 export type SerializedCell =
   | { kind: 'black' }
@@ -11,16 +12,28 @@ export interface SerializedGrid {
   cols: number;
   rows: number;
   cells: SerializedCell[][]; // cells[row][col]
+  /** The build phase's locked words (21-S2); absent when there are none. */
+  lockedWords?: LockedWord[];
 }
 
-export function serializeGrid(grid: Grid): SerializedGrid {
+export function serializeGrid(grid: Grid, lockedWords: readonly LockedWord[] = []): SerializedGrid {
   const cells: SerializedCell[][] = Array.from({ length: grid.rows }, (_, row) =>
     Array.from({ length: grid.cols }, (_, col) => {
       const cell = grid.at(col, row) as Cell;
       return cell.kind === 'black' ? { kind: 'black' as const } : cell;
     })
   );
-  return { cols: grid.cols, rows: grid.rows, cells };
+  return {
+    cols: grid.cols,
+    rows: grid.rows,
+    cells,
+    ...(lockedWords.length > 0 && { lockedWords: lockedWords.map((word) => ({ ...word })) }),
+  };
+}
+
+/** The stored locked words; a grid saved before 21-S2 has none. */
+export function deserializeLockedWords(data: SerializedGrid): LockedWord[] {
+  return (data.lockedWords ?? []).map((word) => ({ ...word }));
 }
 
 export function deserializeGrid(data: SerializedGrid): Grid {

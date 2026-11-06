@@ -55,10 +55,13 @@ function RebusLetters({ text }: { text: string }) {
 export function LetterCell({
   letter,
   number,
+  isLocked = false,
   onClick,
 }: {
   letter: string;
   number?: number;
+  /** Build phase: a locked word's letter is gray (21-S2). */
+  isLocked?: boolean;
   onClick?: () => void;
 }) {
   const isRebus = letter.length > 1;
@@ -67,7 +70,7 @@ export function LetterCell({
     // grid sets the alignment and the space above. A rebus is centered in
     // the space below that, and cut off at the cell's edges (17-S10).
     <div
-      className={`text-cell-letter text-primary relative flex h-full w-full justify-center uppercase${isRebus ? ' overflow-hidden' : ''}`}
+      className={`text-cell-letter ${isLocked ? 'text-(color:--palette-gray-500)' : 'text-primary'} relative flex h-full w-full justify-center uppercase${isRebus ? ' overflow-hidden' : ''}`}
       style={{
         fontSize: 'var(--cell-letter-size)',
         lineHeight: 1,
