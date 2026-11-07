@@ -26,24 +26,16 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   Frozen at a8f4dff (delegated); implemented in a49795a on `main` (off
   the risk paths), independently reviewed with no blockers.
 - [S5 Lock Word in the toggle row](stories/21-S5-toggle-row-lock.md):
-  **implementation uncommitted in the worktree on `main`** (by the
-  implementing agent): `src/components/grid/LockWordControl.tsx` (new),
-  `PuzzleGrid.tsx`, `PuzzleGridEditor.tsx`, all off the risk paths.
-  Frozen at 704161b; a frozen-test defect (pointer left hovering after a
-  click) was corrected in the spec-only f0e8900 after an independent
-  review approved it (see the story's "Correction"). Disabled is
-  `aria-disabled`, so 21-S5-6's keyboard path works. Still to do:
-  `npm run verify`, the full `npm run test:e2e`, the implementation
-  commit and push, then independent review (report-only, off the risk
-  paths).
+  **done**. Frozen at 704161b, frozen test corrected in the spec-only
+  f0e8900 (see the story's "Correction"); implemented in 9da90fb on
+  `main` (off the risk paths), independently reviewed with no blockers.
 - [S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):
-  **acceptance drafted, parked outside the repo** at
-  `../crossward-raptor-s6-draft/` (the story with its Delegated decisions
-  and Acceptance, `locked-words-reset.test.ts` for `src/lib/`,
-  `reset-with-locks.spec.ts` for `e2e/`). Parked because its unit test
-  imports the not-yet-written `clearOutsideLockedWords`, which fails
-  `tsc` and so S5's `verify`. Unit discrimination observed: 4 of 4 fail.
-  Browser discrimination not yet run.
+  **frozen at 3702710** (delegated): `src/lib/locked-words-reset.test.ts`
+  and `e2e/reset-with-locks.spec.ts`. Discrimination observed: unit 4 of 4
+  fail; browser 5 fail, 4 pass (the passing ones guard today's dialog and
+  Cancel). Until it's implemented, `tsc` and so `verify` fail on the
+  missing `clearOutsideLockedWords`. The draft folder
+  `../crossward-raptor-s6-draft/` is now a stale copy.
 
 **Delegation (the human, 2026-11-06):** one orchestrating agent carries
 S3–S6 to done without human checkpoints. For each story it may draft and
@@ -65,12 +57,13 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Verification (2026-11-06)
 
-- **S5, uncommitted implementation:** the orchestrator ran `npm run
-  pretest:e2e` (exit 0) then `npx playwright test
-  e2e/lock-word-toggle-row.spec.ts` with the corrected spec: 18 passed.
-  The reviewer of the correction saw the same 18 of 18, and 4 of 18
-  failing on the frozen original. `npm run verify` and the full E2E suite
-  have **not** run on S5.
+- **S5 (9da90fb):** `npm run verify` exit 0 (692 unit tests). Full
+  `npm run test:e2e`: 1095 passed, 2 failed, both passing when rerun
+  alone. One was `row-menu.spec.ts` 16-S2-2, a session fetch error in a
+  helper. The other was `start-over.spec.ts` 20-S1-1 (Tab from the grid
+  to Reset Grid), which also fails intermittently on `main` without S5
+  (1 in 30 repeats), so it's an existing flake. The reviewer saw verify
+  exit 0 and the S5 spec pass 18 of 18.
 - S3 (6e20297) and S4 (a49795a): verify and full E2E exited 0 for their
   implementers. Each reviewer had one unrelated flake, which passed when
   rerun alone (`row-menu.spec.ts`, and `play-design.spec.ts` with
@@ -93,16 +86,13 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-Finish S5: with S6's drafts still parked, run `npm run verify` and the
-full `npm run test:e2e` on the worktree's implementation, then commit
-("Epic 21 S5: Lock Word in the toggle row") and push `main`. Then a
-separate subagent reviews it (report-only). Then move S6's drafts into
-the repo and run its browser discrimination on `main`. Self-approve and
-freeze S6, have a subagent implement it and another review it, and
-verify it. Then run the independent closeout audit and stop for the
-human's visual testing. Keep this handoff current after each story.
-Agents should leave the dev server alone; the orchestrator restarts
-`npm run dev` once at the end.
+Have a subagent implement S6 against its frozen acceptance, with
+`clearOutsideLockedWords` in `src/lib/locked-words.ts`. Then run verify
+and the full E2E suite, commit ("Epic 21 S6: Reset Grid with locked
+words"), push, and have a separate subagent review it (report-only).
+Then run the independent closeout audit (report-only) and stop for the
+human's visual testing. Don't close the epic. Agents should leave the dev
+server alone; the orchestrator restarts `npm run dev` once at the end.
 
 ## Resume prompt
 
