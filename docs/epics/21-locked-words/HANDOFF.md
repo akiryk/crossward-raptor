@@ -134,16 +134,30 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-The human's visual testing produced 8 findings; decisions are recorded in
-the EPIC's "Changes from the human's visual testing". The human's retest
-of items 1, 3 and 4 passed (stale code). Next: draft,
-under the delegation, stories for: the word as the run of non-black
-cells (item 5) with complete-only locking (item 7); mouse hover shows
-the button (item 2); tick hover darkens (item 6); 620px grids below
-Sunday (item 8). Don't close the epic until the human approves.
+**S8 ([the word is the run Preview keeps white](stories/21-S8-word-shape.md),
+EPIC items 5 and 7) is drafted, uncommitted, not frozen.** In the
+worktree: the story, `src/lib/build-word-shape.test.ts`,
+`e2e/word-shape.spec.ts`, and amendments to three frozen files
+(`build-word.test.ts`, `locked-words.test.ts`, `lock-word.spec.ts`; see
+the story's "Amended acceptance"). Discrimination is done and recorded
+in the story. The runtime is unchanged (a throwaway implementation was
+reverted; it was `buildWord` over `intendedGeometry`'s active cells,
+plus `lockableWord` requiring every cell lettered).
+
+An independent spec review was started in the ending session; its result
+didn't reach the handoff, so run a fresh independent spec review of the
+story and the amendments. With no blockers: freeze (a spec-only commit),
+implement (subagent), verify, full `npm run test:e2e`, commit, push,
+review (subagent). Then draft and carry, one at a time under the
+delegation, the remaining EPIC "Changes from the human's visual testing":
+grid size 620px below Sunday (item 8; its many 700px tests in
+`larger-grid.spec.ts` and others will need amending), mouse hover (item
+2), tick hover (item 6). Stop for the human's visual check at the end;
+don't close the epic.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md and the EPIC's "Changes from
-the human's visual testing". Draft and carry the S8+ stories under the handoff's
-delegation; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md and
+docs/epics/21-locked-words/stories/21-S8-word-shape.md. Review, freeze and
+carry S8, then the remaining visual-testing changes, on `main` under the
+handoff's delegation; don't close the epic.
