@@ -10,8 +10,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 //
 // The build-phase grid uses build-cell-on/-off, -selected-cell and
 // -selected-row-on/-off, with build-cell-border lines. Preview's lines are
-// a new preview-cell-border (gray-500). A grid is at most 700px wide at
-// every size, lines shared (17-S7, was 560px in 15-S1, 526px before).
+// a new preview-cell-border (gray-500). A grid is at most 620px wide, a
+// 21×21's 700px, lines shared (21-S9; 700px at every size in 17-S7, 560px
+// in 15-S1, 526px before). Amended by 21-S9: 14-S5-3's and 14-S5-4's sizes.
 // Letters use cell-letter, 16px in a 35px cell and scaled with the cell;
 // numbers stay cell-number (10px), except on a 21×21, whose sizes are the
 // NYT's (17-S7, larger-grid.spec.ts). '.' does nothing, and the
@@ -140,14 +141,15 @@ test.describe('14-S5-2 Preview', () => {
 test.describe('14-S5-3 size', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  for (const size of [5, 9, 15, 21]) {
-    test(`a ${size}×${size} is 700px wide, its cells sharing 1px lines`, async ({ page }) => {
+  // A 21×21 is 700px, every other size 620px (21-S9).
+  for (const [size, gridPx] of [[5, 620], [9, 620], [15, 620], [21, 700]]) {
+    test(`a ${size}×${size} is ${gridPx}px wide, its cells sharing 1px lines`, async ({ page }) => {
       await open(page, squareGrid(size));
       const g = await box(grid(page));
-      expect(g.width).toBeCloseTo(700, 0);
-      expect(g.height).toBeCloseTo(700, 0);
+      expect(g.width).toBeCloseTo(gridPx, 0);
+      expect(g.height).toBeCloseTo(gridPx, 0);
 
-      const pitch = (700 - 1) / size;
+      const pitch = (gridPx - 1) / size;
       const first = await box(cell(page, '0,0'));
       const next = await box(cell(page, '1,0'));
       expect(first.x - g.x, 'outer line').toBeCloseTo(1, 0);
@@ -163,8 +165,8 @@ test.describe('14-S5-3 size', () => {
 test.describe('14-S5-4 letters and numbers', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  // The letter in a 700px grid's cell, (700 - 1) / size wide (17-S7).
-  const sizes: [number, number][] = [15, 5].map((size) => [size, (699 / size) * (16 / 35)]);
+  // The letter in a 620px grid's cell, (620 - 1) / size wide (21-S9).
+  const sizes: [number, number][] = [15, 5].map((size) => [size, (619 / size) * (16 / 35)]);
   for (const [size, px] of sizes) {
     test(`a ${size}×${size}'s letters are cell-letter at ${px.toFixed(1)}px; numbers are 10px`, async ({ page }) => {
       await open(page, squareGrid(size));

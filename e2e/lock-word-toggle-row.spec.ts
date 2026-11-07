@@ -8,8 +8,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 // Story 21-S5 — Lock Word in the toggle row.
 //
-// Whenever the grid is narrower than its full 700px, a text button in the
-// toggle row replaces S2's button beside the word; at the full 700px only
+// Whenever the grid is narrower than its full width (a daily's 620px, was
+// 700px), a text button in the toggle row replaces S2's button beside the
+// word; at the full width only
 // S2's button is used, never both. The button sits left of Rebus with 20px
 // between them, in Rebus's `text-label` style. It reads "Lock Word" or
 // "Unlock Word" for the word under the cursor and is enabled and blue
@@ -26,17 +27,19 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // word" (lower-case w), the outline [data-testid="word-outline"], the tick
 // [data-testid="lock-tick"].
 //
-// Widths: the page has 8px of padding each side below 748px, so the grid
-// is the full 700px from a 716px window and 699px at 715px. 715px is "just
-// below full"; 375px is a phone.
+// Widths: the page has 8px of padding each side below 748px, so a daily's
+// grid is the full 620px from a 636px window and 619px at 635px (21-S9;
+// was 700px, 716px and 715px). 635px is "just below full"; 375px is a
+// phone. Amended by 21-S9: the daily's full width is 620px, so 21-S5-1's
+// widths are 636px and 635px; what each case checks is unchanged.
 //
 // Colors and sizes are the human's values, written out here. Do not edit
 // this file to match an implementation.
 
-const GRID_FULL_PX = 700;
+const GRID_FULL_PX = 620;
 const WIDE = { width: 1440, height: 1000 };
-const NARROWEST_FULL = { width: 716, height: 1000 };
-const JUST_BELOW_FULL = { width: 715, height: 1000 };
+const NARROWEST_FULL = { width: 636, height: 1000 };
+const JUST_BELOW_FULL = { width: 635, height: 1000 };
 const PHONE = { width: 375, height: 800 };
 
 const GRAY_500 = 'rgb(139, 144, 154)'; // #8b909a, locked letters
@@ -226,14 +229,14 @@ test.describe('21-S5-1 which one', () => {
     expect(near(preview.x - panel.x, 12), 'Preview at the left end').toBe(true);
   });
 
-  test('716px, the grid at its full 700px: only the button beside the word', async ({ page }) => {
+  test('636px, the grid at its full 620px: only the button beside the word', async ({ page }) => {
     await open(page, NARROWEST_FULL);
     expect(await gridWidth(page)).toBe(GRID_FULL_PX);
     await select(page, '6,3');
     await expectBesideOnly(page, 'Lock word');
   });
 
-  test('715px, the grid just under 700px: only the toggle-row button', async ({ page }) => {
+  test('635px, the grid just under 620px: only the toggle-row button', async ({ page }) => {
     await open(page, JUST_BELOW_FULL);
     expect(await gridWidth(page), 'the grid has shrunk').toBeLessThan(GRID_FULL_PX);
     await select(page, '6,3');

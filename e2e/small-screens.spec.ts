@@ -10,8 +10,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 // Story 15-S6 — Small screens.
 //
-// The grid is 700px down to a 748px window (700 plus the page's 24px
-// padding on each side; 17-S7, was 560px and 608px). Below 748px the
+// A Sunday's (21×21) grid is 700px down to a 748px window (700 plus the
+// page's 24px padding on each side; 17-S7, was 560px and 608px). Below 748px the
 // page's padding on each side is 8px (17-S7's correction), so the grid is
 // still 700px down to a 716px window; narrower, it is the window less
 // 16px, square and 8px from the left, in the builder and in play, with the
@@ -21,6 +21,11 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // ((560 - 1) / 21 pitch); in a smaller cell they shrink in proportion to
 // the pitch, but never below 8px. A Sunday's letters and numbers are
 // 17-S7's (larger-grid.spec.ts).
+//
+// Amended by 21-S9: a Mini's, Midi's and Daily's grid is 620px (down to a
+// 636px window), so 15-S6-1 uses a 21×21 (was a 5×5) where it measures
+// 700px or 715px, keeping its numbers; at 414 and 375px a 5×5 is the
+// window less 16px either way and stays.
 //
 // The editor's title wraps onto as many lines as it needs, at every
 // width, the buttons keeping their distance below it. Nothing in the Hint
@@ -138,26 +143,27 @@ const dialog = (page: Page) => page.getByRole('dialog');
 // --- 15-S6-1: the grid shrinks last ---
 test.describe('15-S6-1 the grid shrinks last', () => {
   test('at 748px the builder’s and play’s grids are still 700px', async ({ page }) => {
-    await openBuilder(page, { width: 748, height: 900 });
+    await openBuilder(page, { width: 748, height: 900 }, { size: 21 });
     expect((await rect(grid(page))).width, 'builder').toBeCloseTo(GRID_MAX_PX, 0);
-    await openPlay(page, { width: 748, height: 900 });
+    await openPlay(page, { width: 748, height: 900 }, 21);
     expect((await rect(grid(page))).width, 'play').toBeCloseTo(GRID_MAX_PX, 0);
   });
 
   test('at 716px the builder’s and play’s grids are still 700px, 8px in', async ({ page }) => {
-    await openBuilder(page, { width: 716, height: 900 });
+    await openBuilder(page, { width: 716, height: 900 }, { size: 21 });
     let g = await rect(grid(page));
     expect(g.width, 'builder').toBeCloseTo(GRID_MAX_PX, 0);
     expect(g.x, 'builder left').toBeCloseTo(NARROW_PADDING_PX, 0);
-    await openPlay(page, { width: 716, height: 900 });
+    await openPlay(page, { width: 716, height: 900 }, 21);
     g = await rect(grid(page));
     expect(g.width, 'play').toBeCloseTo(GRID_MAX_PX, 0);
     expect(g.x, 'play left').toBeCloseTo(NARROW_PADDING_PX, 0);
   });
 
   for (const width of [715, 414, 375]) {
+    const size = width === 715 ? 21 : 5;
     test(`at ${width}px the builder’s grid is the window less 16px, square, 8px in, the Hint Box at its width`, async ({ page }) => {
-      await openBuilder(page, { width, height: 900 }, { phase: 'hints' });
+      await openBuilder(page, { width, height: 900 }, { size, phase: 'hints' });
       const g = await rect(grid(page));
       expect(g.width, 'width').toBeCloseTo(width - 2 * NARROW_PADDING_PX, 0);
       expect(g.height, 'square').toBeCloseTo(g.width, 0);
@@ -169,7 +175,7 @@ test.describe('15-S6-1 the grid shrinks last', () => {
     });
 
     test(`at ${width}px play’s grid is the window less 16px, square, 8px in, the hint bar at its width`, async ({ page }) => {
-      await openPlay(page, { width, height: 900 });
+      await openPlay(page, { width, height: 900 }, size);
       const g = await rect(grid(page));
       expect(g.width, 'width').toBeCloseTo(width - 2 * NARROW_PADDING_PX, 0);
       expect(g.height, 'square').toBeCloseTo(g.width, 0);
