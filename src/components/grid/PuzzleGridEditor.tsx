@@ -307,7 +307,9 @@ export function PuzzleGridEditor({
     if (advance) gridRegionRef.current?.focus({ preventScroll: true });
   }
 
+  // Only time with the grid focused counts toward the button's second (21-S7).
   useEffect(() => {
+    if (!isFocused) return;
     const timer = setTimeout(() => setLockDwell(state.cursor), LOCK_BUTTON_DELAY_MS);
     return () => clearTimeout(timer);
   }, [state.cursor, state.grid, isFocused]);
