@@ -42,6 +42,14 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   review); implemented in 4d2084c on `main` (off the risk paths),
   independently reviewed with no blockers.
 
+- [S9 The grid's size by puzzle](stories/21-S9-grid-size.md) (EPIC
+  item 8): **frozen at 3cb79e6** (delegated, after an independent spec
+  review with no blockers; 11 frozen specs amended, listed in the story).
+  Its implementation was handed to a subagent on 2026-11-06 and was still
+  running when this handoff was written; it was told to commit runtime
+  only as "Epic 21 S9: the grid's size by puzzle" and push. A throwaway
+  that passed the full suite is at `/tmp/21-s9/throwaway.patch`.
+
 **S1–S8 are done. The independent closeout audit ran
 (report-only, 2026-11-06, at 3f3a5f6) before S7. The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
@@ -153,18 +161,29 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-S8 is done. Draft and carry, one at a time under the delegation, the
-remaining EPIC "Changes from the human's visual testing": grid size
-620px below Sunday (item 8, as S9; its many 700px tests in
-`larger-grid.spec.ts`, `grid-size.spec.ts`, `lock-word-toggle-row.spec.ts`
-and others will need amending), then mouse hover (item 2), then tick
-hover (item 6). Each: draft (subagent), independent spec review, freeze
-in a spec-only commit, implement (subagent), verify, full
-`npm run test:e2e`, commit, push, review (subagent). Stop for the
-human's visual check at the end; don't close the epic.
+1. **S9:** check `git log` for "Epic 21 S9: the grid's size by puzzle"
+   and `git status` for leftover runtime changes. If committed, confirm
+   `git diff 3cb79e6 -- e2e/` is empty, then have an independent subagent
+   review it (as S8's reviewer did), then record S9 done here and in the
+   story with the observed results. If not committed and nothing is left
+   in the worktree, implement it (subagent), verify, full
+   `npm run test:e2e`, commit, push, then review. If runtime changes are
+   left uncommitted, finish or discard them on purpose before going on.
+2. Then draft and carry, one at a time under the delegation, mouse hover
+   (EPIC item 2) and then tick hover (item 6). Each: draft (subagent),
+   independent spec review, freeze in a spec-only commit, implement
+   (subagent), verify, full `npm run test:e2e`, commit, push, review
+   (subagent).
+3. Add S9's delegated decisions (in the story) to "For the human's visual
+   check". Stop for the human's visual check at the end; don't close the
+   epic.
+
+Browser suites share one test database: run them one at a time
+(`pgrep -fl playwright` first). E2E preparation stops `npm run dev`;
+restart it afterwards.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. Carry the remaining
-visual-testing changes (grid size, mouse hover, tick hover) on `main`
-under the handoff's delegation; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md. Finish S9 (grid size), then
+carry mouse hover and tick hover on `main` under the handoff's
+delegation; don't close the epic.
