@@ -336,7 +336,10 @@ carry them.
   grid's width. S5's "full width" becomes the puzzle's own full width.
 - **Items 1, 3, 4** (toggle-row Lock Word on desktop, no button beside
   the word, label not flipping): not reproduced at 1280–1920px or 700px
-  in the production test build; the human is retesting on current code.
+  in the production test build, and on the human's retest on current code
+  (dev server restarted) all three behaved as specified. Stale code; no
+  change. The human also noted the tooltip doesn't show on keyboard
+  focus; S4 specifies mouse only.
 
 ## Non-goals
 

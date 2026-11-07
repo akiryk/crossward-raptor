@@ -135,8 +135,8 @@ full browser run; it's a recorded open item, unrelated to this epic.
 ## Next action
 
 The human's visual testing produced 8 findings; decisions are recorded in
-the EPIC's "Changes from the human's visual testing". Waiting on the
-human's retest of items 1, 3 and 4 (not reproduced here). Then draft,
+the EPIC's "Changes from the human's visual testing". The human's retest
+of items 1, 3 and 4 passed (stale code). Next: draft,
 under the delegation, stories for: the word as the run of non-black
 cells (item 5) with complete-only locking (item 7); mouse hover shows
 the button (item 2); tick hover darkens (item 6); 620px grids below
@@ -145,6 +145,5 @@ Sunday (item 8). Don't close the epic until the human approves.
 ## Resume prompt
 
 Read docs/epics/21-locked-words/HANDOFF.md and the EPIC's "Changes from
-the human's visual testing". Get the human's retest result for items 1,
-3 and 4, then draft and carry the S8+ stories under the handoff's
+the human's visual testing". Draft and carry the S8+ stories under the handoff's
 delegation; don't close the epic.
