@@ -38,27 +38,25 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
 (report-only, 2026-11-06, at 3f3a5f6). The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
 
-## Open items (the human decides)
+## Open items (the human decided 2026-11-06)
 
-1. **20-S1-1 is timing-dependent (blocks a clean full E2E run).** Epic
-   20's frozen `e2e/start-over.spec.ts` 20-S1-1 says Reset Grid is "the
-   next Tab stop after the grid". S2 made the lock button "the next Tab
-   stop after the grid while visible" (EPIC "Using it"), and S2 recorded
-   no amendment to 20-S1-1. The test's grid starts with the cursor in
-   lockable CAT, so it passes only if Tab comes within the 1-second rule.
-   It failed in 2 of 3 full runs here. The auditor agrees. Possible
-   fixes: a frozen clock, or start the cursor where no word is lockable.
-   Either way Epic 20's wording should note the exception. It's a frozen
-   test from a closed epic, so it needs the human's approval.
-2. **The button returns at once on refocus (contradicts EPIC 199–203).**
-   After the grid has been blurred for more than 1s, refocusing without
-   moving the cursor shows the button and outline for an unlocked word
-   immediately. The timer effect (`PuzzleGridEditor.tsx` ~310) re-arms
-   while the grid is unfocused. The auditor saw this in a browser. No
-   test covers it. Fix before closing, or accept?
-3. **Sideways scroll at about 716–760px.** An across word ending in the
-   last column puts S2's button past the grid edge, and the page
-   overflows by up to 22px (measured). Fix, or accept?
+1. **20-S1-1 race: resolved.** Epic 20's 20-S1-1 failed whenever S2's
+   lock button (a Tab stop while visible) showed before the test's Tab.
+   The human approved correcting it. The test now first moves the cursor
+   to an empty cell. It was independently reviewed: 20 of 20 repeats
+   passed, and a control that keeps the race fails. It landed as the
+   spec-only 2b75737.
+2. **The button returns at once on refocus: fixing as S7.** The human
+   asked for a fix. [S7](stories/21-S7-refocus-wait.md) and
+   `e2e/lock-refocus.spec.ts` are **drafted, uncommitted and not yet
+   approved** in the worktree. Next: run discrimination (21-S7-1 should
+   fail today; 21-S7-2 and 21-S7-1's 0.2s case should pass), then
+   self-approve, freeze, implement (subagent), review (subagent).
+   Likely fix: the `setLockDwell` timer effect returns early unless
+   `isFocused`.
+3. **Sideways scroll at about 716–760px: accepted** by the human. An
+   across word ending in the last column puts S2's button past the grid
+   edge (up to 22px of overflow, measured).
 
 Audit notes, no action needed unless the human wants it:
 `slot-required` is now unreachable (`cell-appearance.ts:84`);
@@ -127,14 +125,16 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-The human does visual testing (the list above) and decides open items
-1–3. Then apply those decisions: a correction to a frozen test follows
-STORY §3 (independent review, then a spec-only commit). Run verify and the
-full E2E suite, then close the epic per AUDIT. The epic stays open until
-the human approves closing it.
+Carry S7 to done under the delegation above: discrimination, freeze (a
+spec-only commit with the story and spec), implementation, verify, full
+`npm run test:e2e`, commit, push, report-only review. Then restart `npm
+run dev` and tell the human it's ready for visual testing (the list
+above, plus S7's refocus wait). The human asked to wait for these fixes.
+Don't close the epic until the human approves.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. Apply the human's decisions on
-Epic 21's open items on `main`, then close the epic per AUDIT once the
-human has approved closing it.
+Read docs/epics/21-locked-words/HANDOFF.md and
+docs/epics/21-locked-words/stories/21-S7-refocus-wait.md. Carry S7 to
+done on `main` under the handoff's delegation, then stop for the human's
+visual testing; don't close the epic.
