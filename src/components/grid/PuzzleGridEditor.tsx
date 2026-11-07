@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
-import type { Coord, Grid } from "../../engine/grid";
+import type { Coord, Grid, Orientation } from "../../engine/grid";
 import { withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
@@ -23,8 +23,7 @@ import {
 } from "../../lib/puzzle-storage";
 import {
   clearOutsideLockedWords,
-  lockableWord,
-  lockedWordAt,
+  lockTargetAt,
   toggleLock,
   type LockedWord,
 } from "../../lib/locked-words";
@@ -78,6 +77,23 @@ interface EditorState {
   title: string;
   publishedAt: Date | null;
   visibility: Visibility;
+}
+
+// A mouse resting on a word (21-S10): the cell it last moved onto, and the
+// second for the run through that cell in the cursor's direction. Moving
+// within the run keeps the same `wait`, so its second runs on.
+interface LockHover {
+  coord: Coord;
+  wait: { run: string | null; isDue: boolean };
+}
+
+function wordKey(word: LockedWord): string {
+  return `${word.col},${word.row} ${word.orientation} ${word.length}`;
+}
+
+function runKey(grid: Grid, coord: Coord, orientation: Orientation): string | null {
+  const cells = buildWord(grid, coord, orientation);
+  return cells ? wordKey({ ...cells[0], orientation, length: cells.length }) : null;
 }
 
 function firstActiveCell(grid: Grid): Coord {
@@ -191,6 +207,7 @@ export function PuzzleGridEditor({
   // puzzle's own (21-S9); narrower, Lock Word in the toggle row replaces it
   // (21-S5).
   const [isGridFullWidth, setIsGridFullWidth] = useState(true);
+  const [lockHover, setLockHover] = useState<LockHover | null>(null);
   const editorLayoutRef = useRef<HTMLDivElement>(null);
   const lockControlRef = useRef<HTMLButtonElement>(null);
   // The Hint Box's word (15-S4): the cursor's, or the one it last showed
@@ -325,13 +342,38 @@ export function PuzzleGridEditor({
     return () => observer.disconnect();
   }, [gridPx]);
 
+  // A second of hover, counted from the mouse moving onto the word (21-S10).
+  const hoverWait = lockHover?.wait ?? null;
+  useEffect(() => {
+    if (!hoverWait || hoverWait.isDue) return;
+    const timer = setTimeout(() => {
+      setLockHover((prev) =>
+        prev && prev.wait === hoverWait ? { ...prev, wait: { ...hoverWait, isDue: true } } : prev,
+      );
+    }, LOCK_BUTTON_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [hoverWait]);
+
   function handleToggleLock() {
     setState((prev) => {
-      const word = lockedWordAt(prev.lockedWords, prev.cursor) ?? lockableWord(prev.grid, prev.cursor);
-      return word ? { ...prev, lockedWords: toggleLock(prev.lockedWords, word) } : prev;
+      const target = lockTargetAt(prev.grid, prev.lockedWords, prev.cursor);
+      return target ? { ...prev, lockedWords: toggleLock(prev.lockedWords, target.word) } : prev;
     });
     // The button stays, in its new state.
     setLockDwell(state.cursor);
+  }
+
+  // The mouse moved onto a cell (null: the hover ended). Within the same
+  // run its second runs on; any other cell starts a new one (21-S10).
+  function handleHoverCell(coord: Coord | null) {
+    if (!coord) {
+      setLockHover(null);
+      return;
+    }
+    const run = runKey(state.grid, coord, state.cursor.orientation);
+    setLockHover((prev) =>
+      prev && run !== null && prev.wait.run === run ? { coord, wait: prev.wait } : { coord, wait: { run, isDue: false } },
+    );
   }
 
   useEffect(() => {
@@ -471,12 +513,17 @@ export function PuzzleGridEditor({
     // focus had moved elsewhere (a button, the title) would update the
     // cursor but leave the grid still visually and functionally blurred.
     gridRegionRef.current?.focus();
-    setState((prev) => ({
-      ...prev,
-      cursor: prev.phase === "hints"
-        ? wordMoveTo(prev.grid, prev.cursor, coord)
-        : moveTo(prev.grid, prev.cursor, coord),
-    }));
+    const next = state.phase === "hints"
+      ? wordMoveTo(state.grid, state.cursor, coord)
+      : moveTo(state.grid, state.cursor, coord);
+    setState((prev) => ({ ...prev, cursor: next }));
+    // A click ends the hover and the cursor takes over (21-S10): the hover's
+    // button, if for the cursor's new word, stays with no new second.
+    const nextTarget = lockTargetAt(state.grid, state.lockedWords, next);
+    if (hoverTarget && nextTarget && wordKey(nextTarget.word) === wordKey(hoverTarget.word)) {
+      setLockDwell(next);
+    }
+    setLockHover(null);
   }
 
   // Cancels any pending debounced saves and re-issues them immediately
@@ -645,16 +692,40 @@ export function PuzzleGridEditor({
   // another word of 3 or more letters, and only while the grid (or a lock
   // button) has focus. The toggle row's Lock Word is enabled at once (21-S5).
   const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
-  const lockedHere = isLockShown ? lockedWordAt(lockedWords, cursor) : null;
-  const lockable = isLockShown && !lockedHere ? lockableWord(grid, cursor) : null;
-  const lockTarget = !isFocused
-    ? null
-    : lockedHere
-      ? { word: lockedHere, isLocked: true }
-      : lockable && lockDwell === cursor
-        ? { word: lockable, isLocked: false }
-        : null;
-  const isRowLockEnabled = isFocused && (lockedHere !== null || lockable !== null);
+  const cursorTarget = isLockShown ? lockTargetAt(grid, lockedWords, cursor) : null;
+  const cursorLockTarget =
+    isFocused && cursorTarget && (cursorTarget.isLocked || lockDwell === cursor) ? cursorTarget : null;
+  const isRowLockEnabled = isFocused && cursorTarget !== null;
+
+  // The hovered word's button wins once its second has passed, focused or
+  // not; only beside the word at full width, with no rebus entry open
+  // (21-S10). A turn of the cursor puts a new run under the mouse, whose
+  // second starts over.
+  const hoverRun = lockHover ? runKey(grid, lockHover.coord, cursor.orientation) : null;
+  if (lockHover && hoverRun !== lockHover.wait.run) {
+    setLockHover({ coord: lockHover.coord, wait: { run: hoverRun, isDue: false } });
+  }
+  const hoverTarget =
+    isLockShown && isGridFullWidth && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run
+      ? lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation })
+      : null;
+  const lockTarget = hoverTarget ?? cursorLockTarget;
+  // The hover's button is for the mouse: no Tab stop unless it's the
+  // cursor's own.
+  const isLockButtonTabStop =
+    hoverTarget === null ||
+    (cursorLockTarget !== null && wordKey(cursorLockTarget.word) === wordKey(hoverTarget.word));
+
+  // The grid's button toggles the word it shows for: the hovered one's
+  // leaves the cursor where it is.
+  function handleToggleShownLock() {
+    if (!hoverTarget) {
+      handleToggleLock();
+      return;
+    }
+    const { word } = hoverTarget;
+    setState((prev) => ({ ...prev, lockedWords: toggleLock(prev.lockedWords, word) }));
+  }
 
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
   // pair on the shared ancestor of the grid and the hint inputs tracks
@@ -723,7 +794,7 @@ export function PuzzleGridEditor({
                 <div className="flex items-center gap-5">
                   {phase === "grid" && !isGridFullWidth && (
                     <LockWordControl
-                      isLocked={lockedHere !== null}
+                      isLocked={cursorTarget?.isLocked === true}
                       disabled={!isRowLockEnabled}
                       hidden={isPreviewing}
                       buttonRef={lockControlRef}
@@ -814,7 +885,9 @@ export function PuzzleGridEditor({
                 lockedWords={isLockShown ? lockedWords : undefined}
                 lockTarget={lockTarget}
                 hasLockButton={isGridFullWidth}
-                onToggleLock={handleToggleLock}
+                isLockButtonTabStop={isLockButtonTabStop}
+                onToggleLock={handleToggleShownLock}
+                onHoverCell={handleHoverCell}
                 mode={isPreviewing ? "preview" : "build"}
                 isHintsPhase={phase === "hints"}
                 isGridFocused={isGridFocused}

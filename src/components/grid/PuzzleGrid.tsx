@@ -152,7 +152,9 @@ export function PuzzleGrid({
   lockedWords = [],
   lockTarget = null,
   hasLockButton = true,
+  isLockButtonTabStop = true,
   onToggleLock,
+  onHoverCell,
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
@@ -176,7 +178,12 @@ export function PuzzleGrid({
   /** The button beside the word shows only at the grid's full width; the
    *  outline shows either way (21-S5). */
   hasLockButton?: boolean;
+  /** The hover's button is for the mouse only (21-S10). */
+  isLockButtonTabStop?: boolean;
   onToggleLock?: () => void;
+  /** The mouse moved onto a cell, or its hover ended: it left the grid, or
+   *  the lock button took keyboard focus (21-S10). Mouse only. */
+  onHoverCell?: (coord: Coord | null) => void;
 }) {
   // The cell under the mouse, in Preview, and the cell its tooltip stays
   // over (20-S3); a touch or pen shows nothing.
@@ -204,6 +211,10 @@ export function PuzzleGrid({
       lockTipTimer.current = null;
     }
   }, [lockKey]);
+  // The cell the mouse last moved onto (21-S10): resting there, or moving
+  // within it or over the lines between cells, reports nothing new.
+  const hoverCoord = useRef<string | null>(null);
+  const lockButtonRef = useRef<HTMLButtonElement>(null);
   const lockTipAnchor =
     lockTip && lockTip.key === lockKey && lockTip.anchor.isConnected ? lockTip.anchor : null;
   // Builder empties are undecided geometry; player empties are fixed active
@@ -322,6 +333,20 @@ export function PuzzleGrid({
     // The lines between cells change nothing.
     if (!cell) return;
     setHover({ cell, anchor: anchor && tooltip ? anchorFor(cell, anchor) : cell });
+    const coord = cell.dataset.coord!;
+    if (coord === hoverCoord.current) return;
+    hoverCoord.current = coord;
+    // A lock button with keyboard focus is never replaced by a hover.
+    if (lockButtonRef.current && lockButtonRef.current === document.activeElement) return;
+    const [col, row] = coord.split(',').map(Number);
+    onHoverCell?.({ col, row });
+  }
+
+  function handlePointerLeave(e: PointerEvent<HTMLDivElement>) {
+    setHover(null);
+    if (e.pointerType !== 'mouse') return;
+    hoverCoord.current = null;
+    onHoverCell?.(null);
   }
 
   // Locked words' outlines and end-cell ticks, and the lock button with its
@@ -360,11 +385,14 @@ export function PuzzleGrid({
     overlays.push(
       <button
         key="lock-button"
+        ref={lockButtonRef}
         type="button"
+        tabIndex={isLockButtonTabStop ? undefined : -1}
         aria-label={isLocked ? 'Unlock word' : 'Lock word'}
         // A click leaves the keyboard focus on the grid.
         onMouseDown={(e) => e.preventDefault()}
         onClick={onToggleLock}
+        onFocus={() => onHoverCell?.(null)}
         onPointerEnter={(e) => {
           if (e.pointerType !== 'mouse' || !lockKey) return;
           const anchor = e.currentTarget;
@@ -404,7 +432,7 @@ export function PuzzleGrid({
       // outside too, not just between cells.
       className={`relative grid w-full ${GRID_LINES[gridMode]}`}
       onPointerOver={handlePointerOver}
-      onPointerLeave={() => setHover(null)}
+      onPointerLeave={handlePointerLeave}
       style={{
         // Cells size against the grid's own width (14-S5): 100cqw is its
         // content box, so the cell pitch is (100cqw + 1px) / cols.

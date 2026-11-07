@@ -72,6 +72,20 @@ export function lockedWordAt(lockedWords: readonly LockedWord[], cursor: CursorS
   );
 }
 
+/** The word whose lock button the cell would show, in that direction: the
+ *  locked word holding it, else its lockable word, else none. The cursor
+ *  (21-S2) and the mouse's hovered cell (21-S10) both use it. */
+export function lockTargetAt(
+  grid: Grid,
+  lockedWords: readonly LockedWord[],
+  at: CursorState
+): { word: LockedWord; isLocked: boolean } | null {
+  const locked = lockedWordAt(lockedWords, at);
+  if (locked) return { word: locked, isLocked: true };
+  const word = lockableWord(grid, at);
+  return word ? { word, isLocked: false } : null;
+}
+
 /** The list with the word added, or removed if it's already locked. */
 export function toggleLock(lockedWords: readonly LockedWord[], word: LockedWord): LockedWord[] {
   return lockedWords.some((locked) => sameWord(locked, word))
