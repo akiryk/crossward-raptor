@@ -37,7 +37,12 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   **done**. Frozen at 9430d01 (delegated); implemented in 9451952 on
   `main` (off the risk paths), independently reviewed with no blockers.
 
-**All seven stories are done. The independent closeout audit ran
+- [S8 The word is the run Preview keeps white](stories/21-S8-word-shape.md):
+  **done**. Frozen at 4de5dd9 (delegated, after an independent spec
+  review); implemented in 4d2084c on `main` (off the risk paths),
+  independently reviewed with no blockers.
+
+**S1–S8 are done. The independent closeout audit ran
 (report-only, 2026-11-06, at 3f3a5f6) before S7. The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
 
@@ -111,6 +116,12 @@ full browser run; it's a recorded open item, unrelated to this epic.
   15 (`--repeat-each=5`) and the lock-word, toggle-row and tooltip specs
   39 passed; it did not rerun the full suite.
 
+- **S8 (4d2084c):** the implementer saw verify exit 0 (710 tests), the
+  lock and highlight specs 75 passed, and the full `npm run test:e2e`
+  1113 passed, 1 failed (`narrow-builder.spec.ts:198` 15-S3-8), which
+  passed when rerun alone. The reviewer saw verify exit 0 and seven lock
+  and highlight specs 67 passed; it did not rerun the full suite.
+
 ## For the human's visual check (collected so far)
 
 - S3: the Rebus link greys out on a locked letter or end cell; typing over
@@ -128,47 +139,32 @@ full browser run; it's a recorded open item, unrelated to this epic.
   cells white. In Preview, where locks are hidden, the three-button
   dialog still appears if any word is locked.
 - PR #33's note: the button stays when Tab moves past it to Reset Grid.
+- S8: the cursor's word takes in Preview-red cells (blue-medium); the
+  cursor on a red cell selects its word; no lock button or toggle-row
+  Lock Word until every cell is lettered. Delegated: a run of only red
+  cells is a word for the highlight; stored locks keep their extent if a
+  later letter makes an end cell red. Reviewer's note, no action taken:
+  each build-phase render now computes Preview's geometry three times
+  (about 2ms each on a full 15×15, 7ms on a full 21×21); a `useMemo`
+  would cut it if typing feels slow on a Sunday.
 - S7: leave the grid (click outside) with the cursor in an unlocked
   word, come back: the button waits a full second again. In a locked
   word it shows at once.
 
 ## Next action
 
-**S8 ([the word is the run Preview keeps white](stories/21-S8-word-shape.md),
-EPIC items 5 and 7) is drafted, uncommitted, not frozen.** In the
-worktree: the story, `src/lib/build-word-shape.test.ts`,
-`e2e/word-shape.spec.ts`, and amendments to three frozen files
-(`build-word.test.ts`, `locked-words.test.ts`, `lock-word.spec.ts`; see
-the story's "Amended acceptance"). Discrimination is done and recorded
-in the story. The runtime is unchanged (a throwaway implementation was
-reverted; it was `buildWord` over `intendedGeometry`'s active cells,
-plus `lockableWord` requiring every cell lettered).
-
-An independent spec review (subagent, 2026-11-06) found **no blockers**
-and confirmed every fixture by hand; nothing else frozen depends on the
-old word. Before freeze, apply its non-blocking suggestions (still the
-drafting phase):
-1. `locked-words.test.ts`: add five empty rows, not two (10 rows), so the
-   HN and lone-H cases fail for length and loneness, not incompleteness.
-2. `build-word-shape.test.ts`: the "run of Preview-red cells alone" test's
-   second assertion includes A and T; rename or split it.
-3. Add cases: letter, red, letter is one word; a lone red cell has none.
-4. The story's amendment table: on row 11, ABRAHAM's own end cell (7,11)
-   was also red. When freezing, record that the amendments were approved
-   under the delegation.
-Recheck the unit tests on `main` (new cases fail, the rest pass). No
-fresh review is needed for these small edits. Then freeze (a spec-only commit),
-implement (subagent), verify, full `npm run test:e2e`, commit, push,
-review (subagent). Then draft and carry, one at a time under the
-delegation, the remaining EPIC "Changes from the human's visual testing":
-grid size 620px below Sunday (item 8; its many 700px tests in
-`larger-grid.spec.ts` and others will need amending), mouse hover (item
-2), tick hover (item 6). Stop for the human's visual check at the end;
-don't close the epic.
+S8 is done. Draft and carry, one at a time under the delegation, the
+remaining EPIC "Changes from the human's visual testing": grid size
+620px below Sunday (item 8, as S9; its many 700px tests in
+`larger-grid.spec.ts`, `grid-size.spec.ts`, `lock-word-toggle-row.spec.ts`
+and others will need amending), then mouse hover (item 2), then tick
+hover (item 6). Each: draft (subagent), independent spec review, freeze
+in a spec-only commit, implement (subagent), verify, full
+`npm run test:e2e`, commit, push, review (subagent). Stop for the
+human's visual check at the end; don't close the epic.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md and
-docs/epics/21-locked-words/stories/21-S8-word-shape.md. Review, freeze and
-carry S8, then the remaining visual-testing changes, on `main` under the
-handoff's delegation; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md. Carry the remaining
+visual-testing changes (grid size, mouse hover, tick hover) on `main`
+under the handoff's delegation; don't close the epic.

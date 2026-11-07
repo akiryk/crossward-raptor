@@ -3,7 +3,8 @@
 The cursor's word takes in the empty cells Preview would show red, and
 only a complete word can be locked.
 
-**Status: frozen (2026-11-06), approved by the orchestrator under the
+**Status: done (2026-11-06).** Implemented in 4d2084c on `main` (off the
+risk paths), independently reviewed with no blockers. **Frozen (2026-11-06), approved by the orchestrator under the
 handoff's delegation after an independent specification review (no
 blockers); its non-blocking suggestions were applied before freeze.** The
 amendments to the three frozen files below were approved under the same
