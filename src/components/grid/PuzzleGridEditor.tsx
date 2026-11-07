@@ -53,6 +53,7 @@ import { slotsWithNumbers } from "../../engine/numbering";
 import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
 import { buildWord } from "../../lib/build-word";
 import { RebusControl } from "./RebusControl";
+import { LockWordControl } from "./LockWordControl";
 import { StartOverDialog, StartOverLink } from "./StartOverDialog";
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -182,8 +183,11 @@ export function PuzzleGridEditor({
   // has stayed a second, or by toggling the lock. Every key or move makes
   // a new cursor, so the second starts again.
   const [lockDwell, setLockDwell] = useState<CursorState | null>(null);
-  // The button beside the word shows only at the grid's full width.
+  // The button beside the word shows only at the grid's full width;
+  // narrower, Lock Word in the toggle row replaces it (21-S5).
   const [isGridFullWidth, setIsGridFullWidth] = useState(true);
+  const editorLayoutRef = useRef<HTMLDivElement>(null);
+  const lockControlRef = useRef<HTMLButtonElement>(null);
   // The Hint Box's word (15-S4): the cursor's, or the one it last showed
   // while the cursor's cell has no word in its direction.
   const [boxKey, setBoxKey] = useState<string | null>(null);
@@ -626,18 +630,20 @@ export function PuzzleGridEditor({
     : new Set((buildWord(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
 
   // Locks show only in the build phase with Preview off (21-S2). The
-  // button shows at once in a locked word, after a second in another word
-  // of 3 or more letters, and only while the grid (or the button) has focus.
+  // button and its outline show at once in a locked word, after a second in
+  // another word of 3 or more letters, and only while the grid (or a lock
+  // button) has focus. The toggle row's Lock Word is enabled at once (21-S5).
   const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
   const lockedHere = isLockShown ? lockedWordAt(lockedWords, cursor) : null;
   const lockable = isLockShown && !lockedHere ? lockableWord(grid, cursor) : null;
-  const lockTarget = !isFocused || !isGridFullWidth
+  const lockTarget = !isFocused
     ? null
     : lockedHere
       ? { word: lockedHere, isLocked: true }
       : lockable && lockDwell === cursor
         ? { word: lockable, isLocked: false }
         : null;
+  const isRowLockEnabled = isFocused && (lockedHere !== null || lockable !== null);
 
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
   // pair on the shared ancestor of the grid and the hint inputs tracks
@@ -651,8 +657,11 @@ export function PuzzleGridEditor({
   // Focus moving within (the grid to its lock button) changes nothing: the
   // button would go before it could take focus (21-S2). Leaving entirely,
   // the button's second starts over on return.
-  function handleEditorBlur(event: ReactFocusEvent<HTMLDivElement>) {
-    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+  // The toggle row's Lock Word, focused by keyboard, counts as the grid's
+  // focus too (21-S5), though it sits outside editor-layout.
+  function handleEditorBlur(event: ReactFocusEvent<HTMLElement>) {
+    const next = event.relatedTarget as Node | null;
+    if (next !== null && (editorLayoutRef.current?.contains(next) || lockControlRef.current === next)) return;
     setIsFocused(false);
     setLockDwell(null);
   }
@@ -699,15 +708,28 @@ export function PuzzleGridEditor({
                 />
               )}
               {!isPublished && (
-                <RebusControl
-                  variant="link"
-                  isOpen={rebusValue !== null}
-                  disabled={
-                    (phase === "hints" && isLettersLocked) ||
-                    (rebusValue === null && isCellProtected(grid, lockedWords, cursor.current))
-                  }
-                  onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
-                />
+                <div className="flex items-center gap-5">
+                  {phase === "grid" && !isGridFullWidth && (
+                    <LockWordControl
+                      isLocked={lockedHere !== null}
+                      disabled={!isRowLockEnabled}
+                      hidden={isPreviewing}
+                      buttonRef={lockControlRef}
+                      onClick={handleToggleLock}
+                      onFocus={handleEditorFocus}
+                      onBlur={handleEditorBlur}
+                    />
+                  )}
+                  <RebusControl
+                    variant="link"
+                    isOpen={rebusValue !== null}
+                    disabled={
+                      (phase === "hints" && isLettersLocked) ||
+                      (rebusValue === null && isCellProtected(grid, lockedWords, cursor.current))
+                    }
+                    onClick={() => (rebusValue === null ? openRebus() : closeRebusEntry(true))}
+                  />
+                </div>
               )}
             </ToggleRow>
             {/* Wide only, Preview Hints has its own panel over the hints
@@ -750,6 +772,7 @@ export function PuzzleGridEditor({
           />
         )}
         <div
+          ref={editorLayoutRef}
           data-testid="editor-layout"
           className="flex flex-col gap-6 @min-[1092px]/editor:flex-row @min-[1092px]/editor:items-start @min-[1092px]/editor:gap-8"
           onFocus={handleEditorFocus}
@@ -776,6 +799,7 @@ export function PuzzleGridEditor({
                 cursorWord={cursorWord}
                 lockedWords={isLockShown ? lockedWords : undefined}
                 lockTarget={lockTarget}
+                hasLockButton={isGridFullWidth}
                 onToggleLock={handleToggleLock}
                 mode={isPreviewing ? "preview" : "build"}
                 isHintsPhase={phase === "hints"}

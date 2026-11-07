@@ -151,6 +151,7 @@ export function PuzzleGrid({
   cursorWord,
   lockedWords = [],
   lockTarget = null,
+  hasLockButton = true,
   onToggleLock,
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
@@ -172,6 +173,9 @@ export function PuzzleGrid({
   lockedWords?: readonly LockedWord[];
   /** Build phase, Preview off: the word whose lock button shows. */
   lockTarget?: { word: LockedWord; isLocked: boolean } | null;
+  /** The button beside the word shows only at the grid's full width; the
+   *  outline shows either way (21-S5). */
+  hasLockButton?: boolean;
   onToggleLock?: () => void;
 }) {
   // The cell under the mouse, in Preview, and the cell its tooltip stays
@@ -349,7 +353,7 @@ export function PuzzleGrid({
       </div>
     )),
   ];
-  if (lockTarget) {
+  if (lockTarget && hasLockButton) {
     const { word, isLocked } = lockTarget;
     const cells = lockedWordCells(word);
     const isAcross = word.orientation === 'across';
