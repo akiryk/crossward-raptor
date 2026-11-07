@@ -33,9 +33,12 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   **done**. Frozen at 3702710 (delegated); implemented in 220019b on
   `main` (off the risk paths), independently reviewed with no blockers.
   The draft folder `../crossward-raptor-s6-draft/` is a stale copy.
+- [S7 The lock button's second starts over on refocus](stories/21-S7-refocus-wait.md):
+  **done**. Frozen at 9430d01 (delegated); implemented in 9451952 on
+  `main` (off the risk paths), independently reviewed with no blockers.
 
-**All six stories are done, and the independent closeout audit has run
-(report-only, 2026-11-06, at 3f3a5f6). The epic is not closed:** it waits
+**All seven stories are done. The independent closeout audit ran
+(report-only, 2026-11-06, at 3f3a5f6) before S7. The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
 
 ## Open items (the human decided 2026-11-06)
@@ -46,14 +49,9 @@ for the human's visual testing and decisions on the open items below.
    to an empty cell. It was independently reviewed: 20 of 20 repeats
    passed, and a control that keeps the race fails. It landed as the
    spec-only 2b75737.
-2. **The button returns at once on refocus: fixing as S7.** The human
-   asked for a fix. [S7](stories/21-S7-refocus-wait.md) and
-   `e2e/lock-refocus.spec.ts` are **drafted, uncommitted and not yet
-   approved** in the worktree. Next: run discrimination (21-S7-1 should
-   fail today; 21-S7-2 and 21-S7-1's 0.2s case should pass), then
-   self-approve, freeze, implement (subagent), review (subagent).
-   Likely fix: the `setLockDwell` timer effect returns early unless
-   `isFocused`.
+2. **The button returns at once on refocus: fixed as
+   [S7](stories/21-S7-refocus-wait.md)** (9451952). The dwell timer now
+   runs only while the grid has focus.
 3. **Sideways scroll at about 716–760px: accepted** by the human. An
    across word ending in the last column puts S2's button past the grid
    edge (up to 22px of overflow, measured).
@@ -105,6 +103,14 @@ full browser run; it's a recorded open item, unrelated to this epic.
   rerun alone (`row-menu.spec.ts`, and `play-design.spec.ts` with
   ECONNRESET).
 
+- **S7 (9451952):** the implementer saw verify exit 0 (696 tests); the
+  full `npm run test:e2e` first had 1106 passed, 2 failed
+  (`builder-controls.spec.ts:568` 14-S4-6 and `done-icon.spec.ts:398`
+  18-S5-5), both passing when rerun alone; a second full run had 1108
+  passed, exit 0. The reviewer saw verify exit 0, the S7 spec pass 15 of
+  15 (`--repeat-each=5`) and the lock-word, toggle-row and tooltip specs
+  39 passed; it did not rerun the full suite.
+
 ## For the human's visual check (collected so far)
 
 - S3: the Rebus link greys out on a locked letter or end cell; typing over
@@ -122,15 +128,17 @@ full browser run; it's a recorded open item, unrelated to this epic.
   cells white. In Preview, where locks are hidden, the three-button
   dialog still appears if any word is locked.
 - PR #33's note: the button stays when Tab moves past it to Reset Grid.
+- S7: leave the grid (click outside) with the cursor in an unlocked
+  word, come back: the button waits a full second again. In a locked
+  word it shows at once.
 
 ## Next action
 
-Carry S7 to done under the delegation above: discrimination, freeze (a
-spec-only commit with the story and spec), implementation, verify, full
-`npm run test:e2e`, commit, push, report-only review. Then restart `npm
-run dev` and tell the human it's ready for visual testing (the list
-above, plus S7's refocus wait). The human asked to wait for these fixes.
-Don't close the epic until the human approves.
+Waiting for the human's visual testing (the list above). The human
+mentioned issues found during visual checking, not yet shared: triage
+each as already covered, a bug against a decision (a fix story under the
+delegation), or a product change (ask the human). Don't close the epic
+until the human approves.
 
 ## Resume prompt
 
