@@ -60,11 +60,16 @@ Proposed by the drafting agent, for the human's visual check:
   keeps focus in its new state. The row comes before the grid in the
   page, with Rebus between, so Shift+Tab from the grid reaches Rebus,
   then the button. Passing through Rebus (focus outside both) briefly
-  drops the highlight, by the rule above.
+  drops the highlight, by the rule above. Keyboard focus shows as an
+  underline, since the color stays blue while focused.
 - **Saved** as S2's lock is (the same toggle).
 - **Hooks:** `data-testid="lock-word-control"`, a `<button>` in the
-  toggle row named by its text, with `disabled` when disabled. With
-  Preview on it isn't visible; in the hints phase it isn't rendered.
+  toggle row named by its text. Disabled is `aria-disabled="true"` with
+  the click ignored, not the native `disabled` attribute (corrected
+  2026-11-06, see below): a natively disabled button is no Tab stop, and
+  while Shift+Tab passes through Rebus no word is selected, so the
+  keyboard path above couldn't reach it. With Preview on it isn't
+  visible; in the hints phase it isn't rendered.
 
 ## Non-goals
 
@@ -129,6 +134,24 @@ e2e/lock-word-toggle-row.spec.ts`: 14 failed, 4 passed.
 - 21-S5-6's focus order, checked with a throwaway test on `main`:
   Shift+Tab from the grid at 375px focuses Rebus, then Preview's input,
   so the button placed between them is the second stop.
+
+### Correction (2026-11-06)
+
+The implementer found 4 frozen tests contradicting the story's hover
+rule. Playwright's `click()` leaves the pointer on the button, which
+then shows Rebus's hover color (as 21-S5-2's hover test requires), but
+`lockTangentInRow` and 21-S5-3's second click then expected the resting
+`link-muted` blue. The correction moves the pointer off
+(`page.mouse.move(0, 0)`) after those two clicks; no assertion changed.
+It was independently reviewed before its own spec-only commit (STORY §3,
+under the delegation). The `aria-disabled` hook above is the same
+correction's story-text change (the spec's header comment says the
+same); the tests' `toBeDisabled`/`toBeEnabled` already accept it. The
+correction also records one new detail: keyboard focus shows as an
+underline, since 21-S5-6 expects the blue to stay while focused.
+Reviewed independently 2026-11-06: approved, no blockers (the frozen
+original failed 4 of 18 on the hover color; the corrected file passed
+18 of 18 against the implementation).
 
 ## Repo paths
 

@@ -21,8 +21,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // focused. No tooltip. Hidden with Preview on; absent in the hints phase.
 //
 // Hooks (delegated details): the button is [data-testid="lock-word-control"],
-// a <button> in [data-testid="toggle-row"] named by its text, `disabled`
-// when disabled. S2's button is found by its name "Lock word" / "Unlock
+// a <button> in [data-testid="toggle-row"] named by its text, disabled
+// (`aria-disabled`, still a Tab stop) when disabled. S2's button is found by its name "Lock word" / "Unlock
 // word" (lower-case w), the outline [data-testid="word-outline"], the tick
 // [data-testid="lock-tick"].
 //
@@ -187,6 +187,9 @@ async function lockTangentInRow(page: Page) {
   await select(page, '6,3');
   await expectEnabled(page, 'Lock Word');
   await control(page).click();
+  // A click leaves the pointer on it, showing Rebus's hover color; move it
+  // off to see the resting blue (correction, 21-S5).
+  await page.mouse.move(0, 0);
   await expectEnabled(page, 'Unlock Word');
 }
 
@@ -340,6 +343,7 @@ test.describe('21-S5-3 toggling (375px)', () => {
     await expect(page.getByRole('tooltip')).toHaveCount(0);
 
     await control(page).click();
+    await page.mouse.move(0, 0);
     await expectEnabled(page, 'Lock Word');
     await expect(gridRegion(page)).toBeFocused();
     await expectLetters(page, TANGENT, BLACK);
