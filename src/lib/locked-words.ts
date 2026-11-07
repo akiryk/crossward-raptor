@@ -36,10 +36,17 @@ function sameWord(a: LockedWord, b: LockedWord): boolean {
   return a.col === b.col && a.row === b.row && a.orientation === b.orientation && a.length === b.length;
 }
 
-/** The cursor's word if it can be locked: 21-S1's run, at least 3 letters. */
+function isLettered(grid: Grid, { col, row }: Coord): boolean {
+  const cell = grid.at(col, row);
+  return cell.kind === 'active' && cell.letter !== null;
+}
+
+/** The cursor's word if it can be locked: the run Preview keeps white
+ *  (21-S8), complete (every cell lettered) and at least 3 long. */
 export function lockableWord(grid: Grid, cursor: CursorState): LockedWord | null {
   const cells = buildWord(grid, cursor.current, cursor.orientation);
   if (!cells || cells.length < MIN_LOCKABLE_LENGTH) return null;
+  if (!cells.every((cell) => isLettered(grid, cell))) return null;
   return { ...cells[0], orientation: cursor.orientation, length: cells.length };
 }
 
