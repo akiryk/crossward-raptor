@@ -49,33 +49,20 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   no blockers.
 
 - [S10 Mouse hover](stories/21-S10-mouse-hover.md) (EPIC item 2):
-  **frozen at 2a1d3c4** (delegated, after an independent spec review:
-  changes requested, applied, re-reviewed with no blockers). **Implementation
-  blocked on a frozen-test defect, uncommitted:** the implementer's runtime
-  changes to `src/lib/locked-words.ts`, `src/components/grid/PuzzleGrid.tsx`
-  and `PuzzleGridEditor.tsx` are in the worktree on `main` (not committed).
-  21-S10-4 (`e2e/lock-hover.spec.ts`, the "lines between cells" case) rests
-  the mouse at `last.x + last.width + 0.5`, "on the line between the last
-  letter and the button". In Chromium that spot is already over the button:
-  `elementFromPoint` returns the BUTTON from +0.1px past the cell edge and
-  its `pointerenter` fires. S4's tooltip second therefore starts there, and
-  the later `expect(tooltip).toHaveCount(0)` 500ms after "onto the button"
-  fails, 3 of 3 runs. Any implementation keeping S2's placement and S4's
-  rule fails. The orchestrator's recommended correction: rest a few pixels
-  inside the last letter's cell instead of on that line (spec-only; S4
-  behavior unchanged). The rest of S10's spec passes 18 of 19.
+  **done**. Frozen at 2a1d3c4 (delegated, after an independent spec
+  review); frozen 21-S10-4 corrected in the spec-only e5de023 (the line
+  before the button is already under it; independently reviewed, see the
+  story's "Correction"); implemented in e90d552 on `main` (off the risk
+  paths), independently reviewed with no blockers.
 - [S11 Tick hover](stories/21-S11-tick-hover.md) (EPIC item 6):
-  **drafted, uncommitted** (story, `e2e/lock-tick-hover.spec.ts`,
-  `src/lib/tick-words.test.ts`). An independent spec review found no
-  blockers; its suggestions, plus the orchestrator's delegated decision
-  that grid lines keep their color, are applied. **Discrimination not yet
-  observed** (it needed the DB S10 held); S11 is not approved or frozen.
-  Its untracked unit test makes `npm run verify` fail (TS2305, missing
-  `lockedWordsEndingAt`) until frozen and implemented; exclude it when
-  verifying S10.
+  **done**. Frozen at c621634 (delegated, after an independent spec
+  review; discrimination observed, 10 of 12 failing as predicted);
+  implemented in 93f3771 on `main` (off the risk paths), independently
+  reviewed with no blockers.
 
-**S1–S9 are done; S10 and S11 are in flight. The independent closeout audit ran
-(report-only, 2026-11-06, at 3f3a5f6) before S7. The epic is not closed:** it waits
+**S1–S11 are done; every item of the EPIC's "Changes from the human's
+visual testing" is carried. The independent closeout audit ran
+(report-only, 2026-11-06, at 3f3a5f6) before S7; S7–S11 aren't audited. The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
 
 ## Open items (the human decided 2026-11-06)
@@ -161,13 +148,12 @@ full browser run; it's a recorded open item, unrelated to this epic.
   passed, exit 0. The reviewer saw verify exit 0 and `git diff 3cb79e6
   -- e2e/` empty; it ran no browser tests.
 
-- **S10 (uncommitted, on 2a1d3c4):** the implementer saw `lock-target`
-  unit 5/5; `lock-hover.spec.ts` 18 of 19 every run (21-S10-4 fails, above);
-  the frozen lock specs pass (4 timeouts in a combined run, passing alone).
-  `verify` fails only on S11's untracked unit test (without it: tsc clean,
-  lint 0 errors, 715 tests pass). Full `npm run test:e2e`: 1150 passed, 25
-  failed; on `--last-failed`, 8 still fail: 7 S11 draft cases (expected)
-  and 21-S10-4. `git diff 2a1d3c4 -- e2e/ 'src/**/*.test.*'` empty.
+- **S10 (e90d552) and S11 (93f3771):** observed results are in each
+  story's "Delivery". In short: verify exit 0 both; full `npm run
+  test:e2e` 1163 passed, 3 failed for S10 (18-S5-5 and two `ECONNRESET`,
+  none S10's) and 1177 passed, 1 failed for S11 (`ECONNRESET`), each
+  failure passing alone. Watch for under load: one earlier full S10 run
+  on a loaded machine had 32 failures.
 
 ## For the human's visual check (collected so far)
 
@@ -204,24 +190,31 @@ full browser run; it's a recorded open item, unrelated to this epic.
   from a 1430px window for every size; wide, the freed room goes to the
   hints (grid stays left); the style guide's samples stay 700px; a
   published puzzle's empty toggle row is the grid's width.
+- S10: rest the mouse a second on a complete word (cursor elsewhere):
+  its button and outline show, replacing the cursor's; clicking toggles
+  it without moving the cursor; off the word the cursor's button is
+  back. Delegated: locked words wait the second too; a click in a cell
+  ends the hover; the hover's button isn't a Tab stop; a focused button
+  is never replaced; nothing below the puzzle's full width, in Preview or
+  with a rebus entry open. Reviewer's notes: a fast move from the word
+  straight onto the cursor's own button for another word doesn't end the
+  hover; closing a rebus by keyboard or widening the window under a
+  resting mouse shows a due hover button at once; typing into a
+  Preview-black cell beside the run restarts the second.
+- S11: hover a locked word's tick: that word's cells (not its end cells,
+  not the grid lines) go 15% darker at once, every locked word ending
+  there; also over the cursor's yellow and blues, without focus, and
+  below full width. Delegated: the tick's whole top-right square counts
+  (not only the triangle); a down word's button over the tick wins there.
 
 ## Next action
 
-1. **Correct 21-S10-4** per STORY §3 under the delegation: draft the
-   correction (recommended above), have an independent subagent review it,
-   land it in its own spec-only commit on `main` (record it under the
-   S10 story's "Correction"). Stash or leave S10's runtime uncommitted
-   while doing so, keeping S11's untracked files out of the commit.
-2. **Finish S10:** rerun `lock-hover.spec.ts`, `npm run verify` (with
-   S11's untracked unit test set aside) and full `npm run test:e2e`;
-   commit runtime only as "Epic 21 S10: mouse hover shows a word's lock
-   button", push, then an independent review (subagent). Record S10 done
-   here and in the story, and add its delegated decisions to "For the
-   human's visual check".
-3. **S11:** run the draft's discrimination (new spec + unit test only),
-   then approve and freeze in a spec-only commit, implement (subagent),
-   verify, full `npm run test:e2e`, commit, push, review (subagent).
-4. Stop for the human's visual check; don't close the epic.
+1. **The human's visual check** of S8–S11 (above). Record the results
+   and any corrections as new stories.
+2. Then the epic closeout per the [epic index](../README.md#close-an-epic):
+   a fresh independent report-only audit covering S7–S11 (subagent),
+   recorded here by a non-auditing session, and close only when the
+   human agrees.
 
 Browser suites share one test database: run them one at a time
 (`pgrep -fl playwright` first). E2E preparation stops `npm run dev`;
@@ -229,7 +222,6 @@ restart it afterwards (dev servers started by subagents die with them).
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md and
-docs/epics/21-locked-words/stories/21-S10-mouse-hover.md. Correct
-21-S10-4, finish S10, then carry S11 (tick hover) on `main` under the
-handoff's delegation; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md. Record the human's visual
+check of S8–S11, then run the independent closeout audit of Epic 21 on
+`main`; close the epic only with the human's agreement.

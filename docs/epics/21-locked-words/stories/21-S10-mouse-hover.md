@@ -4,9 +4,12 @@ Resting the mouse over a word for a second shows that word's lock button
 and outline, wherever the cursor is, and clicking it locks or unlocks
 that word without moving the cursor.
 
-**Status: frozen (2026-11-06), approved by the orchestrator under the
-handoff's delegation after an independent specification review (changes
-requested, applied, then re-reviewed with no blockers).** The keyboard,
+**Status: done (2026-11-07), except the human's visual check.** Frozen
+2026-11-06 at 2a1d3c4, approved by the orchestrator under the handoff's
+delegation after an independent specification review (changes requested,
+applied, then re-reviewed with no blockers); 21-S10-4 corrected in the
+spec-only e5de023; implemented in e90d552 on `main`, independently
+reviewed with no blockers (see "Delivery"). The keyboard,
 rebus and completed-word rules under "Delegated decisions" were decided
 by the orchestrator under the same delegation. From the human's visual testing (EPIC "Changes from the
 human's visual testing", item 2, "Mouse hover"). Adds to S2's "When it
@@ -254,6 +257,32 @@ Independently reviewed 2026-11-07 before its own spec-only commit (STORY
 in Chromium that the line is under the button, saw the original fail 3 of
 3 against the implementation and the corrected file pass (58 passed,
 `--repeat-each=3`).
+
+### Delivery (2026-11-07, observed)
+
+- **e90d552** (runtime only; `git diff 2a1d3c4 e90d552 -- e2e/
+  'src/**/*.test.*'` is exactly e5de023's correction).
+- Orchestrator, on the same tree before the commit: `npm run verify`
+  exit 0 (715 tests; S11's then-untracked unit test set aside). Full
+  `npm run test:e2e` (S11's draft spec set aside): 1163 passed, 3 failed,
+  none S10's: `done-icon.spec.ts` 18-S5-5 (Epic 18's recorded
+  intermittent; 6 of 6 passed with and without S10's runtime) and two
+  `ECONNRESET` helper errors (`play-design` 14-S7-1, `status-icons`
+  18-S3-2), passing on `--last-failed`. An earlier full run on a loaded
+  machine had 32 failures, not kept in detail; it is not counted as
+  evidence.
+- Independent reviewer: no blockers; tsc clean but for S11's then-untracked
+  test, lint 0 errors, 715 unit tests, and six lock and word-shape specs
+  67 passed. Its non-blocking notes, for the human's visual check:
+  1. Moving from the hovered word straight onto the *cursor's* button
+     for another word doesn't end the hover (`PuzzleGrid.tsx:336`); the
+     hovered word's button can then replace it under the mouse. Rare: it
+     needs a fast move or a grid-edge corner.
+  2. A hover's second keeps counting while hover is suppressed (rebus
+     entry open, narrow mode); closing the rebus by keyboard or widening
+     the window under a resting mouse shows that word's button at once.
+  3. Typing into a Preview-black cell beside the hovered run changes the
+     run, so its second starts over ("the hovered word itself changes").
 
 ## Repo paths
 

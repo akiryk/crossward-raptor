@@ -4,9 +4,11 @@ Resting the mouse on a locked word's tick mark darkens that word's cells
 by 15%, every locked word ending at that cell where words share it, so
 the builder can see which word a tick belongs to.
 
-**Status: frozen (2026-11-07), approved by the orchestrator under the
-handoff's delegation after an independent specification review (no
-blockers; its suggestions applied).** From the human's visual testing
+**Status: done (2026-11-07), except the human's visual check.** Frozen
+at c621634, approved by the orchestrator under the handoff's delegation
+after an independent specification review (no blockers; its suggestions
+applied); implemented in 93f3771 on `main`, independently reviewed with
+no blockers (see "Delivery"). From the human's visual testing
 (EPIC "Changes from the human's visual testing", item 6, and its "Tick
 hover (item 6)" decision). Adds to S2's "Tick marks". Depends on S2, S5,
 S8 and S10 (delivered in e90d552): a tick sits in an end cell, and S10
@@ -246,6 +248,29 @@ the tick hover doesn't affect them.
 - To be shown with the implementation: the spec passing, and mutations
   caught (10% instead of 15%, the end cells darkened too, the triangle
   alone as the hover area).
+
+### Delivery (2026-11-07, observed)
+
+- **93f3771** (runtime only: `src/lib/locked-words.ts`,
+  `src/components/grid/PuzzleGrid.tsx`; `git diff c621634 93f3771 --
+  e2e/ 'src/**/*.test.*'` empty). The tick stays `pointer-events-none`;
+  a mouse-only `pointermove` on the grid finds a ticked end cell under
+  the pointer and whether it is in the cell's top-right quarter. Each
+  word cell of `lockedWordsEndingAt` gets a `pointer-events-none`
+  `--palette-black` 15% layer in its own box, under the outlines, ticks
+  and button.
+- Implementer: `npm run verify` exit 0 (721 tests; the orchestrator's
+  rerun also exit 0); this spec 12 of 12, and 36 of 36 with
+  `--repeat-each=3`; seven lock, word-shape and reset-with-locks specs 74
+  of 74. Mutations: 10% caught by 10 cases, the end cells darkened by 8
+  (each at its "end cell unchanged" check), the triangle alone by
+  21-S11-4. Full `npm run test:e2e`: 1177 passed, 1 failed
+  (`library-play.spec.ts:312`, `ECONNRESET` in the auth helper while
+  seeding), passing on `--last-failed`.
+- Independent reviewer: no blockers; verify exit 0 (721 tests), this
+  spec and S10's 32 passed. Non-blocking notes: the hover is worked out
+  on mouse moves only, so a layout change under a still mouse (a window
+  resize) can leave the shade stale until the next move.
 
 ## Repo paths
 
