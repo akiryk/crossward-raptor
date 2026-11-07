@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import type { Coord, Grid } from "../../engine/grid";
-import { createGrid, withLetter } from "../../engine/grid";
+import { withLetter } from "../../engine/grid";
 import type { CursorState } from "../../engine/cursor";
 import {
   arrowKey,
@@ -21,7 +21,13 @@ import {
   serializeGrid,
   type SerializedGrid,
 } from "../../lib/puzzle-storage";
-import { lockableWord, lockedWordAt, toggleLock, type LockedWord } from "../../lib/locked-words";
+import {
+  clearOutsideLockedWords,
+  lockableWord,
+  lockedWordAt,
+  toggleLock,
+  type LockedWord,
+} from "../../lib/locked-words";
 import { deleteProtected, isCellProtected, placeProtected } from "../../lib/locked-keys";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
@@ -341,19 +347,21 @@ export function PuzzleGridEditor({
     setIsStartOverOpen(true);
   }
 
-  // Every cell white and empty, the size kept; the cursor starts over on
-  // the first cell, Across. Saved by the grid's autosave; no undo.
-  function handleConfirmStartOver() {
-    const blank = createGrid({ cols: state.grid.cols, rows: state.grid.rows });
-    // No locked word is left on an empty grid (S6 adds keeping them).
+  // Every cell white and empty, the size kept, and no lock left; or, with
+  // Keep Locked Words (21-S6), every cell outside a locked word, the locks
+  // kept. The cursor starts over on the first cell, Across. Saved by the
+  // grid's autosave; no undo.
+  function handleConfirmStartOver(keepLockedWords: boolean) {
+    const lockedWords = keepLockedWords ? state.lockedWords : [];
+    const next = clearOutsideLockedWords(state.grid, lockedWords);
     setState((prev) => ({
       ...prev,
-      grid: blank,
-      lockedWords: [],
+      grid: next,
+      lockedWords,
       cursor: { current: { col: 0, row: 0 }, orientation: "across" },
     }));
     if (isPreviewing) {
-      setIsPreviewCursorHidden(intendedGeometry(blank).at(0, 0).kind === "black");
+      setIsPreviewCursorHidden(intendedGeometry(next).at(0, 0).kind === "black");
     }
     focusGridAfterStartOverRef.current = true;
     setIsStartOverOpen(false);
@@ -760,7 +768,9 @@ export function PuzzleGridEditor({
         />
         <StartOverDialog
           open={isStartOverOpen}
-          onConfirm={handleConfirmStartOver}
+          hasLockedWords={lockedWords.length > 0}
+          onClearAll={() => handleConfirmStartOver(false)}
+          onKeepLocked={() => handleConfirmStartOver(true)}
           onCancel={() => setIsStartOverOpen(false)}
         />
         <TooEarlyDialog open={isNotQuiteOpen} onClose={() => setIsNotQuiteOpen(false)} />

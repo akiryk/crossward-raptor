@@ -1,4 +1,4 @@
-import type { Coord, Grid, Orientation } from '../engine/grid';
+import { createGrid, withLetter, type Coord, type Grid, type Orientation } from '../engine/grid';
 import type { CursorState } from '../engine/cursor';
 import { buildWord } from './build-word';
 
@@ -70,4 +70,16 @@ export function toggleLock(lockedWords: readonly LockedWord[], word: LockedWord)
   return lockedWords.some((locked) => sameWord(locked, word))
     ? lockedWords.filter((locked) => !sameWord(locked, word))
     : [...lockedWords, { col: word.col, row: word.row, orientation: word.orientation, length: word.length }];
+}
+
+/** Reset Grid's Keep Locked Words (21-S6): a new grid, every cell white
+ *  and empty, black ones included, but a locked word's cells keep what
+ *  they hold (a rebus too). */
+export function clearOutsideLockedWords(grid: Grid, lockedWords: readonly LockedWord[]): Grid {
+  let next = createGrid({ cols: grid.cols, rows: grid.rows });
+  for (const coord of lockedWords.flatMap(lockedWordCells)) {
+    const cell = grid.at(coord.col, coord.row);
+    if (cell.kind === 'active' && cell.letter) next = withLetter(next, coord, cell.letter);
+  }
+  return next;
 }
