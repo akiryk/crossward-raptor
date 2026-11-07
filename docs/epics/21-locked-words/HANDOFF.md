@@ -134,14 +134,17 @@ full browser run; it's a recorded open item, unrelated to this epic.
 
 ## Next action
 
-Waiting for the human's visual testing (the list above). The human
-mentioned issues found during visual checking, not yet shared: triage
-each as already covered, a bug against a decision (a fix story under the
-delegation), or a product change (ask the human). Don't close the epic
-until the human approves.
+The human's visual testing produced 8 findings; decisions are recorded in
+the EPIC's "Changes from the human's visual testing". Waiting on the
+human's retest of items 1, 3 and 4 (not reproduced here). Then draft,
+under the delegation, stories for: the word as the run of non-black
+cells (item 5) with complete-only locking (item 7); mouse hover shows
+the button (item 2); tick hover darkens (item 6); 620px grids below
+Sunday (item 8). Don't close the epic until the human approves.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. All seven stories are done;
-take the human's visual-testing findings, triage them under the
-handoff's delegation, and don't close the epic until the human approves.
+Read docs/epics/21-locked-words/HANDOFF.md and the EPIC's "Changes from
+the human's visual testing". Get the human's retest result for items 1,
+3 and 4, then draft and carry the S8+ stories under the handoff's
+delegation; don't close the epic.

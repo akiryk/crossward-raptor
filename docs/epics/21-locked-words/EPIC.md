@@ -281,6 +281,63 @@ From the human's request and interview answers (2026-11-06):
   or gray letters. Its existing "Lock Grid Letters" is unchanged. Play is
   untouched.
 
+## Changes from the human's visual testing (2026-11-06)
+
+The human's findings after S1–S7, and their answers, recorded as given or
+decided. They amend the Decisions above where they differ. Stories S8+
+carry them.
+
+> 5. When I select a cell in a word, the other cells in the word should
+> be highlighted with blue-medium. [...] I want to include contiguous
+> white cells in the "word" whether or not they have a letter. [...] Let's
+> say I have a row of cells like this (X = a cell that would be black in
+> preview; * = a cell that would be red in preview; a letter is a letter
+> cell): X X X B I R D * * X X S O Y. [...] put focus on the cell with the
+> letter Y. In that case, the cells with S and O should get the blue
+> highlight treatment; all other cells would get the dull color. [...] put
+> the cursor on the cell with B. I want the cells with I, R, D, and the
+> two contiguous * cells to get the blue highlight. The reason is that I
+> need to fill in those star cells in order to achieve symmetry.
+>
+> 6. [...] when the builder hovers/mouses over the triangle: the locked
+> word cells should darken by a small amount, say 15%.
+>
+> 7. Don't let users lock incomplete words. In the example above, if I
+> clicked on B, I, R, D, or one of the stars, I would not get a "lock"
+> button or icon. Not until I completed the word.
+>
+> 8. We made the grid larger (from 620px to 700). The intention was to
+> make Sunday crossward puzzles larger [...] 620px is just fine for daily,
+> mini, and midi puzzles. [...] 620px not 700px for anything smaller than
+> the Sunday version. Note that the control bar with the preview toggle
+> and rebus buttons needs to be the same size as the grid. This rule
+> applies to build, hint, and play phases.
+
+- **The word (amends "A word in the build phase"):** the unbroken run
+  of cells through the cursor that are not black in Preview's geometry
+  (`intendedGeometry`), lettered or not, in the cursor's direction. A
+  Preview-red cell is part of it. The cursor on a Preview-red cell
+  selects its word too (the human chose this).
+- **Lockable (amends "A lockable word"):** a complete word, every cell
+  lettered, of at least 3 letters.
+- **Mouse hover (item 2; adds to "When it appears"):** resting the mouse
+  over a word for 1 second shows its button and outline. The word is the
+  one in the cursor's direction through the hovered cell. Hover wins:
+  one button at a time, the hovered word's replacing the cursor word's
+  until the mouse leaves (the word or its button); then the cursor rules
+  return. Clicking it toggles the hovered word without moving the
+  cursor. It works whether or not the grid has focus (build phase,
+  Preview off).
+- **Tick hover (item 6):** hovering a tick mark darkens every cell of
+  each locked word ending at that cell by about 15%, both words where
+  two share it.
+- **Grid size (item 8):** 620px for mini, midi and daily; 700px for
+  Sunday only, in build, hints and play. The toggle row matches the
+  grid's width. S5's "full width" becomes the puzzle's own full width.
+- **Items 1, 3, 4** (toggle-row Lock Word on desktop, no button beside
+  the word, label not flipping): not reproduced at 1280–1920px or 700px
+  in the production test build; the human is retesting on current code.
+
 ## Non-goals
 
 - Locking single cells, black squares, or words shorter than 3 letters.
