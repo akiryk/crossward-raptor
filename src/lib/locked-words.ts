@@ -60,6 +60,14 @@ export function endCells(grid: Grid, word: LockedWord): Coord[] {
   );
 }
 
+/** Every locked word with the cell as an end cell, in the list's order:
+ *  the words a tick there belongs to (21-S11). */
+export function lockedWordsEndingAt(grid: Grid, lockedWords: readonly LockedWord[], coord: Coord): LockedWord[] {
+  return lockedWords.filter((word) =>
+    endCells(grid, word).some((end) => end.col === coord.col && end.row === coord.row)
+  );
+}
+
 /** Whether a locked word holds the cell. */
 export function isCellLocked(lockedWords: readonly LockedWord[], coord: Coord): boolean {
   return lockedWords.some((word) => holds(word, coord));
