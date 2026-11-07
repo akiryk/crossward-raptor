@@ -4,7 +4,9 @@ A Mini's, Midi's and Daily's grid goes back to 620px at most; a Sunday's
 stays 700px. The toggle row matches the grid's width, and Lock Word moves
 to the toggle row below the puzzle's own full width.
 
-**Status: frozen (2026-11-06), approved by the orchestrator under the
+**Status: done (2026-11-06)**, except the human's visual check.
+Implemented in 24c1b0e on `main` (off the risk paths), independently
+reviewed with no blockers. **Frozen (2026-11-06), approved by the orchestrator under the
 handoff's delegation after an independent specification review (no
 blockers); its non-blocking suggestions were applied before freeze.** The
 amendments to the frozen specs below were approved under the same

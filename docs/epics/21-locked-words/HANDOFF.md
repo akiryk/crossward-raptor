@@ -43,14 +43,12 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   independently reviewed with no blockers.
 
 - [S9 The grid's size by puzzle](stories/21-S9-grid-size.md) (EPIC
-  item 8): **frozen at 3cb79e6** (delegated, after an independent spec
-  review with no blockers; 11 frozen specs amended, listed in the story).
-  Its implementation was handed to a subagent on 2026-11-06 and was still
-  running when this handoff was written; it was told to commit runtime
-  only as "Epic 21 S9: the grid's size by puzzle" and push. A throwaway
-  that passed the full suite is at `/tmp/21-s9/throwaway.patch`.
+  item 8): **done**. Frozen at 3cb79e6 (delegated, after an independent
+  spec review; 11 frozen specs amended, listed in the story); implemented
+  in 24c1b0e on `main` (off the risk paths), independently reviewed with
+  no blockers.
 
-**S1–S8 are done. The independent closeout audit ran
+**S1–S9 are done. The independent closeout audit ran
 (report-only, 2026-11-06, at 3f3a5f6) before S7. The epic is not closed:** it waits
 for the human's visual testing and decisions on the open items below.
 
@@ -130,6 +128,13 @@ full browser run; it's a recorded open item, unrelated to this epic.
   passed when rerun alone. The reviewer saw verify exit 0 and seven lock
   and highlight specs 67 passed; it did not rerun the full suite.
 
+- **S9 (24c1b0e):** the implementer saw verify exit 0 (710 tests); its
+  full `npm run test:e2e` on a heavily loaded machine (load ~45) had 1111
+  passed, 36 failed, all timeouts, all passing on `--last-failed`. The
+  orchestrator's full `npm run test:e2e` on 24c1b0e afterwards: 1147
+  passed, exit 0. The reviewer saw verify exit 0 and `git diff 3cb79e6
+  -- e2e/` empty; it ran no browser tests.
+
 ## For the human's visual check (collected so far)
 
 - S3: the Rebus link greys out on a locked letter or end cell; typing over
@@ -158,6 +163,13 @@ full browser run; it's a recorded open item, unrelated to this epic.
 - S7: leave the grid (click outside) with the cursor in an unlocked
   word, come back: the button waits a full second again. In a locked
   word it shows at once.
+- S9: a Mini, Midi and Daily grid is 620px at most, a Sunday 700px, in
+  build, hints and play, wide and narrow; the toggle row, narrow column,
+  Hint Box, Prominent Hint and play's hint bar match it. Delegated:
+  "Sunday" is any 21-column grid; the two hint columns go side by side
+  from a 1430px window for every size; wide, the freed room goes to the
+  hints (grid stays left); the style guide's samples stay 700px; a
+  published puzzle's empty toggle row is the grid's width.
 
 ## Next action
 
