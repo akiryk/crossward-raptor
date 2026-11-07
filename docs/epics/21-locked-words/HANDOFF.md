@@ -30,12 +30,23 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   f0e8900 (see the story's "Correction"); implemented in 9da90fb on
   `main` (off the risk paths), independently reviewed with no blockers.
 - [S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):
-  **frozen at 3702710** (delegated): `src/lib/locked-words-reset.test.ts`
-  and `e2e/reset-with-locks.spec.ts`. Discrimination observed: unit 4 of 4
-  fail; browser 5 fail, 4 pass (the passing ones guard today's dialog and
-  Cancel). Until it's implemented, `tsc` and so `verify` fail on the
-  missing `clearOutsideLockedWords`. The draft folder
-  `../crossward-raptor-s6-draft/` is now a stale copy.
+  **done**. Frozen at 3702710 (delegated); implemented in 220019b on
+  `main` (off the risk paths), independently reviewed with no blockers.
+  The draft folder `../crossward-raptor-s6-draft/` is a stale copy.
+
+**All six stories are done. The closeout audit is next, then the human's
+visual testing. The epic is not closed.**
+
+**Open item for the human (outside this epic's delegation):** Epic 20's
+frozen `e2e/start-over.spec.ts` 20-S1-1 says Reset Grid is "the next Tab
+stop after the grid". Epic 21 made S2's lock button "the next Tab stop
+after the grid while visible" (EPIC "Using it"). The test focuses a
+lettered grid with the cursor in a lockable word, so it passes only if
+Tab comes before the 1-second rule shows the button. Under load it fails:
+2 of 3 full runs here, and 1 in 30 repeats at c0b81c6, which already had
+S2. A fix would correct a closed epic's frozen test, so it needs the
+human. Examples: Tab before the button can show (a frozen clock), or put
+the cursor where no word is lockable.
 
 **Delegation (the human, 2026-11-06):** one orchestrating agent carries
 S3–S6 to done without human checkpoints. For each story it may draft and
@@ -64,6 +75,12 @@ full browser run; it's a recorded open item, unrelated to this epic.
   to Reset Grid), which also fails intermittently on `main` without S5
   (1 in 30 repeats), so it's an existing flake. The reviewer saw verify
   exit 0 and the S5 spec pass 18 of 18.
+- **S6 (220019b):** the implementer saw verify exit 0 (696 tests) and
+  the full suite 1104 passed, 1 failed (`library-play.spec.ts:479`,
+  ECONNRESET on get-session), which passed when rerun alone. The reviewer
+  saw verify exit 0 and the reset-with-locks and start-over specs pass 17
+  of 17. The orchestrator's full `npm run test:e2e` on 220019b: 1104
+  passed, 1 failed, 20-S1-1 (the open item above).
 - S3 (6e20297) and S4 (a49795a): verify and full E2E exited 0 for their
   implementers. Each reviewer had one unrelated flake, which passed when
   rerun alone (`row-menu.spec.ts`, and `play-design.spec.ts` with
@@ -80,19 +97,22 @@ full browser run; it's a recorded open item, unrelated to this epic.
 - S5: below a 700px grid, "Lock Word"/"Unlock Word" left of Rebus;
   keyboard focus shows an underline; Shift+Tab from the grid passes Rebus
   first.
+- S6: with a locked word, Reset Grid offers Clear Every Cell / Keep
+  Locked Words / Cancel. At 1440px they sit on one line; at 375px one per
+  line. They stack by measured width. Keep Locked Words also turns black
+  cells white. In Preview, where locks are hidden, the three-button
+  dialog still appears if any word is locked.
 - PR #33's notes: the button stays when Tab moves past it to Reset Grid;
   a locked word and a longer run from the same start could share an
   outline key (now unreachable, since S3 blocks typing into end cells).
 
 ## Next action
 
-Have a subagent implement S6 against its frozen acceptance, with
-`clearOutsideLockedWords` in `src/lib/locked-words.ts`. Then run verify
-and the full E2E suite, commit ("Epic 21 S6: Reset Grid with locked
-words"), push, and have a separate subagent review it (report-only).
-Then run the independent closeout audit (report-only) and stop for the
-human's visual testing. Don't close the epic. Agents should leave the dev
-server alone; the orchestrator restarts `npm run dev` once at the end.
+Run the independent closeout audit (report-only, AUDIT) if it hasn't
+run, and record its findings here. Then the human does visual testing and
+decides the 20-S1-1 open item. Don't close the epic until the human says
+so. Agents should leave the dev server alone; the orchestrator restarts
+`npm run dev` once at the end.
 
 ## Resume prompt
 
