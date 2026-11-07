@@ -45,14 +45,15 @@ export function BuilderSteps({
 }
 
 /** Story 17-S8. The toggle row: the grid's own controls on a `toggle-row`
- *  panel with 10px corners, at the grid's width. A published puzzle's is
+ *  panel with 10px corners, at the grid's width (the editor's `--grid-max`,
+ *  21-S9; a Sunday's 700px in the style guide). A published puzzle's is
  *  empty: it keeps its space beside the hints list, so the grid doesn't
  *  move (14-S4), and has none narrow (15-S3). */
 export function ToggleRow({ isPublished = false, children }: { isPublished?: boolean; children?: ReactNode }) {
   return (
     <div
       data-testid="toggle-row"
-      className={`h-10 w-[700px] max-w-full items-center justify-between rounded-modal px-3 min-[748px]:h-12 min-[748px]:px-4 ${
+      className={`h-10 w-(--grid-max,700px) max-w-full items-center justify-between rounded-modal px-3 min-[748px]:h-12 min-[748px]:px-4 ${
         isPublished ? 'hidden @min-[1092px]/editor:invisible @min-[1092px]/editor:flex' : 'flex bg-toggle-row'
       }`}
     >

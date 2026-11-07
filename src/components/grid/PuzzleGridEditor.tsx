@@ -61,11 +61,9 @@ import { buildWord } from "../../lib/build-word";
 import { RebusControl } from "./RebusControl";
 import { LockWordControl } from "./LockWordControl";
 import { StartOverDialog, StartOverLink } from "./StartOverDialog";
+import { gridMaxPx } from "../../lib/grid-max";
 
 const SAVE_DEBOUNCE_MS = 500;
-// Every grid size fits within this width at most (15-S1, 700px since 17-S7), whatever the
-// window's height: a short window scrolls the page.
-const GRID_MAX_PX = 700;
 // How long the cursor stays in an unlocked word before its lock button
 // shows (21-S2).
 const LOCK_BUTTON_DELAY_MS = 1000;
@@ -189,8 +187,9 @@ export function PuzzleGridEditor({
   // has stayed a second, or by toggling the lock. Every key or move makes
   // a new cursor, so the second starts again.
   const [lockDwell, setLockDwell] = useState<CursorState | null>(null);
-  // The button beside the word shows only at the grid's full width;
-  // narrower, Lock Word in the toggle row replaces it (21-S5).
+  // The button beside the word shows only at the grid's full width, the
+  // puzzle's own (21-S9); narrower, Lock Word in the toggle row replaces it
+  // (21-S5).
   const [isGridFullWidth, setIsGridFullWidth] = useState(true);
   const editorLayoutRef = useRef<HTMLDivElement>(null);
   const lockControlRef = useRef<HTMLButtonElement>(null);
@@ -314,15 +313,17 @@ export function PuzzleGridEditor({
     return () => clearTimeout(timer);
   }, [state.cursor, state.grid, isFocused]);
 
+  // The grid's width at most (21-S9); a short window scrolls the page.
+  const gridPx = gridMaxPx(state.grid.cols);
   useEffect(() => {
     const region = gridRegionRef.current;
     if (!region) return;
     const observer = new ResizeObserver(([entry]) => {
-      setIsGridFullWidth(entry.contentRect.width >= GRID_MAX_PX - 0.5);
+      setIsGridFullWidth(entry.contentRect.width >= gridPx - 0.5);
     });
     observer.observe(region);
     return () => observer.disconnect();
-  }, []);
+  }, [gridPx]);
 
   function handleToggleLock() {
     setState((prev) => {
@@ -683,8 +684,9 @@ export function PuzzleGridEditor({
       data-testid="puzzle-editor"
       data-ready={isReady}
       className="@container/editor m-auto"
+      style={{ ["--grid-max" as string]: `${gridPx}px` }}
     >
-      <div className="mx-auto max-w-[700px] @min-[1092px]/editor:max-w-none">
+      <div className="mx-auto max-w-(--grid-max) @min-[1092px]/editor:max-w-none">
         <PuzzleTitle
           value={title}
           onChange={handleTitleChange}
@@ -792,7 +794,7 @@ export function PuzzleGridEditor({
         >
           <div
             className="max-w-full shrink-0"
-            style={{ width: `${GRID_MAX_PX}px` }}
+            style={{ width: `${gridPx}px` }}
           >
             <div
               ref={gridRegionRef}
@@ -857,7 +859,7 @@ export function PuzzleGridEditor({
               </div>
             )}
           </div>
-          {phase === "grid" && <HintSkeleton grid={grid} />}
+          {phase === "grid" && <HintSkeleton grid={grid} gridPx={gridPx} />}
           {phase === "hints" && (
             // Beside the grid, the list scrolls in its own box at the grid's
             // height (15-S1): size containment keeps its content from
@@ -872,7 +874,7 @@ export function PuzzleGridEditor({
               {isHintsPreview ? (
                 // Only how the hints read: no selection, no clicks (17-S9),
                 // in the Hint Inputs' columns (18-S7).
-                <PlayerHints slots={slotsWithNumbers(grid)} hints={hints} selectedKey={null} stacksWhenNarrow />
+                <PlayerHints slots={slotsWithNumbers(grid)} hints={hints} selectedKey={null} stacksWhenNarrow gridPx={gridPx} />
               ) : (
                 <HintsPanel
                   grid={grid}
@@ -884,6 +886,7 @@ export function PuzzleGridEditor({
                   missingKeys={missingKeys}
                   onHintChange={handleHintChange}
                   onHintFocus={handleHintFocus}
+                  gridPx={gridPx}
                 />
               )}
             </div>

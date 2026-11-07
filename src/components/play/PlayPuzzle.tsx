@@ -20,15 +20,13 @@ import { deserializeGrid, serializeGrid } from '@/lib/puzzle-storage';
 import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from '@/lib/word-cursor';
 import { RebusControl } from '@/components/grid/RebusControl';
 import { closeRebus, rebusIntent } from '@/lib/rebus-entry';
+import { gridMaxPx } from '@/lib/grid-max';
 import { createPlayAutosave, playDraftKey, type PlaySaveState } from './play-autosave';
 import { PlayConfetti } from './PlayConfetti';
 import { PlayerHints } from './PlayerHints';
 import { PlayHintBar } from './PlayHintBar';
 import { PlayResetDialog } from './PlayReset';
 import { ProminentHint } from './ProminentHint';
-
-// At most 700px (17-S7), as the build grid, whatever the window's height (15-S1).
-const GRID_MAX_PX = 700;
 
 // A link, as the library filters' Reset (18-S4), at the message's size (19-S1).
 const RESET_LINK = 'cursor-pointer text-body-normal text-link-muted outline-none transition-colors duration-150 ease-out hover:text-button-hover focus-visible:text-button-hover';
@@ -177,7 +175,8 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
     highlights.set(cellNumberKey(cursor.current), 'selected');
   }
   const selectedSlot = selectedKey ? lookup.get(selectedKey)! : null;
-  const gridWidth = `${GRID_MAX_PX}px`;
+  // At most 620px, a Sunday's 700px (21-S9), as the build grid.
+  const gridWidth = `${gridMaxPx(grid.cols)}px`;
   // Narrow, only the messages that need attention show above the grid
   // (15-S5), 16px from it.
   const narrowMessage = displayedSessionState !== 'ready'

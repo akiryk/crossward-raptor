@@ -2,6 +2,7 @@ import type { Grid } from '../../engine/grid';
 import type { NumberedSlot } from '../../engine/numbering';
 import { isHintFilled } from '../../lib/hint-lookup';
 import { slotAnswer } from '../../lib/slot-answer';
+import { twoHintColumnsClass } from '../../lib/grid-max';
 import { TextInput } from '../ui/TextInput';
 
 const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] = [
@@ -32,6 +33,7 @@ export function HintsPanel({
   missingKeys,
   onHintChange,
   onHintFocus,
+  gridPx = 700,
 }: {
   grid: Grid;
   slots: ReadonlyMap<string, NumberedSlot>;
@@ -44,6 +46,8 @@ export function HintsPanel({
   selectedKey?: string | null;
   /** Hints 3 Publish found blank, until each is changed (17-S1). */
   missingKeys?: ReadonlySet<string>;
+  /** The grid's width beside it (21-S9). */
+  gridPx?: number;
 }) {
   const entries = Array.from(slots.entries());
   // One width for every number in both columns, so every line starts at
@@ -52,8 +56,8 @@ export function HintsPanel({
 
   return (
     <div className="@container">
-      {/* One column below 650px of room beside the grid, a 1430px window (15-S2, 17-S7). */}
-      <div className="flex flex-col gap-8 @min-[650px]:flex-row">
+      {/* One column below a 1430px window (15-S2, 17-S7, 21-S9). */}
+      <div className={`flex flex-col gap-8 ${twoHintColumnsClass(gridPx)}`}>
         {COLUMNS.map(({ orientation, heading }) => (
           <div
             key={orientation}

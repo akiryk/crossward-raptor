@@ -1,4 +1,5 @@
 import type { NumberedSlot } from '@/engine/numbering';
+import { twoHintColumnsClass } from '@/lib/grid-max';
 
 const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] = [
   { orientation: 'across', heading: 'Across' },
@@ -20,20 +21,23 @@ export function PlayerHints({
   selectedKey,
   onSelect,
   stacksWhenNarrow = false,
+  gridPx = 700,
 }: {
   slots: readonly NumberedSlot[];
   hints: Record<string, string>;
   selectedKey: string | null;
   onSelect?: (key: string) => void;
-  /** The builder's Preview Hints (18-S7): one column below 650px of room,
-   *  as the Hint Inputs stack, and each column's first number where the
-   *  Hint Inputs' is (18-S9). Play and the style guide don't set it. */
+  /** The builder's Preview Hints (18-S7): one column below a 1430px
+   *  window, as the Hint Inputs stack, and each column's first number where
+   *  the Hint Inputs' is (18-S9). Play and the style guide don't set it. */
   stacksWhenNarrow?: boolean;
+  /** With `stacksWhenNarrow`, the grid's width beside it (21-S9). */
+  gridPx?: number;
 }) {
   const maxNumberDigits = Math.max(1, ...slots.map((slot) => String(slot.number).length));
 
   const columns = (
-    <div className={stacksWhenNarrow ? 'flex flex-col gap-8 @min-[650px]:flex-row' : 'flex gap-8'}>
+    <div className={stacksWhenNarrow ? `flex flex-col gap-8 ${twoHintColumnsClass(gridPx)}` : 'flex gap-8'}>
       {COLUMNS.map(({ orientation, heading }) => (
         <section
           key={orientation}

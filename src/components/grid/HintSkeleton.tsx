@@ -1,6 +1,7 @@
 import type { Grid } from '../../engine/grid';
 import { slotsWithNumbers } from '../../engine/numbering';
 import { convertEmptyCellsToBlack } from '../../engine/phase';
+import { twoHintColumnsClass } from '../../lib/grid-max';
 
 const COLUMNS = [
   { orientation: 'across', heading: 'Across' },
@@ -9,15 +10,15 @@ const COLUMNS = [
 
 /** The build phase's stand-in for the hints to come (14-S5): one
  *  placeholder per word, counted as the grid numbers them. Decorative. */
-export function HintSkeleton({ grid }: { grid: Grid }) {
+export function HintSkeleton({ grid, gridPx = 700 }: { grid: Grid; gridPx?: number }) {
   const slots = slotsWithNumbers(convertEmptyCellsToBlack(grid));
 
   return (
     // Story 18-S7: the hints list's scrollbar room (the gutter needs a
     // non-visible overflow), so Create Hints moves nothing sideways.
     <div data-testid="hint-skeleton" aria-hidden="true" className="@container min-w-0 flex-1 overflow-hidden [scrollbar-gutter:stable] @max-[1092px]/editor:hidden">
-      {/* One column below 650px of room beside the grid, a 1430px window (15-S2, 17-S7). */}
-      <div className="flex flex-col gap-8 @min-[650px]:flex-row">
+      {/* One column below a 1430px window (15-S2, 17-S7, 21-S9). */}
+      <div className={`flex flex-col gap-8 ${twoHintColumnsClass(gridPx)}`}>
         {COLUMNS.map(({ orientation, heading }) => (
           <div
             key={orientation}
