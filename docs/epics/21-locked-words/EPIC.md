@@ -334,6 +334,9 @@ carry them.
 - **Grid size (item 8):** 620px for mini, midi and daily; 700px for
   Sunday only, in build, hints and play. The toggle row matches the
   grid's width. S5's "full width" becomes the puzzle's own full width.
+  The page's layout breakpoints stay as they are for every size (the
+  human). Below a 636px window a 620px grid shrinks with the window
+  (window less 16px), as a 700px one does below 716px (the human).
 - **Items 1, 3, 4** (toggle-row Lock Word on desktop, no button beside
   the word, label not flipping): not reproduced at 1280–1920px or 700px
   in the production test build, and on the human's retest on current code
