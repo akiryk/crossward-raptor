@@ -42,8 +42,9 @@ const across = (row: number, cols: number[]) => cols.map((col) => `${col},${row}
 const down = (col: number, rows: number[]) => rows.map((row) => `${col},${row}`);
 
 /** A daily: TANGENT across row 3 (3–9); ONE down column 5 (2–4), sharing
- *  its N (5,3); AT across row 8 (3–4), 2 letters; ABRAHAM across row 11
- *  (0–6), from the left edge. */
+ *  its N (5,3); AT across row 8 (3–4), 2 letters; ABRAHAM across row 12
+ *  (0–6), from the left edge. (Amended by 21-S8: row 11 made TANGENT's
+ *  end cell (10,3) Preview-red.) */
 function lockGrid(): Grid {
   let grid = createGrid({ cols: 15, rows: 15 });
   const put = (cells: string[], letters: string) =>
@@ -62,8 +63,8 @@ const TANGENT = across(3, run(3, 'TANGENT'));
 const TANGENT_ENDS = ['2,3', '10,3'];
 const ONE = down(5, run(2, 'ONE'));
 const ONE_ENDS = ['5,1', '5,5'];
-const ABRAHAM = across(11, run(0, 'ABRAHAM'));
-const ABRAHAM_ENDS = ['7,11'];
+const ABRAHAM = across(12, run(0, 'ABRAHAM'));
+const ABRAHAM_ENDS = ['7,12'];
 const EMPTY = '7,6';
 
 async function open(page: Page) {
@@ -343,7 +344,7 @@ test.describe('21-S2-5 lock', () => {
 
   test("a word at the grid's edge has one end cell", async ({ page }) => {
     await open(page);
-    await cell(page, '3,11').click();
+    await cell(page, '3,12').click();
     await expect(lockButton(page)).toBeVisible();
     await lockButton(page).click();
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
