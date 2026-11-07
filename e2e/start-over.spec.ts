@@ -196,6 +196,9 @@ test.describe('20-S1 Start Over', () => {
     await page.mouse.move(0, 0);
     await expect.poll(async () => parseColor(await css(link, 'color')), 'subtle again').toEqual(await token(page, 'subtle'));
 
+    // 21-S2's lock button is the next Tab stop while it shows, a second
+    // after the cursor rests in a lockable word: start on an empty cell.
+    await cell(page, '4,0').click();
     await editorGrid(page).focus();
     await page.keyboard.press('Tab');
     await expect(link).toBeFocused();

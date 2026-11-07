@@ -70,7 +70,8 @@ Delegated details:
    it on its line; `primary` on hover and on keyboard focus (Tab from
    Rebus). At 375px: 12px in, Rebus 20px before it, no overflow.
    (Amended by S4: "Reset Grid", Tab from the grid; its placement is
-   20-S4-1/2.)
+   20-S4-1/2. Corrected by Epic 21: the test first moves the cursor to an empty cell,
+   since 21-S2's lock button comes first while it shows.)
 2. **20-S1-2 the dialog:** its title, body and buttons, Clear Puzzle
    first; Cancel, and Escape, close it with the grid unchanged, focused
    and nothing saved.
@@ -123,6 +124,15 @@ repeated (10/10, 5/5) and the third full run was clean.
 A Start Over confirmed from the keyboard would have its focus returned
 to Start Over by `Modal`; the editor refocuses the grid after the dialog
 closes, so confirming always leaves the grid focused.
+
+### Correction (2026-11-06, Epic 21)
+
+Epic 21's S2 made its lock button "the next Tab stop after the grid
+while visible", a second after the cursor rests in a lockable word. 20-S1-1
+focused a grid with the cursor in lockable CAT, so it failed whenever the
+checks before its Tab took over a second. The human approved the
+correction: 20-S1-1 clicks an empty cell first, so no lock button shows,
+and Reset Grid remains the next Tab stop. No assertion changed.
 
 ## Repo paths
 
