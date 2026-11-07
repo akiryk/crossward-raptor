@@ -142,7 +142,6 @@ until the human approves.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md and
-docs/epics/21-locked-words/stories/21-S7-refocus-wait.md. Carry S7 to
-done on `main` under the handoff's delegation, then stop for the human's
-visual testing; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md. All seven stories are done;
+take the human's visual-testing findings, triage them under the
+handoff's delegation, and don't close the epic until the human approves.
