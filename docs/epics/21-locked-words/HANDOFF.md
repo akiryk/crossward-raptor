@@ -144,9 +144,20 @@ in the story. The runtime is unchanged (a throwaway implementation was
 reverted; it was `buildWord` over `intendedGeometry`'s active cells,
 plus `lockableWord` requiring every cell lettered).
 
-An independent spec review was started in the ending session; its result
-didn't reach the handoff, so run a fresh independent spec review of the
-story and the amendments. With no blockers: freeze (a spec-only commit),
+An independent spec review (subagent, 2026-11-06) found **no blockers**
+and confirmed every fixture by hand; nothing else frozen depends on the
+old word. Before freeze, apply its non-blocking suggestions (still the
+drafting phase):
+1. `locked-words.test.ts`: add five empty rows, not two (10 rows), so the
+   HN and lone-H cases fail for length and loneness, not incompleteness.
+2. `build-word-shape.test.ts`: the "run of Preview-red cells alone" test's
+   second assertion includes A and T; rename or split it.
+3. Add cases: letter, red, letter is one word; a lone red cell has none.
+4. The story's amendment table: on row 11, ABRAHAM's own end cell (7,11)
+   was also red. When freezing, record that the amendments were approved
+   under the delegation.
+Recheck the unit tests on `main` (new cases fail, the rest pass). No
+fresh review is needed for these small edits. Then freeze (a spec-only commit),
 implement (subagent), verify, full `npm run test:e2e`, commit, push,
 review (subagent). Then draft and carry, one at a time under the
 delegation, the remaining EPIC "Changes from the human's visual testing":
