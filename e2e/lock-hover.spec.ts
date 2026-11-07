@@ -344,7 +344,7 @@ test.describe('21-S10-3 hover wins; the cursor\'s rules return', () => {
 });
 
 test.describe('21-S10-4 leaving the word or its button', () => {
-  test('the lines between cells and the gap to the button keep it; the end cell does not', async ({ page }) => {
+  test('the lines between cells and the move onto the button keep it; the end cell does not', async ({ page }) => {
     await open(page);
     await select(page, EMPTY);
     await hoverUntilShown(page, '4,5', '7,5', 'across', 'Lock word');
@@ -360,12 +360,14 @@ test.describe('21-S10-4 leaving the word or its button', () => {
     await page.mouse.move(to.x, to.y, { steps: 20 });
     expect(await isButtonBeside(page, '7,5', 'across'), 'kept moving among the cells').toBe(true);
 
-    // Resting on the line between the last letter and the button.
+    // Resting just inside the last letter, beside the button. (The line
+    // between them is already under the button, whose own pointerenter
+    // would start 21-S4's tooltip second early.)
     const last = await boxOf(cell(page, '7,5'));
     await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 5 });
-    await page.mouse.move(last.x + last.width + 0.5, last.y + last.height / 2);
+    await page.mouse.move(last.x + last.width - 3, last.y + last.height / 2);
     await page.waitForTimeout(NOT_YET_MS);
-    expect(await isButtonBeside(page, '7,5', 'across'), 'kept on the line before the button').toBe(true);
+    expect(await isButtonBeside(page, '7,5', 'across'), 'kept at the last letter\'s edge').toBe(true);
 
     // Onto the button.
     const button = center(await boxOf(lockButton(page)));

@@ -181,7 +181,7 @@ The same daily, at 1440px (a 620px grid) unless said. "At once" is
    EGG, AT, an empty cell or RUN's U across, TANGENT's button and outline
    stay.
 4. **21-S10-4 leaving** (1): resting 500ms exactly on the line between
-   two of ROBIN's cells, and on the line between its last letter and the
+   two of ROBIN's cells, and just inside its last letter beside the
    button, keeps it, as do moves across lines and onto the button; S4's
    tooltip shows on it after the second; moving onto the end cell's free
    corner, the button, tooltip and outline go within 300ms.
@@ -235,6 +235,25 @@ clicked word or the cursor's button, true.
   was written in drafting), and the full suite with it.
 - ESLint passes on both new files; `tsc --noEmit` reports only the
   missing `lockTargetAt`.
+
+### Correction (2026-11-07)
+
+The implementer found 21-S10-4 failing 3 of 3 against an implementation
+keeping S2's placement and S4's rule. It rested the mouse at
+`last.x + last.width + 0.5`, "on the line between the last letter and
+the button", but in Chromium that spot is already over the button
+(`elementFromPoint` returns the button from 0.1px past the cell's edge),
+so the button's `pointerenter` started S4's tooltip second there, and
+the later "no tooltip yet, 500ms onto the button" failed. The correction
+rests the mouse 3px inside the last letter's cell instead
+(`last.x + last.width - 3`); the comment, the assertion message and the
+test title follow. No other assertion, timeout or case changed, and no
+rule changed: S4's tooltip still counts from the mouse onto the button.
+Independently reviewed 2026-11-07 before its own spec-only commit (STORY
+§3, under the delegation): approved, no blockers. The reviewer confirmed
+in Chromium that the line is under the button, saw the original fail 3 of
+3 against the implementation and the corrected file pass (58 passed,
+`--repeat-each=3`).
 
 ## Repo paths
 
