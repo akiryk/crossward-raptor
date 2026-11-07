@@ -3,8 +3,9 @@
 When any word is locked, Reset Grid asks whether to keep locked words or
 clear every cell.
 
-**Status: approved and frozen 2026-11-06 by the orchestrator under the
-human's delegation (HANDOFF).** Depends on S2.
+**Status: done 2026-11-06,** independently reviewed (no blockers) and
+delivered on `main` as 220019b. Approved and frozen at 3702710 by the
+orchestrator under the human's delegation (HANDOFF). Depends on S2.
 
 **Blast radius: small, expected off the risk paths.**
 `src/components/grid/` and `src/lib/locked-words.ts`. Direct delivery to

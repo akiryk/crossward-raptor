@@ -1,8 +1,8 @@
 # Epic: Locked words
 
 **Decisions agreed with the human in an interview 2026-11-06** (recorded
-below). **The human approved the written EPIC 2026-11-06.** Each story's
-specification and acceptance still need approval before freeze.
+below). **The human approved the written EPIC 2026-11-06.** S1–S6 are done; the
+epic awaits the human's visual testing before closeout (HANDOFF).
 
 In the build phase, a builder can lock a finished word so its letters
 can't be changed by accident while the rest of the grid is filled around

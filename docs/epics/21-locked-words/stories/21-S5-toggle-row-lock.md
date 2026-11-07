@@ -3,8 +3,9 @@
 When the grid has shrunk below its full width, a "Lock Word" / "Unlock
 Word" text button beside Rebus replaces the button beside the word.
 
-**Status: approved and frozen** by the orchestrator under the human's
-delegation (2026-11-06). Depends on S2.
+**Status: done 2026-11-06,** independently reviewed (no blockers) and
+delivered on `main` as 9da90fb. Approved and frozen at 704161b by the
+orchestrator under the human's delegation; acceptance corrected in f0e8900. Depends on S2.
 
 **Blast radius: small, expected off the risk paths.**
 `src/components/grid/`. Direct delivery to `main`.

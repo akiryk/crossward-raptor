@@ -4,7 +4,8 @@ A button beside a finished word locks it. A locked word shows gray
 letters and a gray outline around it and its end cells, with tick marks
 in the end cells, and stays locked when the puzzle is reopened.
 
-**Status: approved and frozen 2026-11-06** (the human approved this
+**Status: done 2026-11-06,** PR #33 independently reviewed (no blockers)
+and merged to `main` as 693c02b. Approved and frozen at b45a4c6 (the human approved this
 specification and acceptance, choosing ⅔ of a cell with a 32px cap).
 Depends on S1's word run.
 

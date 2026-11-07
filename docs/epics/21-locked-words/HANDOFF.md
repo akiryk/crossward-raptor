@@ -34,19 +34,39 @@ The EPIC's decisions came from an interview with the human 2026-11-06.
   `main` (off the risk paths), independently reviewed with no blockers.
   The draft folder `../crossward-raptor-s6-draft/` is a stale copy.
 
-**All six stories are done. The closeout audit is next, then the human's
-visual testing. The epic is not closed.**
+**All six stories are done, and the independent closeout audit has run
+(report-only, 2026-11-06, at 3f3a5f6). The epic is not closed:** it waits
+for the human's visual testing and decisions on the open items below.
 
-**Open item for the human (outside this epic's delegation):** Epic 20's
-frozen `e2e/start-over.spec.ts` 20-S1-1 says Reset Grid is "the next Tab
-stop after the grid". Epic 21 made S2's lock button "the next Tab stop
-after the grid while visible" (EPIC "Using it"). The test focuses a
-lettered grid with the cursor in a lockable word, so it passes only if
-Tab comes before the 1-second rule shows the button. Under load it fails:
-2 of 3 full runs here, and 1 in 30 repeats at c0b81c6, which already had
-S2. A fix would correct a closed epic's frozen test, so it needs the
-human. Examples: Tab before the button can show (a frozen clock), or put
-the cursor where no word is lockable.
+## Open items (the human decides)
+
+1. **20-S1-1 is timing-dependent (blocks a clean full E2E run).** Epic
+   20's frozen `e2e/start-over.spec.ts` 20-S1-1 says Reset Grid is "the
+   next Tab stop after the grid". S2 made the lock button "the next Tab
+   stop after the grid while visible" (EPIC "Using it"), and S2 recorded
+   no amendment to 20-S1-1. The test's grid starts with the cursor in
+   lockable CAT, so it passes only if Tab comes within the 1-second rule.
+   It failed in 2 of 3 full runs here. The auditor agrees. Possible
+   fixes: a frozen clock, or start the cursor where no word is lockable.
+   Either way Epic 20's wording should note the exception. It's a frozen
+   test from a closed epic, so it needs the human's approval.
+2. **The button returns at once on refocus (contradicts EPIC 199–203).**
+   After the grid has been blurred for more than 1s, refocusing without
+   moving the cursor shows the button and outline for an unlocked word
+   immediately. The timer effect (`PuzzleGridEditor.tsx` ~310) re-arms
+   while the grid is unfocused. The auditor saw this in a browser. No
+   test covers it. Fix before closing, or accept?
+3. **Sideways scroll at about 716–760px.** An across word ending in the
+   last column puts S2's button past the grid edge, and the page
+   overflows by up to 22px (measured). Fix, or accept?
+
+Audit notes, no action needed unless the human wants it:
+`slot-required` is now unreachable (`cell-appearance.ts:84`);
+`deserializeLockedWords` trusts stored JSON; a down word ending in the
+last row puts the button over the Reset Grid line (accepted by S2's
+"Overlap"); `duplicatePuzzle` copies locks (unspecified, reasonable).
+Leftovers to tidy: the branch `story/21-S2-lock-a-word` (local and
+remote), the stale `../crossward-raptor-s6-draft/`.
 
 **Delegation (the human, 2026-11-06):** one orchestrating agent carries
 S3–S6 to done without human checkpoints. For each story it may draft and
@@ -73,14 +93,15 @@ full browser run; it's a recorded open item, unrelated to this epic.
   alone. One was `row-menu.spec.ts` 16-S2-2, a session fetch error in a
   helper. The other was `start-over.spec.ts` 20-S1-1 (Tab from the grid
   to Reset Grid), which also fails intermittently on `main` without S5
-  (1 in 30 repeats), so it's an existing flake. The reviewer saw verify
+  (1 in 30 repeats at c0b81c6, which already had S2), so S5 didn't cause
+  it. S2's lock button does (open item 1). The reviewer saw verify
   exit 0 and the S5 spec pass 18 of 18.
 - **S6 (220019b):** the implementer saw verify exit 0 (696 tests) and
   the full suite 1104 passed, 1 failed (`library-play.spec.ts:479`,
   ECONNRESET on get-session), which passed when rerun alone. The reviewer
   saw verify exit 0 and the reset-with-locks and start-over specs pass 17
   of 17. The orchestrator's full `npm run test:e2e` on 220019b: 1104
-  passed, 1 failed, 20-S1-1 (the open item above).
+  passed, 1 failed, 20-S1-1 (open item 1).
 - S3 (6e20297) and S4 (a49795a): verify and full E2E exited 0 for their
   implementers. Each reviewer had one unrelated flake, which passed when
   rerun alone (`row-menu.spec.ts`, and `play-design.spec.ts` with
@@ -102,20 +123,18 @@ full browser run; it's a recorded open item, unrelated to this epic.
   line. They stack by measured width. Keep Locked Words also turns black
   cells white. In Preview, where locks are hidden, the three-button
   dialog still appears if any word is locked.
-- PR #33's notes: the button stays when Tab moves past it to Reset Grid;
-  a locked word and a longer run from the same start could share an
-  outline key (now unreachable, since S3 blocks typing into end cells).
+- PR #33's note: the button stays when Tab moves past it to Reset Grid.
 
 ## Next action
 
-Run the independent closeout audit (report-only, AUDIT) if it hasn't
-run, and record its findings here. Then the human does visual testing and
-decides the 20-S1-1 open item. Don't close the epic until the human says
-so. Agents should leave the dev server alone; the orchestrator restarts
-`npm run dev` once at the end.
+The human does visual testing (the list above) and decides open items
+1–3. Then apply those decisions: a correction to a frozen test follows
+STORY §3 (independent review, then a spec-only commit). Run verify and the
+full E2E suite, then close the epic per AUDIT. The epic stays open until
+the human approves closing it.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. As orchestrator, carry Epic 21's
-S3–S6 to done under the handoff's delegation, then run the closeout audit and
-stop for the human's visual testing; don't close the epic.
+Read docs/epics/21-locked-words/HANDOFF.md. Apply the human's decisions on
+Epic 21's open items on `main`, then close the epic per AUDIT once the
+human has approved closing it.
