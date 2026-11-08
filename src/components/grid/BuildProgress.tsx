@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Grid } from '../../engine/grid';
 import { READY_PERCENT, completionCount, completionPercent, isReadyForHints } from '../../engine/completion';
+import { Tooltip, useTooltipTarget } from '../ui/Tooltip';
+
+/** Story 22-S4: what to aim for, over the bar on mouse hover. */
+const BAR_TOOLTIP = 'Aim to use about 80–85% of the cells to make a standard puzzle.';
 
 /** Story 22-S3: the fill's width moves to a new value over this long. */
 const FILL_ANIMATION_MS = 700;
@@ -67,13 +71,18 @@ function useDrawnShare(share: number): number {
  *  Story 22-S3: the bar is 16px tall with 20px corners, the fill and zone
  *  clipped to its rounded inside. The fill's width animates (see
  *  `useDrawnShare`) and its color follows the drawn width, ready from 80%
- *  of the inside; the texts change at once. */
+ *  of the inside; the texts change at once.
+ *
+ *  Story 22-S4: mouse hover over the bar itself (not the message or the
+ *  percentage) shows the shared Tooltip's aim; the bar stays out of the
+ *  Tab order and has no `aria-describedby`. */
 export function BuildProgress({ grid }: { grid: Grid }) {
   const count = completionCount(grid);
   const percent = completionPercent(count);
   const isReady = isReadyForHints(count);
   const share = count.total === 0 ? 0 : (100 * count.lettered) / count.total;
   const drawn = useDrawnShare(share);
+  const { target: barHover, handlers: barHoverHandlers } = useTooltipTarget<HTMLDivElement>();
   return (
     <div
       data-testid="build-progress"
@@ -93,6 +102,7 @@ export function BuildProgress({ grid }: { grid: Grid }) {
           aria-valuenow={percent}
           aria-valuemin={0}
           aria-valuemax={100}
+          {...barHoverHandlers}
           className="relative h-4 w-45 min-w-0 overflow-hidden rounded-[20px] border border-line-muted bg-progress-track"
         >
           <div
@@ -109,6 +119,9 @@ export function BuildProgress({ grid }: { grid: Grid }) {
           {percent}% complete
         </p>
       </div>
+      <Tooltip anchor={barHover} testId="build-progress-tooltip">
+        {BAR_TOOLTIP}
+      </Tooltip>
     </div>
   );
 }
