@@ -755,10 +755,17 @@ export function PuzzleGridEditor({
   }
   const isHoverDue =
     isLockShown && hasLockRoom && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run;
+  // The tick's word, once unlocked, keeps its button only while it is still
+  // lockable (21-S10): its letters changing takes the button away.
+  const tickWordTarget = tickWord
+    ? lockTargetAt(grid, lockedWords, { current: { col: tickWord.col, row: tickWord.row }, orientation: tickWord.orientation })
+    : null;
   const hoverTarget = !isHoverDue
     ? null
     : tickWord
-      ? { word: tickWord, isLocked: isTickWordLocked }
+      ? tickWordTarget && sameWord(tickWordTarget.word, tickWord)
+        ? tickWordTarget
+        : null
       : lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation });
   const lockTarget = hoverTarget ?? cursorLockTarget;
   // The hover's button is for the mouse: no Tab stop unless it's the
