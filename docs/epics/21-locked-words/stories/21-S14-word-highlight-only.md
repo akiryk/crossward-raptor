@@ -4,7 +4,7 @@ With the cursor in a word, only that word is blue-medium; the rest of its
 row or column stays as it would be. With the cursor in no word, the row
 or column's off cells are dull blue, showing the direction.
 
-**Status: approved by the human and frozen (2026-11-07), delegated details included; delivered on `main`, awaiting the human's visual check.** From the
+**Status: approved by the human and frozen (2026-11-07), delegated details included; delivered on `main`; the human's visual check passed (2026-11-08), with S17's amendments.** From the
 human's review after S12–S13 (EPIC "Changes from the human's review after
 S12–S13 (2026-11-07)", item 1). Amends S1's and S8's "every other cell of
 the row or column is dull blue". Depends on S1 and S8 (delivered).

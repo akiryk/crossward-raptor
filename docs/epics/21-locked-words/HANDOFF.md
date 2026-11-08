@@ -8,26 +8,25 @@
 **Only if needed:** [HISTORY](HISTORY.md) (the handoff as of 3d6952a:
 S1–S11 delivery, verification, open items, audit notes).
 
-## Current state (2026-11-07, S14–S16 delivered, awaiting visual check)
+## Current state (2026-11-08, S17 drafting)
 
-S1–S13 are done and on `main`, with the human's visual check of S12 and
-S13.
+S1–S16 are done and on `main` (S14–S16 at `58b77b3`). The human's visual
+check of S14–S16 passed except for two requests, which
+[S17](stories/21-S17-tick-button-at-once.md) carries: hovering a locked
+word (its tick or its letters) shows its button at once, and the tick
+hover's black outline is 2px. **The human approved S17 (2026-11-08)**,
+with its delegated details; it is frozen on `main` in a
+specification-only commit (story, EPIC, this handoff and 4 amended
+specs: `lock-tick-button`, `lock-tick-hover`, `lock-hover`,
+`lock-refocus`). The scratch runtime is
+`../crossward-raptor-s17-scratch.patch`; the story records its
+discrimination.
 
-S14–S16 (the human's review after S12–S13) were approved by the human,
-delegated details included, and frozen at `8ab0c42` (stories, EPIC,
-2 new tests, 15 amended specs). Their implementation is the scratch
-patch with tidied comments, in `src/lib/cell-appearance.ts`,
+S14–S16's implementation is in `src/lib/cell-appearance.ts`,
 `src/components/grid/PuzzleGrid.tsx` and
-`src/components/grid/PuzzleGridEditor.tsx`, all off the risk paths:
+`src/components/grid/PuzzleGridEditor.tsx`, frozen at `8ab0c42`.
 
-- [S14](stories/21-S14-word-highlight-only.md): only the cursor's word
-  is highlighted; with no word, only the line's off cells are dull blue.
-- [S15](stories/21-S15-tick-hover-outline.md): the tick hover outlines
-  each word in black instead of darkening it.
-- [S16](stories/21-S16-three-second-wait.md): the button beside an
-  unlocked word waits 3 seconds.
-
-Verification (observed 2026-11-07, on the committed tree): `npm run
+S14–S16 verification (observed 2026-11-07, on the committed tree): `npm run
 verify` exit 0 (733 unit tests; 2 pre-existing lint warnings). Full
 `npm run test:e2e`: 1207 passed, 6 failed, none in a spec S14–S16 touch:
 5 `ECONNRESET`s at sign-in or seeding (`menu-reset`, `row-menu`,
@@ -53,10 +52,11 @@ Not started: the closeout audit (S7–S16 unaudited). Leftovers: branch
 
 ## Next action
 
-1. The human checks S14–S16 visually.
-2. Then the independent, report-only closeout audit of S7–S16. Close the
+1. Apply the scratch patch and run `npm run verify` and the full
+   `npm run test:e2e`. Push. The human checks S17 visually.
+2. Then the independent, report-only closeout audit of S7–S17. Close the
    epic only with the human's agreement.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. After the human's visual check of S14–S16, run the independent, report-only closeout audit of epic 21's S7–S16.
+Read docs/epics/21-locked-words/HANDOFF.md and the S17 story in docs/epics/21-locked-words/stories/, then implement the frozen S17 on `main` per the handoff's next action.

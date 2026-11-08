@@ -42,8 +42,14 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // is at 2500ms, "long enough" 3500ms, and the cursor's button is awaited
 // 4000ms (was 2000ms). Where this file says "a second", read three.
 //
+// Amended by 21-S17: the tick's button shows at once (was after the
+// button's wait), and a turn's new pick at once too. The outline is 2px.
+// Where this file says the button comes "after a second", read "at once";
+// waits for it are AT_ONCE_MS (were NOT_YET_MS + SHOWN_WITHIN_MS, and
+// SHOWN_WITHIN_MS is gone).
+//
 // Timing: "not yet" is checked once after 500ms of hover (a timer can
-// fire late under load, never early); "shown" allows up to 1500ms more;
+// fire late under load, never early); "shown" allowed up to 1500ms more;
 // "at once" is 300ms for the button and 500ms for paint (a screenshot is
 // taken each try).
 //
@@ -59,7 +65,6 @@ type Rgb = [number, number, number];
 const SAME_TOLERANCE = 2;
 
 const NOT_YET_MS = 2500; // 21-S16: was 500
-const SHOWN_WITHIN_MS = 1500;
 const AT_ONCE_MS = 300;
 const PAINT_AT_ONCE_MS = 500;
 /** Long enough for any second to have run. */
@@ -277,7 +282,7 @@ async function paintMismatches(page: Page, base: Record<string, Rgb>, dark: stri
 }
 
 /** 21-S15: the tick hover's outlines [data-testid="tick-hover-outline"]
- *  are a 1px black line on the grid lines around each hovered word's
+ *  are a 2px black line (21-S17: was 1px) on the grid lines around each hovered word's
  *  cells (not its end cells), and they surround exactly `cells`. What's
  *  amiss, for a readable failure. */
 async function tickOutlineMismatches(page: Page, cells: string[]): Promise<string[]> {
@@ -297,10 +302,11 @@ async function tickOutlineMismatches(page: Page, cells: string[]): Promise<strin
       const isLine = sides.every(
         (side) =>
           cs.getPropertyValue(`border-${side.toLowerCase()}-color`) === 'rgb(0, 0, 0)' &&
-          cs.getPropertyValue(`border-${side.toLowerCase()}-width`) === '1px' &&
+          cs.getPropertyValue(`border-${side.toLowerCase()}-width`) === '2px' &&
           cs.getPropertyValue(`border-${side.toLowerCase()}-style`) === 'solid'
       );
-      // On the grid lines: 1px outside the cells' own boxes on every side.
+      // Its outer edge on the grid lines, 1px outside the cells' own boxes on
+      // every side (21-S17: the line's second pixel is inside the cells).
       const fits =
         inside.length > 0 &&
         Math.abs(o.left - (Math.min(...inside.map((c) => c.r.left)) - 1)) <= 1.5 &&
@@ -311,7 +317,7 @@ async function tickOutlineMismatches(page: Page, cells: string[]): Promise<strin
     });
   });
   const problems = found.flatMap(({ coords, isLine, fits }) => [
-    ...(isLine ? [] : [`outline around ${coords.join(' ')}: not a 1px black line`]),
+    ...(isLine ? [] : [`outline around ${coords.join(' ')}: not a 2px black line`]),
     ...(fits ? [] : [`outline around ${coords.join(' ') || 'no cell'}: not on the lines around its cells`]),
   ]);
   const got = [...new Set(found.flatMap(({ coords }) => coords))].sort();
@@ -354,7 +360,8 @@ async function isButtonAt(page: Page, p: { x: number; y: number }) {
 }
 
 test.describe('21-S13-2 a second on a ticked end cell shows its word\'s button', () => {
-  test('the darkening at once, the button after a second; it stays on the cell, the word and the button', async ({
+  // 21-S17: the button at once (was after a second).
+  test('the darkening and the button at once; it stays on the cell, the word and the button', async ({
     page,
   }) => {
     await open(page);
@@ -363,15 +370,13 @@ test.describe('21-S13-2 a second on a ticked end cell shows its word\'s button',
     const all = [...TANGENT, ...TANGENT_ENDS];
     const base = await paints(page, all);
 
-    // TANGENT's after tick: no button yet, TANGENT already darker.
+    // TANGENT's after tick: TANGENT darker and, 21-S17: at once (was
+    // after the wait), TANGENT's "Unlock word", before its T. Still
+    // darker after the wait; the cursor and focus as they were.
     await mouseOnTick(page, '10,2');
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
+    await expectPaint(page, base, { dark: TANGENT, same: TANGENT_ENDS });
     await page.waitForTimeout(NOT_YET_MS);
-    await expect(lockButton(page)).toHaveCount(0);
-    await expectPaintNow(page, base, { dark: TANGENT, same: TANGENT_ENDS });
-
-    // Then TANGENT's "Unlock word", before its T; still darker; the
-    // cursor and focus as they were.
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: SHOWN_WITHIN_MS });
     await expectButtonBeside(page, '3,2', 'across');
     await expectPaintNow(page, base, { dark: TANGENT, same: TANGENT_ENDS });
     await expect(cell(page, EMPTY)).toHaveAttribute('data-selected', 'true');
@@ -414,7 +419,7 @@ test.describe('21-S13-2 a second on a ticked end cell shows its word\'s button',
     await expect(gridRegion(page)).not.toBeFocused();
 
     await mouseOnTick(page, '10,2');
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await expectButtonBeside(page, '3,2', 'across');
 
     await lockButton(page).click();
@@ -434,7 +439,8 @@ test.describe('21-S13-2 a second on a ticked end cell shows its word\'s button',
 });
 
 test.describe('21-S13-3 the whole end cell counts', () => {
-  test('the cell\'s lower left, away from the tick: darker at once, the button after a second', async ({ page }) => {
+  // 21-S17: the button at once (was after a second).
+  test('the cell\'s lower left, away from the tick: darker and the button at once', async ({ page }) => {
     await open(page);
     await lockAcross(page, '6,2');
     await leave(page);
@@ -442,7 +448,7 @@ test.describe('21-S13-3 the whole end cell counts', () => {
 
     await mouseTo(page, '10,2', [0.1, 0.9]);
     await expectPaint(page, base, { dark: TANGENT, same: TANGENT_ENDS });
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await expectButtonBeside(page, '3,2', 'across');
   });
 });
@@ -460,7 +466,7 @@ test.describe('21-S13-4 the button coming up under the resting mouse', () => {
     const resting = await pointIn(page, '2,2', 0.6, 0.5);
     await page.mouse.move(resting.x, resting.y);
     await expectPaint(page, base, { dark: TANGENT, same: TANGENT_ENDS });
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await expectButtonBeside(page, '3,2', 'across');
     expect(await isButtonAt(page, resting), 'the button is under the mouse').toBe(true);
     await page.waitForTimeout(AT_ONCE_MS);
@@ -495,7 +501,7 @@ test.describe('21-S13-5 a shared end cell: the cursor\'s direction', () => {
     // 21-S11's darkening is every locked word ending there; the button is DOG's.
     await mouseOnTick(page, SHARED);
     await expectPaint(page, base, { dark: [...CAT, ...DOG, ...OWL], same: [SHARED] });
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await expectButtonBeside(page, '6,7', 'across');
     await expectPaintNow(page, base, { dark: [...CAT, ...DOG, ...OWL], same: [SHARED] });
 
@@ -505,10 +511,9 @@ test.describe('21-S13-5 a shared end cell: the cursor\'s direction', () => {
     await mouseAway(page);
     await expect(lockButton(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
     await mouseOnTick(page, SHARED);
+    // 21-S17: CAT's at once (was after the wait).
+    await expectButtonBesideWithin(page, '2,7', 'across', AT_ONCE_MS);
     await expectPaint(page, base, { dark: [...CAT, ...OWL], same: [...DOG, SHARED] });
-    await page.waitForTimeout(NOT_YET_MS);
-    await expect(lockButton(page)).toHaveCount(0);
-    await expectButtonBesideWithin(page, '2,7', 'across', SHOWN_WITHIN_MS);
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
   });
 
@@ -520,16 +525,13 @@ test.describe('21-S13-5 a shared end cell: the cursor\'s direction', () => {
     await leave(page);
 
     await mouseOnTick(page, SHARED);
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await expectButtonBeside(page, '6,7', 'across');
 
-    // The cursor turns Down under the resting mouse: DOG's goes at once,
-    // and OWL's comes after its own second, above OWL's O.
+    // The cursor turns Down under the resting mouse: DOG's goes and,
+    // 21-S17: OWL's comes at once (was after its own second), above OWL's O.
     await turnDown(page);
-    await expect(lockButton(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
-    await page.waitForTimeout(NOT_YET_MS);
-    await expect(lockButton(page)).toHaveCount(0);
-    await expectButtonBesideWithin(page, '5,8', 'down', SHOWN_WITHIN_MS);
+    await expectButtonBesideWithin(page, '5,8', 'down', AT_ONCE_MS);
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
 
     // Unlock OWL through it; back on the tick, still Down, no down word is
@@ -539,7 +541,7 @@ test.describe('21-S13-5 a shared end cell: the cursor\'s direction', () => {
     await mouseAway(page);
     await expect(lockButton(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
     await mouseOnTick(page, SHARED);
-    await expectButtonBesideWithin(page, '6,7', 'across', NOT_YET_MS + SHOWN_WITHIN_MS);
+    await expectButtonBesideWithin(page, '6,7', 'across', AT_ONCE_MS);
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
   });
 });
@@ -552,10 +554,9 @@ test.describe('21-S13-6 21-S10\'s rules for the tick\'s button', () => {
     await lockAcross(page, '3,7');
     await expectButtonBeside(page, '2,7', 'across');
 
+    // 21-S17: replaced at once (was after the wait).
     await mouseOnTick(page, '10,2');
-    await page.waitForTimeout(NOT_YET_MS);
-    await expectButtonBeside(page, '2,7', 'across');
-    await expectButtonBesideWithin(page, '3,2', 'across', SHOWN_WITHIN_MS);
+    await expectButtonBesideWithin(page, '3,2', 'across', AT_ONCE_MS);
 
     await mouseAway(page);
     await expectButtonBesideWithin(page, '2,7', 'across', AT_ONCE_MS);
@@ -584,7 +585,7 @@ test.describe('21-S13-6 21-S10\'s rules for the tick\'s button', () => {
     await leave(page);
 
     await mouseOnTick(page, '10,2');
-    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: NOT_YET_MS + SHOWN_WITHIN_MS });
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: AT_ONCE_MS });
     await page.mouse.down();
     await page.mouse.up();
     await expect(cell(page, '10,2')).toHaveAttribute('data-selected', 'true');

@@ -181,6 +181,10 @@ From the human's review after S12–S13 (2026-11-07, second round):
 15. **[S15 The tick hover outlines the word](stories/21-S15-tick-hover-outline.md).**
 16. **[S16 Three seconds before the button](stories/21-S16-three-second-wait.md).**
 
+From the human's visual check of S14–S16 (2026-11-08):
+
+17. **[S17 The tick's button at once, a 2px outline](stories/21-S17-tick-button-at-once.md).**
+
 Between S2 and S3, locks show but don't yet protect; both ship before the
 epic closes. Each story checks its actual paths against CODE-REVIEW. Only
 S2 is expected on a risk path.
@@ -441,6 +445,29 @@ S14–S16 carry them.
   mouse on a tick (the human chose "all button delays"). A locked word's
   button still shows at once for the cursor, and S4's tooltip keeps its
   second.
+
+## Changes from the human's visual check of S14–S16 (2026-11-08)
+
+The human's requests after checking S14–S16, recorded as given. They
+amend the Decisions above where they differ. S17 carries them.
+
+> make it so hovering over a tick mark shows the lock icon just as fast
+> as we show it when selecting a letter in a locked word. Also, please
+> make the outline in black around the word 2px rather than one when
+> hovering over the tick mark.
+
+> [asked whether resting on a locked word's letters is at once too:] If
+> a word is not locked and I hover over a letter or click on a letter, we
+> wait 3 seconds. That is good. If a word is locked, we show the button
+> as soon as I hover or select. This second behavior is what I want for
+> tick marks.
+
+- **A locked word's button on hover (amends S10, S13, S16):** the mouse
+  on a locked word, its letters or its ticked end cell, shows its lock
+  button at once, as the cursor in a locked word does. An unlocked
+  word's still waits 3 seconds.
+- **The tick hover's outline (amends S15):** 2px black (was 1px),
+  growing inward from the grid line (the human's choice).
 
 ## Non-goals
 
