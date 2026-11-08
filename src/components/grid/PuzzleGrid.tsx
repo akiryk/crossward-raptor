@@ -229,7 +229,7 @@ export function PuzzleGrid({
   }
   // The ticked end cell the mouse is on (21-S11, 21-S13). When
   // its tick goes, so does the hover: a tick that comes back under a
-  // resting mouse darkens nothing until the mouse moves onto it.
+  // resting mouse outlines nothing until the mouse moves onto it.
   const [hoverTick, setHoverTick] = useState<string | null>(null);
   const isHoverTickShown = hoverTick !== null && ticked.has(hoverTick);
   if (hoverTick !== null && !isHoverTickShown) setHoverTick(null);
@@ -278,6 +278,7 @@ export function PuzzleGrid({
         isSymmetricHint: hints.has(key),
         isRecommended: recommended.has(key),
         isOutsideWord: cursorWord !== undefined && !cursorWord.has(key),
+        hasCursorWord: cursorWord !== undefined && cursorWord.size > 0,
         isHintsPhase,
         mode,
       });
@@ -366,8 +367,8 @@ export function PuzzleGrid({
   // 21-S10 it's part of the end cell, a click on it is a click on the cell,
   // and a lock button over part of it is what's hovered there (the event's
   // target is the button, not the cell). Only the button of a word ending
-  // at the hovered cell keeps its darkening, moved onto from the cell or
-  // come up under the mouse; any other button darkens nothing.
+  // at the hovered cell keeps its outline, moved onto from the cell or
+  // come up under the mouse; any other button outlines nothing.
   function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== 'mouse') return;
     if (lockButtonRef.current?.contains(e.target as Node)) {
@@ -396,25 +397,12 @@ export function PuzzleGrid({
   // area, so it takes no cell's place.
   const outlined = [...lockedWords];
   if (lockTarget && !lockTarget.isLocked) outlined.push(lockTarget.word);
-  // The hovered tick's words darken by 15%, each word cell's whole box (its
-  // letter and number too), drawn first so the outlines, ticks and lock
-  // button stay above. It follows the tick: with no tick there (the words
-  // unlocked, or Preview on), nothing darkens.
+  // The hovered tick's words each get a black outline around their letters
+  // (21-S15), over the gray one around the word and its end cells, and
+  // under the ticks and the lock button. It follows the tick: with no tick
+  // there (the words unlocked, or Preview on), none shows.
   const tickWords = isHoverTickShown ? lockedWordsEndingAt(grid, lockedWords, ticked.get(hoverTick)!) : [];
-  const darkened = new Map<string, Coord>();
-  for (const word of tickWords) {
-    for (const coord of lockedWordCells(word)) darkened.set(`${coord.col},${coord.row}`, coord);
-  }
   const overlays = [
-    ...[...darkened].map(([key, coord]) => (
-      <div
-        key={`tick-hover ${key}`}
-        data-testid="tick-hover-shade"
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-(--palette-black)/15"
-        style={gridArea([coord])}
-      />
-    )),
     ...outlined.map((word) => (
       <div
         key={`outline ${word.col},${word.row} ${word.orientation}`}
@@ -422,6 +410,15 @@ export function PuzzleGrid({
         aria-hidden="true"
         className="pointer-events-none absolute border border-(--palette-gray-500)"
         style={{ ...gridArea([...lockedWordCells(word), ...endCells(grid, word)]), inset: 'calc(-1 * var(--grid-line-width))' }}
+      />
+    )),
+    ...tickWords.map((word) => (
+      <div
+        key={`tick-hover ${word.col},${word.row} ${word.orientation}`}
+        data-testid="tick-hover-outline"
+        aria-hidden="true"
+        className="pointer-events-none absolute border border-(--palette-black)"
+        style={{ ...gridArea(lockedWordCells(word)), inset: 'calc(-1 * var(--grid-line-width))' }}
       />
     )),
     ...[...ticked].map(([key, end]) => (

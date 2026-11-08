@@ -26,8 +26,9 @@ export type GridMode = 'build' | 'preview' | 'play';
  * distinguishable from a slot cell with no known purpose yet ('slot'),
  * which otherwise would be indistinguishable from it once the slot's
  * final length isn't decided (no black cells yet on that row/column).
- * Given `isOutsideWord`, a slot cell outside the cursor's word is plain
- * 'slot', lettered or a symmetric hint (21-S1).
+ * Given `isOutsideWord`, a slot cell outside the cursor's word looks as it
+ * would outside the slot; with no cursor word (`hasCursorWord` false), the
+ * slot's empty cells are plain 'slot' (21-S14).
  * Preview mode ignores selection and slot entirely -- it answers "what
  * will this look like published". The cursor and its Preview word are
  * painted over it by PuzzleGrid (17-S4), as in the hints phase and play,
@@ -45,6 +46,8 @@ export function cellAppearance(args: {
   isRecommended?: boolean;
   /** Build phase: in the slot, but not in the cursor's word (21-S1). */
   isOutsideWord?: boolean;
+  /** Build phase: the cursor is in a word (21-S14). */
+  hasCursorWord?: boolean;
   isHintsPhase?: boolean;
   mode?: GridMode;
 }): CellAppearance {
@@ -55,6 +58,7 @@ export function cellAppearance(args: {
     isSymmetricHint,
     isRecommended = false,
     isOutsideWord = false,
+    hasCursorWord = false,
     isHintsPhase = false,
     mode = 'build',
   } = args;
@@ -78,7 +82,11 @@ export function cellAppearance(args: {
   }
 
   if (isSelected) return 'selected';
-  if (isInSlot) {
+  // Outside the cursor's word, a slot cell looks as it would outside the
+  // slot, unless the cursor is in no word: then the line's empty cells are
+  // dull blue, showing its direction (21-S14).
+  const isPlainSlot = !isOutsideWord || (!hasCursorWord && cell.letter === null && !isSymmetricHint);
+  if (isInSlot && isPlainSlot) {
     if (isOutsideWord) return 'slot';
     if (cell.letter !== null) return 'slot-letter';
     return isSymmetricHint ? 'slot-required' : 'slot';

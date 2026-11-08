@@ -67,8 +67,8 @@ import { gridMaxPx } from "../../lib/grid-max";
 
 const SAVE_DEBOUNCE_MS = 500;
 // How long the cursor stays in an unlocked word before its lock button
-// shows (21-S2).
-const LOCK_BUTTON_DELAY_MS = 1000;
+// shows (21-S2), and the mouse's hover wait (21-S10): 3 seconds (21-S16).
+const LOCK_BUTTON_DELAY_MS = 3000;
 // Room for the lock button left of the grid: 32px, the 1px line and 3px to
 // spare (21-S12).
 const LOCK_ROOM_PX = 36;
@@ -86,8 +86,8 @@ interface EditorState {
 }
 
 // A mouse resting on a word (21-S10): the cell it last moved onto, and the
-// second for the run through that cell in the cursor's direction. Moving
-// within the run keeps the same `wait`, so its second runs on.
+// wait for the run through that cell in the cursor's direction. Moving
+// within the run keeps the same `wait`, so it runs on.
 interface LockHover {
   coord: Coord;
   wait: { run: string | null; isDue: boolean };
@@ -212,8 +212,8 @@ export function PuzzleGridEditor({
   const [isGridFocused, setIsGridFocused] = useState(false);
   const gridRegionRef = useRef<HTMLDivElement>(null);
   // The cursor whose word's lock button shows (21-S2): set once the cursor
-  // has stayed a second, or by toggling the lock. Every key or move makes
-  // a new cursor, so the second starts again.
+  // has stayed `LOCK_BUTTON_DELAY_MS`, or by toggling the lock. Every key or
+  // move makes a new cursor, so the wait starts again.
   const [lockDwell, setLockDwell] = useState<CursorState | null>(null);
   // The button beside the word shows only with the grid at its full width,
   // the puzzle's own (21-S9), and room for the button left of it (21-S12);
@@ -335,7 +335,7 @@ export function PuzzleGridEditor({
     if (advance) gridRegionRef.current?.focus({ preventScroll: true });
   }
 
-  // Only time with the grid focused counts toward the button's second (21-S7).
+  // Only time with the grid focused counts toward the button's wait (21-S7).
   useEffect(() => {
     if (!isFocused) return;
     const timer = setTimeout(() => setLockDwell(state.cursor), LOCK_BUTTON_DELAY_MS);
@@ -361,7 +361,7 @@ export function PuzzleGridEditor({
     };
   }, [gridPx]);
 
-  // A second of hover, counted from the mouse moving onto the word (21-S10).
+  // The hover's wait, counted from the mouse moving onto the word (21-S10).
   const hoverWait = lockHover?.wait ?? null;
   useEffect(() => {
     if (!hoverWait || hoverWait.isDue) return;
@@ -383,7 +383,7 @@ export function PuzzleGridEditor({
   }
 
   // The mouse moved onto a cell (null: the hover ended). Within the same
-  // run its second runs on; any other cell starts a new one (21-S10). A
+  // run its wait runs on; any other cell starts a new one (21-S10). A
   // ticked end cell's run is the word `tickTarget` picks there, which stays
   // on that word's cells whatever the cursor's direction (21-S13).
   function handleHoverCell(coord: Coord | null) {
@@ -718,7 +718,7 @@ export function PuzzleGridEditor({
     : new Set((buildWord(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
 
   // Locks show only in the build phase with Preview off (21-S2). The
-  // button and its outline show at once in a locked word, after a second in
+  // button and its outline show at once in a locked word, after the wait in
   // another word of 3 or more letters, and only while the grid (or a lock
   // button) has focus. The toggle row's Lock Word is enabled at once (21-S5).
   const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
@@ -727,12 +727,12 @@ export function PuzzleGridEditor({
     isFocused && cursorTarget && (cursorTarget.isLocked || lockDwell === cursor) ? cursorTarget : null;
   const isRowLockEnabled = isFocused && cursorTarget !== null;
 
-  // The hovered word's button wins once its second has passed, focused or
+  // The hovered word's button wins once its wait has passed, focused or
   // not; only where the button beside the word is used, with no rebus entry open
   // (21-S10). A turn of the cursor puts a new run under the mouse, whose
-  // second starts over. On a ticked end cell, a turn, or its word's tick
+  // wait starts over. On a ticked end cell, a turn, or its word's tick
   // going (unlocked by the keyboard), picks again; the same word keeps its
-  // second (21-S13).
+  // wait (21-S13).
   const tickWord = lockHover?.tickWord ?? null;
   const isTickWordLocked = tickWord !== null && lockedWords.some((word) => sameWord(word, tickWord));
   if (lockHover?.pickedFor && (lockHover.pickedFor !== cursor.orientation || !isTickWordLocked)) {
@@ -799,7 +799,7 @@ export function PuzzleGridEditor({
   }
   // Focus moving within (the grid to its lock button) changes nothing: the
   // button would go before it could take focus (21-S2). Leaving entirely,
-  // the button's second starts over on return.
+  // the button's wait starts over on return.
   // The toggle row's Lock Word, focused by keyboard, counts as the grid's
   // focus too (21-S5), though it sits outside editor-layout.
   function handleEditorBlur(event: ReactFocusEvent<HTMLElement>) {

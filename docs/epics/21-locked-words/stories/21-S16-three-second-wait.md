@@ -4,7 +4,7 @@ The lock button beside an unlocked word waits 3 seconds instead of 1,
 whether the cursor, the mouse on a word or the mouse on a tick brought
 it.
 
-**Status: approved by the human and frozen (2026-11-07), delegated details included.** From the
+**Status: approved by the human and frozen (2026-11-07), delegated details included; delivered on `main`, awaiting the human's visual check.** From the
 human's review after S12–S13 (EPIC "Changes from the human's review after
 S12–S13 (2026-11-07)", item 3). Amends the "second" of S2, S7, S10 and
 S13. Depends on them (delivered).

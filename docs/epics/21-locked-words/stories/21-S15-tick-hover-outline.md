@@ -4,7 +4,7 @@ Hovering a ticked end cell no longer darkens its locked words. Each one
 gets a black outline around its letters instead, and every cell keeps its
 color.
 
-**Status: approved by the human and frozen (2026-11-07), delegated details included.** From the
+**Status: approved by the human and frozen (2026-11-07), delegated details included; delivered on `main`, awaiting the human's visual check.** From the
 human's review after S12–S13 (EPIC "Changes from the human's review after
 S12–S13 (2026-11-07)", item 2). Amends S11's darkening, and S13's
 "the darkening" (now the outline). Depends on S11 and S13 (delivered).
