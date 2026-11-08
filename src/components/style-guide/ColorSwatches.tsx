@@ -128,7 +128,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
   { name: 'status-complete', variable: 'orange', swatch: 'bg-status-complete' },
   { name: 'toggle-row', variable: 'interactive-faint', swatch: 'bg-toggle-row' },
   { name: 'progress-track', variable: 'white', swatch: 'bg-progress-track' },
-  { name: 'progress-fill', variable: 'gray-200', swatch: 'bg-progress-fill' },
+  { name: 'progress-fill', variable: 'gray-500', swatch: 'bg-progress-fill' },
   { name: 'progress-fill-ready', variable: 'interactive-dark', swatch: 'bg-progress-fill-ready' },
   { name: 'progress-zone', variable: 'orange', swatch: 'bg-progress-zone' },
   { name: 'modal-background', variable: 'white', swatch: 'bg-modal-background' },
