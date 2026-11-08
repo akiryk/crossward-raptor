@@ -114,6 +114,11 @@ const STYLES: Record<string, string> = {
   'status-complete': 'orange',
   // 17-S8: the builder's toggle row.
   'toggle-row': 'interactive-faint',
+  // 22-S2: the build progress bar.
+  'progress-track': 'white',
+  'progress-fill': 'gray-200',
+  'progress-fill-ready': 'interactive-dark',
+  'progress-zone': 'orange',
   'modal-background': 'white',
   'modal-title-background': 'yellow-bright',
   logo: 'gray-400',

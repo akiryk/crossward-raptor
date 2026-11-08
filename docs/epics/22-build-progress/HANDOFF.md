@@ -36,7 +36,8 @@ The human approved the EPIC 2026-11-08.
 
 - **S1 done:** frozen 33160ed after an independent spec review; PR #34
   merged 310bc94 by an independent reviewer (no blockers).
-- **S2:** specification being drafted on `main` (uncommitted).
+- **S2:** frozen on `main` after an independent spec review (all
+  findings addressed); implementation next, direct to `main`.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -50,6 +51,19 @@ human waived the correction procedure for it.
    wording was committed; the original diff is saved at
    `.git/user-tooltip-wording-backup.diff`. The human's own quotation in
    Epic 20's EPIC (the request as given) keeps the old wording.
+2. **Frozen Epic 21 test amended:** 21-S5-4 expected Rebus to stay with
+   Preview on in a daily; the approved EPIC hides it, so the S2 freeze
+   flips that one assertion (independently reviewed; no other change).
+3. **Narrow layout (below a 490px window):** two right-aligned lines —
+   Preview and the message on line 1, the bar and "N% complete" on
+   line 2. The message is above the bar's line but sits over the
+   percentage, not over the bar ("Keep building." clears the bar's end);
+   the stacked alternative couldn't keep the bar's 80px minimum at
+   320px. Below a 304px window the message drops to 12px. Look at this
+   at 375px.
+4. Rebus and Lock Word are removed from the row (not just hidden)
+   wherever the progress shows; the message and percentage sit in
+   fixed boxes so the bar doesn't move when the text changes at 80%.
 
 ## Verification
 

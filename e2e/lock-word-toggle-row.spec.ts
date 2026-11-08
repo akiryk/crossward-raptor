@@ -36,6 +36,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Amended by 21-S16: the button beside a word waits 3 seconds (was 1);
 // every wait timed against it is 2000ms longer.
 //
+// Amended by 22-S2: with Preview on in a daily or Sunday, Rebus leaves the
+// row too (the build progress takes its place); 21-S5-4 checks it's gone.
+//
 // Colors and sizes are the human's values, written out here. Do not edit
 // this file to match an implementation.
 
@@ -396,7 +399,9 @@ test.describe('21-S5-4 Preview and the hints phase (375px)', () => {
     await page.waitForTimeout(3500);
     await expect(shownControl(page)).toHaveCount(0);
     await expect(besideButton(page)).toHaveCount(0);
-    await expect(rebus(page)).toHaveCount(1);
+    // Amended by 22-S2: in a daily with Preview on, the build progress takes
+    // Rebus's place, so Rebus isn't shown either (was toHaveCount(1)).
+    await expect(rebus(page)).toHaveCount(0);
 
     await page.getByTestId('preview-toggle').locator('input').click({ force: true });
     await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'build');
