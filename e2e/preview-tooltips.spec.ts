@@ -12,8 +12,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // In Preview (build phase only), hovering a red or gold cell with the
 // mouse shows a tooltip (`preview-tooltip`, role `tooltip`): a gold cell
 // (`data-cell-state="recommended"`) "Consider avoiding two-letter words.",
-// a red one (`required`) "Filling in these cells will result in a
-// symmetrical puzzle." A cell that's both is gold and shows the gold text.
+// a red one (`required`) "Fill in these cells so the puzzle is
+// symmetrical." A cell that's both is gold and shows the gold text.
 // It follows the cell's mark, also under the cursor's colors, and changes
 // or goes with it. One at most; none over other cells or off the grid.
 //
@@ -30,7 +30,7 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 const WIDE = { width: 1440, height: 900 };
 const PHONE = { width: 375, height: 600 };
 const GOLD = 'Consider avoiding two-letter words.';
-const RED = 'Filling in these cells will result in a symmetrical puzzle.';
+const RED = 'Fill in these cells so the puzzle is symmetrical.';
 
 type Rgb = { r: number; g: number; b: number };
 

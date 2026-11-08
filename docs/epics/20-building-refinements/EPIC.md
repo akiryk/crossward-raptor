@@ -96,8 +96,8 @@ From the human's request:
   will remove every letter from the grid."; confirm "Clear Puzzle",
   cancel "Cancel".
 - **Tooltip text:** gold (two-letter word) "Consider avoiding two-letter
-  words."; red (missing symmetric letter) "Filling in these cells will
-  result in a symmetrical puzzle." A cell that's gold shows only the gold
+  words."; red (missing symmetric letter) "Fill in these cells so the
+  puzzle is symmetrical." (reworded by the human 2026-11-08) A cell that's gold shows only the gold
   text, matching its color.
 - **The tooltip shows on hover**, only in Preview, only over a red or
   gold cell.

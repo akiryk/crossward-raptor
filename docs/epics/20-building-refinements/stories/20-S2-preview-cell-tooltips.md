@@ -28,7 +28,7 @@ is no tooltip component.
 From the EPIC:
 
 - **The text:** a gold cell "Consider avoiding two-letter words."; a red
-  cell "Filling in these cells will result in a symmetrical puzzle." A
+  cell "Fill in these cells so the puzzle is symmetrical." A
   cell that's both shows only the gold text, as it's colored gold.
 - **When:** mouse hover only, only in Preview, only over a red or gold
   cell. Touch and keyboard rely on the legend, which stays unchanged.

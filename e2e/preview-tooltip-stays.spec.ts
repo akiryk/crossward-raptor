@@ -21,7 +21,7 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 const WIDE = { width: 1440, height: 900 };
 const GOLD = 'Consider avoiding two-letter words.';
-const RED = 'Filling in these cells will result in a symmetrical puzzle.';
+const RED = 'Fill in these cells so the puzzle is symmetrical.';
 
 const tooltip = (page: Page) => page.getByTestId('preview-tooltip');
 const cell = (page: Page, coord: string) => page.locator(`[data-coord="${coord}"]`);

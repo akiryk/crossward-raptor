@@ -105,7 +105,7 @@ const PREVIEW_HIGHLIGHT_BG = {
 // follows the cell's mark, not the cursor's colors painted over it.
 const PREVIEW_TOOLTIP: Partial<Record<CellAppearance, string>> = {
   recommended: 'Consider avoiding two-letter words.',
-  required: 'Filling in these cells will result in a symmetrical puzzle.',
+  required: 'Fill in these cells so the puzzle is symmetrical.',
 };
 
 const GRID_LINES: Record<string, string> = {
