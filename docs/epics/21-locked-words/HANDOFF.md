@@ -3,76 +3,76 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [S12](stories/21-S12-button-before-word.md) and
-   [S13](stories/21-S13-tick-hover-button.md) (both frozen), and their
-   acceptance files (named in each story's "Acceptance").
+2. [S13](stories/21-S13-tick-hover-button.md) (frozen; S12 only if
+   needed), and `src/components/grid/PuzzleGridEditor.tsx`'s hover logic.
 3. [EPIC](EPIC.md) "Changes from the human's visual testing (2026-11-07)"
    only if a decision is unclear.
 
 **Only if needed:** [HISTORY](HISTORY.md) (the handoff as of 3d6952a:
 S1–S11 delivery, verification, open items, audit notes).
 
-## Current state (2026-11-07)
+## Current state (2026-11-07, implementation session)
 
-S1–S11 are done and on `main`. S12 and S13 are **approved by the human
-and frozen, not implemented**:
+S1–S11 are done and on `main`. S12 and S13 are **implemented and
+committed locally on `main`, not pushed** (`origin/main` is 20957ed):
 
-- **Independent specification review** (2026-11-07, one report-only
-  reviewer per story, neither the drafter): S12 three wording blockers
-  (the new spec has 17 cases, not 18; 21-S10-4's move now takes 20 steps;
-  in two columns the hints move 12px right and narrow by 12px), all
-  fixed. S13 no blockers; its wording fixes were applied (Tab stop only
-  for the cursor's own word, as S10; `tickTarget` decides on any ticked
-  end cell; every word ending at the cell stays darker on the button;
-  stale "on the tick" wording and an unmarked header change in
-  `lock-tick-hover.spec.ts`). No behavior or assertion changed.
-- **The human approved** both stories, the delegated decisions and the
-  review's clarifications (2026-11-07).
-- **Frozen baselines:** S12 `3660cbf` (story,
-  `e2e/lock-button-side.spec.ts`, the 21-S12 amendments to 9 specs).
-  S13 `a576f96` (story, `src/lib/tick-target.test.ts`,
-  `e2e/lock-tick-button.spec.ts`, the 21-S13 amendments to
-  `e2e/lock-tick-hover.spec.ts`). Compare acceptance against these.
-- **Scratch runtimes** (reverted, outside the repo, for discrimination
-  only): `../crossward-raptor-s12-scratch.patch` (S12) and
-  `../crossward-raptor-s12-s13-scratch-v2.patch` (S12+S13). They may
-  serve as a starting point; the implementation must still meet the
-  frozen specs and be reviewed.
-- Not started: the closeout audit (S7–S13 unaudited); epic not closed.
-- Leftovers: branch `story/21-S2-lock-a-word` (local and remote), stale
-  `../crossward-raptor-s6-draft/`.
+- **S12** `86c4e7b`. **Independent review: no code blockers.** One
+  undeclared path, `LockWordControl.tsx`, has a comment-only change (the
+  stale "full width" wording); the reviewer accepted it. Non-blocking
+  notes for the human's visual check: on narrow windows the grid may
+  jump 20px up on load (`hasLockRoom` starts true and the first
+  measurement sets `mb-4`). A classic, non-overlay vertical scrollbar
+  appearing doesn't trigger a re-measure.
+- **S13** `76a6685`. **Independent review: one blocker (B1), not yet
+  fixed.** `hoverTarget` for a `tickWord` skips S10's lockability check.
+  Once the word is unlocked (by its button, or by the keyboard with the
+  mouse on its letters), `tickWord` is still held. If its letters then
+  change, the "Lock word" button stays, and a click stores an incomplete
+  word. Fix in `PuzzleGridEditor.tsx`, render-time hover: when
+  `!isTickWordLocked`, show the button only if `lockTargetAt` at the
+  word's first cell in its orientation returns the same word (else null,
+  or drop `tickWord`). Non-blocking notes: `wordHoldsCell` could simply
+  export `holds`. After a click on the button, back on the same end cell
+  (no `onHoverCell`), a turn no longer picks again (untested edge).
+- `npm run verify` was red on `origin/main` since S13's freeze (the
+  missing `tickTarget`). So the plan is to push S12 and S13 together once
+  B1 is fixed and the gate is green.
+- Not started: the closeout audit (S7–S13 unaudited); the epic is not
+  closed. Leftovers: branch `story/21-S2-lock-a-word` (local and remote),
+  stale `../crossward-raptor-s6-draft/`, scratch patches
+  `../crossward-raptor-s12*-scratch*.patch`.
 
-## Verification (2026-11-07, observed by the drafting session)
+## Verification (observed, this session)
 
-- Scratch S12 on 3d6952a, full `npm run test:e2e` before amendments: 71
-  failed, 1107 passed. These pinned down the amendments in S12.
-- S12 scratch: the 9 amended specs 143/143, the new spec 17/17.
-- On `main` code with the new and amended specs: 48 failed, 112 passed.
-  Every failure was at an S12 check except 3 load flakes (21-S2-10 ×2,
-  15-S3-2), which passed 9/9 when rerun alone.
-- S13 on `main`: the unit test 8/8 fail (missing `tickTarget`); the two
-  tick specs 13 of 23 cases failed, each at an S12/S13 check.
-- S12+S13 v2 scratch: the unit test 8/8; the two tick specs 23/23 and
-  69/69 with `--repeat-each=3`; mutations caught (S13-4, S13-5). The
-  full `npm run test:e2e`: 1207 passed, 1 failed (`library-play`
-  `ECONNRESET`, 3/3 rerun alone).
-- `npm run verify` not run on the drafted specs (`tsc --noEmit` reports
-  only the expected missing `tickTarget`; ESLint passes). After the
-  review's fixes (comments and a test title only), ESLint on
-  `lock-tick-hover.spec.ts` passes and `tsc` is unchanged; no browser
-  run since.
+- S12 tree (`86c4e7b`): `tsc` fails only on `tick-target.test.ts` (S13).
+  Lint 0 errors; vitest 721/721 excluding that file. Full `npm run
+  test:e2e`: 1193 passed, 15 failed. 12 of those were S13's frozen cases;
+  the other 3 (library-play ×2 `ECONNRESET`, rebus 17-S10-9, row-menu
+  16-S2-6) passed 3/3 each when rerun alone.
+- S13 tree (`76a6685`): `npm run verify` exit 0 (vitest 729/729,
+  tick-target 8/8). The tick and hover specs passed 43/43, and the two
+  tick specs 70/70 with `--repeat-each=3`. Full `npm run test:e2e`: 1201
+  passed, 7 failed, none in a lock spec: library-play :191 and :419,
+  play-entries :600, row-menu :410, status-icons :278 and :310,
+  play-completion :469. These have not been rerun alone yet, so they are
+  presumed load flakes, unproven.
+- Frozen acceptance is unchanged: `git diff 20957ed 76a6685` touches only
+  `src/` runtime files.
 
 ## Next action
 
-Implement S12 on `main` against its frozen acceptance: `npm run verify`
-and the full `npm run test:e2e` exit 0, independent review, deliver,
-then the human's visual check. Then S13 the same way. Then the closeout
-audit covering S7–S13. Close the epic only with the human's agreement.
+On local `main`: fix S13's B1 and add the fix as its own commit. Rerun
+`npm run verify`, the tick and hover specs, and the 7 E2E failures
+alone. If any keeps failing, rerun the full `npm run test:e2e`. Then get
+the fix independently re-reviewed, update this handoff and push `main`
+(S12 + S13). The human then checks S12 and S13 visually (including the
+S12 notes above). After that comes the closeout audit covering S7–S13;
+close the epic only with the human's agreement.
 
 ## Resume prompt
 
 Read docs/epics/21-locked-words/HANDOFF.md,
 docs/epics/21-locked-words/stories/21-S12-button-before-word.md and
-docs/epics/21-locked-words/stories/21-S13-tick-hover-button.md. Implement
-S12, then S13, against their frozen acceptance on `main`, each verified,
-independently reviewed and delivered.
+docs/epics/21-locked-words/stories/21-S13-tick-hover-button.md. Fix S13's
+review blocker B1 on local `main`, verify, get it re-reviewed, then push
+S12 and S13 to `main`.
