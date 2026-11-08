@@ -77,6 +77,16 @@ S3's, item 5 S4's):
 > 4. Have the progress part of the bar animate in. That is, the gray part should start from 0 width and animate up to its correct width so we draw the user's eye. Once it reaches the target zone, it should transition to the blue-color (interactive-dark)
 > 5. Add a tooltip that appears when user hovers over the progress bar. The tooltip should appear after a moment. What's typical? The tool tip appears over the red and orange cells in the grid right away. This feels too quick. We should create a single tooltip component that we can control the behavior for in one place so that app is consistent. This may require additional work if there are more than one tooltip already. For the tooltip above the progress bar, have the text say "Aim to use about 80-85% of the cells to make a standard puzzle" (I'm not sure about the 80-85 part; correct those numbers is necesssary).
 
+The human's small changes before the final visual check (2026-11-08), as
+given (S5; the screenshots are not kept):
+
+> 1. When I turn preview on and off, I don't want the cells to just snap to black or to gray -- I want there to be a transition over, say half a second or so (something that feels natural but quick)
+>
+> 2. I want to change the rule about what we choose to highlight when a cell is selected during the build phase. Currently, if I click on a cell inside a word (meaning, inside a cell that's white either because it has a letter or because it *should* have a letter for symmetry) AND my direction mode aligns with the word's direction (e.g. they are both horizontal) THEN we highlight the word by making its cells blue-medium. This is great. Here is an example screenshot. [screenshot]. Now, imagine I click on the cell between CRAP and APE while remaining in horizontal mode. This is what we see: [screenshot]. It's not as helpful as it could be, because -- were I to add a letter to this cell -- both CRAP and APE would be included. Therefore, we should highlight both of those words in blue. Another example: [screenshot]. I've selected the cell below SIR while in vertical mode. If I add a ltter, the word SIR would be affected. Therefore, we should highlight the word SIR in medium blue. Does this provide enough for you to come up with a rule?
+
+These reach beyond the epic's "Preview only" scope (the word highlight is
+Preview off); the human asked for them within this epic.
+
 ## What the code does today
 
 - **The build phase's grid is all white.** A cell is empty or holds a
@@ -124,6 +134,11 @@ S3's, item 5 S4's):
    500ms hover delay, a 300ms skip delay), the Preview cell and lock
    button tooltips moved onto it, and a tooltip over the bar. Off the
    risk paths.
+
+5. **S5 Preview's fade and the would-be word** (from the human's small
+   changes): Preview on and off fade the grid's colors over 500ms; in the
+   build phase with Preview off, the cursor's word is the word its cell
+   would belong to if it held a letter. Off the risk paths.
 
 S2 builds on S1, S3 on S2, S4 on S3. S2 covers its own edit paths, widths and accessibility
 in its acceptance. Each checks its actual paths against CODE-REVIEW.
@@ -214,10 +229,28 @@ orchestrator's details:
   a standard puzzle." on mouse hover over the bar, above it. The bar
   stays out of the Tab order; no `aria-describedby`.
 
+From the human's small changes (2026-11-08), with the orchestrator's
+details (S5):
+
+- **Preview fades.** Turning Preview on or off moves the grid's colors
+  (cells, letters whose color changes, the lines) to the new ones over
+  500ms, ease-in-out; every other change stays instant outside that
+  window (one inside it may ease with the fade); none with reduced
+  motion.
+- **The would-be word.** In the build phase with Preview off, the cursor's
+  word is the word its cell would belong to, in its direction, if it held
+  a letter: on an off cell between or beside words, those words and the
+  cell. Shown as any word; a cell no letter touches that way keeps the
+  no-word look. Where a letter can't be typed (a locked word's letter or
+  end cell), the word is today's: on an end cell, none (the orchestrator's
+  choice, for the visual check). Preview, the hints phase and locks are
+  unchanged.
+
 ## Non-goals
 
 - Anything with Preview off, in a mini or midi, in the hints phase,
-  after publishing or in play.
+  after publishing or in play, except S5 (the fade and the build-phase
+  word highlight, at every size).
 - A second measure (share of white or playable cells), word count,
   density or other NYT rule checks.
 - Tick marks, a slider or any way to set the value by hand.
