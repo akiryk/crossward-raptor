@@ -36,8 +36,11 @@ The human approved the EPIC 2026-11-08.
 
 - **S1 done:** frozen 33160ed after an independent spec review; PR #34
   merged 310bc94 by an independent reviewer (no blockers).
-- **S2:** frozen on `main` after an independent spec review (all
-  findings addressed); implementation next, direct to `main`.
+- **S2 delivered:** frozen b4d4741 after an independent spec review
+  (all findings addressed); implemented d0b855b, direct to `main`;
+  independent review of d0b855b found no blockers.
+- **Awaiting the human's visual check** of S2 (below), then closeout.
+  No PR open, no uncommitted work.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -64,8 +67,32 @@ human waived the correction procedure for it.
 4. Rebus and Lock Word are removed from the row (not just hidden)
    wherever the progress shows; the message and percentage sit in
    fixed boxes so the bar doesn't move when the text changes at 80%.
+5. **No full browser run exited 0** (four runs on d0b855b; see
+   Verification). Each had 1–2 failures, each a different test, each
+   passing in the other runs: connection resets on
+   `/api/auth/get-session` and colors read mid-transition. None is in a
+   view S2 changes; 18-S5-5 fails 2/5 alone both with and without S2.
+   Accepted as existing test-harness flakiness rather than rerunning
+   until green; worth a hardening story (transition reads, session
+   requests) later.
+6. Non-blocking review note accepted: `PuzzleGridEditor.tsx:729` checks
+   15/21 sizes directly instead of reusing `sizeFor()`; small
+   duplication, behavior correct.
 
 ## Verification
+
+S2 at d0b855b (all on the same commit, clean tree):
+
+- `npm run verify` exit 0 (757 tests), by the implementer and again by
+  the independent reviewer.
+- Full `npm run test:e2e`, four runs (standing guarded reset grant):
+  implementer 1220 passed / 2 failed (14-S4-6 transition color,
+  18-S5-5); reviewer 1221 / 1 (16-S2-7 ECONNRESET); orchestrator
+  1221 / 1 (library-play P5 modal, ECONNRESET) and 1220 / 2 (17-S10-9
+  pill color at alpha 0.933 mid-transition, 18-S3-2 icon clip). All
+  22-S2 and amended 21-S5-4 cases passed in every run.
+- 18-S5-5 alone ×5: d0b855b 2 failed, parent b4d4741 2 failed (same
+  pixel) — not S2.
 
 S1 at 934efae (PR #34 head): `npm run verify` exit 0, 757 tests, run by
 the independent reviewer; Vercel checks passed. No browser suite needed.
@@ -77,10 +104,13 @@ was not run for it.
 
 ## Next action
 
-Finish S2's specification and acceptance (EPIC "Stories"), have it
-reviewed, freeze, implement and deliver it under the orchestration
-above.
+The human's visual check of the progress bar (`npm run dev`, a daily
+and a Sunday puzzle's build phase, Preview on): below and at 80%, the
+wide row, and narrow windows (around 540px, 375px and 300px). Then
+record the result and close the epic per the epic index (independent
+closeout audit). A visual fix becomes a new story under the same
+orchestration.
 
 ## Resume prompt
 
-Read docs/epics/22-build-progress/HANDOFF.md and docs/epics/22-build-progress/EPIC.md. Orchestrate the epic's next story (EPIC "Stories") per the handoff's Orchestration section, through spec, freeze, implementation, review and delivery.
+Read docs/epics/22-build-progress/HANDOFF.md and docs/epics/22-build-progress/stories/22-S2-progress-bar.md. Record the human's visual check of S2 and close out the epic per the handoff's Orchestration section on main.
