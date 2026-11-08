@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Build progress](22-build-progress/HANDOFF.md) (epic 22, EPIC drafted
+  2026-11-08, awaiting the human's approval)
 - [Locked words](21-locked-words/HANDOFF.md) (epic 21, closed
   2026-11-08; accepted items listed there)
 - [Building refinements](20-building-refinements/HANDOFF.md) (epic 20,
