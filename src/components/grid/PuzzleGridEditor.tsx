@@ -53,6 +53,7 @@ import { PreviewLegend } from "./PreviewLegend";
 import { PreviewToggle } from "./PreviewToggle";
 import { EnterHintsDialog } from "./EnterHintsDialog";
 import { BuilderSteps, PublishedState, ToggleRow, type BuilderStepId } from "./BuilderSteps";
+import { BuildProgress } from "./BuildProgress";
 import { TooEarlyDialog } from "./TooEarlyDialog";
 import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
@@ -722,6 +723,10 @@ export function PuzzleGridEditor({
   // another word of 3 or more letters, and only while the grid (or a lock
   // button) has focus. The toggle row's Lock Word is enabled at once (21-S5).
   const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
+  // The build progress (22-S2): a daily or Sunday's build phase with
+  // Preview on, in place of Rebus and Lock Word.
+  const isProgressShown =
+    phase === "grid" && !isPublished && isPreviewing && grid.cols === grid.rows && (grid.cols === 15 || grid.cols === 21);
   const cursorTarget = isLockShown ? lockTargetAt(grid, lockedWords, cursor) : null;
   const cursorLockTarget =
     isFocused && cursorTarget && (cursorTarget.isLocked || lockDwell === cursor) ? cursorTarget : null;
@@ -847,7 +852,7 @@ export function PuzzleGridEditor({
             <BuilderSteps phase={phase} onStep={handleStep} />
           )}
           <div className={`${isPublished ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
-            <ToggleRow isPublished={isPublished}>
+            <ToggleRow isPublished={isPublished} hasProgress={isProgressShown}>
               {phase === "grid" && (
                 <PreviewToggle
                   isPreviewing={isPreviewing}
@@ -862,7 +867,8 @@ export function PuzzleGridEditor({
                   onToggle={() => setIsLettersLocked((prev) => !prev)}
                 />
               )}
-              {!isPublished && (
+              {isProgressShown && <BuildProgress grid={grid} />}
+              {!isPublished && !isProgressShown && (
                 <div className="flex items-center gap-5">
                   {phase === "grid" && !hasLockRoom && (
                     <LockWordControl

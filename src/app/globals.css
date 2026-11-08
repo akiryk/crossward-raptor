@@ -104,6 +104,11 @@
   --color-status-complete: var(--palette-orange);
   /* the builder's toggle row (Story 17-S8) */
   --color-toggle-row: var(--palette-interactive-faint);
+  /* the build progress bar (Story 22-S2); its border is line-muted */
+  --color-progress-track: var(--palette-white);
+  --color-progress-fill: var(--palette-gray-200);
+  --color-progress-fill-ready: var(--palette-interactive-dark);
+  --color-progress-zone: var(--palette-orange);
   --color-modal-background: var(--palette-white);
   --color-modal-title-background: var(--palette-yellow-bright);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);

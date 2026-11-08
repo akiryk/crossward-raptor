@@ -48,14 +48,25 @@ export function BuilderSteps({
  *  panel with 10px corners, at the grid's width (the editor's `--grid-max`,
  *  21-S9; a Sunday's 700px in the style guide). A published puzzle's is
  *  empty: it keeps its space beside the hints list, so the grid doesn't
- *  move (14-S4), and has none narrow (15-S3). */
-export function ToggleRow({ isPublished = false, children }: { isPublished?: boolean; children?: ReactNode }) {
+ *  move (14-S4), and has none narrow (15-S3). Holding the build progress
+ *  (22-S2), below a 490px window it wraps onto two lines, 64px tall: 8px
+ *  padding, a 24px line (Preview and the message), 8px, a 16px line (the
+ *  bar and the percentage), 8px. */
+export function ToggleRow({
+  isPublished = false,
+  hasProgress = false,
+  children,
+}: {
+  isPublished?: boolean;
+  hasProgress?: boolean;
+  children?: ReactNode;
+}) {
   return (
     <div
       data-testid="toggle-row"
       className={`h-10 w-(--grid-max,700px) max-w-full items-center justify-between rounded-modal px-3 min-[748px]:h-12 min-[748px]:px-4 ${
         isPublished ? 'hidden @min-[1092px]/editor:invisible @min-[1092px]/editor:flex' : 'flex bg-toggle-row'
-      }`}
+      } ${hasProgress ? 'max-[490px]:h-16 max-[490px]:flex-wrap max-[490px]:content-start max-[490px]:items-start max-[490px]:gap-y-2 max-[490px]:py-2' : ''}`}
     >
       {children}
     </div>
