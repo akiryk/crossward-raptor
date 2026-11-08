@@ -102,7 +102,7 @@ human waived the correction procedure for it.
 9. **S3 review note accepted:** if the reduced-motion preference turns
    off while the bar shows, one frame may paint a stale width
    (`BuildProgress.tsx`, the reduced-motion branch doesn't update the
-   drawn state). Rare, unacceptance-covered; fix if convenient.
+   drawn state). Rare and not covered by acceptance; fix if convenient.
 10. **S4 known gap (as before S4):** a lock button replaced under a
    resting mouse shows its tooltip only on the next mouse move.
 
