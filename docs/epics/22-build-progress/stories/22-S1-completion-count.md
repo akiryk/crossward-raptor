@@ -4,8 +4,8 @@ A pure engine function counts a grid's lettered cells and all its cells,
 with two small helpers for the percentage S2 shows ("N% complete",
 rounded down) and the ready state (80%).
 
-**Status: Implemented on `story/22-S1-completion-count`, PR pending
-independent review.** Approved and frozen 2026-11-08 by the orchestrating
+**Status: Done 2026-11-08,** merged in PR #34 (310bc94) after an
+independent review with no blockers. Approved and frozen 2026-11-08 by the orchestrating
 session under the human's delegation, after an independent review of
 the draft found no blockers ([handoff](../HANDOFF.md#orchestration)).
 

@@ -32,7 +32,11 @@ So the orchestrating session:
 
 ## Current state (2026-11-08)
 
-The human approved the EPIC 2026-11-08. No story is written yet.
+The human approved the EPIC 2026-11-08.
+
+- **S1 done:** frozen 33160ed after an independent spec review; PR #34
+  merged 310bc94 by an independent reviewer (no blockers).
+- **S2:** specification being drafted on `main` (uncommitted).
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -49,6 +53,9 @@ human waived the correction procedure for it.
 
 ## Verification
 
+S1 at 934efae (PR #34 head): `npm run verify` exit 0, 757 tests, run by
+the independent reviewer; Vercel checks passed. No browser suite needed.
+
 Tooltip rewording at 38cd96f: `npm run verify` exit 0 (733 tests);
 `npm run test:e2e -- e2e/preview-tooltips.spec.ts
 e2e/preview-tooltip-stays.spec.ts` 16 passed. The full browser suite
@@ -56,8 +63,9 @@ was not run for it.
 
 ## Next action
 
-Write S1's specification and proposed acceptance (EPIC "Stories"),
-review, freeze and implement it under the orchestration above.
+Finish S2's specification and acceptance (EPIC "Stories"), have it
+reviewed, freeze, implement and deliver it under the orchestration
+above.
 
 ## Resume prompt
 
