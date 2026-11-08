@@ -1,9 +1,11 @@
 # Epic: Build progress
 
-**Draft, awaiting the human's approval (2026-11-08).** Rewritten to repo
-standards from an outside draft (below); the human answered its open
-questions and supplied a mockup 2026-11-08. Each story's specification
-will still need the human's approval before freeze.
+**Approved by the human 2026-11-08**, including the agent's proposed
+details under Decisions. Rewritten to repo standards from an outside
+draft (below); the human answered its open questions and supplied a
+mockup the same day. The human delegated each story's approval and
+freeze to the orchestrating session (see the [handoff](HANDOFF.md#orchestration));
+the human does a visual check before closeout.
 
 In the build phase of a daily or Sunday puzzle, with Preview on, the
 toggle row shows how much of the grid holds letters: a message ("Keep
@@ -155,7 +157,7 @@ From the human:
   80% is of all cells, not of white cells. Create Hints, its dialog, the
   phase change and grid checks are unchanged.
 
-Proposed by the agent, pending the human's approval with the EPIC:
+Proposed by the agent, approved by the human with the EPIC:
 
 - **Progress isn't stored.** Derived from the grid on each render; no
   storage or server change.
