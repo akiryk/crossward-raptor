@@ -11,8 +11,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // In the build phase with Preview off, a button appears beside a word of 3
 // or more letters once the cursor has stayed in it for 1 second (at once
 // in a locked word). It is a square 2/3 of a cell, at most 32px, just
-// past the last letter: right of it and vertically centered across, below it and
-// horizontally centered down. Its near corners are square and its far
+// before the first letter: left of it and vertically centered across,
+// above it and horizontally centered down (21-S12 amended this from "just
+// past the last letter"). Its near corners are square and its far
 // corners rounded 4px; gray-500 at rest, gray-700 on hover, with a white
 // padlock, open on an unlocked word and closed on a locked one. It's named
 // "Lock word" / "Unlock word" and toggles the lock, the grid keeping
@@ -249,42 +250,44 @@ test.describe('21-S2-3 the button appears after a second', () => {
 });
 
 test.describe('21-S2-4 placement and look', () => {
-  test('across: right of the last letter, vertically centered, far corners rounded', async ({ page }) => {
+  // 21-S12 amended the three placement cases: before the first letter,
+  // the far (rounded) corners on the side away from the word.
+  test('across: left of the first letter, vertically centered, far corners rounded', async ({ page }) => {
     await open(page);
     await inTangent(page);
-    const last = await boxOf(cell(page, '9,3'));
+    const first = await boxOf(cell(page, '3,3'));
     const button = await boxOf(lockButton(page));
 
-    expect(near(button.width, (last.width * 2) / 3, 1), `width ${button.width}`).toBe(true);
-    expect(near(button.height, (last.height * 2) / 3, 1), `height ${button.height}`).toBe(true);
-    expect(near(button.x, last.x + last.width), `left ${button.x}`).toBe(true);
-    expect(near(button.y + button.height / 2, last.y + last.height / 2, 1), 'vertically centered').toBe(true);
+    expect(near(button.width, (first.width * 2) / 3, 1), `width ${button.width}`).toBe(true);
+    expect(near(button.height, (first.height * 2) / 3, 1), `height ${button.height}`).toBe(true);
+    expect(near(button.x + button.width, first.x), `right ${button.x + button.width}`).toBe(true);
+    expect(near(button.y + button.height / 2, first.y + first.height / 2, 1), 'vertically centered').toBe(true);
 
-    expect(await css(lockButton(page), 'border-top-left-radius')).toBe('0px');
-    expect(await css(lockButton(page), 'border-bottom-left-radius')).toBe('0px');
-    expect(await css(lockButton(page), 'border-top-right-radius')).toBe('4px');
-    expect(await css(lockButton(page), 'border-bottom-right-radius')).toBe('4px');
+    expect(await css(lockButton(page), 'border-top-right-radius')).toBe('0px');
+    expect(await css(lockButton(page), 'border-bottom-right-radius')).toBe('0px');
+    expect(await css(lockButton(page), 'border-top-left-radius')).toBe('4px');
+    expect(await css(lockButton(page), 'border-bottom-left-radius')).toBe('4px');
   });
 
-  test('down: below the last letter, horizontally centered, far corners rounded', async ({ page }) => {
+  test('down: above the first letter, horizontally centered, far corners rounded', async ({ page }) => {
     await open(page);
     await inOne(page);
-    const last = await boxOf(cell(page, '5,4'));
+    const first = await boxOf(cell(page, '5,2'));
     const button = await boxOf(lockButton(page));
 
-    expect(near(button.width, (last.width * 2) / 3, 1), `width ${button.width}`).toBe(true);
-    expect(near(button.height, (last.height * 2) / 3, 1), `height ${button.height}`).toBe(true);
-    expect(near(button.y, last.y + last.height), `top ${button.y}`).toBe(true);
-    expect(near(button.x + button.width / 2, last.x + last.width / 2, 1), 'horizontally centered').toBe(true);
+    expect(near(button.width, (first.width * 2) / 3, 1), `width ${button.width}`).toBe(true);
+    expect(near(button.height, (first.height * 2) / 3, 1), `height ${button.height}`).toBe(true);
+    expect(near(button.y + button.height, first.y), `bottom ${button.y + button.height}`).toBe(true);
+    expect(near(button.x + button.width / 2, first.x + first.width / 2, 1), 'horizontally centered').toBe(true);
 
-    expect(await css(lockButton(page), 'border-top-left-radius')).toBe('0px');
-    expect(await css(lockButton(page), 'border-top-right-radius')).toBe('0px');
-    expect(await css(lockButton(page), 'border-bottom-left-radius')).toBe('4px');
-    expect(await css(lockButton(page), 'border-bottom-right-radius')).toBe('4px');
+    expect(await css(lockButton(page), 'border-bottom-left-radius')).toBe('0px');
+    expect(await css(lockButton(page), 'border-bottom-right-radius')).toBe('0px');
+    expect(await css(lockButton(page), 'border-top-left-radius')).toBe('4px');
+    expect(await css(lockButton(page), 'border-top-right-radius')).toBe('4px');
     await expectOutline(page, [...ONE_ENDS, ...ONE]);
   });
 
-  test('on a mini: capped at 32px, still beside the last letter', async ({ page }) => {
+  test('on a mini: capped at 32px, still beside the first letter', async ({ page }) => {
     let grid = createGrid({ cols: 5, rows: 5 });
     [...'CAT'].forEach((letter, i) => (grid = withLetter(grid, { col: 1 + i, row: 2 }, letter)));
     const { id } = await seedPuzzle({ grid, hints: {}, phase: 'grid' });
@@ -293,13 +296,13 @@ test.describe('21-S2-4 placement and look', () => {
     await cell(page, '2,2').click();
     await expect(lockButton(page)).toBeVisible();
 
-    const last = await boxOf(cell(page, '3,2'));
+    const first = await boxOf(cell(page, '1,2'));
     const button = await boxOf(lockButton(page));
-    expect(last.width, 'a mini cell is wider than 48px').toBeGreaterThan(48);
+    expect(first.width, 'a mini cell is wider than 48px').toBeGreaterThan(48);
     expect(near(button.width, 32, 1), `width ${button.width}`).toBe(true);
     expect(near(button.height, 32, 1), `height ${button.height}`).toBe(true);
-    expect(near(button.x, last.x + last.width), `left ${button.x}`).toBe(true);
-    expect(near(button.y + button.height / 2, last.y + last.height / 2, 1), 'vertically centered').toBe(true);
+    expect(near(button.x + button.width, first.x), `right ${button.x + button.width}`).toBe(true);
+    expect(near(button.y + button.height / 2, first.y + first.height / 2, 1), 'vertically centered').toBe(true);
   });
 
   test('gray-500 at rest, gray-700 on hover, a white open padlock', async ({ page }) => {

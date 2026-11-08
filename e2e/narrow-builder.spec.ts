@@ -86,7 +86,9 @@ test.describe('15-S3-1 the threshold', () => {
       const g = await box(grid(page));
       const editor = await box(page.getByTestId('puzzle-editor'));
       const hints = await box(page.getByTestId(phase === 'grid' ? 'hint-skeleton' : 'hints-region'));
-      expect(g.x, 'the grid at the editor’s left').toBeCloseTo(editor.x, 0);
+      // 21-S12 amended this: 12px in from the editor's left, so with the
+      // page's 24px the lock button has 36px left of the grid.
+      expect(g.x - editor.x, 'the grid 12px in from the editor’s left').toBeCloseTo(12, 0);
       expect(hints.x - g.right, 'beside the grid').toBeCloseTo(WIDE_GAP_PX, 0);
       expect(hints.y, 'level with the grid').toBeCloseTo(g.y, 0);
     });
@@ -155,7 +157,7 @@ test.describe('15-S3-5 tighter spacing', () => {
   for (const phase of PHASES) {
     // 17-S8: was "… from the buttons to the grid"; the toggle row is
     // between them now.
-    test(`${phase} phase at 768px: 16px from the title to the step row, to the toggle row and to the grid`, async ({ page }) => {
+    test(`${phase} phase at 768px: 16px from the title to the step row and to the toggle row, 36px to the grid`, async ({ page }) => {
       await openBuilder(page, phase, 768);
       const t = await box(title(page));
       const s = await box(steps(page));
@@ -163,7 +165,9 @@ test.describe('15-S3-5 tighter spacing', () => {
       const g = await box(grid(page));
       expect(s.y - t.bottom, 'title to the step row').toBeCloseTo(NARROW_GAP_PX, 0);
       expect(r.y - s.bottom, 'step row to toggle row').toBeCloseTo(NARROW_GAP_PX, 0);
-      expect(g.y - r.bottom, 'toggle row to grid').toBeCloseTo(NARROW_GAP_PX, 0);
+      // 21-S12 amended this: 36px, room for the lock button above a
+      // top-row word (the grid is at its full width at 768px).
+      expect(g.y - r.bottom, 'toggle row to grid').toBeCloseTo(36, 0);
     });
   }
 });

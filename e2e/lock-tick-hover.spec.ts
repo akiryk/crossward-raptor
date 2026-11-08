@@ -19,8 +19,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // lock button keep their colors. It changes no state: the cursor, the
 // highlight, the lock button and the saved puzzle are as they were, and a
 // click on the tick is a click on its cell. For 21-S10 the tick is part of
-// its end cell: moving onto it leaves a hovered word. Where a down word's
-// button covers part of the square, the button wins. The darkening
+// its end cell: moving onto it leaves a hovered word. Where a lock button
+// covers part of the cell, the button wins (amended by 21-S12: was a down
+// word's button covering part of the square). The darkening
 // follows the tick: unlocking the word under the resting mouse ends it.
 // It works whether or not the grid has focus, and below the grid's full
 // width (21-S5) too. Mouse only; nothing with Preview on. Only the cell
@@ -433,26 +434,29 @@ test.describe('21-S11-5 over the cursor\'s colors', () => {
     await expectPaint(page, base, { same: all });
   });
 
-  test('a down word\'s button over part of the tick wins there', async ({ page }) => {
+  // 21-S12 amended this case: a down word's button now sits above its
+  // first letter, clear of every tick, and an across word's sits in its
+  // before end cell, over the bottom of that cell's tick square.
+  test('an across word\'s button over part of the tick wins there', async ({ page }) => {
     await open(page);
-    // The cursor stays in OWL, Down: its button is over the top of (5,11),
-    // its middle two thirds, covering the tick square's left sliver (from
-    // 3/4 to 5/6 across).
-    await lockOwlStayingIn(page);
+    // The cursor stays in DOG, Across: its button is in (5,7), its right
+    // two thirds from 1/6 to 5/6 down, covering the tick square's bottom
+    // (from 1/6 to 1/4 down).
+    await lockAcross(page, '7,7');
     await mouseAway(page);
-    const base = await paints(page, [...OWL, '5,11']);
+    const base = await paints(page, [...DOG, '5,7']);
 
-    // 79% across and 15% down: inside the tick's square, under the button.
-    await mouseTo(page, '5,11', [0.79, 0.15]);
+    // 90% across and 22% down: inside the tick's square, under the button.
+    await mouseTo(page, '5,7', [0.9, 0.22]);
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
     // 300ms, well before 21-S4's tooltip (a second on the button) could
-    // show above the button, over (5,10)'s spot.
+    // show above the button.
     await page.waitForTimeout(300);
-    await expectPaintNow(page, base, { same: [...OWL, '5,11'] });
+    await expectPaintNow(page, base, { same: [...DOG, '5,7'] });
 
-    // 95% across and 10% down: the tick, clear of the button.
-    await mouseTo(page, '5,11', [0.95, 0.1]);
-    await expectPaint(page, base, { dark: OWL, same: ['5,11'] });
+    // 95% across and 8% down: the tick, clear of the button.
+    await mouseTo(page, '5,7', [0.95, 0.08]);
+    await expectPaint(page, base, { dark: DOG, same: ['5,7'] });
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
   });
 });

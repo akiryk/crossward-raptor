@@ -14,7 +14,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // button; it hides at once when the mouse leaves or the button goes. A
 // click while it shows switches it to the new state's text in place. It
 // is placed as Tooltip places it (above the button here, 4px off,
-// centered) and never covers the button. Mouse only: keyboard focus and a
+// centered, or held 8px in from the window's edge) and never covers the
+// button. Mouse only: keyboard focus and a
 // touch tap show none.
 //
 // Hooks: the tooltip is Tooltip with data-testid "lock-tooltip" (role
@@ -105,10 +106,14 @@ test.describe('21-S4 the lock button tooltip', () => {
     await hoverUntilShown(page, UNLOCKED_TEXT);
 
     // Tooltip's own placement: above, 4px off, centered; never over the button.
+    // 21-S12 amended the centering: the button is now left of TANGENT,
+    // near the window's left edge, and Tooltip holds a bubble 8px in from
+    // the edge rather than let it cross it.
     const button = await boxOf(lockButton(page));
     const bubble = await boxOf(tooltip(page));
     expectNear(bubble.bottom, button.top - 4, 1.5, 'bottom 4px above the button');
-    expectNear(bubble.left + bubble.width / 2, button.left + button.width / 2, 1.5, 'centered on the button');
+    const centered = Math.max(button.left + button.width / 2, 8 + bubble.width / 2);
+    expectNear(bubble.left + bubble.width / 2, centered, 1.5, 'centered on the button, or 8px in from the window\'s edge');
     const overlaps =
       bubble.left < button.right && bubble.right > button.left && bubble.top < button.bottom && bubble.bottom > button.top;
     expect(overlaps, 'the tooltip does not cover the button').toBe(false);

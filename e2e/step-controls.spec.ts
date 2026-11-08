@@ -289,10 +289,13 @@ async function measure(page: Page, toggleId: string) {
 const LAYOUTS = [
   // Wide: the hints list beside the grid. One column, still wider than a
   // phone. A phone, and the narrowest supported window.
-  { name: 'wide', width: 1280, title: 32, inset: 16, between: 20, height: 48, gap: 20 },
-  { name: 'one column', width: 1000, title: 16, inset: 16, between: 20, height: 48, gap: 16 },
-  { name: 'phone', width: 375, title: 16, inset: 12, between: 12, height: 40, gap: 16 },
-  { name: 'narrowest', width: 320, title: 16, inset: 12, between: 12, height: 40, gap: 16 },
+  // 21-S12 amended `toGrid` (was `gap`): 36px from the toggle row to the
+  // grid wherever the lock button can show above a top-row word, 16px
+  // where the grid has no room for it (the toggle row's Lock Word).
+  { name: 'wide', width: 1280, title: 32, inset: 16, between: 20, height: 48, gap: 20, toGrid: 36 },
+  { name: 'one column', width: 1000, title: 16, inset: 16, between: 20, height: 48, gap: 16, toGrid: 36 },
+  { name: 'phone', width: 375, title: 16, inset: 12, between: 12, height: 40, gap: 16, toGrid: 16 },
+  { name: 'narrowest', width: 320, title: 16, inset: 12, between: 12, height: 40, gap: 16, toGrid: 16 },
 ];
 
 test.describe('17-S8-2 layout', () => {
@@ -313,7 +316,7 @@ test.describe('17-S8-2 layout', () => {
         expectNear(m.row.right, m.grid.right, 1, 'toggle row right = grid right');
         expectNear(m.row.height, l.height, 0.5, 'toggle row height');
         expectNear(m.row.top - m.steps.bottom, l.gap, 1, 'step row to toggle row');
-        expectNear(m.grid.top - m.row.bottom, l.gap, 1, 'toggle row to grid');
+        expectNear(m.grid.top - m.row.bottom, l.toGrid, 1, 'toggle row to grid');
         expectNear(m.toggle.left - m.row.left, l.inset, 1, 'toggle inset');
         expectNear(m.toggle.left, m.circle.left, 1, 'toggle under the circle');
         expectNear((m.toggle.top + m.toggle.bottom) / 2, (m.row.top + m.row.bottom) / 2, 1, 'toggle centred in the row');

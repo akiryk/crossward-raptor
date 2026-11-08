@@ -114,17 +114,18 @@ function near(a: number, b: number, tolerance = 2) {
 
 const center = (box: Box) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 
-/** The one lock button sits just past this last letter (21-S2). */
-async function expectButtonBeside(page: Page, last: string, orientation: 'across' | 'down') {
+/** The one lock button sits just before this first letter (21-S2;
+ *  amended by 21-S12: was just past the last letter). */
+async function expectButtonBeside(page: Page, first: string, orientation: 'across' | 'down') {
   await expect(lockButton(page)).toHaveCount(1);
-  const c = await boxOf(cell(page, last));
+  const c = await boxOf(cell(page, first));
   const b = await boxOf(lockButton(page));
   if (orientation === 'across') {
-    expect(near(b.x, c.x + c.width), `button right of ${last}: left ${b.x}`).toBe(true);
-    expect(near(b.y + b.height / 2, c.y + c.height / 2, 1), `centered on ${last}`).toBe(true);
+    expect(near(b.x + b.width, c.x), `button left of ${first}: right ${b.x + b.width}`).toBe(true);
+    expect(near(b.y + b.height / 2, c.y + c.height / 2, 1), `centered on ${first}`).toBe(true);
   } else {
-    expect(near(b.y, c.y + c.height), `button below ${last}: top ${b.y}`).toBe(true);
-    expect(near(b.x + b.width / 2, c.x + c.width / 2, 1), `centered under ${last}`).toBe(true);
+    expect(near(b.y + b.height, c.y), `button above ${first}: bottom ${b.y + b.height}`).toBe(true);
+    expect(near(b.x + b.width / 2, c.x + c.width / 2, 1), `centered over ${first}`).toBe(true);
   }
 }
 
@@ -177,7 +178,7 @@ async function select(page: Page, coord: string) {
 async function inTangent(page: Page) {
   await select(page, '6,3');
   await expect(lockButton(page)).toBeVisible({ timeout: 2000 });
-  await expectButtonBeside(page, '9,3', 'across');
+  await expectButtonBeside(page, '3,3', 'across');
 }
 
 /** The mouse to a spot away from the grid. */
@@ -185,33 +186,35 @@ async function mouseAway(page: Page) {
   await page.mouse.move(5, 5);
 }
 
-/** Whether the one lock button sits just past this last letter. */
-async function isButtonBeside(page: Page, last: string, orientation: 'across' | 'down') {
+/** Whether the one lock button sits just before this first letter
+ *  (amended by 21-S12). */
+async function isButtonBeside(page: Page, first: string, orientation: 'across' | 'down') {
   if ((await lockButton(page).count()) !== 1) return false;
   const b = await lockButton(page).boundingBox();
-  const c = await cell(page, last).boundingBox();
+  const c = await cell(page, first).boundingBox();
   if (!b || !c) return false;
   return orientation === 'across'
-    ? near(b.x, c.x + c.width) && near(b.y + b.height / 2, c.y + c.height / 2, 1)
-    : near(b.y, c.y + c.height) && near(b.x + b.width / 2, c.x + c.width / 2, 1);
+    ? near(b.x + b.width, c.x) && near(b.y + b.height / 2, c.y + c.height / 2, 1)
+    : near(b.y + b.height, c.y) && near(b.x + b.width / 2, c.x + c.width / 2, 1);
 }
 
-/** Rest the mouse on a cell of the word ending at `last`: no button
- *  beside it yet at 500ms, then one, named `name`. */
+/** Rest the mouse on a cell of the word starting at `first`: no button
+ *  beside it yet at 500ms, then one, named `name`. (21-S12: was the word
+ *  ending at `last`.) */
 async function hoverUntilShown(
   page: Page,
   coord: string,
-  last: string,
+  first: string,
   orientation: 'across' | 'down',
   name: 'Lock word' | 'Unlock word'
 ) {
   await cell(page, coord).hover();
   await page.waitForTimeout(NOT_YET_MS);
-  expect(await isButtonBeside(page, last, orientation), `no button beside ${last} yet after ${NOT_YET_MS}ms`).toBe(false);
+  expect(await isButtonBeside(page, first, orientation), `no button beside ${first} yet after ${NOT_YET_MS}ms`).toBe(false);
   await expect
-    .poll(() => isButtonBeside(page, last, orientation), {
+    .poll(() => isButtonBeside(page, first, orientation), {
       timeout: SHOWN_WITHIN_MS,
-      message: `the button beside ${last}`,
+      message: `the button beside ${first}`,
     })
     .toBe(true);
   await expect(lockButton(page)).toHaveAccessibleName(name);
@@ -238,7 +241,7 @@ test.describe('21-S10-2 a second of hover shows the word\'s button', () => {
     await expect(lockButton(page)).toBeVisible({ timeout: SHOWN_WITHIN_MS });
     await expect(lockButton(page)).toHaveAccessibleName('Lock word');
     await expect(lockButton(page).locator('svg')).toHaveAttribute('data-icon', 'lock-open');
-    await expectButtonBeside(page, '7,5', 'across');
+    await expectButtonBeside(page, '3,5', 'across');
     await expectOnlyOutline(page, [...ROBIN, ...ROBIN_ENDS]);
     await expect(ticks(page)).toHaveCount(0);
     // The highlight is still the cursor's.
@@ -255,7 +258,7 @@ test.describe('21-S10-2 a second of hover shows the word\'s button', () => {
     await cell(page, '6,5').hover();
     // A restarted second would need 1000ms more.
     await expect(lockButton(page)).toBeVisible({ timeout: 600 });
-    await expectButtonBeside(page, '7,5', 'across');
+    await expectButtonBeside(page, '3,5', 'across');
   });
 
   test('a word completed under the resting mouse shows its button at once', async ({ page }) => {
@@ -272,7 +275,7 @@ test.describe('21-S10-2 a second of hover shows the word\'s button', () => {
     await page.keyboard.type('SABC');
     await expect(cell(page, '12,11')).toHaveAttribute('data-selected', 'true');
     await expect
-      .poll(() => isButtonBeside(page, '11,11', 'across'), { timeout: AT_ONCE_MS, message: 'the button beside the completed word at once' })
+      .poll(() => isButtonBeside(page, '5,11', 'across'), { timeout: AT_ONCE_MS, message: 'the button beside the completed word at once' })
       .toBe(true);
     await expect(lockButton(page)).toHaveAccessibleName('Lock word');
   });
@@ -297,21 +300,21 @@ test.describe('21-S10-3 hover wins; the cursor\'s rules return', () => {
 
     await cell(page, '5,5').hover();
     await page.waitForTimeout(NOT_YET_MS);
-    await expectButtonBeside(page, '9,3', 'across');
+    await expectButtonBeside(page, '3,3', 'across');
     await expectOnlyOutline(page, [...TANGENT, ...TANGENT_ENDS]);
 
     await expect
-      .poll(() => isButtonBeside(page, '7,5', 'across'), { timeout: SHOWN_WITHIN_MS, message: 'the button moves beside ROBIN' })
+      .poll(() => isButtonBeside(page, '3,5', 'across'), { timeout: SHOWN_WITHIN_MS, message: 'the button moves beside ROBIN' })
       .toBe(true);
-    await expectButtonBeside(page, '7,5', 'across');
+    await expectButtonBeside(page, '3,5', 'across');
     await expectOnlyOutline(page, [...ROBIN, ...ROBIN_ENDS]);
     await expect(cell(page, '6,3')).toHaveAttribute('data-selected', 'true');
 
     await mouseAway(page);
     await expect
-      .poll(() => isButtonBeside(page, '9,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button is back at once' })
+      .poll(() => isButtonBeside(page, '3,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button is back at once' })
       .toBe(true);
-    await expectButtonBeside(page, '9,3', 'across');
+    await expectButtonBeside(page, '3,3', 'across');
     await expectOnlyOutline(page, [...TANGENT, ...TANGENT_ENDS]);
   });
 
@@ -321,12 +324,12 @@ test.describe('21-S10-3 hover wins; the cursor\'s rules return', () => {
     await select(page, '6,3');
     await cell(page, '5,5').hover();
     await expect
-      .poll(() => isButtonBeside(page, '7,5', 'across'), { timeout: 2000, message: 'ROBIN\'s button' })
+      .poll(() => isButtonBeside(page, '3,5', 'across'), { timeout: 2000, message: 'ROBIN\'s button' })
       .toBe(true);
 
     await mouseAway(page);
     await expect
-      .poll(() => isButtonBeside(page, '9,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button at once' })
+      .poll(() => isButtonBeside(page, '3,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button at once' })
       .toBe(true);
   });
 
@@ -337,7 +340,7 @@ test.describe('21-S10-3 hover wins; the cursor\'s rules return', () => {
     for (const coord of [EGG, AT, EMPTY, '3,6']) {
       await cell(page, coord).hover();
       await page.waitForTimeout(LONG_MS);
-      await expectButtonBeside(page, '9,3', 'across');
+      await expectButtonBeside(page, '3,3', 'across');
       await expectOnlyOutline(page, [...TANGENT, ...TANGENT_ENDS]);
     }
   });
@@ -347,32 +350,33 @@ test.describe('21-S10-4 leaving the word or its button', () => {
   test('the lines between cells and the move onto the button keep it; the end cell does not', async ({ page }) => {
     await open(page);
     await select(page, EMPTY);
-    await hoverUntilShown(page, '4,5', '7,5', 'across', 'Lock word');
+    await hoverUntilShown(page, '4,5', '3,5', 'across', 'Lock word');
 
     // Resting exactly on the line between the O and the B.
     const o = await boxOf(cell(page, '4,5'));
     await page.mouse.move(o.x + o.width + 0.5, o.y + o.height / 2);
     await page.waitForTimeout(NOT_YET_MS);
-    expect(await isButtonBeside(page, '7,5', 'across'), 'kept on the line between cells').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'kept on the line between cells').toBe(true);
 
     // Across two more lines to the I.
     const to = center(await boxOf(cell(page, '6,5')));
     await page.mouse.move(to.x, to.y, { steps: 20 });
-    expect(await isButtonBeside(page, '7,5', 'across'), 'kept moving among the cells').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'kept moving among the cells').toBe(true);
 
-    // Resting just inside the last letter, beside the button. (The line
+    // Resting just inside the first letter, beside the button. (The line
     // between them is already under the button, whose own pointerenter
-    // would start 21-S4's tooltip second early.)
-    const last = await boxOf(cell(page, '7,5'));
-    await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 5 });
-    await page.mouse.move(last.x + last.width - 3, last.y + last.height / 2);
+    // would start 21-S4's tooltip second early.) 21-S12: was the last
+    // letter, the button having moved before the word.
+    const first = await boxOf(cell(page, '3,5'));
+    await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2, { steps: 20 });
+    await page.mouse.move(first.x + 3, first.y + first.height / 2);
     await page.waitForTimeout(NOT_YET_MS);
-    expect(await isButtonBeside(page, '7,5', 'across'), 'kept at the last letter\'s edge').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'kept at the first letter\'s edge').toBe(true);
 
     // Onto the button.
     const button = center(await boxOf(lockButton(page)));
     await page.mouse.move(button.x, button.y, { steps: 5 });
-    expect(await isButtonBeside(page, '7,5', 'across'), 'kept on the button').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'kept on the button').toBe(true);
 
     // 21-S4's tooltip shows on the hovered word's button too.
     await page.waitForTimeout(NOT_YET_MS);
@@ -381,8 +385,9 @@ test.describe('21-S10-4 leaving the word or its button', () => {
     await expect(tooltip(page)).toHaveText(UNLOCKED_TEXT);
 
     // Off the button onto the end cell's free corner: gone at once.
-    const end = await boxOf(cell(page, '8,5'));
-    await page.mouse.move(end.x + end.width - 3, end.y + 3, { steps: 5 });
+    // (21-S12: the end cell before the word, which the button is in now.)
+    const end = await boxOf(cell(page, '2,5'));
+    await page.mouse.move(end.x + 3, end.y + 3, { steps: 5 });
     await expect(lockButton(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
     await expect(tooltip(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
     await expect(outlines(page)).toHaveCount(0);
@@ -393,12 +398,12 @@ test.describe('21-S10-5 clicking the hovered word\'s button', () => {
   test('locks and unlocks ROBIN; the cursor stays in TANGENT; saved', async ({ page }) => {
     const id = await open(page);
     await inTangent(page);
-    await hoverUntilShown(page, '5,5', '7,5', 'across', 'Lock word');
+    await hoverUntilShown(page, '5,5', '3,5', 'across', 'Lock word');
 
     await lockButton(page).click();
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
     await expect(lockButton(page).locator('svg')).toHaveAttribute('data-icon', 'lock-closed');
-    await expectButtonBeside(page, '7,5', 'across');
+    await expectButtonBeside(page, '3,5', 'across');
     await expectLetters(page, ROBIN, GRAY_500);
     await expectLetters(page, TANGENT, BLACK);
     await expect(gridRegion(page)).toBeFocused();
@@ -410,14 +415,14 @@ test.describe('21-S10-5 clicking the hovered word\'s button', () => {
     // Away: TANGENT's button back; ROBIN keeps its outline and ticks.
     await mouseAway(page);
     await expect
-      .poll(() => isButtonBeside(page, '9,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button at once' })
+      .poll(() => isButtonBeside(page, '3,3', 'across'), { timeout: AT_ONCE_MS, message: 'TANGENT\'s button at once' })
       .toBe(true);
     await expect(lockButton(page)).toHaveAccessibleName('Lock word');
     await expect(ticks(page)).toHaveCount(2);
 
     // Back on ROBIN, locked: it too waits a second, then unlocks.
-    await hoverUntilShown(page, '4,5', '7,5', 'across', 'Unlock word');
-    await expectButtonBeside(page, '7,5', 'across');
+    await hoverUntilShown(page, '4,5', '3,5', 'across', 'Unlock word');
+    await expectButtonBeside(page, '3,5', 'across');
     await lockButton(page).click();
     await expect(lockButton(page)).toHaveAccessibleName('Lock word');
     await expectLetters(page, ROBIN, BLACK);
@@ -434,8 +439,8 @@ test.describe('21-S10-5 clicking the hovered word\'s button', () => {
     await expect(gridRegion(page)).not.toBeFocused();
     await expect(lockButton(page)).toHaveCount(0, { timeout: AT_ONCE_MS });
 
-    await hoverUntilShown(page, '5,5', '7,5', 'across', 'Lock word');
-    await expectButtonBeside(page, '7,5', 'across');
+    await hoverUntilShown(page, '5,5', '3,5', 'across', 'Lock word');
+    await expectButtonBeside(page, '3,5', 'across');
     await expectOnlyOutline(page, [...ROBIN, ...ROBIN_ENDS]);
 
     await lockButton(page).click();
@@ -465,7 +470,7 @@ test.describe('21-S10-6 the cursor\'s direction', () => {
     await page.waitForTimeout(NOT_YET_MS);
     await expect(lockButton(page)).toHaveCount(0);
     await expect(lockButton(page)).toBeVisible({ timeout: SHOWN_WITHIN_MS });
-    await expectButtonBeside(page, '3,7', 'down');
+    await expectButtonBeside(page, '3,5', 'down');
     await expectOnlyOutline(page, [...RUN_ENDS, ...RUN]);
 
     // ROBIN's O, down, is a lone cell: gone at once.
@@ -480,14 +485,14 @@ test.describe('21-S10-7 a click in a cell hands over to the cursor', () => {
   test('clicking in the hovered word: its button stays, then follows the cursor\'s rules', async ({ page }) => {
     await open(page);
     await select(page, EMPTY);
-    await hoverUntilShown(page, '5,5', '7,5', 'across', 'Lock word');
+    await hoverUntilShown(page, '5,5', '3,5', 'across', 'Lock word');
 
     await cell(page, '4,5').click();
     await expect(cell(page, '4,5')).toHaveAttribute('data-selected', 'true');
     // No new second: still there at once and a moment later.
-    expect(await isButtonBeside(page, '7,5', 'across'), 'still beside ROBIN right after the click').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'still beside ROBIN right after the click').toBe(true);
     await page.waitForTimeout(AT_ONCE_MS);
-    expect(await isButtonBeside(page, '7,5', 'across'), 'still beside ROBIN 300ms later').toBe(true);
+    expect(await isButtonBeside(page, '3,5', 'across'), 'still beside ROBIN 300ms later').toBe(true);
 
     // The click ended the hover: with the grid's focus gone, so is the
     // button, though the mouse still rests on ROBIN.
@@ -517,7 +522,7 @@ test.describe('21-S10-8 the keyboard and the hover', () => {
   test('the hover\'s button is not a Tab stop', async ({ page }) => {
     await open(page);
     await select(page, EMPTY);
-    await hoverUntilShown(page, '5,5', '7,5', 'across', 'Lock word');
+    await hoverUntilShown(page, '5,5', '3,5', 'across', 'Lock word');
 
     await gridRegion(page).focus();
     await page.keyboard.press('Tab');
@@ -544,7 +549,7 @@ test.describe('21-S10-8 the keyboard and the hover', () => {
 
     // The cursor in TANGENT, its button hidden by ROBIN's hover.
     await inTangent(page);
-    await hoverUntilShown(page, '5,5', '7,5', 'across', 'Lock word');
+    await hoverUntilShown(page, '5,5', '3,5', 'across', 'Lock word');
     await expect(gridRegion(page)).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(lockButton(page)).not.toBeFocused();
@@ -559,7 +564,7 @@ test.describe('21-S10-8 the keyboard and the hover', () => {
 
     await cell(page, '5,5').hover();
     await page.waitForTimeout(LONG_MS);
-    await expectButtonBeside(page, '9,3', 'across');
+    await expectButtonBeside(page, '3,3', 'across');
     await expect(lockButton(page)).toBeFocused();
     await expectOnlyOutline(page, [...TANGENT, ...TANGENT_ENDS]);
 

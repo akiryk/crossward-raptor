@@ -257,12 +257,18 @@ test.describe('21-S9-5 the grid shrinks with a narrow window', () => {
 
 // --- 21-S9-6: Lock Word's full width is the puzzle's ---
 test.describe('21-S9-6 Lock Word in the toggle row below the puzzle’s own full width', () => {
+  // 21-S12 amended the cases: the button beside the word also needs 36px
+  // left of the grid. A full 620px grid has it from a 692px window, a
+  // full 700px one from 772px; just below, at full width, it's the
+  // toggle row's Lock Word.
   const cases: [string, number, number, 'beside' | 'row'][] = [
     ['a Daily at 1440px (620px)', 15, 1440, 'beside'],
-    ['a Daily at 636px (620px)', 15, 636, 'beside'],
+    ['a Daily at 692px (620px, 36px in)', 15, 692, 'beside'],
+    ['a Daily at 691px (620px, 35.5px in)', 15, 691, 'row'],
     ['a Daily at 635px (619px)', 15, 635, 'row'],
     ['a Sunday at 1440px (700px)', 21, 1440, 'beside'],
-    ['a Sunday at 716px (700px)', 21, 716, 'beside'],
+    ['a Sunday at 772px (700px, 36px in)', 21, 772, 'beside'],
+    ['a Sunday at 771px (700px, 35.5px in)', 21, 771, 'row'],
     ['a Sunday at 715px (699px)', 21, 715, 'row'],
   ];
   for (const [name, size, width, where] of cases) {
@@ -271,7 +277,8 @@ test.describe('21-S9-6 Lock Word in the toggle row below the puzzle’s own full
       const full = size === 21 ? SUNDAY_PX : SMALL_PX;
       const w = (await rect(gridRegion(page))).width;
       if (where === 'beside') expect(w, 'the grid at its full width').toBeCloseTo(full, 0);
-      else expect(w, 'the grid has shrunk').toBeLessThan(full);
+      else if (width < full + 16) expect(w, 'the grid has shrunk').toBeLessThan(full);
+      else expect(w, 'the grid at its full width, short of room on its left').toBeCloseTo(full, 0);
 
       await page.locator('[data-coord="6,3"]').click();
       await expect(page.locator('[data-coord="6,3"]')).toHaveAttribute('data-selected', 'true');

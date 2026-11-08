@@ -1,8 +1,9 @@
 # Epic: Locked words
 
 **Decisions agreed with the human in an interview 2026-11-06** (recorded
-below). **The human approved the written EPIC 2026-11-06.** S1–S6 are done; the
-epic awaits the human's visual testing before closeout (HANDOFF).
+below). **The human approved the written EPIC 2026-11-06.** S1–S11 are done;
+the human's visual testing of S8–S11 (2026-11-07) added S12 and S13 (see
+"Changes from the human's visual testing (2026-11-07)").
 
 In the build phase, a builder can lock a finished word so its letters
 can't be changed by accident while the rest of the grid is filled around
@@ -166,6 +167,13 @@ Added during the interview, as given:
    when the grid has shrunk.
 6. **[S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):**
    the three-button dialog.
+
+S7–S11 followed from the human's 2026-11-06 visual testing (HANDOFF).
+From the 2026-11-07 visual testing:
+
+12. **[S12 The button before the word](stories/21-S12-button-before-word.md):**
+    left of an across word, above a down word, with room made for it.
+13. **[S13 Tick hover shows the button](stories/21-S13-tick-hover-button.md).**
 
 Between S2 and S3, locks show but don't yet protect; both ship before the
 epic closes. Each story checks its actual paths against CODE-REVIEW. Only
@@ -343,6 +351,44 @@ carry them.
   (dev server restarted) all three behaved as specified. Stale code; no
   change. The human also noted the tooltip doesn't show on keyboard
   focus; S4 specifies mouse only.
+
+## Changes from the human's visual testing (2026-11-07)
+
+The human's findings after S8–S11, and their answers, recorded as given.
+They amend the Decisions above where they differ. S12 and S13 carry them.
+
+> S11: the tick's whole top-right square counts as the hover area, not
+> just the triangle. This works; however, I'd like the lock/unlock button
+> to appear also, not just for the word cells to get darker. [...] I
+> hover over the triangle or its cell. A moment later, both the cells in
+> the word should darken AND the unlock icon should appear and remain up
+> as it does if I click on a cell in the word. The idea is I should be
+> able to hover over the triangle to get the icon to appear so that I can
+> unlock the word.
+>
+> [...] as I type words from left to right or top to bottom, I
+> occasionally click the lock button without meaning to -- because it
+> appears in the direction I'm typing. We should have the icon appear on
+> the opposite side of the word -- on the top for down words and on the
+> left for across words.
+
+- **The button's side (amends "Look"):** the button sits just before
+  the word's first letter: left of it for across, above it for down.
+  Its square corners face the word. For a word at the grid's left or top
+  edge it sits outside the grid, as today's does at the right and bottom.
+  The page makes room for it rather than letting it be cut off or cover
+  the toggle row (the human: "If we need to add more margin, add more
+  margin"; then "full room, amend thresholds"): at least 36px left of
+  the grid wherever the button shows, and 36px between the toggle row
+  and the grid. Layout thresholds and frozen tests that move with it are
+  amended in S12.
+- **Tick hover shows the button (amends "Tick hover (item 6)"):** the
+  hover area is the whole ticked end cell. The darkening still shows at
+  once. After a second of hover the button shows too, for the locked
+  word in the cursor's direction where the cell ends two. It stays while
+  the mouse is on that cell, the word's cells or the button, and goes when
+  the mouse moves elsewhere (the human chose each of these).
+- **S8–S10:** the human reported no other findings.
 
 ## Non-goals
 

@@ -38,7 +38,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 const GRID_FULL_PX = 620;
 const WIDE = { width: 1440, height: 1000 };
-const NARROWEST_FULL = { width: 636, height: 1000 };
+// 21-S12 amended this from 636px: the button beside the word also needs
+// 36px left of the grid, which a 620px grid has from a 692px window.
+const NARROWEST_FULL = { width: 692, height: 1000 };
 const JUST_BELOW_FULL = { width: 635, height: 1000 };
 const PHONE = { width: 375, height: 800 };
 
@@ -229,7 +231,7 @@ test.describe('21-S5-1 which one', () => {
     expect(near(preview.x - panel.x, 12), 'Preview at the left end').toBe(true);
   });
 
-  test('636px, the grid at its full 620px: only the button beside the word', async ({ page }) => {
+  test('692px, the grid at its full 620px, 36px in: only the button beside the word', async ({ page }) => {
     await open(page, NARROWEST_FULL);
     expect(await gridWidth(page)).toBe(GRID_FULL_PX);
     await select(page, '6,3');
