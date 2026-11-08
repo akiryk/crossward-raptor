@@ -417,7 +417,7 @@ export function PuzzleGrid({
         key={`tick-hover ${word.col},${word.row} ${word.orientation}`}
         data-testid="tick-hover-outline"
         aria-hidden="true"
-        className="pointer-events-none absolute border border-(--palette-black)"
+        className="pointer-events-none absolute border-2 border-(--palette-black)"
         style={{ ...gridArea(lockedWordCells(word)), inset: 'calc(-1 * var(--grid-line-width))' }}
       />
     )),

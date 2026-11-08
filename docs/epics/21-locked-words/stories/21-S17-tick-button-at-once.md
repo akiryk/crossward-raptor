@@ -4,7 +4,7 @@ Hovering a locked word, its ticked end cell or its letters, shows its
 lock button at once, as the cursor in a locked word does. The black
 outline the tick hover draws around each word is 2px instead of 1px.
 
-**Status: approved by the human and frozen (2026-11-08), delegated details included.** From the
+**Status: approved by the human and frozen (2026-11-08), delegated details included; delivered on `main`, awaiting the human's visual check.** From the
 human's visual check of S14–S16 (EPIC "Changes from the human's visual
 check of S14–S16 (2026-11-08)"). Amends S13's and S16's wait for the
 tick's button, S10's and S16's wait for a hovered locked word, and S15's

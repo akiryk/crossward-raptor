@@ -727,9 +727,9 @@ export function PuzzleGridEditor({
     isFocused && cursorTarget && (cursorTarget.isLocked || lockDwell === cursor) ? cursorTarget : null;
   const isRowLockEnabled = isFocused && cursorTarget !== null;
 
-  // The hovered word's button wins once its wait has passed, focused or
-  // not; only where the button beside the word is used, with no rebus entry open
-  // (21-S10). A turn of the cursor puts a new run under the mouse, whose
+  // The hovered word's button wins once its wait has passed, at once for a
+  // locked word (21-S17), focused or not; only where the button beside the
+  // word is used, with no rebus entry open (21-S10). A turn of the cursor puts a new run under the mouse, whose
   // wait starts over. On a ticked end cell, a turn, or its word's tick
   // going (unlocked by the keyboard), picks again; the same word keeps its
   // wait (21-S13).
@@ -753,20 +753,25 @@ export function PuzzleGridEditor({
   if (lockHover && hoverRun !== lockHover.wait.run) {
     setLockHover({ coord: lockHover.coord, wait: { run: hoverRun, isDue: false } });
   }
-  const isHoverDue =
-    isLockShown && hasLockRoom && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run;
+  const isHoverUsable = isLockShown && hasLockRoom && rebusValue === null && hoverRun === lockHover?.wait.run;
   // The tick's word, once unlocked, keeps its button only while it is still
   // lockable (21-S10): its letters changing takes the button away.
   const tickWordTarget = tickWord
     ? lockTargetAt(grid, lockedWords, { current: { col: tickWord.col, row: tickWord.row }, orientation: tickWord.orientation })
     : null;
-  const hoverTarget = !isHoverDue
+  const hoverWord = !isHoverUsable
     ? null
     : tickWord
       ? tickWordTarget && sameWord(tickWordTarget.word, tickWord)
         ? tickWordTarget
         : null
       : lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation });
+  // A locked word's button shows at once, as for the cursor (21-S17), and
+  // its wait counts as passed, so the button stays once it's unlocked.
+  if (hoverWord?.isLocked && !lockHover!.wait.isDue) {
+    setLockHover({ ...lockHover!, wait: { ...lockHover!.wait, isDue: true } });
+  }
+  const hoverTarget = hoverWord && (hoverWord.isLocked || lockHover!.wait.isDue) ? hoverWord : null;
   const lockTarget = hoverTarget ?? cursorLockTarget;
   // The hover's button is for the mouse: no Tab stop unless it's the
   // cursor's own.
