@@ -40,13 +40,18 @@ The human approved the EPIC 2026-11-08.
   (all findings addressed); implemented d0b855b, direct to `main`;
   independent review of d0b855b found no blockers.
 - **The human's visual check of S2 (2026-11-08):** "It looks good!",
-  with five changes, recorded verbatim in S3/S4. They become two new
-  stories under this orchestration: **S3 the bar's look** (16px high,
-  20px rounded corners, a gray-500 fill, the fill animating in from 0
-  and turning interactive-dark when it reaches the zone) and **S4 one
-  tooltip behavior** (a single place controlling every tooltip's
-  timing, and a tooltip over the bar). S3 first, then S4; then a second
-  visual check, then closeout.
+  with five changes, recorded verbatim in the EPIC; they became S3 and S4.
+- **S3 the bar's look done:** frozen 18afb53 after an independent spec
+  review (no blockers, all findings addressed); implemented fd45a02,
+  direct to `main`; independent review of fd45a02: no blockers.
+- **S4 one tooltip behavior delivered:** frozen e7e3bf6 after an
+  independent spec review (no blockers, all findings addressed);
+  implemented fd57abd, direct to `main`. **Its independent review was
+  started but its result was not recorded** (the session ended first):
+  run it again.
+- **The human has small changes to request** before the final visual
+  check (not yet stated). Then the visual check of S3 and S4, then
+  closeout.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -94,7 +99,24 @@ human waived the correction procedure for it.
 8. **The bar's tooltip text:** "80–85%" kept: it matches the zone and the
    NYT convention of about 16% black squares (about 84% white).
 
+9. **S3 review note accepted:** if the reduced-motion preference turns
+   off while the bar shows, one frame may paint a stale width
+   (`BuildProgress.tsx`, the reduced-motion branch doesn't update the
+   drawn state). Rare, unacceptance-covered; fix if convenient.
+10. **S4 known gap (as before S4):** a lock button replaced under a
+   resting mouse shows its tooltip only on the next mouse move.
+
 ## Verification
+
+S4 at fd57abd (implementer): `npm run verify` exit 0 (760 tests);
+tooltip specs 160/160 with `--repeat-each 3`; full `npm run test:e2e`
+1241 passed / 2 failed (18-S5-5 pixel mid-transition, library-play P5
+ECONNRESET), each passing alone: no full run exited 0 (Decision 5).
+
+S3 at fd45a02: implementer `npm run verify` exit 0 with S4's then-unbuilt
+source test set aside; full e2e 1232 / 11 (8 unbuilt S4 tests, 3 flakes
+passing alone). Reviewer: S3 specs 51/51 with `--repeat-each 2`.
+
 
 S2 at d0b855b (all on the same commit, clean tree):
 
@@ -119,13 +141,13 @@ was not run for it.
 
 ## Next action
 
-The human's visual check of the progress bar (`npm run dev`, a daily
-and a Sunday puzzle's build phase, Preview on): below and at 80%, the
-wide row, and narrow windows (around 540px, 375px and 300px). Then
-record the result and close the epic per the epic index (independent
-closeout audit). A visual fix becomes a new story under the same
-orchestration.
+Ask the human for their small changes and make them (a visual fix is a
+story under the same orchestration; a trivial one may go straight to
+`main` with `npm run verify`). Re-run S4's independent review of
+fd57abd (report-only, separate agent). Then ask for the visual check of
+S3/S4 with the Decisions list, and close the epic per the epic index
+(independent closeout audit).
 
 ## Resume prompt
 
-Read docs/epics/22-build-progress/HANDOFF.md and docs/epics/22-build-progress/stories/22-S2-progress-bar.md. Record the human's visual check of S2 and close out the epic per the handoff's Orchestration section on main.
+Read docs/epics/22-build-progress/HANDOFF.md and docs/epics/22-build-progress/stories/22-S4-tooltips.md. Take the human's small changes, re-run S4's independent review, then get the visual check and close out the epic per the handoff's Orchestration section on main.
