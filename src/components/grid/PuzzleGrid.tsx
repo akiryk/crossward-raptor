@@ -191,7 +191,7 @@ export function PuzzleGrid({
   lockedWords?: readonly LockedWord[];
   /** Build phase, Preview off: the word whose lock button shows. */
   lockTarget?: { word: LockedWord; isLocked: boolean } | null;
-  /** The button beside the word shows only at the grid's full width; the
+  /** The button beside the word shows only where it has room (21-S12); the
    *  outline shows either way (21-S5). */
   hasLockButton?: boolean;
   /** The hover's button is for the mouse only (21-S10). */
@@ -435,6 +435,8 @@ export function PuzzleGrid({
       </div>
     )),
   ];
+  // The button sits just before the first letter, left of an across word
+  // and above a down word, its square side against the word (21-S12).
   if (lockTarget && hasLockButton) {
     const { word, isLocked } = lockTarget;
     const cells = lockedWordCells(word);
@@ -463,15 +465,15 @@ export function PuzzleGrid({
         // Enter and Space are the button's, not the grid's.
         onKeyDown={(e) => e.stopPropagation()}
         className={`absolute z-10 flex items-center justify-center bg-(--palette-gray-500) text-(--palette-white) hover:bg-(--palette-gray-700) ${
-          isAcross ? 'rounded-r-[4px]' : 'rounded-b-[4px]'
+          isAcross ? 'rounded-l-[4px]' : 'rounded-t-[4px]'
         }`}
         style={{
-          ...gridArea([cells[cells.length - 1]]),
+          ...gridArea([cells[0]]),
           width: `min(${LOCK_BUTTON_MAX_PX}px, calc(100% * 2 / 3))`,
           height: `min(${LOCK_BUTTON_MAX_PX}px, calc(100% * 2 / 3))`,
           ...(isAcross
-            ? { left: 'calc(100% + var(--grid-line-width))', top: '50%', transform: 'translateY(-50%)' }
-            : { top: 'calc(100% + var(--grid-line-width))', left: '50%', transform: 'translateX(-50%)' }),
+            ? { right: 'calc(100% + var(--grid-line-width))', top: '50%', transform: 'translateY(-50%)' }
+            : { bottom: 'calc(100% + var(--grid-line-width))', left: '50%', transform: 'translateX(-50%)' }),
         }}
       >
         <LockIcon isLocked={isLocked} className="h-3/5 w-3/5" />

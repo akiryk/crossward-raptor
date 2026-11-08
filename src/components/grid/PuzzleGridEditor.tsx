@@ -66,6 +66,9 @@ const SAVE_DEBOUNCE_MS = 500;
 // How long the cursor stays in an unlocked word before its lock button
 // shows (21-S2).
 const LOCK_BUTTON_DELAY_MS = 1000;
+// Room for the lock button left of the grid: 32px, the 1px line and 3px to
+// spare (21-S12).
+const LOCK_ROOM_PX = 36;
 
 interface EditorState {
   grid: Grid;
@@ -203,10 +206,10 @@ export function PuzzleGridEditor({
   // has stayed a second, or by toggling the lock. Every key or move makes
   // a new cursor, so the second starts again.
   const [lockDwell, setLockDwell] = useState<CursorState | null>(null);
-  // The button beside the word shows only at the grid's full width, the
-  // puzzle's own (21-S9); narrower, Lock Word in the toggle row replaces it
-  // (21-S5).
-  const [isGridFullWidth, setIsGridFullWidth] = useState(true);
+  // The button beside the word shows only with the grid at its full width,
+  // the puzzle's own (21-S9), and room for the button left of it (21-S12);
+  // otherwise Lock Word in the toggle row replaces it (21-S5).
+  const [hasLockRoom, setHasLockRoom] = useState(true);
   const [lockHover, setLockHover] = useState<LockHover | null>(null);
   const editorLayoutRef = useRef<HTMLDivElement>(null);
   const lockControlRef = useRef<HTMLButtonElement>(null);
@@ -335,11 +338,18 @@ export function PuzzleGridEditor({
   useEffect(() => {
     const region = gridRegionRef.current;
     if (!region) return;
-    const observer = new ResizeObserver(([entry]) => {
-      setIsGridFullWidth(entry.contentRect.width >= gridPx - 0.5);
-    });
+    // A centered grid moves without resizing, so the window's resize counts.
+    const measure = () => {
+      const rect = region.getBoundingClientRect();
+      setHasLockRoom(rect.width >= gridPx - 0.5 && rect.left + window.scrollX >= LOCK_ROOM_PX - 0.25);
+    };
+    const observer = new ResizeObserver(measure);
     observer.observe(region);
-    return () => observer.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [gridPx]);
 
   // A second of hover, counted from the mouse moving onto the word (21-S10).
@@ -698,7 +708,7 @@ export function PuzzleGridEditor({
   const isRowLockEnabled = isFocused && cursorTarget !== null;
 
   // The hovered word's button wins once its second has passed, focused or
-  // not; only beside the word at full width, with no rebus entry open
+  // not; only where the button beside the word is used, with no rebus entry open
   // (21-S10). A turn of the cursor puts a new run under the mouse, whose
   // second starts over.
   const hoverRun = lockHover ? runKey(grid, lockHover.coord, cursor.orientation) : null;
@@ -706,7 +716,7 @@ export function PuzzleGridEditor({
     setLockHover({ coord: lockHover.coord, wait: { run: hoverRun, isDue: false } });
   }
   const hoverTarget =
-    isLockShown && isGridFullWidth && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run
+    isLockShown && hasLockRoom && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run
       ? lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation })
       : null;
   const lockTarget = hoverTarget ?? cursorLockTarget;
@@ -750,22 +760,28 @@ export function PuzzleGridEditor({
 
   return (
     // Below 1092px of room, a 1140px window (17-S7), the builder is one column at
-    // the grid's width, centered (15-S3).
+    // the grid's width, centered (15-S3). Two columns, the left one sits 12px
+    // in, so the grid has the lock button's 36px of room (21-S12).
     <div
       data-testid="puzzle-editor"
       data-ready={isReady}
       className="@container/editor m-auto"
       style={{ ["--grid-max" as string]: `${gridPx}px` }}
     >
-      <div className="mx-auto max-w-(--grid-max) @min-[1092px]/editor:max-w-none">
+      <div className="mx-auto max-w-(--grid-max) @min-[1092px]/editor:max-w-none @min-[1092px]/editor:pl-3">
         <PuzzleTitle
           value={title}
           onChange={handleTitleChange}
           disabled={isPublished}
         />
-        {/* The step row, then the toggle row, 20px apart and 20px above the
-            grid; in one column, 16px (17-S8). */}
-        <div className="mb-4 flex flex-col gap-4 @min-[1092px]/editor:mb-5 @min-[1092px]/editor:gap-5">
+        {/* The step row, then the toggle row, 20px apart; in one column, 16px
+            (17-S8). 36px above the grid wherever the lock button can show,
+            the published state wide too; else 16px (21-S12). */}
+        <div
+          className={`${
+            isPublished ? "mb-4 @min-[1092px]/editor:mb-9" : hasLockRoom ? "mb-9" : "mb-4"
+          } flex flex-col gap-4 @min-[1092px]/editor:gap-5`}
+        >
           {isPublished ? (
             // Wide, as tall as the step row, so the grid doesn't move.
             <div className="@min-[1092px]/editor:min-h-8">
@@ -792,7 +808,7 @@ export function PuzzleGridEditor({
               )}
               {!isPublished && (
                 <div className="flex items-center gap-5">
-                  {phase === "grid" && !isGridFullWidth && (
+                  {phase === "grid" && !hasLockRoom && (
                     <LockWordControl
                       isLocked={cursorTarget?.isLocked === true}
                       disabled={!isRowLockEnabled}
@@ -884,7 +900,7 @@ export function PuzzleGridEditor({
                 cursorWord={cursorWord}
                 lockedWords={isLockShown ? lockedWords : undefined}
                 lockTarget={lockTarget}
-                hasLockButton={isGridFullWidth}
+                hasLockButton={hasLockRoom}
                 isLockButtonTabStop={isLockButtonTabStop}
                 onToggleLock={handleToggleShownLock}
                 onHoverCell={handleHoverCell}

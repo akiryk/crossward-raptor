@@ -2,8 +2,8 @@
 
 import type { FocusEvent as ReactFocusEvent, Ref } from 'react';
 
-// Story 21-S5. Lock Word in the toggle row, while the grid is narrower than
-// its full width: a text button in Rebus's style, enabled at once in a
+// Story 21-S5. Lock Word in the toggle row, while the lock button beside the
+// word has no room (21-S12): a text button in Rebus's style, enabled at once in a
 // lockable or locked word, muted gray otherwise. A click or tap never takes
 // focus from the grid; focused by keyboard, it counts as the grid's focus.
 export function LockWordControl({
