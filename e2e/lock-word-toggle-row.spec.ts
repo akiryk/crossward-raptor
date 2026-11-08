@@ -33,6 +33,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // phone. Amended by 21-S9: the daily's full width is 620px, so 21-S5-1's
 // widths are 636px and 635px; what each case checks is unchanged.
 //
+// Amended by 21-S16: the button beside a word waits 3 seconds (was 1);
+// every wait timed against it is 2000ms longer.
+//
 // Colors and sizes are the human's values, written out here. Do not edit
 // this file to match an implementation.
 
@@ -175,7 +178,7 @@ async function expectLetters(page: Page, coords: string[], color: string) {
 
 /** At the full width: S2's button beside the word, never the row's. */
 async function expectBesideOnly(page: Page, name: 'Lock word' | 'Unlock word') {
-  await expect(besideButton(page)).toBeVisible({ timeout: 1500 });
+  await expect(besideButton(page)).toBeVisible({ timeout: 3500 });
   await expect(besideButton(page)).toHaveAccessibleName(name);
   await expect(shownControl(page)).toHaveCount(0);
 }
@@ -183,7 +186,7 @@ async function expectBesideOnly(page: Page, name: 'Lock word' | 'Unlock word') {
 /** Narrower: the row's button, and S2's never, even after a second. */
 async function expectRowOnly(page: Page, text: 'Lock Word' | 'Unlock Word') {
   await expectEnabled(page, text);
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(3500);
   await expect(besideButton(page)).toHaveCount(0);
   await expectEnabled(page, text);
 }
@@ -248,7 +251,7 @@ test.describe('21-S5-1 which one', () => {
   test('resizing across the boundary swaps them, never both', async ({ page }) => {
     await open(page, WIDE);
     await select(page, '6,3');
-    await expect(besideButton(page)).toBeVisible({ timeout: 1500 });
+    await expect(besideButton(page)).toBeVisible({ timeout: 3500 });
     await besideButton(page).click();
     await expectBesideOnly(page, 'Unlock word');
 
@@ -270,7 +273,7 @@ test.describe('21-S5-2 states (375px)', () => {
     await select(page, '4,8');
     await expect(cell(page, '3,8')).toHaveAttribute('data-highlight', 'slot');
     await expectDisabled(page);
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expectDisabled(page);
   });
 
@@ -284,7 +287,7 @@ test.describe('21-S5-2 states (375px)', () => {
     await select(page, '6,3');
     await expectEnabled(page, 'Lock Word');
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(2500);
     await expect(outlines(page)).toHaveCount(0);
     await expectOutline(page, [...TANGENT_ENDS, ...TANGENT], 1500);
     await expect(outlines(page)).toHaveCount(1);
@@ -344,7 +347,7 @@ test.describe('21-S5-3 toggling (375px)', () => {
 
     // No tooltip after a long hover.
     await control(page).hover();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(page.getByRole('tooltip')).toHaveCount(0);
 
     await control(page).click();
@@ -390,7 +393,7 @@ test.describe('21-S5-4 Preview and the hints phase (375px)', () => {
     await page.getByTestId('preview-toggle').locator('input').click({ force: true });
     await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'preview');
     await select(page, '6,3');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(shownControl(page)).toHaveCount(0);
     await expect(besideButton(page)).toHaveCount(0);
     await expect(rebus(page)).toHaveCount(1);
@@ -408,7 +411,7 @@ test.describe('21-S5-4 Preview and the hints phase (375px)', () => {
     await expect(page.getByTestId('lock-letters-toggle')).toBeVisible();
 
     await select(page, '6,3');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(control(page)).toHaveCount(0);
     await expect(besideButton(page)).toHaveCount(0);
   });

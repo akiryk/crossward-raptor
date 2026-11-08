@@ -9,8 +9,9 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Story 21-S2 — lock and unlock a word.
 //
 // In the build phase with Preview off, a button appears beside a word of 3
-// or more letters once the cursor has stayed in it for 1 second (at once
-// in a locked word). It is a square 2/3 of a cell, at most 32px, just
+// or more letters once the cursor has stayed in it for 3 seconds (21-S16
+// amended this from 1 second, and every wait timed against it by 2s; at
+// once in a locked word). It is a square 2/3 of a cell, at most 32px, just
 // before the first letter: left of it and vertically centered across,
 // above it and horizontally centered down (21-S12 amended this from "just
 // past the last letter"). Its near corners are square and its far
@@ -201,16 +202,17 @@ async function leave(page: Page) {
 }
 
 test.describe('21-S2-3 the button appears after a second', () => {
+  // 21-S16: three seconds.
   test('after a second in a 3+ letter word, restarted by a move', async ({ page }) => {
     await open(page);
     await cell(page, '6,3').click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(2500);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 
     // A move within the word starts the second again.
     await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(2600);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 
@@ -238,12 +240,12 @@ test.describe('21-S2-3 the button appears after a second', () => {
     await open(page);
     await cell(page, '4,8').click();
     await expect(cell(page, '3,8')).toHaveAttribute('data-highlight', 'slot');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 
     await cell(page, EMPTY).click();
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
   });
@@ -449,7 +451,7 @@ test.describe('21-S2-10 Preview and the hints phase', () => {
     await expect(page.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'preview');
     await cell(page, '6,3').click();
     await expect(cell(page, '6,3')).toHaveAttribute('data-selected', 'true');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
     await expect(ticks(page)).toHaveCount(0);
@@ -474,7 +476,7 @@ test.describe('21-S2-10 Preview and the hints phase', () => {
 
     await cell(page, '6,3').click();
     await expect(cell(page, '6,3')).toHaveAttribute('data-selected', 'true');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3500);
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
     await expect(ticks(page)).toHaveCount(0);

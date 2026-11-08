@@ -96,7 +96,9 @@ test.describe('D8-3 real grid samples', () => {
     const sample = page.getByTestId('sg-grid-build');
     await expect(sample.getByTestId('grid-cell')).toHaveCount(100);
 
-    for (const state of ['empty', 'letter', 'selected', 'slot', 'slot-letter', 'symmetric-hint']) {
+    // 21-S14: 'slot' (dull blue) shows only with the cursor in no word;
+    // the sample's cursor is in a word, so it isn't among them.
+    for (const state of ['empty', 'letter', 'selected', 'slot-letter', 'symmetric-hint']) {
       await expect(
         cellIn(page, 'sg-grid-build', state).first(),
         `expected a ${state} cell`
@@ -105,21 +107,16 @@ test.describe('D8-3 real grid samples', () => {
     await expect(sample.getByTestId('cell-number').first()).toBeVisible();
   });
 
-  test('the active slot spans both lettered and empty cells', async ({ page }) => {
+  // Amended by 21-S14 (was "the active slot spans both lettered and empty
+  // cells"): only the cursor's word is highlighted, so no dull 'slot' cell.
+  test('the active word is highlighted, and nothing else in its line', async ({ page }) => {
     await page.goto('/style-guide');
 
-    // A slot cell holding a letter is styled 'slot-letter', distinct from a
-    // plain empty 'slot' cell -- confirm the active slot really has both.
-    const letterCells = cellIn(page, 'sg-grid-build', 'slot-letter');
-    const emptyCells = cellIn(page, 'sg-grid-build', 'slot');
-
-    const letterTexts = await letterCells.allTextContents();
-    const emptyTexts = await emptyCells.allTextContents();
+    const letterTexts = await cellIn(page, 'sg-grid-build', 'slot-letter').allTextContents();
 
     expect(letterTexts.length).toBeGreaterThan(0);
     expect(letterTexts.every((t) => /[A-Z]/.test(t))).toBe(true);
-    expect(emptyTexts.length).toBeGreaterThan(0);
-    expect(emptyTexts.every((t) => !/[A-Z]/.test(t))).toBe(true);
+    await expect(cellIn(page, 'sg-grid-build', 'slot')).toHaveCount(0);
   });
 
   test('the preview sample shows black, lettered and required cells', async ({ page }) => {

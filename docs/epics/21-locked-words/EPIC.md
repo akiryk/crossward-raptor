@@ -175,6 +175,12 @@ From the 2026-11-07 visual testing:
     left of an across word, above a down word, with room made for it.
 13. **[S13 Tick hover shows the button](stories/21-S13-tick-hover-button.md).**
 
+From the human's review after S12–S13 (2026-11-07, second round):
+
+14. **[S14 Only the word is highlighted](stories/21-S14-word-highlight-only.md).**
+15. **[S15 The tick hover outlines the word](stories/21-S15-tick-hover-outline.md).**
+16. **[S16 Three seconds before the button](stories/21-S16-three-second-wait.md).**
+
 Between S2 and S3, locks show but don't yet protect; both ship before the
 epic closes. Each story checks its actual paths against CODE-REVIEW. Only
 S2 is expected on a risk path.
@@ -389,6 +395,52 @@ They amend the Decisions above where they differ. S12 and S13 carry them.
   the mouse is on that cell, the word's cells or the button, and goes when
   the mouse moves elsewhere (the human chose each of these).
 - **S8–S10:** the human reported no other findings.
+
+## Changes from the human's review after S12–S13 (2026-11-07)
+
+The human's requests after checking S12 and S13, and their answers,
+recorded as given. They amend the Decisions above where they differ.
+S14–S16 carry them.
+
+> 1. [...] The purpose of the dull blue color is to indicate the row or
+> column that's selected and to indicate whether the user is in down or
+> across mode. But we don't need to highlight every single cell in the
+> row/column every time. [...] if I click on a cell that's part of a
+> word, whether a true word with letters or a "word" made of white
+> cells, and my mode is in the same orientation as that word, then we
+> should ONLY highlight the word. Say I'm in horizontal mode and the
+> cells are like this: x x x _ _ B A R x x x [...]. If I click on one of
+> the X cells, I want to make the other x cells dull blue; the white
+> cells should remain white. If, on the other hand, I click on a _ cell
+> or the B, A, or R cell AND I'm in horizontal mode, then we should
+> highlight the word, __BAR, in blue-medium and leave the other cells as
+> they are. [...] If I'm in vertical mode, then we shouldn't highlight
+> that word. [...] the same rule applies for vertical words.
+>
+> 2. When I hover over the triangle mark for a locked word, we darken
+> the cells [...]. I'd rather keep the cells the same color (white) and
+> only change the outline. We should outline the word in a black line.
+> [...] The point is that the outline should be around the word, not
+> each cell.
+>
+> 3. Timing. The lock icon appears too quickly. [...] If we show it after
+> 1 second right now, let's not show it until 3 seconds.
+
+- **The highlight (amends S1, S8):** with the cursor in a word (S8's
+  run, in the cursor's direction), only that word is highlighted
+  blue-medium; the rest of its row or column looks as it would outside
+  the highlight. With the cursor in no word, the row or column's off
+  cells are dull blue and its white cells (lettered, Preview-red) stay
+  white. Build phase, Preview off only.
+- **The tick hover (amends S11, S13):** no cell darkens. Each hovered
+  word gets a black outline around its letters only, not its end cells
+  (the human chose "word only"), over the gray outline that wraps the
+  word and its end cells. Everything else of S11 and S13 holds.
+- **The wait (amends S2, S7, S10, S13):** the button beside an unlocked
+  word waits 3 seconds, for the cursor, the mouse on a word and the
+  mouse on a tick (the human chose "all button delays"). A locked word's
+  button still shows at once for the cursor, and S4's tooltip keeps its
+  second.
 
 ## Non-goals
 
