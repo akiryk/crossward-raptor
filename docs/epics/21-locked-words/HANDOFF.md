@@ -43,9 +43,9 @@ S1–S13 are implemented and on `main` (pushed): S12 `86c4e7b`, S13
 
 ## Next action
 
-The human checks S12 and S13 visually, including the S12 notes above.
-Then comes an independent, report-only closeout audit covering S7–S13.
-Close the epic only with the human's agreement.
+The human checked S12 and S13 visually on 2026-11-07, including the S12
+notes above, and approved them. Next: an independent, report-only closeout
+audit covering S7–S13. Close the epic only with the human's agreement.
 
 ## Resume prompt
 
