@@ -67,14 +67,15 @@ Then, to the agent's follow-up questions: the message is left of the bar
 and moves above it only on narrow screens; the bar is about 180px wide
 as mocked; and 12px high as mocked.
 
-The human's visual check of S2 (2026-11-08), items 1–4 as given (item 5,
-a tooltip over the bar, is S4's):
+The human's visual check of S2 (2026-11-08), as given (items 1–4 are
+S3's, item 5 S4's):
 
 > It looks good! A few changes:
 > 1. Make the progress bar have a height of 16px rather than whatever it is today
 > 2. Give the bar rounded corners like the preview toggle -- 20px should do it.
 > 3. Make the light gray bar that fills as progress continues a bit darker. Use gray-500
 > 4. Have the progress part of the bar animate in. That is, the gray part should start from 0 width and animate up to its correct width so we draw the user's eye. Once it reaches the target zone, it should transition to the blue-color (interactive-dark)
+> 5. Add a tooltip that appears when user hovers over the progress bar. The tooltip should appear after a moment. What's typical? The tool tip appears over the red and orange cells in the grid right away. This feels too quick. We should create a single tooltip component that we can control the behavior for in one place so that app is consistent. This may require additional work if there are more than one tooltip already. For the tooltip above the progress bar, have the text say "Aim to use about 80-85% of the cells to make a standard puzzle" (I'm not sure about the 80-85 part; correct those numbers is necesssary).
 
 ## What the code does today
 
@@ -119,8 +120,12 @@ a tooltip over the bar, is S4's):
 3. **S3 The bar's look** (from the human's visual check of S2): 16px,
    20px corners, a gray-500 fill, the fill animating in. Off the risk
    paths.
+4. **S4 One tooltip behavior:** every tooltip's timing in one place (a
+   500ms hover delay, a 300ms skip delay), the Preview cell and lock
+   button tooltips moved onto it, and a tooltip over the bar. Off the
+   risk paths.
 
-S2 builds on S1, S3 on S2. S2 covers its own edit paths, widths and accessibility
+S2 builds on S1, S3 on S2, S4 on S3. S2 covers its own edit paths, widths and accessibility
 in its acceptance. Each checks its actual paths against CODE-REVIEW.
 
 ## Decisions
@@ -193,6 +198,22 @@ Proposed by the agent, approved by the human with the EPIC:
   S2's specification from the measured widths of the message and the
   percentage, using an existing text style.
 
+From the human's visual check of S2 (2026-11-08), with the
+orchestrator's details:
+
+- **One tooltip behavior.** Every tooltip's delay, skip delay,
+  placement and look are set in one shared module
+  (`src/components/ui/`); no other code keeps tooltip timers or
+  delays. Every tooltip shows after 500ms of mouse hover (was at once
+  for Preview's red and gold cells, after 1s for the lock button);
+  while one shows, or within 300ms of one hiding, the next shows at
+  once; each hides at once when the mouse leaves. Mouse only, as before.
+  This supersedes Epic 20 S2's "no hover delay" and Epic 21 S4's
+  1-second delay.
+- **The bar's tooltip:** "Aim to use about 80–85% of the cells to make
+  a standard puzzle." on mouse hover over the bar, above it. The bar
+  stays out of the Tab order; no `aria-describedby`.
+
 ## Non-goals
 
 - Anything with Preview off, in a mini or midi, in the hints phase,
@@ -203,3 +224,5 @@ Proposed by the agent, approved by the human with the EPIC:
 - Gating Create Hints, moving to the hints phase automatically, or
   changing its dialog or checks.
 - Changing how Preview derives black squares, or Locked words' behavior.
+- Tooltips other than the bar's new one; touch, keyboard or focus
+  tooltips; changing the tooltip's look.
