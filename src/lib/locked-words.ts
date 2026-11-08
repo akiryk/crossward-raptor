@@ -32,7 +32,8 @@ function holds(word: LockedWord, coord: Coord): boolean {
   return inLine && offset >= 0 && offset < word.length;
 }
 
-function sameWord(a: LockedWord, b: LockedWord): boolean {
+/** Whether two locked words are the same word. */
+export function sameWord(a: LockedWord, b: LockedWord): boolean {
   return a.col === b.col && a.row === b.row && a.orientation === b.orientation && a.length === b.length;
 }
 
@@ -66,6 +67,31 @@ export function lockedWordsEndingAt(grid: Grid, lockedWords: readonly LockedWord
   return lockedWords.filter((word) =>
     endCells(grid, word).some((end) => end.col === coord.col && end.row === coord.row)
   );
+}
+
+/** The word a ticked end cell shows the lock button for (21-S13): of the
+ *  locked words ending at the cell, one in the cursor's direction if any,
+ *  else one in the other. Of those, the word starting just after the cell
+ *  wins over the one ending just before it. Null with none ending there. */
+export function tickTarget(
+  grid: Grid,
+  lockedWords: readonly LockedWord[],
+  coord: Coord,
+  orientation: Orientation
+): LockedWord | null {
+  const ending = lockedWordsEndingAt(grid, lockedWords, coord);
+  const inDirection = ending.filter((word) => word.orientation === orientation);
+  const pool = inDirection.length > 0 ? inDirection : ending;
+  const startsAfter = pool.find((word) => {
+    const [dc, dr] = delta(word.orientation);
+    return word.col === coord.col + dc && word.row === coord.row + dr;
+  });
+  return startsAfter ?? pool[0] ?? null;
+}
+
+/** Whether the word holds the cell. */
+export function wordHoldsCell(word: LockedWord, coord: Coord): boolean {
+  return holds(word, coord);
 }
 
 /** Whether a locked word holds the cell. */

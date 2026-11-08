@@ -17,6 +17,7 @@ import {
   isCellLocked,
   lockedWordCells,
   lockedWordsEndingAt,
+  sameWord,
   type LockedWord,
 } from '../../lib/locked-words';
 import { LockIcon } from '../ui/LockIcon';
@@ -135,16 +136,6 @@ const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
 // The lock button is 2/3 of a cell, at most 32px (21-S2).
 const LOCK_BUTTON_MAX_PX = 32;
 
-// A tick (21-S2) is the top-right quarter of its cell each way; that square
-// is its hover area (21-S11).
-const TICK_FRACTION = 1 / 4;
-
-/** Whether the pointer is on the tick square of a cell's box. */
-function isOnTickSquare(cell: HTMLElement, x: number, y: number) {
-  const box = cell.getBoundingClientRect();
-  return x >= box.right - box.width * TICK_FRACTION && y <= box.top + box.height * TICK_FRACTION;
-}
-
 /** The grid area spanning the cells, for an absolutely placed overlay. */
 function gridArea(coords: Coord[]) {
   const cols = coords.map((c) => c.col);
@@ -236,7 +227,7 @@ export function PuzzleGrid({
   for (const word of lockedWords) {
     for (const end of endCells(grid, word)) ticked.set(`${end.col},${end.row}`, end);
   }
-  // The ticked end cell whose tick square the mouse is on (21-S11). When
+  // The ticked end cell the mouse is on (21-S11, 21-S13). When
   // its tick goes, so does the hover: a tick that comes back under a
   // resting mouse darkens nothing until the mouse moves onto it.
   const [hoverTick, setHoverTick] = useState<string | null>(null);
@@ -370,17 +361,25 @@ export function PuzzleGrid({
     onHoverCell?.({ col, row });
   }
 
-  // The tick hover (21-S11): the mouse on a tick's square, read from where
-  // it is in the cell under it. The tick itself lets the mouse through to
-  // its cell, so for 21-S10 it's part of the end cell, a click on it is a
-  // click on the cell, and a lock button over part of it is what's hovered
-  // there (the event's target is the button, not the cell).
+  // The tick hover (21-S11): the mouse anywhere on a ticked end cell
+  // (21-S13). The tick itself lets the mouse through to its cell, so for
+  // 21-S10 it's part of the end cell, a click on it is a click on the cell,
+  // and a lock button over part of it is what's hovered there (the event's
+  // target is the button, not the cell). Only the button of a word ending
+  // at the hovered cell keeps its darkening, moved onto from the cell or
+  // come up under the mouse; any other button darkens nothing.
   function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== 'mouse') return;
-    const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-coord]');
-    const coord = cell?.dataset.coord;
-    const next =
-      cell && coord && ticked.has(coord) && isOnTickSquare(cell, e.clientX, e.clientY) ? coord : null;
+    if (lockButtonRef.current?.contains(e.target as Node)) {
+      const keeps =
+        isHoverTickShown &&
+        lockTarget !== null &&
+        lockedWordsEndingAt(grid, lockedWords, ticked.get(hoverTick)!).some((word) => sameWord(word, lockTarget.word));
+      if (!keeps && hoverTick !== null) setHoverTick(null);
+      return;
+    }
+    const coord = (e.target as HTMLElement).closest<HTMLElement>('[data-coord]')?.dataset.coord;
+    const next = coord && ticked.has(coord) ? coord : null;
     if (next !== hoverTick) setHoverTick(next);
   }
 

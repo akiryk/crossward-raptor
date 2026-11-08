@@ -24,7 +24,10 @@ import {
 import {
   clearOutsideLockedWords,
   lockTargetAt,
+  sameWord,
+  tickTarget,
   toggleLock,
+  wordHoldsCell,
   type LockedWord,
 } from "../../lib/locked-words";
 import { deleteProtected, isCellProtected, placeProtected } from "../../lib/locked-keys";
@@ -88,6 +91,12 @@ interface EditorState {
 interface LockHover {
   coord: Coord;
   wait: { run: string | null; isDue: boolean };
+  /** A ticked end cell's word (21-S13), kept while the mouse is on that
+   *  cell, the word's cells or its button. */
+  tickWord?: LockedWord;
+  /** On the ticked end cell itself: the cursor's direction the word was
+   *  picked for. A turn there picks again. */
+  pickedFor?: Orientation;
 }
 
 function wordKey(word: LockedWord): string {
@@ -374,16 +383,27 @@ export function PuzzleGridEditor({
   }
 
   // The mouse moved onto a cell (null: the hover ended). Within the same
-  // run its second runs on; any other cell starts a new one (21-S10).
+  // run its second runs on; any other cell starts a new one (21-S10). A
+  // ticked end cell's run is the word `tickTarget` picks there, which stays
+  // on that word's cells whatever the cursor's direction (21-S13).
   function handleHoverCell(coord: Coord | null) {
     if (!coord) {
       setLockHover(null);
       return;
     }
-    const run = runKey(state.grid, coord, state.cursor.orientation);
-    setLockHover((prev) =>
-      prev && run !== null && prev.wait.run === run ? { coord, wait: prev.wait } : { coord, wait: { run, isDue: false } },
-    );
+    const { orientation } = state.cursor;
+    const tickWord = isLockShown ? tickTarget(state.grid, state.lockedWords, coord, orientation) : null;
+    setLockHover((prev) => {
+      if (tickWord) {
+        const run = wordKey(tickWord);
+        return { coord, wait: prev?.wait.run === run ? prev.wait : { run, isDue: false }, tickWord, pickedFor: orientation };
+      }
+      if (prev?.tickWord && wordHoldsCell(prev.tickWord, coord)) {
+        return { coord, wait: prev.wait, tickWord: prev.tickWord };
+      }
+      const run = runKey(state.grid, coord, orientation);
+      return prev && run !== null && prev.wait.run === run ? { coord, wait: prev.wait } : { coord, wait: { run, isDue: false } };
+    });
   }
 
   useEffect(() => {
@@ -710,15 +730,36 @@ export function PuzzleGridEditor({
   // The hovered word's button wins once its second has passed, focused or
   // not; only where the button beside the word is used, with no rebus entry open
   // (21-S10). A turn of the cursor puts a new run under the mouse, whose
-  // second starts over.
-  const hoverRun = lockHover ? runKey(grid, lockHover.coord, cursor.orientation) : null;
+  // second starts over. On a ticked end cell, a turn, or its word's tick
+  // going (unlocked by the keyboard), picks again; the same word keeps its
+  // second (21-S13).
+  const tickWord = lockHover?.tickWord ?? null;
+  const isTickWordLocked = tickWord !== null && lockedWords.some((word) => sameWord(word, tickWord));
+  if (lockHover?.pickedFor && (lockHover.pickedFor !== cursor.orientation || !isTickWordLocked)) {
+    const repick = isLockShown ? tickTarget(grid, lockedWords, lockHover.coord, cursor.orientation) : null;
+    const run = repick ? wordKey(repick) : runKey(grid, lockHover.coord, cursor.orientation);
+    const wait = run === lockHover.wait.run ? lockHover.wait : { run, isDue: false };
+    setLockHover(
+      repick
+        ? { coord: lockHover.coord, wait, tickWord: repick, pickedFor: cursor.orientation }
+        : { coord: lockHover.coord, wait },
+    );
+  }
+  const hoverRun = lockHover
+    ? tickWord
+      ? wordKey(tickWord)
+      : runKey(grid, lockHover.coord, cursor.orientation)
+    : null;
   if (lockHover && hoverRun !== lockHover.wait.run) {
     setLockHover({ coord: lockHover.coord, wait: { run: hoverRun, isDue: false } });
   }
-  const hoverTarget =
-    isLockShown && hasLockRoom && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run
-      ? lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation })
-      : null;
+  const isHoverDue =
+    isLockShown && hasLockRoom && rebusValue === null && lockHover?.wait.isDue && hoverRun === lockHover.wait.run;
+  const hoverTarget = !isHoverDue
+    ? null
+    : tickWord
+      ? { word: tickWord, isLocked: isTickWordLocked }
+      : lockTargetAt(grid, lockedWords, { current: lockHover.coord, orientation: cursor.orientation });
   const lockTarget = hoverTarget ?? cursorLockTarget;
   // The hover's button is for the mouse: no Tab stop unless it's the
   // cursor's own.
@@ -735,6 +776,9 @@ export function PuzzleGridEditor({
     }
     const { word } = hoverTarget;
     setState((prev) => ({ ...prev, lockedWords: toggleLock(prev.lockedWords, word) }));
+    // The mouse is on the button, which stays in its new state (21-S10):
+    // its word's tick going picks nothing again.
+    setLockHover((prev) => (prev?.pickedFor ? { coord: prev.coord, wait: prev.wait, tickWord: prev.tickWord } : prev));
   }
 
   // React's onFocus/onBlur bubble (unlike native focus/blur), so this one
