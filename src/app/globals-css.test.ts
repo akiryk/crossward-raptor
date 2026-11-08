@@ -116,7 +116,7 @@ const STYLES: Record<string, string> = {
   'toggle-row': 'interactive-faint',
   // 22-S2: the build progress bar.
   'progress-track': 'white',
-  'progress-fill': 'gray-200',
+  'progress-fill': 'gray-500', // 22-S3: was gray-200 (the human's visual check)
   'progress-fill-ready': 'interactive-dark',
   'progress-zone': 'orange',
   'modal-background': 'white',

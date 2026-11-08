@@ -71,6 +71,9 @@ Proposed by the agent, approved with the EPIC:
   semantic color styles, no new palette color; breakpoints and the
   smaller font set here from measured widths.
 
+**Superseded by [S3](22-S3-bar-look.md)** (the human's visual check):
+16px tall, 20px corners, a gray-500 fill, the fill animating in.
+
 ### Delegated decisions (drafting agent)
 
 **S1's functions, not new rules.** The percentage text, `aria-valuenow`,

@@ -67,6 +67,15 @@ Then, to the agent's follow-up questions: the message is left of the bar
 and moves above it only on narrow screens; the bar is about 180px wide
 as mocked; and 12px high as mocked.
 
+The human's visual check of S2 (2026-11-08), items 1–4 as given (item 5,
+a tooltip over the bar, is S4's):
+
+> It looks good! A few changes:
+> 1. Make the progress bar have a height of 16px rather than whatever it is today
+> 2. Give the bar rounded corners like the preview toggle -- 20px should do it.
+> 3. Make the light gray bar that fills as progress continues a bit darker. Use gray-500
+> 4. Have the progress part of the bar animate in. That is, the gray part should start from 0 width and animate up to its correct width so we draw the user's eye. Once it reaches the target zone, it should transition to the blue-color (interactive-dark)
+
 ## What the code does today
 
 - **The build phase's grid is all white.** A cell is empty or holds a
@@ -107,10 +116,12 @@ as mocked; and 12px high as mocked.
    puzzle's build phase, the message, the bar and the percentage take
    Rebus's place, below and at 80%, at every width. Off the risk paths.
 
-S2 builds on S1. S2 covers its own edit paths, widths and accessibility
-in its acceptance. Each checks its actual paths against CODE-REVIEW. If
-S2's specification grows too large, the narrow-screen layout can become
-an S3.
+3. **S3 The bar's look** (from the human's visual check of S2): 16px,
+   20px corners, a gray-500 fill, the fill animating in. Off the risk
+   paths.
+
+S2 builds on S1, S3 on S2. S2 covers its own edit paths, widths and accessibility
+in its acceptance. Each checks its actual paths against CODE-REVIEW.
 
 ## Decisions
 
@@ -143,11 +154,14 @@ From the human:
   existing `bg-toggle-row`.
 - **Text.** The message is `body-normal`, `primary`. The percentage is
   `body-small`, `muted`.
-- **The bar** is 12px high and about 180px wide on a wide row. Its track
-  is white with a thin border. The fill runs from 0 to the exact value:
-  `gray-200` below 80%, `interactive-dark` at 80% and above. The 80–85%
-  zone is an `orange` block drawn over the fill, so it always shows. No
-  tick marks, no slider or other control.
+- **The bar** is 16px high (S3; was 12px) with 20px corners (S3), about
+  180px wide on a wide row. Its track is white with a thin border. The
+  fill runs from 0 to the exact value: `gray-500` (S3; was `gray-200`)
+  below 80%, `interactive-dark` at 80% and above. The 80–85% zone is an
+  `orange` block drawn over the fill, so it always shows. No tick marks,
+  no slider or other control.
+- **The fill animates in** (S3): from 0 width to its value when the
+  progress appears, turning `interactive-dark` once it reaches the zone.
 - **Narrower rows.** The Preview toggle, the message and the percentage
   keep their size; free space goes first, then the bar shrinks, down to
   80px. Where even that doesn't fit, the message moves above the bar
@@ -162,9 +176,12 @@ Proposed by the agent, approved by the human with the EPIC:
 - **Progress isn't stored.** Derived from the grid on each render; no
   storage or server change.
 - **Locked words** count like any other letters.
-- **The bar's details:** the track's border 1px `gray-200`, square
-  corners as mocked; the fill's width and color change at once, no
-  animation.
+- **The bar's details:** the track's border 1px `gray-200`. (Square
+  corners and no animation were superseded by the human's visual check of
+  S2; S3 sets 20px corners, the fill and zone clipped to them, and a
+  700ms ease-out animation of the fill's width on appearing and on every
+  change, its color following the drawn width at 80%, the texts at once,
+  none with reduced motion.)
 - **An open rebus entry** when Preview is turned on behaves as today: it
   stays open and closes with Enter or Escape.
 - **Accessibility:** the bar is a `progressbar` (`aria-valuenow` the
