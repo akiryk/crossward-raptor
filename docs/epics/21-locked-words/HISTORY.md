@@ -85,7 +85,8 @@ for the human's visual testing and decisions on the open items below.
    edge (up to 22px of overflow, measured).
 
 Audit notes, no action needed unless the human wants it:
-`slot-required` is now unreachable (`cell-appearance.ts:84`);
+`slot-required` is now unreachable (`cell-appearance.ts:84`; since S8,
+a Preview-red cell inside the cursor's word reaches it again);
 `deserializeLockedWords` trusts stored JSON; a down word ending in the
 last row puts the button over the Reset Grid line (accepted by S2's
 "Overlap"); `duplicatePuzzle` copies locks (unspecified, reasonable).
@@ -229,3 +230,25 @@ restart it afterwards (dev servers started by subagents die with them).
 Read docs/epics/21-locked-words/HANDOFF.md. Record the human's visual
 check of S8–S11, then run the independent closeout audit of Epic 21 on
 `main`; close the epic only with the human's agreement.
+
+## S12–S13 delivery (the handoff at 856db3a, 2026-11-07)
+
+Kept for its evidence after 58b77b3 replaced it. S12 `86c4e7b`, S13
+`76a6685`, S13's B1 fix `19e0dee`.
+
+- **S12:** independent review found no code blockers. One undeclared
+  path, `LockWordControl.tsx`, has a comment-only change (the stale "full
+  width" wording), which the reviewer accepted. Two non-blocking notes
+  for the human's visual check: on narrow windows the grid may jump 20px
+  up on load (`hasLockRoom` starts true and the first measurement sets
+  `mb-4`), and a classic, non-overlay vertical scrollbar appearing
+  doesn't trigger a re-measure. The human's visual check (2026-11-07)
+  passed with these notes in view.
+- **S13, B1:** before the fix, the tick's word skipped S10's
+  lockability check once unlocked. Now an unlocked tick word shows its
+  button only while `lockTargetAt` at its first cell in its orientation
+  returns the same word. An independent re-review found no blockers.
+- **Verification (observed, `19e0dee`):** `npm run verify` exit 0
+  (vitest 729/729); full `npm run test:e2e` 1208 passed, exit 0; `git
+  diff 20957ed 19e0dee` touches only `src/` runtime files and the
+  handoff.

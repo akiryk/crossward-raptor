@@ -4,7 +4,7 @@ A Mini's, Midi's and Daily's grid goes back to 620px at most; a Sunday's
 stays 700px. The toggle row matches the grid's width, and Lock Word moves
 to the toggle row below the puzzle's own full width.
 
-**Status: done (2026-11-06)**, except the human's visual check.
+**Status: done (2026-11-06)**; the human's visual check passed (2026-11-07).
 Implemented in 24c1b0e on `main` (off the risk paths), independently
 reviewed with no blockers. **Frozen (2026-11-06), approved by the orchestrator under the
 handoff's delegation after an independent specification review (no
@@ -139,7 +139,7 @@ Widths: 1440px (wide), 1430/1429px and 1140/1139px (the breakpoints),
 636px (a Daily at exactly 620px), 635px (619px), 715px (a Sunday at
 699px) and 375px. Bars are measured against the grid's box.
 
-### `e2e/grid-size-by-puzzle.spec.ts` (new, 33 cases)
+### `e2e/grid-size-by-puzzle.spec.ts` (new, 33 cases; S12 added 2, at 691px and 771px)
 
 1. **21-S9-1 the build phase and Preview** (4): at 1440px, a 5×5, 9×9 and
    15×15 are 620px square at a (620 − 1) / size pitch, a 21×21 700px at

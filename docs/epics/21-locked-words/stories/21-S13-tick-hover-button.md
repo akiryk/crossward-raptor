@@ -4,12 +4,15 @@ Resting the mouse on a locked word's ticked end cell darkens the word at
 once, as S11 does. A second later it also shows the word's lock button,
 so the builder can unlock a word by hovering its tick.
 
-**Status: approved by the human and frozen (2026-11-07), after an independent specification review; delegated decisions included.** From
+**Status: done (2026-11-07),** implemented in 76a6685 with the B1 fix
+19e0dee on `main`; the human's visual check passed (2026-11-07). Approved by the human and frozen (2026-11-07), after an independent specification review; delegated decisions included.
+Later amended by S15 (an outline, not darkening), S16 (3 seconds) and
+S17 (the button at once). From
 the human's visual testing of S8–S11 (EPIC "Changes from the human's
 visual testing (2026-11-07)", "Tick hover shows the button"). Amends
 S11's hover area and its "no button" rule, and S10's "the end cell
 leaves the hovered word" for a ticked end cell. Depends on S10, S11
-(delivered) and S12 (proposed): the button's place beside the word is
+(delivered) and S12 (delivered): the button's place beside the word is
 S12's, and the tests assume it.
 
 **Blast radius: small, expected off the risk paths.** Client components
@@ -120,7 +123,7 @@ Proposed by the drafting agent, for the human's approval:
 - A keyboard way to reach the tick, or touch or pen hover.
 - A button for each word at a shared cell, or a picker among them.
 
-## Acceptance (proposed)
+## Acceptance
 
 ### Unit: `src/lib/tick-target.test.ts` (new, 8 cases)
 

@@ -1,9 +1,11 @@
 # Epic: Locked words
 
 **Decisions agreed with the human in an interview 2026-11-06** (recorded
-below). **The human approved the written EPIC 2026-11-06.** S1–S11 are done;
-the human's visual testing of S8–S11 (2026-11-07) added S12 and S13 (see
-"Changes from the human's visual testing (2026-11-07)").
+below). **The human approved the written EPIC 2026-11-06.** **Closed
+2026-11-08:** S1–S17 are done and on `main`, each with the human's visual
+check passed; the later stories came from those checks (the "Changes
+from …" sections below). The closeout audit's dispositions are in the
+[HANDOFF](HANDOFF.md).
 
 In the build phase, a builder can lock a finished word so its letters
 can't be changed by accident while the rest of the grid is filled around
@@ -150,7 +152,7 @@ Added during the interview, as given:
   The grid is at most 700px wide (`GRID_MAX_PX`), shrinking only when the
   window is too narrow for that.
 
-## Stories (proposed order)
+## Stories
 
 1. **[S1 The word highlight](stories/21-S1-word-highlight.md):** only the
    cursor's word is blue-medium; the rest of its row or column is dull
@@ -168,7 +170,14 @@ Added during the interview, as given:
 6. **[S6 Reset Grid with locked words](stories/21-S6-reset-with-locks.md):**
    the three-button dialog.
 
-S7–S11 followed from the human's 2026-11-06 visual testing (HANDOFF).
+From the human's 2026-11-06 visual testing and open items:
+
+7. **[S7 The lock button's second starts over on refocus](stories/21-S7-refocus-wait.md).**
+8. **[S8 The word is the run Preview keeps white](stories/21-S8-word-shape.md).**
+9. **[S9 The grid's size by puzzle](stories/21-S9-grid-size.md).**
+10. **[S10 Mouse hover shows a word's lock button](stories/21-S10-mouse-hover.md).**
+11. **[S11 Tick hover](stories/21-S11-tick-hover.md).**
+
 From the 2026-11-07 visual testing:
 
 12. **[S12 The button before the word](stories/21-S12-button-before-word.md):**

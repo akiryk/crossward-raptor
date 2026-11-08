@@ -4,7 +4,8 @@ The lock button sits just before a word's first letter, left of an across
 word and above a down word, so it is never where the builder is typing
 next. The page makes room for it at the grid's left and top edges.
 
-**Status: approved by the human and frozen (2026-11-07), after an independent specification review; delegated decisions included.** From
+**Status: done (2026-11-07),** implemented in 86c4e7b on `main`; the human's
+visual check passed (2026-11-07). Approved by the human and frozen (2026-11-07), after an independent specification review; delegated decisions included. From
 the human's visual testing of S8–S11 (EPIC "Changes from the human's
 visual testing (2026-11-07)", "The button's side"). Amends S2's "Look"
 (placement and corners), and the S5/S9 rule for when the button shows
@@ -15,7 +16,7 @@ in `src/components/grid/` and the builder's hint-column class in
 `src/lib/grid-max.ts`. No `src/engine/**`, `src/lib/puzzle-storage.ts`,
 `src/app/puzzles/actions.ts` or `prisma/**` change (CODE-REVIEW "When
 review applies"). Direct delivery to `main`. The layout change touches
-every builder width, so 9 frozen specs are amended (listed below).
+every builder width, so 8 frozen specs are amended (listed below).
 
 ## What the code does today
 
@@ -111,7 +112,7 @@ Proposed by the drafting agent, for the human's approval:
   window.
 - The tick hover's button (S13).
 
-## Acceptance (proposed)
+## Acceptance
 
 ### `e2e/lock-button-side.spec.ts` (new, 17 cases)
 
@@ -135,7 +136,7 @@ Proposed by the drafting agent, for the human's approval:
    At 691px and 771px: the toggle row's Lock Word, no button after 1.5s,
    16px. The hints phase at 1000px has the build phase's 36px.
 
-### Amended frozen acceptance (9 specs)
+### Amended frozen acceptance (8 specs)
 
 Each amendment is marked "21-S12" in the file. No other assertion,
 timeout or case changes.
@@ -174,8 +175,8 @@ timeout or case changes.
   the full `npm run test:e2e` before any amendment had 71 failures. These
   pinned down the amendments above. A first version that closed the
   grid-to-hints gap to 20px instead failed 45 more layout cases, so the
-  thresholds were moved instead. With the amendments, the 9 amended specs
-  passed 143 of 143 and the new spec 17 of 17.
+  thresholds were moved instead. With the amendments, the 8 amended specs
+  and the new one passed 143 of 143 and the new spec 17 of 17.
 - **On `main` (3d6952a), the new and amended specs:** 48 failed, 112
   passed. Every new case and every amended case fails at its S12 check
   (the button's side, the 36px, the room threshold). The 3 other failures
@@ -184,7 +185,7 @@ timeout or case changes.
 
 ## Repo paths
 
-Acceptance: `e2e/lock-button-side.spec.ts` (new), and the 9 amended
+Acceptance: `e2e/lock-button-side.spec.ts` (new), and the 8 amended
 specs above.
 
 Runtime:

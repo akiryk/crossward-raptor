@@ -4,7 +4,9 @@ Resting the mouse on a locked word's tick mark darkens that word's cells
 by 15%, every locked word ending at that cell where words share it, so
 the builder can see which word a tick belongs to.
 
-**Status: done (2026-11-07), except the human's visual check.** Frozen
+**Status: done (2026-11-07); the human's visual check passed (2026-11-07).**
+Later amended by S13 (the hover shows the button) and S15/S17: the
+hover now draws a 2px black outline instead of darkening. Frozen
 at c621634, approved by the orchestrator under the handoff's delegation
 after an independent specification review (no blockers; its suggestions
 applied); implemented in 93f3771 on `main`, independently reviewed with

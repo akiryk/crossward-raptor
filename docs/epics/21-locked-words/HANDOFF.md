@@ -3,59 +3,84 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [EPIC](EPIC.md) and the stories in scope for the next action.
+2. The [EPIC](EPIC.md).
 
 **Only if needed:** [HISTORY](HISTORY.md) (the handoff as of 3d6952a:
-S1–S11 delivery, verification, open items, audit notes).
+S1–S11 delivery, verification, open items, audit notes; and S12–S13's
+delivery evidence from 856db3a).
 
-## Current state (2026-11-08, S17 delivered, awaiting visual check)
+## Current state (2026-11-08)
 
-S1–S16 are done and on `main`, with the human's visual check of S14–S16
-(2026-11-08). Its two requests are
-[S17](stories/21-S17-tick-button-at-once.md): hovering a locked word (its
-tick or its letters) shows its button at once, and the tick hover's
-black outline is 2px, growing inward. The human approved S17; it is
-frozen at `3594f9c` (story, EPIC, 4 amended specs) and implemented in
-`PuzzleGrid.tsx` and `PuzzleGridEditor.tsx`, off the risk paths.
+**Closed 2026-11-08.** S1–S17 are done and on `main` (last: S17,
+c5f67df), each with the human's visual check passed; S17's on
+2026-11-08. The closeout audit of S7–S17 found no blockers;
+dispositions below. The human delegated the dispositions and the
+closing to the session that recorded them ("just fix what needs to be
+fixed and get this epic done").
 
-S17 verification (observed 2026-11-08, on the committed tree): `npm run
-verify` exit 0 (733 unit tests). Full `npm run test:e2e`: 1211 passed,
-2 failed, both `ECONNRESET`s in specs S17 doesn't touch
-(`library-play` P5, `play-entries` P2); those 2 specs rerun alone: 44 of
-44 passed, exit 0. Frozen acceptance is unchanged since `3594f9c`.
-Browser runs used the standing guarded test-reset grant (DEVELOPMENT
-"E2E environment").
+## Verification (observed 2026-11-08, on c5f67df)
 
-S14–S16 verification (observed 2026-11-07, on the committed tree): `npm run
-verify` exit 0 (733 unit tests; 2 pre-existing lint warnings). Full
-`npm run test:e2e`: 1207 passed, 6 failed, none in a spec S14–S16 touch:
-5 `ECONNRESET`s at sign-in or seeding (`menu-reset`, `row-menu`,
-`session-renewal` ×2, `status-icons`) and `done-icon` 18-S5-5's
-rounded-corner color read, as in the drafting run. Those 5 specs rerun
-alone: 46 of 46 passed, exit 0. Frozen acceptance is unchanged since
-`8ab0c42`. Browser runs used the standing guarded test-reset grant
-(DEVELOPMENT "E2E environment").
+- `npm run verify` exit 0 (733 unit tests; 2 lint warnings that predate
+  S7).
+- Full `npm run test:e2e`: 1213 passed, exit 0. This replaces S14–S17's
+  "rerun alone" evidence (their full runs had `ECONNRESET`s and
+  `done-icon` 18-S5-5, the intermittent failure recorded in
+  [epic 18's handoff](../18-puzzles-page/HANDOFF.md#open-item-after-closeout)).
+  The run used the standing guarded test-reset grant (DEVELOPMENT "E2E
+  environment").
+- Frozen acceptance unchanged since each story's freeze (audit).
 
-The scratch patches `../crossward-raptor-s14-s16-scratch.patch` and
-`../crossward-raptor-s17-scratch.patch` can be deleted.
+Earlier per-story evidence: S14–S16 at 58b77b3 and S17 at c5f67df each
+had `npm run verify` exit 0 and their failing specs passing when rerun
+alone (in git history at 3594f9c and c5f67df); S12–S13 in HISTORY.
 
-Non-blocking notes from S12/S13's reviews, for the closeout audit:
-- No test pins B1 (frozen acceptance couldn't grow in S13).
-- `wordHoldsCell` could simply export `holds`.
-- After a click on the tick's button, back on the same end cell, a turn
-  no longer picks again (untested).
+## Closeout audit (S7–S17, 2026-11-08)
 
-Not started: the closeout audit (S7–S17 unaudited). Leftovers: branch
-`story/21-S2-lock-a-word` (local and remote), stale
-`../crossward-raptor-s6-draft/`, scratch patches
-`../crossward-raptor-s12*-scratch*.patch`.
+Two independent, report-only audits on c5f67df, by sessions that wrote
+none of the work. Both found no blockers. Neither ran the full browser
+suite; it is above. A separate session recorded them and made the fixes
+below, under the human's delegation.
+
+Dispositions:
+
+1. S12's "9 amended specs" (8 amended plus 1 new). *Fixed.*
+2. The S14–S16 record's "those 5 specs rerun alone" (4 specs, and
+   18-S5-5 not rerun). *Superseded* by the clean full run above.
+3. S12–S13 delivery evidence lost from the handoff. *Restored* in
+   HISTORY.
+4. Story status lines behind (S7, S9–S13, S17), S12/S13 "Acceptance
+   (proposed)", S13's "S12 (proposed)". *Fixed.*
+5. EPIC's top paragraph and missing S7–S11 links. *Fixed.*
+6. Epic index line. *Fixed.*
+7. HISTORY's "`slot-required` is now unreachable". *Corrected.*
+8. Earlier stories (S2, S7, S10, S11, S13) didn't point to their later
+   amendments. *Fixed* with a pointer in each status; the EPIC's change
+   sections hold the details.
+9. S9's "33 cases" (now 35 after S12). *Fixed.*
+10. No full browser run exited 0 for S14–S17. *Fixed*: 1213 passed,
+    exit 0 above.
+11. No test pins B1 (an unlocked tick word keeps its button only while
+    lockable, `PuzzleGridEditor.tsx:757-768`). *Accepted*: the code is
+    reviewed and the human checked it visually; a test would need a new
+    approved story.
+12. After a click on the tick's button, back on the same end cell
+    without another cell in between, a turn of the cursor keeps the old
+    word's button instead of picking again (S13), untested. *Accepted*
+    as a minor edge case; a follow-up story if it ever bothers the
+    builder.
+13. `wordHoldsCell` (`locked-words.ts:93`) just wraps `holds`.
+    *Accepted*: cosmetic.
+14. Four `lock-tick-button.spec.ts` titles still say "darker" or
+    "darkening" (S15 made it an outline). *Accepted*: frozen test names;
+    renaming would follow STORY's correction procedure.
+15. Leftovers: branch `story/21-S2-lock-a-word` (local and remote,
+    merged), `../crossward-raptor-s6-draft/`, 5 scratch patches and the
+    prunable worktree `/private/tmp/s8-rev2`. *Deleted.*
 
 ## Next action
 
-1. The human checks S17 visually.
-2. Then the independent, report-only closeout audit of S7–S17. Close the
-   epic only with the human's agreement.
+None in this epic. No later epic is started.
 
 ## Resume prompt
 
-Read docs/epics/21-locked-words/HANDOFF.md. After the human's visual check of S17, run the independent, report-only closeout audit of epic 21's S7–S17.
+Epic 21 (locked words) is closed per docs/epics/21-locked-words/HANDOFF.md; no next epic is defined. Ask the human what to work on next.

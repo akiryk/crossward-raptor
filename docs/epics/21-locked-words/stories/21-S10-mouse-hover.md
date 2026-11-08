@@ -4,7 +4,9 @@ Resting the mouse over a word for a second shows that word's lock button
 and outline, wherever the cursor is, and clicking it locks or unlocks
 that word without moving the cursor.
 
-**Status: done (2026-11-07), except the human's visual check.** Frozen
+**Status: done (2026-11-07); the human's visual check passed (2026-11-07).**
+Later amended by S13 (a ticked end cell), S16 (3 seconds, not 1) and S17
+(a locked word's button at once). Frozen
 2026-11-06 at 2a1d3c4, approved by the orchestrator under the handoff's
 delegation after an independent specification review (changes requested,
 applied, then re-reviewed with no blockers); 21-S10-4 corrected in the

@@ -3,9 +3,10 @@
 When the grid gets focus back, the button beside an unlocked word waits a
 full second again.
 
-**Status: approved and frozen** by the orchestrator under the handoff's
+**Status: done (2026-11-06),** implemented in 9451952 on `main`.
+Approved and frozen by the orchestrator under the handoff's
 delegation (2026-11-06). A fix to S2, from the closeout audit's open item 2; the human
-asked for it to be fixed (2026-11-06). Depends on S2.
+asked for it to be fixed (2026-11-06). Depends on S2. S16 later made the wait 3 seconds.
 
 **Blast radius: small, expected off the risk paths.**
 `src/components/grid/PuzzleGridEditor.tsx`. Direct delivery to `main`.

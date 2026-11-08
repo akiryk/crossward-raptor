@@ -9,8 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [Locked words](21-locked-words/HANDOFF.md) (epic 21, S1–S6 done
-  2026-11-06; awaiting the human's visual testing before closeout)
+- [Locked words](21-locked-words/HANDOFF.md) (epic 21, closed
+  2026-11-08; accepted items listed there)
 - [Building refinements](20-building-refinements/HANDOFF.md) (epic 20,
   closed 2026-11-06; accepted items listed there)
 - [The completed puzzle](19-completed-puzzle/HANDOFF.md) (epic 19, closed

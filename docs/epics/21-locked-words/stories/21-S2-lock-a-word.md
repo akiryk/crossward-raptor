@@ -7,6 +7,11 @@ in the end cells, and stays locked when the puzzle is reopened.
 **Status: done 2026-11-06,** PR #33 independently reviewed (no blockers)
 and merged to `main` as 693c02b. Approved and frozen at b45a4c6 (the human approved this
 specification and acceptance, choosing ⅔ of a cell with a 32px cap).
+
+**Later amendments:** S7 (the wait starts over on refocus), S12 (the button before
+the word), S16 (3 seconds, not 1) and S17 (a locked word's button at
+once on hover). The EPIC's change sections
+record them.
 Depends on S1's word run.
 
 **Blast radius: medium, risk path.** Saving locks changes
