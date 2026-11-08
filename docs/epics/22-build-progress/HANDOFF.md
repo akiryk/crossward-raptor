@@ -39,8 +39,14 @@ The human approved the EPIC 2026-11-08.
 - **S2 delivered:** frozen b4d4741 after an independent spec review
   (all findings addressed); implemented d0b855b, direct to `main`;
   independent review of d0b855b found no blockers.
-- **Awaiting the human's visual check** of S2 (below), then closeout.
-  No PR open, no uncommitted work.
+- **The human's visual check of S2 (2026-11-08):** "It looks good!",
+  with five changes, recorded verbatim in S3/S4. They become two new
+  stories under this orchestration: **S3 the bar's look** (16px high,
+  20px rounded corners, a gray-500 fill, the fill animating in from 0
+  and turning interactive-dark when it reaches the zone) and **S4 one
+  tooltip behavior** (a single place controlling every tooltip's
+  timing, and a tooltip over the bar). S3 first, then S4; then a second
+  visual check, then closeout.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -78,6 +84,15 @@ human waived the correction procedure for it.
 6. Non-blocking review note accepted: `PuzzleGridEditor.tsx:729` checks
    15/21 sizes directly instead of reusing `sizeFor()`; small
    duplication, behavior correct.
+
+7. **Tooltip timing (S4):** a 500ms hover delay for every tooltip,
+   set in one place (common libraries use about 500–700ms); the red and
+   orange cell tooltips were immediate and the lock button's waited 1s.
+   Once one is showing, moving straight to another target shows it at
+   once (the usual "skip delay"), so crossing grid cells doesn't wait
+   again.
+8. **The bar's tooltip text:** "80–85%" kept: it matches the zone and the
+   NYT convention of about 16% black squares (about 84% white).
 
 ## Verification
 
