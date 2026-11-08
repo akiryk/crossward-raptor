@@ -11,16 +11,20 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // tick in their top-right corner (21-S2). Resting the mouse on a tick
 // darkens every cell of each locked word ending at that cell by 15%, all
 // of them where words share it, at once, and only while the mouse is on
-// the tick. The tick's hover area is its square, a quarter of the cell
-// each way in the cell's top-right corner. "15% darker" is the cell's
+// its end cell (amended by 21-S13: was on the tick). The tick's hover
+// area is its whole end cell (amended by 21-S13: was its square, a
+// quarter of the cell each way in the cell's top-right corner). "15%
+// darker" is the cell's
 // whole paint at 85% in each sRGB channel, as a 15%-black layer over it
 // gives, whatever color it had (white, the cursor's yellow, blue-medium).
 // The end cells (the hovered one included), the outline, the ticks and any
 // lock button keep their colors. It changes no state: the cursor, the
-// highlight, the lock button and the saved puzzle are as they were, and a
-// click on the tick is a click on its cell. For 21-S10 the tick is part of
-// its end cell: moving onto it leaves a hovered word. Where a lock button
-// covers part of the cell, the button wins (amended by 21-S12: was a down
+// highlight and the saved puzzle are as they were, and a click on the
+// tick is a click on its cell. 21-S13 adds a lock button after a second
+// on a ticked end cell, for one of its words, which stays on that word's
+// cells (amended by 21-S13: for 21-S10 the tick was part of its end cell,
+// and moving onto it left a hovered word). Where a lock button covers
+// part of the cell, the button wins (amended by 21-S12: was a down
 // word's button covering part of the square). The darkening
 // follows the tick: unlocking the word under the resting mouse ends it.
 // It works whether or not the grid has focus, and below the grid's full
@@ -283,7 +287,8 @@ async function cellStates(page: Page, coords: string[]) {
 }
 
 test.describe('21-S11-2 hovering a tick darkens its locked word', () => {
-  test('at once, only its word, only while the mouse is on the tick', async ({ page }) => {
+  // Title amended by 21-S13: was "only while the mouse is on the tick".
+  test('at once, only its word, only while the mouse is on its end cell', async ({ page }) => {
     await open(page);
     await lockAcross(page, '6,2');
     await lockAcross(page, '3,7');
@@ -298,10 +303,12 @@ test.describe('21-S11-2 hovering a tick darkens its locked word', () => {
     // TANGENT's after tick: TANGENT darker, nothing else.
     await mouseOnTick(page, '10,2');
     await expectPaint(page, base, { dark: TANGENT, same: [...TANGENT_ENDS, ...CAT, ...DOG] });
-    // Nothing else changes, and no lock button comes, however long.
+    // Nothing else changes, however long. Amended by 21-S13: TANGENT's
+    // lock button comes after a second (was: no lock button).
     await page.waitForTimeout(LONG_MS);
     await expectPaintNow(page, base, { dark: TANGENT, same: [...TANGENT_ENDS, ...CAT, ...DOG] });
-    await expect(lockButton(page)).toHaveCount(0);
+    await expect(lockButton(page)).toHaveCount(1);
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
     await expect(cell(page, EMPTY)).toHaveAttribute('data-selected', 'true');
     expect(await cellStates(page, all)).toEqual(states);
     await expect(outlines(page)).toHaveCount(2);
@@ -311,9 +318,11 @@ test.describe('21-S11-2 hovering a tick darkens its locked word', () => {
     await expect(ticks(page)).toHaveCount(4);
     for (const tick of await ticks(page).all()) expect(await tickPaint(tick)).toBe(GRAY_500);
 
-    // Off the tick onto the rest of its cell: back at once.
+    // Off the tick onto the rest of its cell: still darker (amended by
+    // 21-S13: was back at once).
     await mouseTo(page, '10,2', [0.5, 0.5]);
-    await expectPaint(page, base, { same: all });
+    await page.waitForTimeout(AT_ONCE_MS);
+    await expectPaintNow(page, base, { dark: TANGENT, same: [...TANGENT_ENDS, ...CAT, ...DOG] });
 
     // TANGENT's other tick, before it, does the same; off the grid, back.
     await mouseOnTick(page, '2,2');
@@ -369,8 +378,10 @@ test.describe('21-S11-3 a shared end cell darkens every locked word ending there
   });
 });
 
-test.describe('21-S11-4 the tick\'s hover area is its square', () => {
-  test('the square\'s lower left counts; the rest of the cell does not', async ({ page }) => {
+// Amended by 21-S13: the hover area is the whole end cell (was the tick's
+// square only; the rest of the cell darkened nothing).
+test.describe('21-S11-4 the tick\'s hover area is its whole end cell', () => {
+  test('anywhere in the cell counts; the cells beside it do not', async ({ page }) => {
     await open(page);
     await lockAcross(page, '6,2');
     await leave(page);
@@ -388,6 +399,13 @@ test.describe('21-S11-4 the tick\'s hover area is its square', () => {
     // and just below the square.
     for (const spot of [[0.5, 0.5], [0.1, 0.9], [0.65, 0.1], [0.92, 0.35]] as const) {
       await mouseTo(page, '10,2', spot);
+      await page.waitForTimeout(AT_ONCE_MS);
+      await expectPaintNow(page, base, { dark: TANGENT, same: TANGENT_ENDS });
+    }
+
+    // The cells beside it, after it and below it: nothing.
+    for (const coord of ['11,2', '10,3']) {
+      await mouseTo(page, coord, [0.5, 0.5]);
       await page.waitForTimeout(AT_ONCE_MS);
       await expectPaintNow(page, base, { same: all });
     }
@@ -462,7 +480,9 @@ test.describe('21-S11-5 over the cursor\'s colors', () => {
 });
 
 test.describe('21-S11-6 the tick with 21-S10\'s hover and a click', () => {
-  test('moving from a hovered locked word onto its tick leaves the word', async ({ page }) => {
+  // Amended by 21-S13: the word's end cell keeps its button (was: moving
+  // onto the tick left the word and the button went).
+  test('moving from a hovered locked word onto its tick keeps its button', async ({ page }) => {
     await open(page);
     await lockAcross(page, '3,7');
     await leave(page);
@@ -472,10 +492,12 @@ test.describe('21-S11-6 the tick with 21-S10\'s hover and a click', () => {
     await cell(page, '3,7').hover();
     await expect(lockButton(page)).toHaveAccessibleName('Unlock word', { timeout: 2500 });
 
-    // Onto CAT's tick before it: the end cell, so the hover's button goes.
+    // Onto CAT's tick before it: its end cell, so the button stays.
     await mouseOnTick(page, '1,7');
-    await expect(lockButton(page)).toHaveCount(0, { timeout: 300 });
     await expectPaint(page, base, { dark: CAT });
+    await page.waitForTimeout(300);
+    await expect(lockButton(page)).toHaveCount(1);
+    await expect(lockButton(page)).toHaveAccessibleName('Unlock word');
   });
 
   test('a click on the tick moves the cursor to its cell', async ({ page }) => {
