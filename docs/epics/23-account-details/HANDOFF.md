@@ -21,10 +21,14 @@ earlier only if truly blocked.
 
 - **S2 done** (frozen e90a745, implemented 37913ad direct to `main`,
   independently reviewed: no blockers).
-- **S1 is being drafted** by a sub-agent; its draft and proposed tests
-  may exist uncommitted (`stories/23-S1-*`, `e2e/label-12px.spec.ts`,
-  scratch measurement files and temporary runtime edits). If present,
-  finish and review them rather than starting over.
+- **S1 frozen** 826079d (with its amendments to earlier acceptance);
+  being implemented by a sub-agent in a worktree.
+- **S3 is being drafted** by a sub-agent (worktree at `/tmp/cw-s3`;
+  story and tests may exist uncommitted). If present, finish and
+  review them rather than starting over.
+- Browser runs share the e2e database: every agent takes the lock
+  `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
+  after.
 
 ## Decisions for the visual check
 
@@ -36,6 +40,16 @@ earlier only if truly blocked.
 2. **S2, list shape:** slot 1 mood words (63), slot 2 look words:
    colours, patterns, textures (60), creature nouns (82); skin-tone
    colours and political/insult readings left out (story lists them).
+3. **S1, hint rows:** stay 58px apart (the gap between rows grows from
+   5px to 9px), so nothing moves at Create Hints; each hint answer sits
+   closer to its line (capitals 7.77px under it, were 9.31px).
+4. **S1, Hint Box word:** padding 8px top, 6px bottom, keeping its 30px
+   box on the hint's baseline.
+5. **S1, red Preview tooltip:** fits on one line at 12px (2.8px spare);
+   the test allows one or two lines.
+6. **S1, the caption:** `TextInput`'s caption names the field for
+   screen readers (the caption itself hidden from them), so it isn't
+   announced twice; it stays muted in every state.
 
 ## Verification
 
@@ -45,10 +59,10 @@ earlier only if truly blocked.
 
 ## Next action
 
-Draft S1 (the 12px label) under `stories/`, have it independently
-reviewed, approve and freeze it under the human's delegation, then
-implement it direct to `main`.
+Finish S1's implementation (independent review, then direct to
+`main`); finish S3's draft, review and freeze it; S3 is implemented on
+`story/23-S3-email-only-sign-in` with a PR and independent review.
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md. Draft S1 (The 12px label) from EPIC.md's Stories section on main; approve and freeze it under the human's delegation after an independent review.
+Read docs/epics/23-account-details/HANDOFF.md and docs/epics/23-account-details/stories/23-S1-label-12px.md. Implement S1 on main; direct delivery after independent review.
