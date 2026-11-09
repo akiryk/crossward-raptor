@@ -10,6 +10,7 @@ export function ModalActions({
   onConfirm,
   onCancel,
   confirmDisabled = false,
+  cancelDisabled = false,
   confirmTestId = 'modal-confirm',
   cancelTestId = 'modal-cancel',
 }: {
@@ -18,6 +19,7 @@ export function ModalActions({
   onConfirm: () => void;
   onCancel: () => void;
   confirmDisabled?: boolean;
+  cancelDisabled?: boolean;
   confirmTestId?: string;
   cancelTestId?: string;
 }) {
@@ -26,7 +28,7 @@ export function ModalActions({
       <Button data-testid={confirmTestId} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmLabel}
       </Button>
-      <Button variant="alternate" data-testid={cancelTestId} onClick={onCancel}>
+      <Button variant="alternate" data-testid={cancelTestId} onClick={onCancel} disabled={cancelDisabled}>
         {cancelLabel}
       </Button>
     </>

@@ -111,11 +111,15 @@
   --color-progress-zone: var(--palette-orange);
   --color-modal-background: var(--palette-white);
   --color-modal-title-background: var(--palette-yellow-bright);
+  /* the modal's gray header option (Story 23-S4) */
+  --color-modal-title-background-gray: var(--palette-gray-200);
   --color-modal-backdrop: color-mix(in srgb, var(--palette-black) 40%, transparent);
   /* the logo and masthead (Story F7) */
   --color-logo: var(--palette-gray-400);
   --color-logo-cell: var(--palette-white);
   --color-masthead: var(--palette-white);
+  /* the masthead's Account (Story 23-S4) */
+  --color-masthead-account: var(--palette-gray-500);
   /* keyboard focus (Story 14-S11) */
   --color-focus-ring: var(--palette-cyan);
 }

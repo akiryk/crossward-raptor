@@ -353,6 +353,29 @@ amended tests as above):
   `src`, `e2e` or `prisma` difference from `main` 61c17d0): 27 failed, 23
   passed, as above.
 
+### Implementation (2026-11-09, observed)
+
+On `story/23-S4-account-in-masthead` from the frozen baseline 40ce315.
+Account and its modal are `src/components/auth/AccountDetails.tsx` (new).
+`ModalActions` gained `cancelDisabled`, `TextInput` `readOnly`,
+`MastheadAction` a `tone` and `Masthead.tsx` a `MastheadDivider`; the
+style guide's color catalog shows the two new tokens. Enter in the modal's
+form submits through `onKeyDown` (Update sits in the footer, outside the
+form), doing nothing while Update is disabled. No scope additions beyond
+the declared Repo paths.
+
+- `npm run verify`: exit 0 (912 tests; 2 lint warnings outside the epic).
+- Focused e2e (`account-details`, `color-tokens`, `masthead`,
+  `modal-design`, `modal`, `modal-a11y`, `style-guide`, `username-step`):
+  106 passed.
+- Full `npm run test:e2e` (from `/tmp/cw-s4-impl`, the E2E lock held,
+  `COMPOSE_PROJECT_NAME=crossward-raptor`): 1322 passed, 1 failed,
+  `row-menu.spec.ts:475` (16-S2-7), an `ECONNRESET` on `get-session` in
+  the sign-in helper, outside S4's paths; the file reran 16 of 16 passed.
+  (A first attempt didn't start: the production build failed resolving
+  `next/font/google`; the next build succeeded unchanged.)
+- Frozen acceptance: `git diff 40ce315` on every acceptance path is empty.
+
 ## Repo paths
 
 Acceptance (new): `src/app/account-actions.change-username.test.ts`,

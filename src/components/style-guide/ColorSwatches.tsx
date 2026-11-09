@@ -137,10 +137,16 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'yellow-bright',
     swatch: 'bg-modal-title-background',
   },
+  {
+    name: 'modal-title-background-gray',
+    variable: 'gray-200',
+    swatch: 'bg-modal-title-background-gray',
+  },
   { name: 'modal-backdrop', variable: 'black at 40%', swatch: 'bg-modal-backdrop' },
   { name: 'logo', variable: 'gray-400', swatch: 'bg-logo' },
   { name: 'logo-cell', variable: 'white', swatch: 'bg-logo-cell' },
   { name: 'masthead', variable: 'white', swatch: 'bg-masthead' },
+  { name: 'masthead-account', variable: 'gray-500', swatch: 'bg-masthead-account' },
   { name: 'focus-ring', variable: 'cyan', swatch: 'bg-focus-ring' },
 ];
 

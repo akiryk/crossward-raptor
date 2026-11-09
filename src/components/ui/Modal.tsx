@@ -17,6 +17,15 @@ function focusableElements(panel: HTMLElement): HTMLElement[] {
   return Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 }
 
+// Story 23-S4: the header's look is a small named set, not a color: the
+// default yellow, or gray (Account details).
+export type ModalHeaderVariant = 'default' | 'gray';
+
+const HEADER_BACKGROUND: Record<ModalHeaderVariant, string> = {
+  default: 'bg-modal-title-background',
+  gray: 'bg-modal-title-background-gray',
+};
+
 export function Modal({
   open,
   title,
@@ -25,6 +34,7 @@ export function Modal({
   children,
   testId,
   dismissalDisabled = false,
+  headerVariant = 'default',
 }: {
   open: boolean;
   title: string;
@@ -33,6 +43,7 @@ export function Modal({
   children: ReactNode;
   testId?: string;
   dismissalDisabled?: boolean;
+  headerVariant?: ModalHeaderVariant;
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -153,7 +164,7 @@ export function Modal({
         >
           <div
             data-testid="modal-header"
-            className="flex items-center justify-between gap-4 bg-modal-title-background px-4 py-3"
+            className={`flex items-center justify-between gap-4 px-4 py-3 ${HEADER_BACKGROUND[headerVariant]}`}
           >
             <h2 id={titleId} data-testid="modal-title" className="text-title-3 text-primary">
               {title}
