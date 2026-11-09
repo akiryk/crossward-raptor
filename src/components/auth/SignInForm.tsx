@@ -3,11 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { authClient } from '@/lib/auth-client';
-import { emailError, usernameError } from '@/lib/username';
+import { emailError } from '@/lib/username';
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
-
-const USERNAME_KEY = 'crossward:username';
 
 function HelpLine() {
   return (
@@ -18,9 +16,7 @@ function HelpLine() {
 }
 
 export function SignInForm() {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [usernameMessage, setUsernameMessage] = useState<string | null>(null);
   const [emailMessage, setEmailMessage] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -31,53 +27,39 @@ export function SignInForm() {
 
   useEffect(() => {
     // Same pattern as NewPuzzleButton's data-ready: the submit handler isn't
-    // live until hydration commits, and a click before then is dropped. The
-    // last username sent from this browser pre-fills the form in that commit.
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem(USERNAME_KEY);
-    } catch {
-      // Storage can be unavailable; the field just starts empty.
-    }
+    // live until hydration commits, and a click before then is dropped.
+    // Story 23-S3: the form asks for the email only; no username is
+    // remembered (the old `crossward:username` value is neither read nor
+    // written).
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (stored) setUsername(stored);
     setIsReady(true);
   }, []);
 
-  function focusField(testId: string) {
-    formRef.current?.querySelector<HTMLInputElement>(`[data-testid="${testId}"]`)?.focus();
+  function focusEmail() {
+    formRef.current?.querySelector<HTMLInputElement>('[data-testid="sign-in-email"]')?.focus();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting.current) return;
-    const nameProblem = usernameError(username);
     const emailProblem = emailError(email);
-    setUsernameMessage(nameProblem);
     setEmailMessage(emailProblem);
-    if (nameProblem || emailProblem) {
-      focusField(nameProblem ? 'sign-in-username' : 'sign-in-email');
+    if (emailProblem) {
+      focusEmail();
       return;
     }
 
-    const name = username.trim();
     submitting.current = true;
     setPending(true);
     setFailed(false);
     try {
       const { error } = await authClient.signIn.magicLink({
         email: email.trim(),
-        name,
         callbackURL: '/puzzles',
       });
       if (error) {
         setFailed(true);
       } else {
-        try {
-          localStorage.setItem(USERNAME_KEY, name);
-        } catch {
-          // Not remembering the username is harmless.
-        }
         setSent(true);
       }
     } catch {
@@ -110,21 +92,6 @@ export function SignInForm() {
       className="mt-10 flex flex-1 flex-col"
     >
       <div className="w-[400px] max-w-full">
-        <TextInput
-          data-testid="sign-in-username"
-          size="large"
-          aria-label="Username"
-          placeholder="Your username..."
-          value={username}
-          onChange={(value) => {
-            setUsername(value);
-            setUsernameMessage(null);
-          }}
-          error={usernameMessage ?? undefined}
-          disabled={pending}
-        />
-      </div>
-      <div className="mt-5 w-[400px] max-w-full">
         <TextInput
           data-testid="sign-in-email"
           size="large"
