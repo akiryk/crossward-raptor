@@ -88,6 +88,11 @@ To sign in using your normal development database:
    Revisit `/` to confirm the signed-in redirect, then sign out to return
    to the public form.
 
+Changing the email from Account details (epic 23 S5) mails a confirmation
+link to the new address the same way: find "Confirm your new Crossward
+email" in Mailpit and follow it in the same browser. It expires in 15
+minutes; the account's email changes only when it is followed.
+
 Local capture uses Mailpit's
 [JSON send API](https://mailpit.axllent.org/docs/usage/sending-messages/)
 at the fixed address `http://127.0.0.1:8025/api/v1/send`, only when

@@ -544,3 +544,27 @@ is listed for the human's check at the epic's end:
    (Better Auth's behavior; pinned by 23-S5-A2).
 6. **A stolen session can move the account,** since only the new address
    confirms. Notifying or asking the old address is a possible follow-up.
+
+## Implementation verification (2026-11-09, observed)
+
+On `story/23-S5-changing-the-email` from the frozen baseline e8b5f6b, the
+implementation's tree before commit (frozen acceptance unchanged: `git diff
+e8b5f6b` over every acceptance path empty):
+
+- `npm run verify`: exit 0 (`tsc`, lint with the 2 known warnings outside the
+  epic, 961 unit tests in 76 files).
+- Full `npm run test:e2e` (E2E lock held, `COMPOSE_PROJECT_NAME=crossward-raptor`):
+  1338 passed, 3 failed, none in S5's paths: 18-S5-5 (`done-icon.spec.ts:398`,
+  the rounded-corner pixel, as recorded at S1) and two `ECONNRESET`s in API
+  requests (`row-menu.spec.ts:439`, `status-icons.spec.ts:310`). The three
+  files rerun: `row-menu` and `status-icons` passed, `done-icon` 18-S5-5 failed
+  again on the same pixel (244,244,229); `done-icon.spec.ts` alone then passed
+  8 of 8 twice. Every `account-email` and `account-details` case passed.
+- Changed paths: `src/lib/auth.ts`, `src/lib/email.ts`,
+  `src/app/account-actions.ts`, `src/components/auth/AccountDetails.tsx`,
+  `docs/DEVELOPMENT.md` (the local inbox note), this section. None of
+  CODE-REVIEW's listed paths; `auth.ts` and the new authenticated action are
+  this epic's risk paths, so the branch, PR and independent review apply as
+  declared. No scope additions: `email.ts` shares one delivery routine between
+  the sign-in and confirmation messages (the sign-in message unchanged, A6
+  passes); `TextInput`'s `readOnly` (S4) is now unused and left in place.
