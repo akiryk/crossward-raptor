@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Account details](23-account-details/HANDOFF.md) (epic 23, EPIC
+  approved 2026-11-09; stories in progress)
 - [Build progress](22-build-progress/HANDOFF.md) (epic 22, closed
   2026-11-09; open items listed there)
 - [Locked words](21-locked-words/HANDOFF.md) (epic 21, closed
