@@ -66,7 +66,10 @@ The human approved the EPIC 2026-11-08.
   story. Implemented ae55a00, direct to `main`; independent review of
   ae55a00: no blockers, one should-fix (the outline outliving a button
   that loses its room on a narrowing window), fixed in 044b231.
-- **Next:** the human's visual check of S6, then closeout.
+- **The human's visual check of S6 (2026-11-09):** "It all looks good,
+  I did a visual check and it's great"; no changes, Decisions 14–16
+  accepted as reported.
+- **Next:** the independent closeout audit.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -198,11 +201,9 @@ was not run for it.
 
 ## Next action
 
-The human's visual check of S6 with Decisions 14–16 (the dev app, a
-daily in the build phase: a word's lock button, its tooltip, its
-outline, the 2-second wait). Make any changes it brings under the same
-orchestration; then close the epic per the epic index (independent
-closeout audit).
+Close the epic per the epic index: an independent, report-only closeout
+audit of S1–S6, then record and resolve its findings under the same
+orchestration.
 
 ## Resume prompt
 
