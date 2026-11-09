@@ -87,6 +87,15 @@ given (S5; the screenshots are not kept):
 These reach beyond the epic's "Preview only" scope (the word highlight is
 Preview off); the human asked for them within this epic.
 
+The human's changes after the visual check of S3–S5 (2026-11-08, S6):
+
+1. **The lock button's tooltip names the word:** "Lock ARRAY" on an
+   unlocked word, "Unlock ARRAY" on a locked one, where ARRAY is the
+   word.
+2. **The lock button appears after 2 seconds,** not 3.
+3. **Hovering the lock button outlines its word** in a 2px black line,
+   as hovering the word's tick mark does.
+
 ## What the code does today
 
 - **The build phase's grid is all white.** A cell is empty or holds a
@@ -139,6 +148,12 @@ Preview off); the human asked for them within this epic.
    changes): Preview on and off fade the grid's colors over 500ms; in the
    build phase with Preview off, the cursor's word is the word its cell
    would belong to if it held a letter. Off the risk paths.
+
+6. **S6 The lock button's word** (from the human's changes after the
+   visual check of S3–S5): the lock button's tooltip names the word
+   ("Lock ARRAY", "Unlock ARRAY"), the button appears after 2 seconds
+   instead of 3, and hovering it outlines the word as the tick's hover
+   does. Off the risk paths.
 
 S2 builds on S1, S3 on S2, S4 on S3. S2 covers its own edit paths, widths and accessibility
 in its acceptance. Each checks its actual paths against CODE-REVIEW.
@@ -246,16 +261,41 @@ details (S5):
   choice, for the visual check). Preview, the hints phase and locks are
   unchanged.
 
+From the human's changes after the visual check (S6), with the
+orchestrator's details:
+
+- **The lock button's tooltip names its word:** "Lock " or "Unlock " and
+  the word's letters, uppercase, a rebus cell's letters all included
+  ("Lock PARTY"); no closing period on either (the orchestrator's choice,
+  for the visual check). The word is the button's word: the hovered
+  word's when the hover's button shows (Epic 21 S10, S13), not the
+  cursor's. Timing, placement and look as S4; the button's
+  accessible name stays "Lock word" / "Unlock word".
+- **2 seconds** (was 3, Epic 21 S16) before the button beside an unlocked
+  word shows, for the cursor and for the mouse resting on a word: the one
+  wait. Everything shown at once stays at once.
+- **The mouse on the button outlines its word** with the tick hover's
+  2px black outline around its letters (Epic 21 S15, S17): at once, not
+  after the tooltip's delay; while the mouse is on the button, through a
+  click that locks or unlocks it; gone at once when the mouse leaves or
+  the button goes. One outline per word where a tick hover already
+  outlines it. Mouse only: not for keyboard focus, touch or the toggle
+  row's Lock Word.
+
 ## Non-goals
 
 - Anything with Preview off, in a mini or midi, in the hints phase,
   after publishing or in play, except S5 (the fade and the build-phase
-  word highlight, at every size).
+  word highlight, at every size) and S6 (the lock button).
 - A second measure (share of white or playable cells), word count,
   density or other NYT rule checks.
 - Tick marks, a slider or any way to set the value by hand.
 - Gating Create Hints, moving to the hints phase automatically, or
   changing its dialog or checks.
-- Changing how Preview derives black squares, or Locked words' behavior.
-- Tooltips other than the bar's new one; touch, keyboard or focus
-  tooltips; changing the tooltip's look.
+- Changing how Preview derives black squares, or Locked words' behavior
+  beyond S6's (the lock button's tooltip text, its 2-second wait and its
+  hover outline): what can lock, the button's name, look and placement,
+  the ticks and the toggle row's Lock Word stay.
+- New tooltips other than the bar's; changing tooltip texts other than
+  the lock button's (S6); touch, keyboard or focus tooltips; changing the
+  tooltip's look.

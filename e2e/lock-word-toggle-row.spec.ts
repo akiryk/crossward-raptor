@@ -36,6 +36,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Amended by 21-S16: the button beside a word waits 3 seconds (was 1);
 // every wait timed against it is 2000ms longer.
 //
+// Amended by 22-S6: the button beside a word waits 2 seconds (was 3);
+// 21-S5-2's outline "not yet" is at 1500ms (was 2500ms). The other waits,
+// longer than 2 seconds, are unchanged.
+//
 // Amended by 22-S2: with Preview on in a daily or Sunday, Rebus leaves the
 // row too (the build progress takes its place); 21-S5-4 checks it's gone.
 //
@@ -290,7 +294,7 @@ test.describe('21-S5-2 states (375px)', () => {
     await select(page, '6,3');
     await expectEnabled(page, 'Lock Word');
 
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1500); // 22-S6: was 2500
     await expect(outlines(page)).toHaveCount(0);
     await expectOutline(page, [...TANGENT_ENDS, ...TANGENT], 1500);
     await expect(outlines(page)).toHaveCount(1);

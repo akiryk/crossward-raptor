@@ -17,6 +17,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // Amended by 21-S16: the wait is 3 seconds (was 1); every wait timed
 // against it is 2000ms longer. Where this file says "a second", read three.
 //
+// Amended by 22-S6: the wait is 2 seconds (was 3). 21-S7-1's "still
+// waiting" checks are at 1500ms after focus returns (were 2500ms); the
+// other waits are unchanged. Where this file says "a second", read two.
+//
 // Amended by 21-S17: 21-S7-2 moves the mouse off the grid after the click
 // that locks TANGENT, which left it on TANGENT's ticked end cell.
 //
@@ -66,8 +70,8 @@ test.describe('21-S7-1 back in an unlocked word', () => {
     await gridRegion(page).focus();
     await expect(gridRegion(page)).toBeFocused();
     await expect(cell(page, '6,3')).toHaveAttribute('data-selected', 'true');
-    await page.waitForTimeout(2500);
-    await expect(lockButton(page), 'still waiting 2.5 seconds after focus returns').toBeHidden();
+    await page.waitForTimeout(1500); // 22-S6: was 2500
+    await expect(lockButton(page), 'still waiting 1.5 seconds after focus returns').toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 
     await expect(lockButton(page)).toBeVisible({ timeout: 1500 });
@@ -82,7 +86,7 @@ test.describe('21-S7-1 back in an unlocked word', () => {
 
     await gridRegion(page).focus();
     await expect(gridRegion(page)).toBeFocused();
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1500); // 22-S6: was 2500
     await expect(lockButton(page)).toBeHidden();
     await expect(lockButton(page)).toBeVisible({ timeout: 1500 });
   });

@@ -29,6 +29,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // [data-testid="lock-tick"], the icon an <svg> in the button with
 // data-icon "lock-open" or "lock-closed".
 //
+// Amended by 22-S6: the wait is 2 seconds (was 3). 21-S2-3's "not yet"
+// checks are at 1500ms and 1600ms (were 2500ms and 2600ms); the other
+// waits, longer than 2 seconds, are unchanged.
+//
 // Colors and sizes are the human's values, written out here. Do not edit
 // this file to match an implementation.
 
@@ -206,13 +210,13 @@ test.describe('21-S2-3 the button appears after a second', () => {
   test('after a second in a 3+ letter word, restarted by a move', async ({ page }) => {
     await open(page);
     await cell(page, '6,3').click();
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1500); // 22-S6: was 2500
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 
     // A move within the word starts the second again.
     await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(2600);
+    await page.waitForTimeout(1600); // 22-S6: was 2600
     await expect(lockButton(page)).toBeHidden();
     await expect(outlines(page)).toHaveCount(0);
 

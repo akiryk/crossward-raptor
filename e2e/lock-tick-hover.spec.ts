@@ -49,6 +49,14 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 //
 // Timing: "at once" is within 500ms (a screenshot is taken each try).
 //
+// Amended by 22-S6: the mouse on a lock button outlines that button's
+// word as a tick hover does (the same black outline). In 21-S11-5's
+// "an across word's button over part of the tick wins there", the mouse
+// under DOG's button now outlines DOG (was nothing). Only DOG is locked
+// in that grid, so the tick's outline would be DOG's too: this case no
+// longer shows the button winning over the tick. 22-S6-10
+// (e2e/lock-button-word.spec.ts, CAT locked as well) covers that.
+//
 // Amended by 21-S17: the tick hover's black outline is 2px (was 1px),
 // its outer edge where the 1px line was. 21-S13's button now shows at
 // once on the tick.
@@ -530,7 +538,9 @@ test.describe('21-S11-5 over the cursor\'s colors', () => {
     // 300ms, well before 21-S4's tooltip (a second on the button) could
     // show above the button.
     await page.waitForTimeout(300);
-    await expectPaintNow(page, base, { same: [...DOG, '5,7'] });
+    // 22-S6: the button's hover outlines its word, DOG (was nothing); the
+    // tick's would be DOG too here (22-S6-10 tells them apart).
+    await expectPaintNow(page, base, { dark: DOG, same: ['5,7'] });
 
     // 95% across and 8% down: the tick, clear of the button.
     await mouseTo(page, '5,7', [0.95, 0.08]);

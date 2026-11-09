@@ -58,8 +58,14 @@ The human approved the EPIC 2026-11-08.
   of 45627dc: no blockers.
 - **The human's visual check of S3, S4 and S5 (2026-11-08):** "I did
   the visual check and it looks good"; no changes, Decisions 1–13
-  accepted as reported.
-- **Next:** closeout (independent closeout audit).
+  accepted as reported. Then three more changes (EPIC, "after the
+  visual check of S3–S5"), which became S6.
+- **S6 the lock button's word:** frozen (this commit) after an
+  independent spec review (no blockers; its should-fix and nits
+  addressed); amends seven frozen Epic 21 / 22-S4 specs, listed in the
+  story.
+- **Next:** implement S6, independent review, the human's visual check
+  of S6, then closeout.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -172,10 +178,9 @@ was not run for it.
 
 ## Next action
 
-The human's visual check of S3, S4 and S5 with Decisions 1–13 (the dev
-app, a daily in the build phase). Make any changes it brings under the
-same orchestration; then close the epic per the epic index (independent
-closeout audit).
+Implement S6 and review it independently (same orchestration); then the
+human's visual check of S6; then close the epic per the epic index
+(independent closeout audit).
 
 ## Resume prompt
 
