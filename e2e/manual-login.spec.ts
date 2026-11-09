@@ -6,6 +6,9 @@ import { waitForNewPuzzleReady } from './helpers/wait-for-ready';
 // A6 frozen UI acceptance specification. The ordinary production-build suite
 // keeps email disabled. These cases verify submission/session/library behavior,
 // not inbox delivery. A6 separately requires a real local-inbox walkthrough.
+//
+// Amended by Story 23-S3: the form asks for the email only, and a fresh
+// account saves its username on the step at `/` before the library.
 test.use({ storageState: { cookies: [], origins: [] } });
 
 function uniqueEmail(label: string) {
@@ -23,7 +26,6 @@ test.describe('A6 — usable sign-in submission', () => {
           requests.push(request.postData() ?? '');
         }
       });
-      await page.getByTestId('sign-in-username').fill('Tester');
       await page.getByTestId('sign-in-email').fill(email);
 
       if (mode === 'email Enter') await page.getByTestId('sign-in-email').press('Enter');
@@ -40,6 +42,8 @@ test.describe('A6 — usable sign-in submission', () => {
       expect(requests).toHaveLength(1);
       expect(JSON.parse(requests[0])).toEqual(expect.objectContaining({ email }));
       await page.goto(await readMagicLinkUrl(email));
+      await page.waitForSelector('[data-testid="username-step"][data-ready="true"]');
+      await page.getByTestId('username-submit').click();
       await expect(page).toHaveURL(/\/puzzles$/);
       expect((await getSession(page))?.user?.email).toBe(email);
       await expect(page.getByTestId('sign-out')).toBeVisible();
@@ -65,7 +69,6 @@ test.describe('A6 — usable sign-in submission', () => {
       });
     });
     const email = uniqueEmail('retry');
-    await page.getByTestId('sign-in-username').fill('Tester');
     await page.getByTestId('sign-in-email').fill(email);
     await page.getByTestId('sign-in-submit').click();
 

@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => ({
     create: vi.fn(), createMany: vi.fn(), upsert: vi.fn(),
   },
 }));
+// Amended by Story 23-S3: a session is served only when its account has a
+// username, so the signed-in user here carries a displayName.
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: mocks.getSession } } }));
 vi.mock('next/headers', () => ({ headers: mocks.headers }));
 vi.mock('next/navigation', () => ({
@@ -132,7 +134,7 @@ beforeEach(() => {
     createdAt: new Date('2026-01-01T00:00:00Z'), updatedAt: new Date('2026-01-02T03:04:05Z'),
   }));
   sessions = [];
-  mocks.getSession.mockResolvedValue({ user: { id: 'player-a' }, session: { id: 'auth-a' } });
+  mocks.getSession.mockResolvedValue({ user: { id: 'player-a', displayName: 'Player A' }, session: { id: 'auth-a' } });
   mocks.headers.mockResolvedValue(requestHeaders);
   for (const [model, rows] of [
     [mocks.puzzle, () => puzzles], [mocks.playSession, () => sessions],

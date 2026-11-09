@@ -16,6 +16,8 @@ const mocks = vi.hoisted(() => ({
   },
   transaction: vi.fn(),
 }));
+// Amended by Story 23-S3: a session is served only when its account has a
+// username, so the signed-in user here carries a displayName.
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: mocks.getSession } } }));
 vi.mock('next/headers', () => ({ headers: mocks.headers }));
 vi.mock('next/navigation', () => ({
@@ -67,7 +69,7 @@ const resumedEntries = serializeGrid(withLetter(
 ));
 
 function authenticate(userId: string) {
-  mocks.getSession.mockResolvedValue({ user: { id: userId }, session: { id: `auth-${userId}` } });
+  mocks.getSession.mockResolvedValue({ user: { id: userId, displayName: 'Player' }, session: { id: `auth-${userId}` } });
 }
 
 function matches(row: RecordRow, where: RecordRow = {}): boolean {

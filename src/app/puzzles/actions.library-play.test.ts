@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => ({
     findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), findUniqueOrThrow: vi.fn(),
   },
 }));
+// Amended by Story 23-S3: a session is served only when its account has a
+// username, so the signed-in user here carries a displayName.
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: mocks.getSession } } }));
 vi.mock('next/headers', () => ({ headers: mocks.headers }));
 vi.mock('next/navigation', () => ({
@@ -146,7 +148,7 @@ beforeEach(() => {
   puzzles = []; sessions = []; counter = 0;
   users = { builder: 'Fixture Builder', 'player-a': 'Player A' };
   mocks.headers.mockResolvedValue(requestHeaders);
-  mocks.getSession.mockResolvedValue({ user: { id: 'player-a' }, session: { id: 'valid' } });
+  mocks.getSession.mockResolvedValue({ user: { id: 'player-a', displayName: 'Player A' }, session: { id: 'valid' } });
   mocks.puzzle.findMany.mockImplementation(async (query) => structuredClone(findMany(query)));
 });
 
