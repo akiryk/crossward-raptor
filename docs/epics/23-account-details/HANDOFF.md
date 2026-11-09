@@ -26,8 +26,9 @@ earlier only if truly blocked.
 - **S3 done** (frozen 2dcb6cb, implemented 62a200a on
   `story/23-S3-email-only-sign-in`, PR #35 independently reviewed: no
   blockers; merged 61c17d0).
-- **S4 drafting** (sub-agent, from S3's code); freeze after an
-  independent review of the draft.
+- **S4 frozen** after an independent spec review (three blockers fixed,
+  non-blocking points folded in). Implementation on
+  `story/23-S4-account-in-masthead` (risk story: PR, independent review).
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -58,6 +59,13 @@ earlier only if truly blocked.
    none touches a puzzle or sets the username. The app's own pages and
    actions are all gated. This narrows the EPIC's "every route".
 8. **S3, two tabs on the step:** the later save wins.
+9. **S4, mockup departures:** the modal keeps its ✕; Cancel at rest is
+   the alternate look (the mock's darker gray is its hover); disabled
+   Update keeps the app-wide disabled look (primary at half opacity),
+   not the mock's light gray. No test pins the disabled look.
+10. **S4, `changeUsername`:** a second action that saves without
+    navigating (S3's save always goes to `/puzzles`); the page
+    refreshes in place. Two tabs: the later save wins.
 
 ## Verification
 
@@ -82,10 +90,9 @@ earlier only if truly blocked.
 
 ## Next action
 
-Finish, review and freeze S4's draft, then implement S4 on
-`story/23-S4-account-in-masthead` with a PR and independent review;
-then S5 the same way.
+Implement S4 on `story/23-S4-account-in-masthead` with a PR and
+independent review; then draft, review, freeze and implement S5 the same way.
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md. Finish, review and freeze S4's draft, then implement S4 on its branch with a PR and independent review; then S5.
+Read docs/epics/23-account-details/HANDOFF.md. Implement S4 on its branch with a PR and independent review; then draft, review, freeze and implement S5.

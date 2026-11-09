@@ -121,9 +121,13 @@ const STYLES: Record<string, string> = {
   'progress-zone': 'orange',
   'modal-background': 'white',
   'modal-title-background': 'yellow-bright',
+  // 23-S4: the modal's gray header option (Account details).
+  'modal-title-background-gray': 'gray-200',
   logo: 'gray-400',
   'logo-cell': 'white',
   masthead: 'white',
+  // 23-S4: the masthead's Account.
+  'masthead-account': 'gray-500',
   // 14-S11: the keyboard focus ring.
   'focus-ring': 'cyan',
 };
