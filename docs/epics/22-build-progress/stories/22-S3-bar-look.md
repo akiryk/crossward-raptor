@@ -4,8 +4,10 @@ The progress bar from S2 becomes 16px tall with 20px corners and a
 gray-500 fill, and its fill animates in from 0, turning interactive-dark
 when it reaches the zone.
 
-**Status: Approved and frozen 2026-11-08** by the orchestrating session
-under the human's delegation ([handoff](../HANDOFF.md#orchestration)),
+**Status: Done 2026-11-08:** implemented fd45a02, direct to `main`;
+independent review: no blockers; the human's visual check passed
+2026-11-08. Approved and frozen 2026-11-08 (18afb53) by the orchestrating session
+under the human's delegation ([history](../HISTORY.md#orchestration)),
 after an independent review of the draft (no blockers; its four
 should-fix findings and nits all addressed). Builds on S2 (d0b855b).
 

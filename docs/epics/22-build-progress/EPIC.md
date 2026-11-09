@@ -4,8 +4,10 @@
 details under Decisions. Rewritten to repo standards from an outside
 draft (below); the human answered its open questions and supplied a
 mockup the same day. The human delegated each story's approval and
-freeze to the orchestrating session (see the [handoff](HANDOFF.md#orchestration));
-the human does a visual check before closeout.
+freeze to the orchestrating session (see
+[HISTORY](HISTORY.md#orchestration)); the human does a visual check
+before closeout. **Closed 2026-11-09**: S1–S6 done
+([handoff](HANDOFF.md)).
 
 In the build phase of a daily or Sunday puzzle, with Preview on, the
 toggle row shows how much of the grid holds letters: a message ("Keep
@@ -155,7 +157,8 @@ The human's changes after the visual check of S3–S5 (2026-11-08, S6):
    instead of 3, and hovering it outlines the word as the tick's hover
    does. Off the risk paths.
 
-S2 builds on S1, S3 on S2, S4 on S3. S2 covers its own edit paths, widths and accessibility
+S2 builds on S1, S3 on S2, S4 on S3, S5 on S4 (22-S4-13b) and S6 on
+S4 (it amends 22-S4's specs). S2 covers its own edit paths, widths and accessibility
 in its acceptance. Each checks its actual paths against CODE-REVIEW.
 
 ## Decisions

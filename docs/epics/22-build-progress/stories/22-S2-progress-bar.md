@@ -4,11 +4,12 @@ With Preview on, in a daily or Sunday puzzle's build phase, the toggle
 row shows a message, a slim bar with the 80–85% zone and "N% complete"
 in Rebus's place, at every width.
 
-**Status: Implemented and delivered to `main` 2026-11-08; awaiting the
-human's visual check at the epic's end.** Approved and frozen 2026-11-08
+**Status: Done 2026-11-08:** implemented d0b855b, direct to `main`;
+independent review: no blockers; the human's visual check passed
+2026-11-08. Approved and frozen 2026-11-08
 by the orchestrating session under the human's delegation, after an
 independent review of the draft whose findings were all addressed
-([handoff](../HANDOFF.md#orchestration)). Builds on S1
+([history](../HISTORY.md#orchestration)). Builds on S1
 (`src/engine/completion.ts`, merged 310bc94).
 
 **Blast radius: medium, off the risk paths.** One new component in

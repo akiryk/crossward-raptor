@@ -5,12 +5,15 @@ place: after a 500ms hover, at once when moving straight from one
 tooltip's target to another's. The progress bar gets a tooltip saying what
 to aim for.
 
-**Status: Approved and frozen 2026-11-08** by the orchestrating session
+**Status: Done 2026-11-08:** implemented fd57abd, direct to `main`;
+independent review: no blockers; the human's visual check passed
+2026-11-08. Later amended by S6 (the lock button's text, 2-second wait
+and outline). Approved and frozen 2026-11-08 (e7e3bf6) by the orchestrating session
 under the human's delegation, after an independent review of the draft
 (no blockers; its six should-fix findings and nits all addressed). The
 human's request and that delegation cover the amendments to Epic 20 and
 21's frozen tests listed below. Drafted 2026-11-08 under the human's delegation
-([handoff](../HANDOFF.md#orchestration)). Builds on S2 (the bar) and
+([history](../HISTORY.md#orchestration)). Builds on S2 (the bar) and
 follows S3 (the bar's look); its tests don't depend on the bar's height
 or color.
 
@@ -170,9 +173,11 @@ word tie, mouse-only for all, the Lock Word control (still no tooltip).
   than adding the bar's.
 - A permanent accessible description for the bar.
 - Changing the lock button's own 3-second hover wait (21-S16) or any
-  other non-tooltip delay.
+  other non-tooltip delay. (S6 later made it 2 seconds.)
 
 ## EPIC changes for the orchestrator
+
+*Applied 2026-11-08, in the EPIC's final wording; kept as history.*
 
 Add to `EPIC.md`, under **Stories (proposed order)** (after S3, which the
 S3 draft adds):

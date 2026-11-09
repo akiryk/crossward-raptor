@@ -5,7 +5,8 @@ Hovering over the lock button for about a second explains it.
 **Status: done 2026-11-06,** independently reviewed (no blockers) and
 delivered on `main` as a49795a. Approved and
 frozen 2026-11-06 at a8f4dff by the orchestrating agent, under the
-human's delegation (HANDOFF). Depends on S2.
+human's delegation (HANDOFF). Depends on S2. Later amended by Epic 22
+S4 (one 500ms tooltip delay) and S6 ("Lock WORD" / "Unlock WORD").
 
 **Blast radius: small, expected off the risk paths.**
 `src/components/grid/` (maybe a delay option in

@@ -5,7 +5,9 @@ tooltip above it that says what the color means.
 
 **Status: done 2026-11-04.** The human approved the specification and
 acceptance as drafted 2026-11-04 (keeping `text-label`), frozen at
-3a96758; implemented and delivered on `main`.
+3a96758; implemented and delivered on `main`. Later amended: the red
+tooltip's text reworded by the human (38cd96f, 2026-11-08) and Epic 22
+S4's 500ms hover delay.
 
 **Blast radius: small, no risk path.** `src/components/grid/` plus a new
 `src/components/ui/Tooltip.tsx`; no engine, server action or storage

@@ -7,7 +7,7 @@ rounded down) and the ready state (80%).
 **Status: Done 2026-11-08,** merged in PR #34 (310bc94) after an
 independent review with no blockers. Approved and frozen 2026-11-08 by the orchestrating
 session under the human's delegation, after an independent review of
-the draft found no blockers ([handoff](../HANDOFF.md#orchestration)).
+the draft found no blockers ([history](../HISTORY.md#orchestration)).
 
 **Blast radius: small, on a risk path.** One new module in
 `src/engine/`, nothing else changes. `src/engine/**` needs a branch

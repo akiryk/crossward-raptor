@@ -5,13 +5,13 @@ instead of snapping. In the build phase with Preview off, the cursor's
 word is the word its cell would belong to if it held a letter, so an off
 cell between CRAP and APE highlights both.
 
-**Status: Delivered 2026-11-08:** implemented 45627dc, direct to `main`;
-independent review of 45627dc: no blockers. Awaiting the human's visual
-check. Approved and frozen 2026-11-08 (ffc510b) by the orchestrating session
+**Status: Done 2026-11-08:** implemented 45627dc, direct to `main`;
+independent review of 45627dc: no blockers. The human's visual check
+passed 2026-11-08. Approved and frozen 2026-11-08 (ffc510b) by the orchestrating session
 under the human's delegation, after an independent review of the draft
 (no blockers; its should-fix finding and nits all addressed). Drafted
 2026-11-08 under the human's delegation
-([handoff](../HANDOFF.md#orchestration)), from the human's small changes
+([history](../HISTORY.md#orchestration)), from the human's small changes
 before the final visual check and the orchestrator's decisions; revised
 after the independent spec review (no blockers; its findings addressed
 below). Amends one Epic 21 frozen test (listed below) under that request
@@ -191,7 +191,7 @@ letters; an effect keyed on the counter clears it after about 600ms.
   legend or the toggle row; changing S3's bar animation.
 - Keeping other changes instant during the 500ms fade.
 
-## Acceptance (proposed)
+## Acceptance (frozen)
 
 Viewport 1440px unless stated. Colors written out. Grids are dailies (the
 counterpart of (c,r) is (14−c, 14−r)).
