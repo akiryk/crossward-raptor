@@ -5,7 +5,7 @@ import { convertEmptyCellsToBlack } from '../../engine/phase';
 import { intendedGeometry } from '../../engine/puzzle-geometry';
 import { buildSlotLookup, activeHintKey } from '../../lib/hint-lookup';
 import { cellNumberKey } from '../../lib/cell-number-lookup';
-import { buildWord } from '../../lib/build-word';
+import { wouldBeWord } from '../../lib/build-word';
 import { PuzzleGrid } from '../grid/PuzzleGrid';
 import { HintSkeleton } from '../grid/HintSkeleton';
 import { PreviewLegend } from '../grid/PreviewLegend';
@@ -139,7 +139,7 @@ export function GridExamples() {
           <PuzzleGrid
             grid={grid}
             highlights={highlights}
-            cursorWord={new Set((buildWord(grid, CURSOR.current, CURSOR.orientation) ?? []).map(cellNumberKey))}
+            cursorWord={new Set((wouldBeWord(grid, CURSOR.current, CURSOR.orientation) ?? []).map(cellNumberKey))}
           />
         </div>
       </section>

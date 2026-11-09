@@ -1,4 +1,4 @@
-import type { Coord, Grid, Orientation } from '../engine/grid';
+import { withLetter, type Coord, type Grid, type Orientation } from '../engine/grid';
 import { intendedGeometry } from '../engine/puzzle-geometry';
 
 // A word in the build phase (21-S1, 21-S8): with few or no black cells
@@ -26,4 +26,14 @@ export function buildWord(grid: Grid, coord: Coord, orientation: Orientation): C
     cells.push(at);
   }
   return cells.length >= 2 ? cells : null;
+}
+
+/** The word the cell would belong to in `orientation` if it held a letter
+ *  (22-S5): on an empty active cell, `buildWord` of the grid with a letter
+ *  placed there, so its symmetric counterpart turning white counts; on any
+ *  other cell, `buildWord` itself. Knows nothing of locks. */
+export function wouldBeWord(grid: Grid, coord: Coord, orientation: Orientation): Coord[] | null {
+  const cell = grid.at(coord.col, coord.row);
+  if (cell.kind !== 'active' || cell.letter !== null) return buildWord(grid, coord, orientation);
+  return buildWord(withLetter(grid, coord, 'A'), coord, orientation);
 }

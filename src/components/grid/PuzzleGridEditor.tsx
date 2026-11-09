@@ -60,7 +60,7 @@ import { PuzzleTitle } from "../puzzle/PuzzleTitle";
 import { PlayerHints } from "../play/PlayerHints";
 import { slotsWithNumbers } from "../../engine/numbering";
 import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
-import { buildWord } from "../../lib/build-word";
+import { buildWord, wouldBeWord } from "../../lib/build-word";
 import { RebusControl } from "./RebusControl";
 import { LockWordControl } from "./LockWordControl";
 import { StartOverDialog, StartOverLink } from "./StartOverDialog";
@@ -73,6 +73,9 @@ const LOCK_BUTTON_DELAY_MS = 3000;
 // Room for the lock button left of the grid: 32px, the 1px line and 3px to
 // spare (21-S12).
 const LOCK_ROOM_PX = 36;
+// Preview's toggle fades the grid's colors over 500ms (22-S5); the
+// transition stays in place a little longer, so the fade ends before it goes.
+const PREVIEW_FADE_WINDOW_MS = 600;
 
 interface EditorState {
   grid: Grid;
@@ -187,11 +190,16 @@ export function PuzzleGridEditor({
   // Preview turned on with the cursor on a cell it shows black: nothing is
   // selected, and keys do nothing, until a cell is clicked (17-S4).
   const [isPreviewCursorHidden, setIsPreviewCursorHidden] = useState(false);
+  // The grid's colors fade only for a while after Preview turns on or off
+  // (22-S5): set in the same render as the mode, so the transition is in
+  // place for it. Each toggle counts, restarting the window.
+  const [previewFade, setPreviewFade] = useState({ count: 0, isFading: false });
   function changePreview(on: boolean) {
     if (on && !isPreviewing) {
       const { col, row } = state.cursor.current;
       setIsPreviewCursorHidden(intendedGeometry(state.grid).at(col, row).kind === "black");
     }
+    if (on !== isPreviewing) setPreviewFade((prev) => ({ count: prev.count + 1, isFading: true }));
     setIsPreviewing(on);
   }
   // Lock Grid Letters (14-S12): the hints phase's guard against changing a
@@ -335,6 +343,18 @@ export function PuzzleGridEditor({
     });
     if (advance) gridRegionRef.current?.focus({ preventScroll: true });
   }
+
+  // The fade's window ends after the fade (22-S5); outside it, every color
+  // change is instant.
+  const fadeCount = previewFade.count;
+  useEffect(() => {
+    if (fadeCount === 0) return;
+    const timer = setTimeout(
+      () => setPreviewFade((prev) => (prev.count === fadeCount ? { ...prev, isFading: false } : prev)),
+      PREVIEW_FADE_WINDOW_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [fadeCount]);
 
   // Only time with the grid focused counts toward the button's wait (21-S7).
   useEffect(() => {
@@ -713,10 +733,13 @@ export function PuzzleGridEditor({
     highlights.set(cellNumberKey(cursor.current), "selected");
   }
   // In the build phase only the cursor's word is blue-medium, not the
-  // other words in its row or column (21-S1).
+  // other words in its row or column (21-S1): the word its cell would
+  // belong to with a letter (22-S5), except where no letter can be typed,
+  // a locked word's letter or end cell, which keeps its own word.
+  const cursorWordOf = isCellProtected(grid, lockedWords, cursor.current) ? buildWord : wouldBeWord;
   const cursorWord = isPreviewing || phase === "hints"
     ? undefined
-    : new Set((buildWord(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
+    : new Set((cursorWordOf(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
 
   // Locks show only in the build phase with Preview off (21-S2). The
   // button and its outline show at once in a locked word, after the wait in
@@ -967,6 +990,7 @@ export function PuzzleGridEditor({
                 onToggleLock={handleToggleShownLock}
                 onHoverCell={handleHoverCell}
                 mode={isPreviewing ? "preview" : "build"}
+                isFading={previewFade.isFading}
                 isHintsPhase={phase === "hints"}
                 isGridFocused={isGridFocused}
                 isLettersLocked={phase === "hints" && isLettersLocked}

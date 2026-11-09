@@ -115,6 +115,12 @@ const GRID_LINES: Record<string, string> = {
   play: 'bg-play-cell-border',
 };
 
+// Preview's toggle fades the cells' backgrounds, their letters' colors and
+// the grid's lines (22-S5): 500ms, CSS's own ease-in-out, not Tailwind's
+// ease-in-out curve; none with reduced motion. The editor ends the window.
+const FADE = 'transition-colors duration-500 ease-[ease-in-out] motion-reduce:transition-none';
+const FADE_CELL = `${FADE} *:transition-colors *:duration-500 *:ease-[ease-in-out] motion-reduce:*:transition-none`;
+
 // A Sunday's letters and numbers are the NYT's (17-S7), in proportion to
 // the cell's pitch at every width, with no floor or cap: in Inter, the
 // capitals are 0.475 of the pitch and the digits 0.24, the letter low.
@@ -161,6 +167,7 @@ export function PuzzleGrid({
   isLockButtonTabStop = true,
   onToggleLock,
   onHoverCell,
+  isFading = false,
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
@@ -190,6 +197,8 @@ export function PuzzleGrid({
   /** The mouse moved onto a cell, or its hover ended: it left the grid, or
    *  the lock button took keyboard focus (21-S10). Mouse only. */
   onHoverCell?: (coord: Coord | null) => void;
+  /** Preview has just turned on or off: colors fade (22-S5). */
+  isFading?: boolean;
 }) {
   // The cell under the mouse, in Preview, and the cell its tooltip stays
   // over (20-S3); a touch or pen shows nothing.
@@ -258,7 +267,11 @@ export function PuzzleGrid({
         cell,
         isSelected: highlight === 'selected',
         isInSlot: highlight === 'slot',
-        isSymmetricHint: hints.has(key),
+        // An empty cell in the cursor's word other than the cursor is one
+        // its letter would whiten: shown as the symmetric hint it becomes
+        // (22-S5).
+        isSymmetricHint:
+          hints.has(key) || (highlight === 'slot' && cell.kind === 'active' && cell.letter === null && !!cursorWord?.has(key)),
         isRecommended: recommended.has(key),
         isOutsideWord: cursorWord !== undefined && !cursorWord.has(key),
         hasCursorWord: cursorWord !== undefined && cursorWord.size > 0,
@@ -275,7 +288,7 @@ export function PuzzleGrid({
           data-selected={highlight === 'selected' ? 'true' : undefined}
           data-highlight={highlight}
           data-cell-state={appearance}
-          className={(rebus && rebus.coord.col === col && rebus.coord.row === row ? 'relative ' : '') + (
+          className={(rebus && rebus.coord.col === col && rebus.coord.row === row ? 'relative ' : '') + (isFading ? `${FADE_CELL} ` : '') + (
             gridMode === 'hints' && highlight && cell.kind === 'active'
               ? hintsHighlightBg(highlight, isGridFocused)
               : gridMode === 'hints-locked' && highlight && cell.kind === 'active'
@@ -463,7 +476,7 @@ export function PuzzleGrid({
       // in the phase's border style, with gap and padding both
       // --grid-line-width so the same one-pixel division surrounds the
       // outside too, not just between cells.
-      className={`relative grid w-full ${GRID_LINES[gridMode]}`}
+      className={`relative grid w-full ${GRID_LINES[gridMode]}${isFading ? ` ${FADE}` : ''}`}
       onPointerOver={handlePointerOver}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
