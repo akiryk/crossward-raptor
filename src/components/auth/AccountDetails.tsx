@@ -1,21 +1,31 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { changeUsername } from '@/app/account-actions';
+import { changeEmail, changeUsername } from '@/app/account-actions';
 import { MastheadAction } from '@/components/layout/Masthead';
+import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ModalActions } from '@/components/ui/ModalActions';
 import { TextInput } from '@/components/ui/TextInput';
-import { usernameError } from '@/lib/username';
+import { emailError, usernameError } from '@/lib/username';
 
 // Story 23-S4: the masthead's Account and its Account details modal. The
 // modal opens with the values the page last rendered; a username change saves
 // at once (changeUsername), closes the modal and refreshes the page's server
-// data in place. The email is read-only until S5.
+// data in place.
+//
+// Story 23-S5: the email is editable. An email change is confirmed by the new
+// address: Update asks the server (changeEmail) to mail it a link, and the
+// modal then says where the link went, with Close. The account's email changes
+// only when the link is followed. With both fields changed, the username saves
+// first, then the email is requested.
 
 const SAVE_FAILED = 'Could not save your username. Please try again.';
+const SEND_FAILED = 'Could not send the confirmation link. Please try again.';
+
+type Field = 'account-username' | 'account-email';
 
 export function AccountDetails({ username, email }: { username: string; email: string }) {
   const [open, setOpen] = useState(false);
@@ -50,41 +60,106 @@ function AccountDetailsModal({
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  const [value, setValue] = useState(username);
-  const [error, setError] = useState<string | undefined>();
+  const closeRef = useRef<HTMLDivElement>(null);
+  // The username the modal compares against: the opened one, or the one this
+  // Update has already saved (when the email then fails, only it is pending).
+  const [savedUsername, setSavedUsername] = useState(username);
+  const [usernameValue, setUsernameValue] = useState(username);
+  const [emailValue, setEmailValue] = useState(email);
+  const [usernameProblem, setUsernameProblem] = useState<string | undefined>();
+  const [emailProblem, setEmailProblem] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
-  const changed = value !== username;
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const changed = usernameValue !== savedUsername || emailValue !== email;
 
-  function focusField() {
-    formRef.current?.querySelector<HTMLInputElement>('[data-testid="account-username"]')?.focus();
+  useEffect(() => {
+    if (sentTo) closeRef.current?.querySelector('button')?.focus();
+  }, [sentTo]);
+
+  function focusField(field: Field) {
+    formRef.current?.querySelector<HTMLInputElement>(`[data-testid="${field}"]`)?.focus();
+  }
+
+  /** Shows a server answer on a field; the field is focused once enabled again. */
+  function fail(field: Field, message: string) {
+    if (field === 'account-username') setUsernameProblem(message);
+    else setEmailProblem(message);
+    setSaving(false);
+    requestAnimationFrame(() => focusField(field));
   }
 
   async function submit(event?: FormEvent) {
     event?.preventDefault();
     if (!changed || saving) return;
-    const problem = usernameError(value);
-    if (problem) {
-      setError(problem);
-      focusField();
+    const usernameChanged = usernameValue !== savedUsername;
+    const emailEdited = emailValue !== email;
+    const usernameRule = usernameChanged ? usernameError(usernameValue) : null;
+    const emailRule = emailEdited ? emailError(emailValue) : null;
+    if (usernameRule || emailRule) {
+      setUsernameProblem(usernameRule ?? undefined);
+      setEmailProblem(emailRule ?? undefined);
+      focusField(usernameRule ? 'account-username' : 'account-email');
       return;
     }
+    // The address as it will be stored; the account's own, in any case or
+    // spacing, is no email change.
+    const newEmail = emailValue.trim().toLowerCase();
+    const emailChanged = newEmail !== email.toLowerCase();
+    if (!usernameChanged && !emailChanged) {
+      onClose();
+      return;
+    }
+
     setSaving(true);
-    try {
-      const result = await changeUsername(value);
-      if ('error' in result) {
-        setError(result.error);
-        setSaving(false);
-        // The field is focused once it is enabled again.
-        requestAnimationFrame(focusField);
+    if (usernameChanged) {
+      try {
+        const result = await changeUsername(usernameValue);
+        if ('error' in result) return fail('account-username', result.error);
+      } catch {
+        return fail('account-username', SAVE_FAILED);
+      }
+      setSavedUsername(usernameValue);
+      router.refresh();
+      if (!emailChanged) {
+        onClose();
         return;
       }
-      router.refresh();
-      onClose();
-    } catch {
-      setError(SAVE_FAILED);
-      setSaving(false);
-      requestAnimationFrame(focusField);
     }
+
+    try {
+      const result = await changeEmail(emailValue);
+      if ('error' in result) return fail('account-email', result.error);
+    } catch {
+      return fail('account-email', SEND_FAILED);
+    }
+    setSaving(false);
+    setSentTo(newEmail);
+  }
+
+  if (sentTo) {
+    return (
+      <Modal
+        open
+        title="Account details"
+        headerVariant="gray"
+        onClose={onClose}
+        testId="account-details"
+        footer={
+          <div ref={closeRef} className="flex">
+            <Button data-testid="account-close" onClick={onClose}>
+              Close
+            </Button>
+          </div>
+        }
+      >
+        <p
+          data-testid="account-email-sent"
+          className="w-[360px] max-w-full text-body-normal text-primary [overflow-wrap:anywhere]"
+        >
+          Check {sentTo} for a link to confirm your new email.
+        </p>
+      </Modal>
+    );
   }
 
   return (
@@ -126,17 +201,27 @@ function AccountDetailsModal({
           <TextInput
             data-testid="account-username"
             caption="Username"
-            value={value}
+            value={usernameValue}
             onChange={(next) => {
-              setValue(next);
-              setError(undefined);
+              setUsernameValue(next);
+              setUsernameProblem(undefined);
             }}
-            error={error}
+            error={usernameProblem}
             disabled={saving}
           />
         </div>
         <div className="mt-5">
-          <TextInput data-testid="account-email" caption="Email" value={email} onChange={() => {}} readOnly />
+          <TextInput
+            data-testid="account-email"
+            caption="Email"
+            value={emailValue}
+            onChange={(next) => {
+              setEmailValue(next);
+              setEmailProblem(undefined);
+            }}
+            error={emailProblem}
+            disabled={saving}
+          />
         </div>
       </form>
     </Modal>
