@@ -29,11 +29,13 @@ earlier only if truly blocked.
 - **S4 done** (frozen 40ce315, implemented 2fc118b on
   `story/23-S4-account-in-masthead`, PR #36 independently reviewed: no
   findings; merged f556774).
-- **S5 frozen** after an independent spec review (blockers folded in;
-  amendments to 23-S3-U1, 23-S4-U1 and 23-S4-2 approved under the
-  delegation; browser cases discriminate against S4's merged code).
-  Implementation on `story/23-S5-changing-the-email` (risk story: PR,
-  independent review).
+- **S5 done** (frozen e8b5f6b, implemented afcb670 on
+  `story/23-S5-changing-the-email`, PR #37 independently reviewed: no
+  blockers; merged 47342b6). S4's `TextInput` `readOnly` prop is now
+  unused (left in place).
+- **All stories delivered; waiting on the human's visual and manual
+  checks** (incl. S5's manual dev check: the confirmation email arriving
+  in Mailpit), then closeout.
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -106,12 +108,17 @@ earlier only if truly blocked.
   `ECONNRESET` in a helper; file reran 27 of 27), both by the independent
   reviewer; the implementer's run likewise (1 unrelated `ECONNRESET`).
 
+- S5 at afcb670: `npm run verify` exit 0 (961 tests), by the independent
+  reviewer and the implementer. Reviewer's full `npm run test:e2e`: run 1
+  1338 passed, 3 failed (`duplicate.spec.ts`, unrelated; file reran 6 of
+  6); **run 2: 1341 passed, exit 0 — the clean full run owed above.**
+
 ## Next action
 
-Implement S5 on `story/23-S5-changing-the-email` with a PR and
-independent review; then a clean full e2e run, and ask the human for the
-visual checks before closeout.
+The human's visual and manual checks (the decisions above, and S5's
+email arriving in Mailpit in development); act on any overrules, then
+close out the epic per [AUDIT](../../process/AUDIT.md).
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md. Implement S5 on its branch with a PR and independent review; then get a clean full e2e run and ask the human for the visual checks before closeout.
+Read docs/epics/23-account-details/HANDOFF.md. All stories are delivered; take the human's visual-check results, act on any overrules, then close out the epic.
