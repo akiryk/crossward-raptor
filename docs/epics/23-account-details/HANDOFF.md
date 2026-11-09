@@ -26,9 +26,12 @@ earlier only if truly blocked.
 - **S3 done** (frozen 2dcb6cb, implemented 62a200a on
   `story/23-S3-email-only-sign-in`, PR #35 independently reviewed: no
   blockers; merged 61c17d0).
-- **S4 frozen** after an independent spec review (three blockers fixed,
-  non-blocking points folded in). Implementation on
-  `story/23-S4-account-in-masthead` (risk story: PR, independent review).
+- **S4 done** (frozen 40ce315, implemented 2fc118b on
+  `story/23-S4-account-in-masthead`, PR #36 independently reviewed: no
+  findings; merged f556774).
+- **S5 drafted and spec-reviewed** (blockers folded in; amendments to
+  23-S3-U1, 23-S4-U1 and 23-S4-2 approved under the delegation). Freezes
+  once its browser cases discriminate against S4's merged code.
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -87,6 +90,11 @@ earlier only if truly blocked.
   500ms timing timeout, `lock-tick-button.spec.ts:565`, 21-S13-6); the
   three files reran 60 of 60 passed. **A clean full e2e run is still owed
   before closeout.**
+
+- S4 at 2fc118b: `npm run verify` exit 0 (912 tests), full
+  `npm run test:e2e` 1322 passed, 1 failed (`play-entries.spec.ts:600`,
+  `ECONNRESET` in a helper; file reran 27 of 27), both by the independent
+  reviewer; the implementer's run likewise (1 unrelated `ECONNRESET`).
 
 ## Next action
 
