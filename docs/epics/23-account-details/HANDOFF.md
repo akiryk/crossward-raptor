@@ -23,9 +23,11 @@ earlier only if truly blocked.
   independently reviewed: no blockers).
 - **S1 done** (frozen 826079d, implemented 6804021 direct to `main`,
   independently reviewed: no blockers, two nits left as is).
-- **S3 frozen** 2dcb6cb after an independent spec review (no blockers;
-  its non-blocking points folded in). Implementation on
-  `story/23-S3-email-only-sign-in` (risk story: PR, independent review).
+- **S3 done** (frozen 2dcb6cb, implemented 62a200a on
+  `story/23-S3-email-only-sign-in`, PR #35 independently reviewed: no
+  blockers; merged 61c17d0).
+- **S4 drafting** (sub-agent, from S3's code); freeze after an
+  independent review of the draft.
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -70,11 +72,20 @@ earlier only if truly blocked.
   pixel 3 off, recorded in the story as unrelated); its file reran
   8 of 8 passed.
 
+- S3 at 62a200a: `npm run verify` exit 0 (886 tests), run by the
+  independent reviewer. Full `npm run test:e2e`: 1302 passed, 4 failed,
+  none in S3's paths (3 `ECONNRESET` in the sign-in helper:
+  `play-entries.spec.ts:600`, `puzzle-library.spec.ts:750`, `:770`; one
+  500ms timing timeout, `lock-tick-button.spec.ts:565`, 21-S13-6); the
+  three files reran 60 of 60 passed. **A clean full e2e run is still owed
+  before closeout.**
+
 ## Next action
 
-Implement S3 (frozen 2dcb6cb) on `story/23-S3-email-only-sign-in`,
-open a PR, and have it independently reviewed and merged.
+Finish, review and freeze S4's draft, then implement S4 on
+`story/23-S4-account-in-masthead` with a PR and independent review;
+then S5 the same way.
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md. Finish, review and freeze S3's draft, then implement S3 on its branch with a PR and independent review.
+Read docs/epics/23-account-details/HANDOFF.md. Finish, review and freeze S4's draft, then implement S4 on its branch with a PR and independent review; then S5.
