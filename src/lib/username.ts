@@ -1,6 +1,7 @@
-// Story 14-S1. The sign-in form's rules, shared by the form and the auth hook
-// that captures an account's first username. Each returns the message to
-// show, or null when the trimmed value is acceptable.
+// Story 14-S1 (amended by 23-S3). The username and email rules, shared by the
+// sign-in form, the username step and the username save
+// (app/account-actions). Each returns the message to show, or null when the
+// trimmed value is acceptable.
 
 export function usernameError(value: unknown): string | null {
   if (typeof value !== 'string' || value.trim() === '') {
