@@ -4,7 +4,9 @@ Three word lists and a pure generator that makes a friendly
 "Adjective Adjective Noun" username, such as "Lil Orange Fox". S3
 uses it to pre-fill the username step; nothing shows it yet.
 
-**Status: Approved and frozen 2026-11-09** by the orchestrating session
+**Status: Done 2026-11-09:** implemented 37913ad, direct to `main`;
+independent review: no blockers; `npm run verify` exit 0 (780 tests).
+Approved and frozen 2026-11-09 (e90a745) by the orchestrating session
 under the human's delegation ([history](../HISTORY.md#orchestration)),
 after an independent review of the draft (no blockers; its four
 should-fix findings and nits addressed). The human sees the word lists

@@ -19,17 +19,29 @@ itself (listed below), and asks the human nothing until every story is
 delivered, then asks for the visual checks before closeout. Ask
 earlier only if truly blocked.
 
-S1 and S2 drafts were started by sub-agents on 2026-11-09 and may exist
-uncommitted under `stories/` (with proposed tests). If they're present,
-finish and review them rather than starting over. No runtime change.
+- **S2 done** (frozen e90a745, implemented 37913ad direct to `main`,
+  independently reviewed: no blockers).
+- **S1 is being drafted** by a sub-agent; its draft and proposed tests
+  may exist uncommitted (`stories/23-S1-*`, `e2e/label-12px.spec.ts`,
+  scratch measurement files and temporary runtime edits). If present,
+  finish and review them rather than starting over.
 
 ## Decisions for the visual check
 
-None yet.
+1. **S2, "separate lists":** the username lists are their own but may
+   share words with the puzzle-name lists, so the human's "Lil Orange
+   Fox" can be generated. Shared: Cozy, Gentle, Happy, Jolly, Merry,
+   Orange. "Happy Burly Harley" can't ("Harley" isn't a creature; nouns
+   are creatures).
+2. **S2, list shape:** slot 1 mood words (63), slot 2 look words:
+   colours, patterns, textures (60), creature nouns (82); skin-tone
+   colours and political/insult readings left out (story lists them).
 
 ## Verification
 
-None run: documentation only.
+- S2 at 37913ad: `npm run verify` exit 0 (780 tests; 2 lint warnings
+  outside the epic), run by the independent reviewer. No browser suite
+  required.
 
 ## Next action
 
