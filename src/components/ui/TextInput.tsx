@@ -14,6 +14,34 @@ const SIZE_CLASS: Record<TextInputSize, string> = {
   large: 'py-1.5 text-body-large',
 };
 
+type TextInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+  onFocus?: () => void;
+  autoFocus?: boolean;
+  disabled?: boolean;
+  size?: TextInputSize;
+  /** A long value wraps and the field grows, in the same look (15-S6). */
+  wrap?: boolean;
+  error?: string;
+  /** The error line and `aria-invalid`, without a message (17-S1). */
+  invalid?: boolean;
+  placeholder?: string;
+  'data-testid'?: string;
+} & (
+  | { 'aria-label': string; label?: string; caption?: never }
+  | {
+      /**
+       * The caption under the line (23-S1): `label` style, uppercase, muted,
+       * right-aligned. It names the field, so it replaces `aria-label` and
+       * can't be combined with the above-the-field `label`.
+       */
+      caption: string;
+      'aria-label'?: never;
+      label?: never;
+    }
+);
+
 export function TextInput({
   value,
   onChange,
@@ -23,28 +51,13 @@ export function TextInput({
   size = 'regular',
   wrap = false,
   label,
+  caption,
   error,
   invalid = false,
   'aria-label': ariaLabel,
   placeholder,
   'data-testid': dataTestId,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onFocus?: () => void;
-  autoFocus?: boolean;
-  disabled?: boolean;
-  size?: TextInputSize;
-  /** A long value wraps and the field grows, in the same look (15-S6). */
-  wrap?: boolean;
-  label?: string;
-  error?: string;
-  /** The error line and `aria-invalid`, without a message (17-S1). */
-  invalid?: boolean;
-  'aria-label': string;
-  placeholder?: string;
-  'data-testid'?: string;
-}) {
+}: TextInputProps) {
   const id = useId();
   const errorId = `${id}-error`;
   const isInvalid = Boolean(error) || invalid;
@@ -52,7 +65,9 @@ export function TextInput({
 
   const fieldProps = {
     'data-testid': dataTestId,
-    'aria-label': ariaLabel,
+    // With a caption, its text names the field; the caption itself is
+    // aria-hidden, so the name isn't announced twice (23-S1).
+    'aria-label': caption ?? ariaLabel,
     'aria-invalid': isInvalid ? true : undefined,
     'aria-describedby': error ? errorId : undefined,
     placeholder,
@@ -83,6 +98,15 @@ export function TextInput({
           {...fieldProps}
           onChange={(event) => onChange(event.target.value)}
         />
+      )}
+      {caption && (
+        <p
+          aria-hidden="true"
+          data-testid={dataTestId && `${dataTestId}-caption`}
+          className="text-label mt-1 text-right tracking-[0.1em] text-muted uppercase"
+        >
+          {caption}
+        </p>
       )}
       {error && (
         <p

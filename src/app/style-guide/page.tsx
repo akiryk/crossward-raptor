@@ -64,6 +64,7 @@ export default function StyleGuidePage() {
   const [labelValue, setLabelValue] = useState('');
   const [largeValue, setLargeValue] = useState('');
   const [errorValue, setErrorValue] = useState('');
+  const [captionedValue, setCaptionedValue] = useState('Lil Orange Wing');
   const [checkboxOff, setCheckboxOff] = useState(false);
   const [checkboxOn, setCheckboxOn] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -193,6 +194,13 @@ export default function StyleGuidePage() {
             error="Oops! You need to add a username."
             value={errorValue}
             onChange={setErrorValue}
+          />
+          <TextInput
+            data-testid="sg-input-captioned"
+            size="large"
+            caption="Username"
+            value={captionedValue}
+            onChange={setCaptionedValue}
           />
         </section>
 

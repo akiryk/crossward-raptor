@@ -138,9 +138,9 @@
    three. Line heights are defaults, tuned later. static: emitted whether or
    not a utility uses it yet. */
 @theme static {
-  --text-label: 0.875rem;
+  --text-label: 0.75rem;
   --text-label--font-weight: 400;
-  --text-label--line-height: 1.25rem;
+  --text-label--line-height: 1rem;
   --text-title-1: 2.75rem;
   --text-title-1--font-weight: 600;
   --text-title-1--line-height: 3.375rem;

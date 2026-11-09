@@ -8,7 +8,7 @@ const STYLES: { name: string; size: number; weight: number; sample: string }[] =
   { name: 'title-2', size: 32, weight: 600, sample: 'text-title-2' },
   { name: 'title-3', size: 18, weight: 600, sample: 'text-title-3' },
   { name: 'title-4', size: 14, weight: 600, sample: 'text-title-4' },
-  { name: 'label', size: 14, weight: 400, sample: 'text-label' },
+  { name: 'label', size: 12, weight: 400, sample: 'text-label' },
   { name: 'button-large', size: 18, weight: 600, sample: 'text-button-large' },
   { name: 'button-normal', size: 14, weight: 600, sample: 'text-button-normal' },
   { name: 'body-large', size: 18, weight: 400, sample: 'text-body-large' },

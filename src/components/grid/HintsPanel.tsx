@@ -87,7 +87,7 @@ export function HintsPanel({
                       data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
                       data-active={activeKey === key ? 'true' : undefined}
                       data-missing={isMissing ? 'true' : undefined}
-                      className={`group flex items-baseline gap-3 not-first:mt-[5px] ${
+                      className={`group flex items-baseline gap-3 not-first:mt-[9px] ${
                         isMissing ? MISSING : selectedKey === key ? SELECTED : ''
                       }`}
                     >

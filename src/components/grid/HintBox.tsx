@@ -47,7 +47,7 @@ export function HintBox({
       <div className="ml-3 flex min-w-0 flex-1 flex-wrap gap-x-2 gap-y-1">
         <span
           data-testid="hint-box-word"
-          className={`text-label min-w-0 ${isMissing ? 'text-error' : 'text-muted'} self-start py-[5px] tracking-[0.1em] break-all uppercase`}
+          className={`text-label min-w-0 ${isMissing ? 'text-error' : 'text-muted'} self-start pt-[8px] pb-[6px] tracking-[0.1em] break-all uppercase`}
         >
           {slotAnswer(grid, slot)}
         </span>
