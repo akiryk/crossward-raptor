@@ -21,11 +21,12 @@ earlier only if truly blocked.
 
 - **S2 done** (frozen e90a745, implemented 37913ad direct to `main`,
   independently reviewed: no blockers).
-- **S1 frozen** 826079d (with its amendments to earlier acceptance);
-  being implemented by a sub-agent in a worktree.
-- **S3 is being drafted** by a sub-agent (worktree at `/tmp/cw-s3`;
-  story and tests may exist uncommitted). If present, finish and
-  review them rather than starting over.
+- **S1 done** (frozen 826079d, implemented 6804021 direct to `main`,
+  independently reviewed: no blockers, two nits left as is).
+- **S3 is being drafted** by a sub-agent; its story, tests and edits
+  were last seen uncommitted in the main checkout (worktree
+  `/tmp/cw-s3` also exists). If present, finish and review them rather
+  than starting over.
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -56,13 +57,19 @@ earlier only if truly blocked.
 - S2 at 37913ad: `npm run verify` exit 0 (780 tests; 2 lint warnings
   outside the epic), run by the independent reviewer. No browser suite
   required.
+- S1 at 6804021: `npm run verify` exit 0 (780 tests; 2 lint warnings
+  outside the epic), run by the independent reviewer. Full
+  `npm run test:e2e` by the implementer from a `git archive` copy of
+  the same source tree (Turbopack can't build in a worktree nested in
+  the checkout): 1288 passed, 1 failed, 18-S5-5 (`done-icon`, a corner
+  pixel 3 off, recorded in the story as unrelated); its file reran
+  8 of 8 passed.
 
 ## Next action
 
-Finish S1's implementation (independent review, then direct to
-`main`); finish S3's draft, review and freeze it; S3 is implemented on
+Finish S3's draft, review and freeze it; S3 is implemented on
 `story/23-S3-email-only-sign-in` with a PR and independent review.
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md and docs/epics/23-account-details/stories/23-S1-label-12px.md. Implement S1 on main; direct delivery after independent review.
+Read docs/epics/23-account-details/HANDOFF.md. Finish, review and freeze S3's draft, then implement S3 on its branch with a PR and independent review.
