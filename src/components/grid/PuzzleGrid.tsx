@@ -25,11 +25,18 @@ import { Tooltip } from '../ui/Tooltip';
 import { GridCell } from './GridCell';
 import { RebusEntry, type RebusEntryProps } from './RebusEntry';
 
-// The lock button's tooltip texts (21-S4).
-const LOCK_TOOLTIP = {
-  unlocked: "Lock this word so you don't accidentally change it",
-  locked: 'Enable changing this word',
-} as const;
+// The lock button's tooltip names its word (22-S6): "Lock" or "Unlock",
+// then each cell's letters in reading order, a rebus cell's all of them.
+function lockTooltipText(grid: Grid, word: LockedWord, isLocked: boolean): string {
+  const letters = lockedWordCells(word)
+    .map(({ col, row }) => {
+      const cell = grid.at(col, row);
+      return cell.kind === 'active' ? (cell.letter ?? '') : '';
+    })
+    .join('')
+    .toUpperCase();
+  return `${isLocked ? 'Unlock' : 'Lock'} ${letters}`;
+}
 
 const ON_BG = { build: 'bg-build-cell-on', preview: 'bg-preview-cell-on', hints: 'bg-hint-cell-on', 'hints-locked': 'bg-hint-cell-on', play: 'bg-play-cell-on' } as const;
 
@@ -396,8 +403,12 @@ export function PuzzleGrid({
   // The hovered tick's words each get a black outline around their letters
   // (21-S15), over the gray one around the word and its end cells, and
   // under the ticks and the lock button. It follows the tick: with no tick
-  // there (the words unlocked, or Preview on), none shows.
+  // there (the words unlocked, or Preview on), none shows. The mouse on the
+  // lock button outlines its word too, once (22-S6).
   const tickWords = isHoverTickShown ? lockedWordsEndingAt(grid, lockedWords, ticked.get(hoverTick)!) : [];
+  if (lockTipAnchor && lockTarget && !tickWords.some((word) => sameWord(word, lockTarget.word))) {
+    tickWords.push(lockTarget.word);
+  }
   const overlays = [
     ...outlined.map((word) => (
       <div
@@ -516,7 +527,7 @@ export function PuzzleGrid({
         {tooltip}
       </Tooltip>
       <Tooltip anchor={lockTipAnchor} testId="lock-tooltip">
-        {lockTarget?.isLocked ? LOCK_TOOLTIP.locked : LOCK_TOOLTIP.unlocked}
+        {lockTarget ? lockTooltipText(grid, lockTarget.word, lockTarget.isLocked) : null}
       </Tooltip>
     </div>
   );

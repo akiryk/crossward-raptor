@@ -68,8 +68,8 @@ import { gridMaxPx } from "../../lib/grid-max";
 
 const SAVE_DEBOUNCE_MS = 500;
 // How long the cursor stays in an unlocked word before its lock button
-// shows (21-S2), and the mouse's hover wait (21-S10): 3 seconds (21-S16).
-const LOCK_BUTTON_DELAY_MS = 3000;
+// shows (21-S2), and the mouse's hover wait (21-S10): 2 seconds (22-S6).
+const LOCK_BUTTON_DELAY_MS = 2000;
 // Room for the lock button left of the grid: 32px, the 1px line and 3px to
 // spare (21-S12).
 const LOCK_ROOM_PX = 36;
