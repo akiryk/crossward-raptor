@@ -75,9 +75,10 @@ test.describe('D9-3 the app uses the type scale', () => {
     const row = page.getByTestId('hint-row').first();
     await expect(row).toBeVisible();
 
-    // the key label sits alongside the input; find the element carrying the
-    // label text rather than the row wrapper or the input itself
-    const label = row.locator('[data-testid="hint-label"]');
+    // Amended by 23-S1: the row's text in the label style is its answer,
+    // under the input. `hint-label` (the number) is title-4 since 14-S6; it
+    // matched only while both styles were 14px.
+    const label = row.locator('[data-testid="hint-answer"]');
     await expect(label).toBeVisible();
 
     expect(await fontSizeOf(label)).toBe(

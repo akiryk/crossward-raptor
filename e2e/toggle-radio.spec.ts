@@ -24,6 +24,8 @@ import { waitForNewPuzzleReady } from './helpers/wait-for-ready';
 // and `title-4` labels), so its checks went: its style-guide sample in F6-1,
 // the F6-4 cases and its label in F6-7.
 //
+// Amended by 23-S1: the toggle's `label` is 12px (was 14px).
+//
 // Buttons, the toggle, Radio and links change color, and the knob slides,
 // over 150ms `ease-out`, so style reads wait for the element's running
 // transitions to finish. Asserted by color style; other paddings are not
@@ -313,7 +315,7 @@ test.describe('F6-2 Preview toggle', () => {
       expect(kb.x + kb.width, `${name} knob inside the pill`).toBeLessThanOrEqual(pb.x + pb.width + 0.5);
       const knobRight = kb.x + kb.width / 2 > pb.x + pb.width / 2;
       expect(knobRight, `${name} knob side`).toBe(name === 'on');
-      await expectTextStyle(page, t.label, 'label', 14, 400, `${name} label`);
+      await expectTextStyle(page, t.label, 'label', 12, 400, `${name} label`); // 23-S1: was 14
       const labelStyle = name === 'on' ? 'button-active' : 'link-muted';
       expectColor((await styleOf(t.label)).color, await token(page, labelStyle), `${name} label`);
       const lb = await box(t.label);

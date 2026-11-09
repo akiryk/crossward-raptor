@@ -28,6 +28,10 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 // right-aligned with it, the answer in label, letter-spaced 10%, muted,
 // primary while the input has focus.
 //
+// Amended by 23-S1: `label` is 12px on a 16px line (was 14px on 20px),
+// so 14-S6-4's answer is 12px, 16px and tracked 1.2px. It stays 4px
+// below the line, and the lines stay 58px apart (14-S6-5).
+//
 // Cell letters and numbers are primary in every phase: build, Preview,
 // the hints phase and play.
 //
@@ -216,10 +220,10 @@ test.describe('14-S6-4 Hint Input', () => {
     await open(page, cornersGrid());
     const a = answer(page, '1-across');
     await expect(a).toHaveText('CATS');
-    expect(await style(a, 'font-size')).toBe('14px');
+    expect(await style(a, 'font-size')).toBe('12px'); // 23-S1: was 14px
     expect(await style(a, 'font-weight')).toBe('400');
-    expect(await style(a, 'line-height')).toBe('20px');
-    expect(parseFloat(await style(a, 'letter-spacing')), '10% of 14px').toBeCloseTo(1.4, 1);
+    expect(await style(a, 'line-height')).toBe('16px'); // 23-S1: was 20px
+    expect(parseFloat(await style(a, 'letter-spacing')), '10% of 12px').toBeCloseTo(1.2, 1);
     expect(await style(a, 'color')).toBe(MUTED);
     expect(await style(a, 'text-align')).toBe('right');
 
