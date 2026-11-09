@@ -60,12 +60,13 @@ The human approved the EPIC 2026-11-08.
   the visual check and it looks good"; no changes, Decisions 1–13
   accepted as reported. Then three more changes (EPIC, "after the
   visual check of S3–S5"), which became S6.
-- **S6 the lock button's word:** frozen (this commit) after an
+- **S6 the lock button's word delivered:** frozen 331589e after an
   independent spec review (no blockers; its should-fix and nits
   addressed); amends seven frozen Epic 21 / 22-S4 specs, listed in the
-  story.
-- **Next:** implement S6, independent review, the human's visual check
-  of S6, then closeout.
+  story. Implemented ae55a00, direct to `main`; independent review of
+  ae55a00: no blockers, one should-fix (the outline outliving a button
+  that loses its room on a narrowing window), fixed in 044b231.
+- **Next:** the human's visual check of S6, then closeout.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -135,7 +136,26 @@ human waived the correction procedure for it.
    including the automatic one at Enter Hints; confirming Enter Hints may
    ease into the hints colors (review nit: look at it).
 
+14. **S6 texts:** "Lock TANGENT" / "Unlock TANGENT", no closing period
+   on either; a rebus cell gives all its letters. The tooltip names the
+   button's own word (a hovered word's button names that word).
+15. **S6 accessible name unchanged:** the button stays "Lock word" /
+   "Unlock word" for screen readers (renaming would touch about 100
+   frozen uses in 13 specs).
+16. **S6 outline timing:** the 2px black outline shows as soon as the
+   mouse is on the button (not after the tooltip's 500ms), stays
+   through lock/unlock clicks, and goes when the mouse leaves or the
+   button goes. Mouse only; the toggle row's Lock Word shows none.
+
 ## Verification
+
+S6 at ae55a00 (implementer): `npm run verify` exit 0 (771 tests); S6
+plus the amended and lock specs `--repeat-each 3` 331/331; full
+`npm run test:e2e` 1273 passed / 4 failed (3 auth ECONNRESET, 18-S5-5),
+each passing alone (Decision 5). Reviewer at abfd4a3: `npm run verify`
+exit 0 (771); S6 plus amended specs 100/100; frozen acceptance unchanged
+since 331589e. Fix 044b231 (implementer): `npm run verify` exit 0
+(771); S6 plus amended specs 100/100.
 
 S5 at 45627dc: implementer `npm run verify` exit 0 (771 tests); S5 and
 amended specs `--repeat-each 3` 73/73; full `npm run test:e2e` 1261 passed
@@ -178,10 +198,12 @@ was not run for it.
 
 ## Next action
 
-Implement S6 and review it independently (same orchestration); then the
-human's visual check of S6; then close the epic per the epic index
-(independent closeout audit).
+The human's visual check of S6 with Decisions 14–16 (the dev app, a
+daily in the build phase: a word's lock button, its tooltip, its
+outline, the 2-second wait). Make any changes it brings under the same
+orchestration; then close the epic per the epic index (independent
+closeout audit).
 
 ## Resume prompt
 
-Read docs/epics/22-build-progress/HANDOFF.md. Get the human's visual check of S3, S4 and S5, make any changes it brings, then close out the epic per the handoff's Orchestration section on main.
+Read docs/epics/22-build-progress/HANDOFF.md. Get the human's visual check of S6, make any changes it brings, then close out the epic per the handoff's Orchestration section on main.
