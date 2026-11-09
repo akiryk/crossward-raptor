@@ -5,7 +5,9 @@ instead of snapping. In the build phase with Preview off, the cursor's
 word is the word its cell would belong to if it held a letter, so an off
 cell between CRAP and APE highlights both.
 
-**Status: Approved and frozen 2026-11-08** by the orchestrating session
+**Status: Delivered 2026-11-08:** implemented 45627dc, direct to `main`;
+independent review of 45627dc: no blockers. Awaiting the human's visual
+check. Approved and frozen 2026-11-08 (ffc510b) by the orchestrating session
 under the human's delegation, after an independent review of the draft
 (no blockers; its should-fix finding and nits all addressed). Drafted
 2026-11-08 under the human's delegation

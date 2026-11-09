@@ -49,9 +49,14 @@ The human approved the EPIC 2026-11-08.
   implemented fd57abd, direct to `main`. **Its independent review was
   started but its result was not recorded** (the session ended first):
   run it again.
-- **The human has small changes to request** before the final visual
-  check (not yet stated). Then the visual check of S3 and S4, then
-  closeout.
+- **S4 re-review (2026-11-08):** independent review of fd57abd: no
+  blockers, no should-fix (three optional nits).
+- **S5 Preview's fade and the would-be word delivered:** the human's two
+  small changes (recorded verbatim in the EPIC). Frozen ffc510b after an
+  independent spec review (no blockers; its should-fix and nits
+  addressed); implemented 45627dc, direct to `main`; independent review
+  of 45627dc: no blockers.
+- **Next:** the human's visual check of S3, S4 and S5, then closeout.
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
@@ -106,7 +111,30 @@ human waived the correction procedure for it.
 10. **S4 known gap (as before S4):** a lock button replaced under a
    resting mouse shows its tooltip only on the next mouse move.
 
+11. **S5 the would-be word:** in the build phase with Preview off, the
+   cursor's word is the run its cell would join if it held a letter
+   (counting the symmetric cell that would turn white); an empty cell in
+   it shows blue-medium. A run of just the cursor keeps 21-S14's dull-blue
+   line. Hints phase and Preview unchanged.
+12. **S5 next to a locked word:** where typing is blocked (a protected
+   cell), the would-be word doesn't apply, since no letter can go there;
+   the old rule shows. The frozen 21-S11-6/7 stay unamended.
+13. **S5 fade:** 500ms CSS ease-in-out on cell backgrounds, grid lines
+   and letter color; lock outlines, ticks, button, legend and toggle row
+   don't fade. None under reduced motion. Cursor moves or typing inside
+   the 500ms window may ease too (accepted). Every Preview change fades,
+   including the automatic one at Enter Hints; confirming Enter Hints may
+   ease into the hints colors (review nit: look at it).
+
 ## Verification
+
+S5 at 45627dc: implementer `npm run verify` exit 0 (771 tests); S5 and
+amended specs `--repeat-each 3` 73/73; full `npm run test:e2e` 1261 passed
+/ 2 failed (18-S5-5 done-icon, 16-S2-6 row-menu get-session), each passing
+alone (Decision 5). Reviewer: `npm run verify` exit 0 (771); S5 plus
+word-highlight-only, selection-colors, lock-tick-hover, build-progress
+57/57. S4 re-review at fd57abd: `npm run verify` exit 0 (760); tooltip
+and lock specs 54/54 and 50/50.
 
 S4 at fd57abd (implementer): `npm run verify` exit 0 (760 tests);
 tooltip specs 160/160 with `--repeat-each 3`; full `npm run test:e2e`
@@ -141,13 +169,11 @@ was not run for it.
 
 ## Next action
 
-Ask the human for their small changes and make them (a visual fix is a
-story under the same orchestration; a trivial one may go straight to
-`main` with `npm run verify`). Re-run S4's independent review of
-fd57abd (report-only, separate agent). Then ask for the visual check of
-S3/S4 with the Decisions list, and close the epic per the epic index
-(independent closeout audit).
+The human's visual check of S3, S4 and S5 with Decisions 1–13 (the dev
+app, a daily in the build phase). Make any changes it brings under the
+same orchestration; then close the epic per the epic index (independent
+closeout audit).
 
 ## Resume prompt
 
-Read docs/epics/22-build-progress/HANDOFF.md and docs/epics/22-build-progress/stories/22-S4-tooltips.md. Take the human's small changes, re-run S4's independent review, then get the visual check and close out the epic per the handoff's Orchestration section on main.
+Read docs/epics/22-build-progress/HANDOFF.md. Get the human's visual check of S3, S4 and S5, make any changes it brings, then close out the epic per the handoff's Orchestration section on main.
