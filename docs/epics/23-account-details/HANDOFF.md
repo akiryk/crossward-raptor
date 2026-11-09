@@ -23,10 +23,9 @@ earlier only if truly blocked.
   independently reviewed: no blockers).
 - **S1 done** (frozen 826079d, implemented 6804021 direct to `main`,
   independently reviewed: no blockers, two nits left as is).
-- **S3 is being drafted** by a sub-agent; its story, tests and edits
-  were last seen uncommitted in the main checkout (worktree
-  `/tmp/cw-s3` also exists). If present, finish and review them rather
-  than starting over.
+- **S3 frozen** 2dcb6cb after an independent spec review (no blockers;
+  its non-blocking points folded in). Implementation on
+  `story/23-S3-email-only-sign-in` (risk story: PR, independent review).
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -51,6 +50,12 @@ earlier only if truly blocked.
 6. **S1, the caption:** `TextInput`'s caption names the field for
    screen readers (the caption itself hidden from them), so it isn't
    announced twice; it stays muted in every state.
+7. **S3, Better Auth's routes:** a session without a username can still
+   use Better Auth's own endpoints (read its session, sign out, list and
+   revoke sessions, `update-user` for Better Auth's unread `name`/`image`);
+   none touches a puzzle or sets the username. The app's own pages and
+   actions are all gated. This narrows the EPIC's "every route".
+8. **S3, two tabs on the step:** the later save wins.
 
 ## Verification
 
@@ -67,8 +72,8 @@ earlier only if truly blocked.
 
 ## Next action
 
-Finish S3's draft, review and freeze it; S3 is implemented on
-`story/23-S3-email-only-sign-in` with a PR and independent review.
+Implement S3 (frozen 2dcb6cb) on `story/23-S3-email-only-sign-in`,
+open a PR, and have it independently reviewed and merged.
 
 ## Resume prompt
 
