@@ -9,9 +9,19 @@
 
 ## Current state (2026-11-09)
 
-**EPIC approved by the human 2026-11-09**; the human made this session
-the orchestrator (HISTORY). S1 is next: its specification is being
-drafted. No story exists yet; no runtime change.
+**EPIC approved by the human 2026-11-09.**
+
+**Standing for every session of this epic:** the session is the
+orchestrator (the human's words in HISTORY). Sub-agents draft, review,
+implement and test; the orchestrator approves and freezes each story
+after an independent review of the draft, decides open questions
+itself (listed below), and asks the human nothing until every story is
+delivered, then asks for the visual checks before closeout. Ask
+earlier only if truly blocked.
+
+S1 and S2 drafts were started by sub-agents on 2026-11-09 and may exist
+uncommitted under `stories/` (with proposed tests). If they're present,
+finish and review them rather than starting over. No runtime change.
 
 ## Decisions for the visual check
 
