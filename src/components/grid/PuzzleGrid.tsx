@@ -233,8 +233,12 @@ export function PuzzleGrid({
   const isHoverTickShown = hoverTick !== null && ticked.has(hoverTick);
   if (hoverTick !== null && !isHoverTickShown) setHoverTick(null);
   const lockButtonRef = useRef<HTMLButtonElement>(null);
+  // Without room for the button (21-S5) it unmounts with no pointerleave,
+  // so its tooltip and outline (22-S6) go with it.
   const lockTipAnchor =
-    lockHover && lockHover.key === lockKey && lockHover.anchor.isConnected ? lockHover.anchor : null;
+    hasLockButton && lockHover && lockHover.key === lockKey && lockHover.anchor.isConnected
+      ? lockHover.anchor
+      : null;
   // Builder empties are undecided geometry; player empties are fixed active
   // cells. A player's guesses must never change the published numbering.
   const numbers = buildCellNumberLookup(mode === 'play' ? grid : convertEmptyCellsToBlack(grid));
