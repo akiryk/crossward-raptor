@@ -4,7 +4,9 @@ The lock button's tooltip names its word ("Lock TANGENT", "Unlock
 TANGENT"), the button appears after 2 seconds instead of 3, and the mouse
 on the button outlines its word in 2px black, as a tick hover does.
 
-**Status: Approved and frozen 2026-11-08** by the orchestrating session
+**Status: Delivered 2026-11-08:** implemented ae55a00, direct to `main`.
+Awaiting independent review and the human's visual check. Approved and
+frozen 2026-11-08 (331589e) by the orchestrating session
 under the human's delegation ([handoff](../HANDOFF.md#orchestration)),
 after an independent review of the draft (no blockers; its two
 should-fix findings and nits all addressed). From the human's changes
