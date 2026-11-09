@@ -56,7 +56,10 @@ The human approved the EPIC 2026-11-08.
   independent spec review (no blockers; its should-fix and nits
   addressed); implemented 45627dc, direct to `main`; independent review
   of 45627dc: no blockers.
-- **Next:** the human's visual check of S3, S4 and S5, then closeout.
+- **The human's visual check of S3, S4 and S5 (2026-11-08):** "I did
+  the visual check and it looks good"; no changes, Decisions 1–13
+  accepted as reported.
+- **Next:** closeout (independent closeout audit).
 
 Also on 2026-11-08, at the human's request, the red Preview tooltip
 (Epic 20 S2) was reworded to "Fill in these cells so the puzzle is
