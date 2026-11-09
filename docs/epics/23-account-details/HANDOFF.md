@@ -29,9 +29,11 @@ earlier only if truly blocked.
 - **S4 done** (frozen 40ce315, implemented 2fc118b on
   `story/23-S4-account-in-masthead`, PR #36 independently reviewed: no
   findings; merged f556774).
-- **S5 drafted and spec-reviewed** (blockers folded in; amendments to
-  23-S3-U1, 23-S4-U1 and 23-S4-2 approved under the delegation). Freezes
-  once its browser cases discriminate against S4's merged code.
+- **S5 frozen** after an independent spec review (blockers folded in;
+  amendments to 23-S3-U1, 23-S4-U1 and 23-S4-2 approved under the
+  delegation; browser cases discriminate against S4's merged code).
+  Implementation on `story/23-S5-changing-the-email` (risk story: PR,
+  independent review).
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -69,6 +71,14 @@ earlier only if truly blocked.
 10. **S4, `changeUsername`:** a second action that saves without
     navigating (S3's save always goes to `/puzzles`); the page
     refreshes in place. Two tabs: the later save wins.
+11. **S5, accepted risks** (listed in the story's "Accepted decisions
+    for the human's check"): no rate limit on sending the confirmation;
+    "already in use" reveals an account has that email; an expired or
+    bad link lands silently on the library; the link signs in a
+    signed-out browser; only the new address confirms, so a stolen
+    session can move the account (notifying the old address is a
+    possible follow-up); a stale second link can move a new account
+    made at the old address within 15 minutes.
 
 ## Verification
 
@@ -98,9 +108,10 @@ earlier only if truly blocked.
 
 ## Next action
 
-Implement S4 on `story/23-S4-account-in-masthead` with a PR and
-independent review; then draft, review, freeze and implement S5 the same way.
+Implement S5 on `story/23-S5-changing-the-email` with a PR and
+independent review; then a clean full e2e run, and ask the human for the
+visual checks before closeout.
 
 ## Resume prompt
 
-Read docs/epics/23-account-details/HANDOFF.md. Implement S4 on its branch with a PR and independent review; then draft, review, freeze and implement S5.
+Read docs/epics/23-account-details/HANDOFF.md. Implement S5 on its branch with a PR and independent review; then get a clean full e2e run and ask the human for the visual checks before closeout.

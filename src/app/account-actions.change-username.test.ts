@@ -86,13 +86,15 @@ beforeEach(() => {
   mocks.userFindUnique.mockResolvedValue({ id: 'own-user', displayName: 'Old Name' });
 });
 
+// Amended by 23-S5: the module also exports S5's `changeEmail`, tested in
+// account-actions.change-email.test.ts.
 describe('23-S4-U1 the module', () => {
-  it('exports changeUsername and saveUsername and no other action', () => {
+  it('exports changeEmail, changeUsername and saveUsername and no other action', () => {
     const exported = Object.entries(accountActions)
       .filter(([, value]) => typeof value === 'function')
       .map(([name]) => name)
       .sort();
-    expect(exported).toEqual(['changeUsername', 'saveUsername']);
+    expect(exported).toEqual(['changeEmail', 'changeUsername', 'saveUsername']);
   });
 });
 

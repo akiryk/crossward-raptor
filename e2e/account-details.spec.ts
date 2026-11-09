@@ -21,7 +21,8 @@ import { createBlankPuzzle } from '../src/lib/puzzle-storage';
 // `primary`), titled "Account details". Two regular fields, 360px wide, each
 // with its caption under the line: the username, named "Username", holding
 // the saved username and focused on open; under its caption, 20px down, the
-// email, named "Email", holding the account's email, read-only until S5.
+// email, named "Email", holding the account's email, editable (amended by
+// 23-S5, which changes the email; see e2e/account-email.spec.ts).
 // The footer: Update (the primary Button) then Cancel (the alternate one).
 // Update is disabled until the username differs from the value the modal
 // opened with, exactly as typed. Cancel, ✕ and Escape close without saving.
@@ -315,16 +316,13 @@ test.describe('23-S4-2 the Account details modal', () => {
 
     await expect(d.email).toHaveValue(email);
     await expect(d.dialog.getByRole('textbox', { name: 'Email', exact: true })).toHaveCount(1);
-    // Read-only, not disabled: enabled, focusable, not editable.
+    // Amended by 23-S5: editable, no longer read-only (editing it is 23-S5-1).
     await expect(d.email).toBeEnabled();
-    await expect(d.email).toHaveAttribute('readonly', '');
-    await expect(d.email).not.toBeEditable();
+    await expect(d.email).toBeEditable();
     await expect(d.emailCaption).toHaveText('Email');
     expect(await d.emailCaption.evaluate((el) => (el as HTMLElement).innerText)).toBe('EMAIL');
     await d.email.focus();
     await expect(d.email).toBeFocused();
-    await page.keyboard.type('x');
-    await expect(d.email).toHaveValue(email);
 
     const regular = await textStyle(page, 'body-normal');
     for (const [name, field] of [['username', d.username], ['email', d.email]] as const) {

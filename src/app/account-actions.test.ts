@@ -81,10 +81,12 @@ beforeEach(() => {
 
 // Amended by 23-S4: the module also exports S4's `changeUsername` (Account
 // details), tested in account-actions.change-username.test.ts.
+// Amended by 23-S5: and S5's `changeEmail`, tested in
+// account-actions.change-email.test.ts.
 describe('23-S3-U1 the module', () => {
-  it('exports saveUsername and changeUsername and no other action', () => {
+  it('exports saveUsername, changeUsername and changeEmail and no other action', () => {
     const exported = Object.entries(accountActions).filter(([, value]) => typeof value === 'function');
-    expect(exported.map(([name]) => name).sort()).toEqual(['changeUsername', 'saveUsername']);
+    expect(exported.map(([name]) => name).sort()).toEqual(['changeEmail', 'changeUsername', 'saveUsername']);
   });
 });
 

@@ -202,7 +202,7 @@ by database token through S3's editable helper
 ### `src/app/account-actions.change-username.test.ts` (new)
 
 1. **23-S4-U1** the module exports `changeUsername` and `saveUsername` and
-   no other function.
+   no other function [**amended by 23-S5**: and `changeEmail`].
 2. **23-S4-U2** a named session changing to "Lil Orange Fox" makes exactly
    one user write (`update` or `updateMany`), `where: { id: <session user
    id> }`, `data: { displayName: 'Lil Orange Fox' }`, and resolves `{ ok:
@@ -247,8 +247,11 @@ by database token through S3's editable helper
    "Username", editable, focused, holding the saved username, caption
    "Username" rendered "USERNAME"; one textbox named exactly "Email",
    holding the account's email, read-only and not disabled (enabled, the
-   `readonly` attribute, focusable, not editable; typing leaves it), caption
-   rendered "EMAIL". Both regular (`body-normal`), 360px, one left edge,
+   `readonly` attribute, focusable, not editable; typing leaves it)
+   [**amended by 23-S5**, approved by the orchestrating session under the
+   human's delegation: enabled, focusable and editable; the `readonly` and
+   typing checks are dropped; see [S5](23-S5-changing-the-email.md#amended-frozen-acceptance)],
+   caption rendered "EMAIL". Both regular (`body-normal`), 360px, one left edge,
    the email field 20px under the username caption. Update disabled, the
    primary type; Cancel enabled, the alternate type; Update left of Cancel
    on one row, under the fields. Cancel closes it. At 375px the panel and
