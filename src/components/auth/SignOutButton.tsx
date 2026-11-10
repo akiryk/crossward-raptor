@@ -1,15 +1,14 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { MastheadAction } from '@/components/layout/Masthead';
 
 export function SignOutButton() {
-  const router = useRouter();
-
   async function handleSignOut() {
     await authClient.signOut();
-    router.push('/');
+    // A full load, not a client navigation: the root layout's masthead and the
+    // router's cached signed-in pages would otherwise outlive the session.
+    window.location.assign('/');
   }
 
   return (

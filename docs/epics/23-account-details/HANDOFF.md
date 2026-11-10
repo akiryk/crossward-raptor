@@ -33,9 +33,21 @@ earlier only if truly blocked.
   `story/23-S5-changing-the-email`, PR #37 independently reviewed: no
   blockers; merged 47342b6). S4's `TextInput` `readOnly` prop is now
   unused (left in place).
-- **All stories delivered; waiting on the human's visual and manual
-  checks** (incl. S5's manual dev check: the confirmation email arriving
-  in Mailpit), then closeout.
+- **The human's visual and manual checks (2026-11-09):** 1 sign-in and
+  the step, 3 Account details, 4 the email change (Mailpit), 5 the 12px
+  label: passed, no overrules. Two bugs found, both from the root
+  layout's masthead outliving an in-app navigation:
+  (a) after the step's Get Started, `/puzzles` showed no Account until a
+  reload; (b) after Sign out, the sign-in form still showed
+  "Account | Sign out", and Account still opened Account details (its
+  save refused). (b) predates the epic (09-A3's `router.push('/')`).
+- **Closeout fix 23-C1** on `story/23-closeout-masthead-session`:
+  `saveUsername` revalidates the root layout before its redirect; Sign out
+  does a full load of `/` (`window.location.assign`), which also drops the
+  router's cached signed-in pages. New regression tests
+  `e2e/masthead-session-state.spec.ts` (3 tests) fail on the unfixed code
+  and pass with the fix; no frozen acceptance changed. The orchestrator
+  wrote the fix itself (two lines); the PR gets an independent review.
 - Browser runs share the e2e database: every agent takes the lock
   `mkdir /tmp/crossward-e2e.lock` before a Playwright run and removes it
   after.
@@ -112,6 +124,14 @@ earlier only if truly blocked.
   reviewer and the implementer. Reviewer's full `npm run test:e2e`: run 1
   1338 passed, 3 failed (`duplicate.spec.ts`, unrelated; file reran 6 of
   6); **run 2: 1341 passed, exit 0 — the clean full run owed above.**
+
+- 23-C1 (fix tree on `story/23-closeout-masthead-session`), by the
+  orchestrator: `npm run verify` exit 0 (961 tests). Full
+  `npm run test:e2e`: 1341 passed, 3 failed outside the changed paths
+  (22-S3-8 animation timing; `library-play.spec.ts:191` timeout, `:419`
+  `ECONNRESET`). After a fresh `pretest:e2e` reset, those two files reran
+  26 of 26 passed. (Reruns without a reset fail `library-play` on
+  unfixed code too: it depends on a freshly reset database.)
 
 ## Next action
 
