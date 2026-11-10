@@ -205,3 +205,30 @@ seems to work for one call site of a pattern but not another that looks
 structurally identical, check whether one mounts fresh each time and the
 other stays mounted and only toggles a prop — Strict Mode's replay
 applies only to the former.
+
+## 9. The root layout's masthead outlives navigations that change the session
+
+The masthead (`Header`) is a server component in `src/app/layout.tsx`.
+In-app navigations keep the root layout, so it isn't re-rendered unless
+something revalidates it. At epic 23's visual check, the human found two
+consequences that about 1340 browser tests had missed: after the username
+step's save (a server action that redirects), `/puzzles` showed no
+Account until a reload; and after Sign out (`router.push('/')`), the
+sign-in form still showed "Account | Sign out", and Account still
+opened Account details. The second dated from 09-A3. Every test checked the masthead
+only after `page.goto`, which is a full load and so always fresh.
+
+Fix (23-C1): the step's save calls `revalidatePath('/', 'layout')` before
+its redirect, and Sign out does a full load of `/`. The regression tests
+(`e2e/masthead-session-state.spec.ts`) check the masthead right after
+the app's own navigation, with a `window` marker proving no reload
+happened.
+
+Other paths still follow the same pattern and remain open: a server action's
+`requireSession()` redirect (a username removed mid-page, a session ended
+in another tab) and middleware redirects during client navigation.
+
+**Rule:** a change to session state followed by an in-app navigation
+needs the layout refreshed: `revalidatePath('/', 'layout')` in the
+action, `router.refresh()` or a full load. Test it after the app's own
+navigation, not after `page.goto`.

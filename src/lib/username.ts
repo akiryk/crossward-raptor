@@ -1,5 +1,5 @@
 // Story 14-S1 (amended by 23-S3). The username and email rules, shared by the
-// sign-in form, the username step and the username save
+// sign-in form, the username step, Account details and their server actions
 // (app/account-actions). Each returns the message to show, or null when the
 // trimmed value is acceptable.
 

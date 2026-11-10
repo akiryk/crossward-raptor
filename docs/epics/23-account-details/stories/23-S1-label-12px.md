@@ -5,7 +5,8 @@ The hint answers keep their place under their lines, now a little
 closer, and `TextInput` gains the caption under its line that S3 and S4
 use.
 
-**Status: Approved and frozen 2026-11-09** by the orchestrating session
+**Status: Done 2026-11-09:** implemented 6804021, direct to `main`;
+independent review: no blockers. Approved and frozen 2026-11-09 by the orchestrating session
 under the human's delegation ([history](../HISTORY.md#orchestration)),
 after an independent review of the draft (no blockers; its six
 should-fix findings and nits addressed). The amendments to earlier

@@ -6,7 +6,8 @@ flow; the modal then says where the link went. The account's email changes
 only when the link is followed, and from then on the new email is the one it
 signs in with. A username change still saves at once.
 
-**Status: Frozen 2026-11-09.** Approved and frozen by the orchestrating
+**Status: Done 2026-11-09:** implemented afcb670, PR #37 independently
+reviewed (no blockers), merged 47342b6. Frozen 2026-11-09 (e8b5f6b). Approved and frozen by the orchestrating
 session under the human's delegation, after an independent specification
 review (no security holes; the Better Auth findings confirmed; its points
 folded in). The freeze condition held: S4 (PR #36) merged, and S5's browser
@@ -264,7 +265,7 @@ Delegated (decided in drafting):
 - Unique usernames; showing the username or email anywhere new.
 - A profile page or `/account` route.
 
-## Acceptance (proposed)
+## Acceptance (frozen 2026-11-09)
 
 Viewport 1280×800 for the browser cases. Each case signs in its own account
 by database token through S3's editable helper `e2e/helpers/username-step.ts`;

@@ -20,8 +20,6 @@ type TextInputProps = {
   onFocus?: () => void;
   autoFocus?: boolean;
   disabled?: boolean;
-  /** Focusable and selectable, not editable, in the field's normal look (23-S4). */
-  readOnly?: boolean;
   size?: TextInputSize;
   /** A long value wraps and the field grows, in the same look (15-S6). */
   wrap?: boolean;
@@ -50,7 +48,6 @@ export function TextInput({
   onFocus,
   autoFocus,
   disabled,
-  readOnly,
   size = 'regular',
   wrap = false,
   label,
@@ -78,7 +75,6 @@ export function TextInput({
     onFocus,
     autoFocus,
     disabled,
-    readOnly,
     className: `w-full border-b bg-transparent px-1 text-primary outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 ${SIZE_CLASS[size]} ${line}`,
   };
 

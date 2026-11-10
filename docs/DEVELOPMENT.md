@@ -84,9 +84,11 @@ To sign in using your normal development database:
 4. Follow the delivered link, or copy it into the original app tab. Expect
    the link to use `http://localhost:3000`; check `BETTER_AUTH_URL` if it does
    not. Links expire in 15 minutes and can be used once.
-5. Confirm `/puzzles` has Sign out and that New Puzzle opens and cancels.
-   Revisit `/` to confirm the signed-in redirect, then sign out to return
-   to the public form.
+5. A new address lands on the username step at `/` (epic 23 S3): keep or
+   change the suggested name and press Get Started.
+6. Confirm `/puzzles` has "Account | Sign out" and that New Puzzle opens
+   and cancels. Revisit `/` to confirm the signed-in redirect, then sign
+   out to return to the public form.
 
 Changing the email from Account details (epic 23 S5) mails a confirmation
 link to the new address the same way: find "Confirm your new Crossward
@@ -156,6 +158,11 @@ other values. No email is sent and Mailpit is not required or started by
 ordinary E2E preparation. These settings belong to the harness; the local
 inbox walkthrough above runs separately in development after E2E finishes.
 Serialize those browser checks because they share the database/build output.
+When several agents may run Playwright, each takes the lock
+`mkdir /tmp/crossward-e2e.lock` before a run (the `mkdir` fails while another
+holds it) and removes it with `rmdir` after. A focused rerun after earlier
+runs should start with `npm run pretest:e2e`: some suites (e.g.
+`library-play.spec.ts`) assume a freshly reset database.
 Automated database-token sign-in proves auth behavior, not inbox delivery or
 a person's successful manual login.
 

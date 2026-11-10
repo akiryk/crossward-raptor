@@ -6,12 +6,13 @@ the username step at `/`, pre-filled with a generated name; until it
 saves one it can reach no page and no server action. An account with a
 username goes straight to `/puzzles`, its username unchanged.
 
-**Status: Frozen 2026-11-09.** Approved and frozen by the orchestrating
+**Status: Done 2026-11-09:** implemented 62a200a, PR #35 independently
+reviewed (no blockers), merged 61c17d0. Frozen 2026-11-09 (2dcb6cb). Approved and frozen by the orchestrating
 session under the human's delegation ([history](../HISTORY.md#orchestration)),
 after an independent specification review (no blockers; its non-blocking
 points folded in, see Discrimination).
 
-**Depends on S1 (frozen 826079d, delivered a7155dd) and S2 (done).**
+**Depends on S1 (frozen 826079d, delivered 6804021) and S2 (done).**
 The step's field uses S1's `caption` prop on `TextInput`: under the line, 4px
 below it, above any error, `${data-testid}-caption`, `aria-hidden`, the
 field named by the caption's text; `caption` and `aria-label` are

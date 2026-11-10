@@ -7,12 +7,13 @@ under the line; Update and Cancel. Update is enabled only while the username
 differs from the saved one; it saves the change at once and closes the
 modal, leaving the user on the page they were on.
 
-**Status: Frozen 2026-11-09.** Approved and frozen by the orchestrating
+**Status: Done 2026-11-09:** implemented 2fc118b, PR #36 independently
+reviewed (no findings), merged f556774. Frozen 2026-11-09 (40ce315). Approved and frozen by the orchestrating
 session under the human's delegation ([history](../HISTORY.md#orchestration)),
 after an independent specification review (three blockers fixed; its
 non-blocking points folded in), with the amended earlier acceptance below.
 
-**Depends on S1 (delivered a7155dd) and S3 (frozen 2dcb6cb; merged
+**Depends on S1 (delivered 6804021) and S3 (frozen 2dcb6cb; merged
 61c17d0, handoff f39ac07).** The fields use S1's `caption` prop on `TextInput`
 (under the line, `${data-testid}-caption`, `aria-hidden`, the field named by
 the caption's text). The save follows S3's username save and guard
@@ -193,7 +194,7 @@ Delegated (decided in drafting):
   `auth.ts` or Better Auth's endpoints.
 - A profile page or `/account` route.
 
-## Acceptance (proposed)
+## Acceptance (frozen 2026-11-09)
 
 Viewport 1280×800 for the browser cases. Each case signs in its own account
 by database token through S3's editable helper

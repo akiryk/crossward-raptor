@@ -25,8 +25,8 @@ export const auth = betterAuth({
     // Story 23-S3: the username. Declared so the session's user carries it
     // (read with the session, no extra query) for the username guard in
     // lib/require-session. `input: false`: Better Auth refuses it from any
-    // client input (update-user, sign-up), so the username step's save
-    // (app/account-actions) is its only writer. The magic link no longer
+    // client input (update-user, sign-up), so app/account-actions (the step's
+    // save, 23-S4's change from Account details) are its only writers. The magic link no longer
     // carries a username; Better Auth's own `name` is unread by the app.
     additionalFields: {
       displayName: { type: 'string', required: false, input: false },
