@@ -19,8 +19,8 @@ after an in-app navigation: no Account after the username step's save,
 and "Account | Sign out" still shown after Sign out. Closeout fix
 **23-C1** (PR #38, independently reviewed with no blockers, merged
 ce21990) fixes both, with regression tests in
-`e2e/masthead-session-state.spec.ts` (LEARNINGS 9). The human hasn't
-rechecked the masthead since the fix.
+`e2e/masthead-session-state.spec.ts` (LEARNINGS 9). The human
+rechecked the masthead after the fix (2026-11-09): passed.
 
 Scope note kept from Decision 7: a session without a username can still
 use Better Auth's own endpoints (read the session, sign out, list or
