@@ -1,6 +1,7 @@
 'use server';
 
 import { headers } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isAPIError } from 'better-auth/api';
 import { startEmailChange } from '@/lib/auth';
@@ -11,7 +12,8 @@ import { emailError, usernameError } from '@/lib/username';
 // Story 23-S3: saving a username, the one action an account without a
 // username may call. It changes only the signed-in account's own
 // displayName, under the username rules, then goes on to /puzzles. A later
-// save replaces an earlier one (the latest explicit choice wins).
+// save replaces an earlier one (the latest explicit choice wins). The root
+// layout's masthead is revalidated so Account appears without a reload.
 
 export async function saveUsername(value: string): Promise<{ error: string }> {
   const session = await requireAnySession();
@@ -21,6 +23,7 @@ export async function saveUsername(value: string): Promise<{ error: string }> {
     where: { id: session.user.id },
     data: { displayName: value.trim() },
   });
+  revalidatePath('/', 'layout');
   redirect('/puzzles');
 }
 
