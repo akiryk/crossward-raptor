@@ -9,6 +9,8 @@ reading or additional product specifications.
 
 ## Find the current work
 
+- [Collaborative puzzle construction](24-collaboration/HANDOFF.md)
+  (epic 24, draft EPIC awaiting the human's approval)
 - [Account details](23-account-details/HANDOFF.md) (epic 23, closed
   2026-11-09; open items listed there)
 - [Build progress](22-build-progress/HANDOFF.md) (epic 22, closed
