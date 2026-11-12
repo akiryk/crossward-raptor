@@ -1,8 +1,12 @@
 # Epic: Collaborative puzzle construction
 
-**Draft, not approved.** Written 2026-11-09 from the human's draft epic, the
-agent's technical investigation and the human's decisions on it (D1–D9,
-2026-11-09). The human approves this epic separately; each story's
+**Draft; direction approved, story split under review.** Written 2026-11-09
+from the human's draft epic, the agent's technical investigation and the
+human's decisions on it (D1–D9, 2026-11-09). On 2026-11-12 the human
+approved the architecture, the product decisions and the general order, and
+asked for smaller stories, the open questions folded into the decisions, and
+explicit plans for old browser tabs and multi-user testing. This revision
+does that and awaits the human's review of the new split. Each story's
 specification and acceptance are then drafted, approved and frozen on their
 own ([STORY](../../process/STORY.md)). Approving the epic authorizes no
 implementation, migration, service or production change.
@@ -18,7 +22,8 @@ alone, but it saves more reliably.
 
 ## The human's request
 
-Restated from the human's draft epic and decisions (2026-11-09):
+Restated from the human's draft epic, decisions (2026-11-09) and review
+(2026-11-12):
 
 1. **Per-puzzle collaboration.**
    - A puzzle has one owner and any number of collaborators.
@@ -71,6 +76,13 @@ Restated from the human's draft epic and decisions (2026-11-09):
    - non-unique usernames;
    - verified email changes;
    - the server-side username gate.
+9. **Reviewable delivery** (2026-11-12).
+   - Stories small enough to review and test on their own.
+   - Tabs still running the old editor during the switch from snapshot
+     saves can't overwrite work, and their builders aren't left silently
+     losing edits.
+   - Explicit multi-user tests of overlapping edits, permission revocation
+     and reconnecting.
 
 Mockups (2026-11-08), consecutive moments of one session:
 
@@ -172,66 +184,174 @@ The four screens show the intended experience, not the implementation.
 
 The persistence stories come first. Once a second person can open the
 editor, today's whole-snapshot saves would overwrite each other's work,
-so membership waits until saving is safe. Every story touches
-`prisma/**`, `src/app/puzzles/actions.ts` or another authenticated write
-path, so each one gets a branch, a PR and independent review
-([CODE-REVIEW](../../CODE-REVIEW.md)). A story with a migration merges only
-after that migration is applied to production, with authorization
-(DEVELOPMENT, "Production database migrations").
+so membership waits until saving is safe and live. Every story touches
+`prisma/**`, `src/app/puzzles/actions.ts`, the editor's save path or another
+authenticated write path, so each one gets a branch, a PR and independent
+review ([CODE-REVIEW](../../CODE-REVIEW.md)). A story with a migration
+merges only after that migration is applied to production, with
+authorization (DEVELOPMENT, "Production database migrations"). Only S1 and
+S5 have migrations; S7 has one if presence needs its own table.
 
-1. **S1 Operations and server ordering (C2a).**
-   - Schema: `Puzzle.version`, `Puzzle.resetEpoch` and an operation table.
-   - The operation model and pure application and validation, with a
+Nothing a builder can see changes until S3, and no second person can reach
+a puzzle until S6 lets the owner invite them. S1, S2, S4 and S5 can
+therefore merge and deploy without changing anyone's experience.
+
+1. **S1 Operations and the commit path (C2a).**
+   - Schema: `Puzzle.version`, `Puzzle.resetEpoch` and the operation log.
+     These are the epic's only puzzle columns, so S2 needs no migration.
+   - The operation envelope and the content kinds: `cells`, `hint` and
+     `title`. Pure application and validation in `src/lib/collab/`, with a
      randomized convergence test.
-   - A commit path with compare-and-swap, deduplication, server-side lock
-     enforcement, the reset epoch, and version-pinned Enter Hints and
-     Publish.
-   - The old save actions stay until S2. S1's commit path is used only by
-     its tests until then; that is deliberate, not dead code.
+   - Validation against the current state: phase (including the Hints
+     rules for existing Hints-phase puzzles), publication, the epoch, and
+     cells protected by existing locks (D3's whole-burst rejection).
+     Existing puzzles already have locks, so a `cells` validator that
+     ignored them would be wrong from its first commit.
+   - The commit path: compare-and-swap, `opId` deduplication, one
+     transaction for the puzzle row and its log record, bounded retry on a
+     lost race, and log pruning.
+   - The snapshot fence for old tabs (see "Retiring snapshot saves").
+   - Adds `src/lib/collab/**` and the commit route to CODE-REVIEW's risk
+     paths.
+   - The snapshot save actions stay until S3. Until then only tests use the
+     commit path; that is deliberate, not dead code.
    - Depends on: nothing.
-2. **S2 The editor saves by operations (C2b).**
+2. **S2 Phase changes, locks, Start Over and Publish.**
+   - The structural operations: `lock` and `unlock`, `enterHints` and
+     `startOver` (owner-only, incrementing `resetEpoch`).
+   - Enter Hints converts the server's current state atomically; late Build
+     operations are then validated against Hints.
+   - Publishing pinned to the version the owner's readiness check saw.
+   - Every stale-operation rule tested at the commit path: an operation
+     from before a reset, a lock or unlock from Build arriving in Hints, a
+     burst into a cell locked after it was made, anything after
+     publication.
+   - These touch the destructive and one-way transitions, so they get their
+     own review rather than riding with S1's ordering machinery.
+   - Depends on: S1.
+3. **S3 The editor saves by operations (C2b).**
    - The editor dispatches operations over a confirmed state plus pending
      operations.
-   - Bursts, with a maximum wait; one in-flight operation per tab.
-   - Retries; the save status; protection for unsaved work on leaving.
-   - Removes `saveGrid`, `saveHints` and `saveTitle`.
-   - Single-builder behavior is otherwise unchanged; the full browser
-     suite proves it.
-   - Depends on: S1.
-3. **S3 Live sync by polling (C3a).**
+   - Bursts, with a maximum wait; one in-flight operation per tab, in order.
+   - Retries; the save status; refused edits explained, with the input kept.
+   - The `localStorage` journal, the `beforeunload` warning and the
+     keepalive send.
+   - Enter Hints, Start Over and Publish move to S2's operations.
+   - Removes `saveGrid`, `saveHints` and `saveTitle`, and handles tabs still
+     running the old editor (see "Retiring snapshot saves").
+   - Single-builder behavior is otherwise unchanged; the full browser suite
+     proves it.
+   - Depends on: S2.
+4. **S4 Live sync by polling (C3a).**
    - Catch-up "operations since version N" about once a second while the
      editor is visible, and at once on becoming visible again.
-   - Recovery after a disconnection; a snapshot reload past the
-     operation-log retention.
-   - Remote operations applied without touching local view state.
+   - Remote operations of every kind, phase changes and resets included,
+     applied to the confirmed state without touching local view state.
+   - Recovery after a disconnection; a snapshot reload past the log's
+     retention.
    - Latency and request-cost measurements recorded for the push decision.
    - Proven with two browser contexts of one account, which needs no
-     membership.
-   - Depends on: S2.
-4. **S4 Collaborators (C1a).**
+     membership: overlapping edits converge, compatible edits both survive,
+     and a context taken offline and back catches up.
+   - Depends on: S3.
+5. **S5 Collaborator membership and authorization (C1a, server side).**
    - Schema: the collaborator and invitation tables.
-   - One "editable by" authorization predicate in every write's own
-     `WHERE`.
-   - Invitations and their claiming; the owner's collaborator management.
-   - The library: shared rows, Create filters, Duplicate for
-     collaborators.
-   - Owner-only Start Over and Publish in the editor.
-   - Losing access while open: removal or deletion.
-   - Depends on: S1–S3, so that shared editing is safe and live on
-     arrival.
-5. **S5 Presence and the session panel (C4a).**
-   - Presence heartbeat and the join and leave notes.
+   - One "editable by" predicate in every write's own `WHERE`: the commit
+     path, the catch-up read, the editor page and every remaining action.
+   - Owner-only Start Over, Publish, Delete and collaborator management,
+     enforced on the server.
+   - Invitation rules and claiming, as server functions with integration
+     tests; the add, remove and revoke actions without their UI.
+   - The editor for a collaborator: it opens a shared puzzle and hides the
+     owner-only controls.
+   - Losing access while open (removal, deletion, publication): the queue
+     stops and the editor becomes read-only, with unsaved input copyable.
+   - A second seeded user for browser tests. Tests seed membership
+     directly, since S6 adds the way to invite.
+   - Depends on: S4, so that shared editing is safe and live once
+     reachable, and so an open editor learns of removal by polling.
+6. **S6 Collaborator management and the library (C1a, UI).**
+   - The owner's "Collaborators…" dialog from the row menu and the editor:
+     an email field, the list, pending invitations, remove and revoke.
+   - The library: shared rows with the owner's username, Create filters
+     counting editable puzzles, and Duplicate as a collaborator's only row
+     action.
+   - The first story that lets a second person reach a puzzle.
+   - Depends on: S5.
+7. **S7 Presence, the session panel and conflicts (C4a).**
+   - The presence heartbeat; join and leave notes.
    - The activity panel and its animation.
-   - Conflict outlines and clue highlights.
-   - Notes for phase changes, Start Over and refused edits.
-   - A second seeded user for browser tests; the four-screen scenario as
-     a two-user browser test.
-   - Depends on: S4.
+   - Conflict outlines and clue highlights by the D2 rule; notes for phase
+     changes, Start Over and refused edits.
+   - The four-screen scenario and the rest of the two-user browser tests
+     (see "Multi-user testing").
+   - Depends on: S6.
+
+**Why not other boundaries.**
+
+- *Lock enforcement sits in S1, the lock operations in S2.* Validating a
+  burst means checking it against the locks already stored; a
+  lock-blind S1 would commit edits the server must refuse.
+- *The client journal and leave protection stay in S3.* They only make
+  sense once the editor sends operations, and S3's single-builder browser
+  suite is what proves them.
+- *Collaborator-side editor changes sit in S5, not S6.* The server refusing
+  Start Over to a collaborator and the editor hiding it belong together;
+  S6 is the purely additive management UI.
+- S5 and S6 could be one story, and S1 and S2 could merge back. Both
+  splits follow the human's request for smaller reviews and leave every
+  story testable alone.
 
 Push transport (WebSockets or a hosted service) is outside this epic
-unless S3's measurements show polling can't meet "almost immediate".
+unless S4's measurements show polling can't meet "almost immediate".
 That would then be a separately approved story, needing no persistence
 redesign.
+
+## Retiring snapshot saves (old tabs)
+
+A tab loaded before S3 deploys keeps running the old editor, possibly for
+hours. It sends whole-snapshot saves, and its failures only reach the
+console. The transition must never let such a tab overwrite committed
+operations, and must not leave its builder silently losing work.
+
+- **The fence (S1).** Every snapshot write (`saveGrid`, `saveHints`,
+  `saveTitle`, the old `enterHints` and `publishPuzzle`) adds `version = 0`
+  to its `WHERE`. Until S3 no real client commits an operation, so every
+  puzzle stays at version 0 and today's editor is unaffected. After S3 the
+  first committed operation moves a puzzle off 0, and from then on any
+  snapshot write to it matches no row and changes nothing.
+- **S1 deploys well before S3.** If the deployment keeps old clients on
+  their own build (Vercel Skew Protection), a tab could still reach
+  pre-fence code. S3 checks the project's setting. If it is on, S3 deploys
+  only after its maximum age has passed since S1 deployed.
+- **Old tabs reload (S3).** S3 removes the snapshot actions. A call from an
+  old tab then fails rather than writing. S3 also makes an old tab reload
+  into the new editor at its next server call, where Next.js supports that
+  (a deployment ID or an equivalent version check). It then specifies, and
+  tests, what an old tab's builder sees. At most the burst that triggered
+  the reload is lost, and the reload makes that visible.
+- If reloading old tabs requires a Vercel project setting, that is an
+  infrastructure change. It needs the human's authorization at S3.
+- **Tests.** S1 proves a snapshot write to a puzzle at version 1 or more
+  changes nothing. S3 proves the removed actions are gone and that a
+  version-0 puzzle edited by the new editor then refuses snapshot writes.
+
+## Multi-user testing
+
+Concurrency is proved at two levels. Integration tests drive the commit
+path with interleaved requests. Browser tests use separate contexts that
+poll for real. The suites share one database, so they run serially
+([AGENTS](../../../AGENTS.md)).
+
+| Behavior | Integration (commit path) | Browser |
+| --- | --- | --- |
+| Overlapping edits | S1: interleaved bursts, commit order wins per cell; compatible edits both survive | S4: two contexts of one account converge; S7: Adam and Jay, the four-screen scenario and the MAGKS variant |
+| Stale and invalid operations | S2: pre-reset, post-lock, post-Hints, post-publication | S4: a Start Over or Enter Hints from another context; S7: the notes Jay sees |
+| Permission revocation | S5: a removed collaborator's operations and catch-up are refused | S5: removal (seeded) while Jay's editor is open; S6: Adam removes Jay in the dialog while Jay edits |
+| Reconnect | S1: resending an `opId` returns its first outcome | S3: reload with journaled operations; S4: offline, edit elsewhere, back online; S7: Jay reconnects mid-session and sees no false conflict |
+
+Each story's acceptance carries its rows. None is deferred to a manual
+check.
 
 ## Decisions
 
@@ -353,7 +473,7 @@ redesign.
 - Bursts are sent as soon as they complete.
 - Missed operations are recovered after a disconnection.
 - The transport stays separate from persistence.
-- S3 measures latency and cost before any push transport is considered.
+- S4 measures latency and cost before any push transport is considered.
 - No WebSockets, Redis, CRDTs or hosted collaboration service in this
   epic.
 
@@ -385,7 +505,33 @@ redesign.
 - Changing an email or username never removes access.
 - Usernames are display only, never authorization.
 
-### Proposed by the agent (for the human's review with the epic)
+### Resolved with the epic's approval (2026-11-12)
+
+The human approved the architecture and product decisions as drafted. The
+draft's open questions are therefore settled as it suggested:
+
+- **Remote selections are out of this epic.** Polling would make them lag
+  about a second. A later push transport can revisit them.
+- **Collaborator management** is a "Collaborators…" item in the owner's
+  row menu and in the editor. It opens the existing modal with an email
+  field and the list (S6). A mockup from the human, if any, settles the
+  look in S6's specification.
+- **The implementation details below are approved**, including:
+  - the 2 s maximum wait;
+  - the 30-day invitation expiry;
+  - binding an invitation at once to an existing account;
+  - the `localStorage` journal with a `beforeunload` warning.
+
+  The tunable values (the maximum wait, D2's 3 s, the expiry, the presence
+  window and the log's retention) are starting points that a story may
+  adjust with a recorded reason.
+- **Risk paths.** S1 adds `src/lib/collab/**` and the commit route to
+  CODE-REVIEW's risk paths. Every story here is reviewed either way.
+- **Smaller stories.** The five stories became seven, and the transition
+  from snapshot saves and the multi-user tests are now explicit plans
+  (Stories, "Retiring snapshot saves", "Multi-user testing").
+
+### Implementation details (approved 2026-11-12)
 
 **Operations.**
 
@@ -506,7 +652,7 @@ The acknowledgment carries the new version and the outcome.
 - Join and leave notes come from changes to the present set.
 
 **The save status** shows for everyone, solo builders included. Its exact
-place and look are set in S2's specification, with a mockup if the human
+place and look are set in S3's specification, with a mockup if the human
 wants one.
 
 **The library.**
@@ -555,12 +701,14 @@ Each story's acceptance pins the invariants it introduces.
     visibly refused. Unacknowledged operations survive a reload.
 11. **Convergence.** Clients that have applied the same versions show the
     same puzzle, apart from their own pending edits.
-12. **A pure engine.** No React, DOM, database, network or hidden state in
+12. **Old clients can't overwrite.** Once a puzzle has a committed
+    operation, no snapshot write changes it.
+13. **A pure engine.** No React, DOM, database, network or hidden state in
     `src/engine/**`.
 
 ## The four-screen scenario (key acceptance example)
 
-S5's two-user browser test plays this sequence. Adam owns the puzzle and
+S7's two-user browser test plays this sequence. Adam owns the puzzle and
 Jay is a collaborator.
 
 1. Adam opens a Build-phase puzzle with ABRAHAM in 1-Across. There is no
@@ -589,6 +737,7 @@ Jay is a collaborator.
 ## Non-goals
 
 - Collaborative solving.
+- Showing which entry another builder has selected.
 - Revision history, restoring versions, collaborative undo.
 - Chat or comments.
 - Exclusive editing locks or word reservations.
@@ -604,20 +753,3 @@ Jay is a collaborator.
 - Changing who may publish or delete.
 - Rewriting the engine.
 - A collaborator leaving a puzzle on their own (the owner removes them).
-
-## Open questions for the human
-
-1. **Remote selections.** The request says "ideally" show which entry
-   each other builder has selected. Include it in S5, or leave it out of
-   this epic? *Agent's suggestion:* leave it out; the polling heartbeat
-   would make it lag about a second.
-2. **Collaborator management UI.** Where does the owner add and remove
-   collaborators? *Agent's suggestion:* a "Collaborators…" item in the
-   owner's row menu and in the editor, opening the existing modal with
-   an email field and the list. A mockup from the human would settle the
-   look before S4.
-3. **The proposed details above.** Notably the 2 s maximum wait, the 30-day
-   invitation expiry, binding immediately to an existing account, and the
-   `localStorage` journal with a `beforeunload` warning.
-4. **Risk paths.** Should CODE-REVIEW name `src/lib/collab/**` and the
-   commit route? Each story here is reviewed either way.
