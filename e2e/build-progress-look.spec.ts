@@ -36,7 +36,7 @@ const GRAY_500 = '#8b909a';
 const INTERACTIVE_DARK = '#005b8c';
 const ORANGE = '#ef9d05';
 const WHITE = '#ffffff';
-const INTERACTIVE_FAINT = '#f5f7fa'; // the toggle row's background
+const INTERACTIVE_FAINT = '#f1f8fc'; // the toggle row's background (25-S1: was #f5f7fa)
 
 const BAR_HEIGHT = 16;
 const RADIUS = '20px';

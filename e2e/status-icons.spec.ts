@@ -26,8 +26,8 @@ import { signInSeededUser } from './helpers/seed-session';
 //
 // A row with the Play icon is `puzzle-row-play` (#F0F5E5), turning
 // `puzzle-row-play-hover` (#EAF0DB) on hover and while its link has keyboard
-// focus; other rows keep `puzzle-row` (#F5F7FA) and `puzzle-row-hover`
-// (#EBEFF7). 18-S3 was written within the Build | Play views. 18-S4
+// focus; other rows keep `puzzle-row` (#F1F8FC) and `puzzle-row-hover`
+// (#E8F7FF; 25-S1 changed both, from #F5F7FA and #EBEFF7). 18-S3 was written within the Build | Play views. 18-S4
 // replaced the views with one list (e2e/library-filters.spec.ts), so these
 // cases no longer choose a view.
 //
@@ -49,8 +49,8 @@ const GRAY_500 = '#8B909A';
 const GRAY_700 = '#14151B';
 const BLACK = '#000000';
 const WHITE = '#FFFFFF';
-const ROW = '#F5F7FA';
-const ROW_HOVER = '#EBEFF7';
+const ROW = '#F1F8FC';
+const ROW_HOVER = '#E8F7FF';
 const PLAY_ROW = '#F0F5E5';
 const PLAY_ROW_HOVER = '#EAF0DB';
 // 19-S2: a completed (DONE) row.

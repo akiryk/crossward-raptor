@@ -31,12 +31,14 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 type Rgb = [number, number, number];
 const GRAY_200: Rgb = [221, 224, 230]; // build-cell-off
 const GRAY_700: Rgb = [20, 21, 27]; // preview-cell-off
-const WHITE: Rgb = [255, 255, 255]; // build-cell-on
 const CELL_ERROR: Rgb = [255, 37, 26]; // preview-cell-error
 const GRAY_400: Rgb = [186, 188, 190]; // build-cell-border
 const GRAY_500: Rgb = [139, 144, 154]; // preview-cell-border; a locked letter (21-S2)
 const BLACK: Rgb = [0, 0, 0]; // primary, a letter
 const YELLOW: Rgb = [252, 255, 77]; // the cursor
+// 25-S1: the sister of the cursor's word. The cursor opens on CAT, so the
+// hint (14,14) is in its sister: pale blue, not white, in the build phase.
+const SISTER: Rgb = [232, 247, 255]; // build-cell-sister
 
 const FADE_MS = 500;
 /** Seek times and the progress ease-in-out gives there (0.08, 0.5, 0.92),
@@ -281,7 +283,7 @@ test.describe('22-S5-10 Preview on fades in', () => {
       SEEKS.map(([t]) => t)
     );
     expectEased(off, GRAY_200, GRAY_700, 'an off cell, gray-200 to gray-700');
-    expectEased(hint, WHITE, CELL_ERROR, 'a symmetric hint, white to red');
+    expectEased(hint, SISTER, CELL_ERROR, 'a symmetric hint, pale blue (25-S1) to red');
     expectEased(lines, GRAY_400, GRAY_500, 'the grid\'s lines');
 
     await releaseFade(page);
@@ -307,12 +309,12 @@ test.describe('22-S5-11 Preview off fades out', () => {
       SEEKS.map(([t]) => t)
     );
     expectEased(off, GRAY_700, GRAY_200, 'an off cell, gray-700 to gray-200');
-    expectEased(hint, CELL_ERROR, WHITE, 'a symmetric hint, red to white');
+    expectEased(hint, CELL_ERROR, SISTER, 'a symmetric hint, red to pale blue (25-S1)');
     expectEased(lines, GRAY_500, GRAY_400, 'the grid\'s lines');
 
     await releaseFade(page);
     await expect.poll(async () => (await colorOf(page, OFF_CELL)).join()).toBe(GRAY_200.join());
-    expectColor(await colorOf(page, HINT_CELL), WHITE, 'the hint, at the end');
+    expectColor(await colorOf(page, HINT_CELL), SISTER, 'the hint, at the end');
   });
 });
 
@@ -411,10 +413,11 @@ test.describe('22-S5-15 everything else stays instant (pass today)', () => {
     expectInstant(frames, (f) => f.selected === '10,10', ['10,10', '0,0'], 'build, a click');
     expect(frames[frames.length - 1].colors['10,10']).toBe(`rgb(${YELLOW.join(', ')})`);
 
-    // Typing a letter turns its counterpart (4,4) white at once.
+    // Typing a letter turns its counterpart (4,4) white at once; it is in
+    // the sister of the cursor's word, so pale blue (25-S1).
     frames = await recordAround(page, ['4,4', '10,10'], () => page.keyboard.type('Q'));
     expectInstant(frames, (f) => f.texts['10,10'].includes('Q'), ['4,4'], 'build, typing');
-    expect(frames[frames.length - 1].colors['4,4']).toBe(`rgb(${WHITE.join(', ')})`);
+    expect(frames[frames.length - 1].colors['4,4']).toBe(`rgb(${SISTER.join(', ')})`);
 
     // Preview, once its fade has ended: a click on the red cell, then a letter.
     await toggleInput(page).click({ force: true });

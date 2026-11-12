@@ -22,8 +22,9 @@ const VARIABLES: Record<string, string> = {
   'interactive-light': '#56B3E5',
   'interactive-medium': '#2191CD',
   'interactive-dark': '#005B8C',
-  'interactive-faint': '#F5F7FA',
-  'interactive-faint-hover': '#EBEFF7',
+  // 25-S1: was #F5F7FA and #EBEFF7 (the human's request).
+  'interactive-faint': '#F1F8FC',
+  'interactive-faint-hover': '#E8F7FF',
   'yellow-bright': '#FCFF4D',
   'cell-warning': '#CEB55A',
   'cell-error': '#FF251A',
@@ -56,6 +57,8 @@ const STYLES: Record<string, string> = {
   // 17-S5: the selected word is blue, so the cursor cell stands out.
   'build-cell-selected-row-on': 'blue-medium',
   'build-cell-selected-row-off': 'blue-dull',
+  // 25-S1: the sister of the cursor's word.
+  'build-cell-sister': 'interactive-faint-hover',
   'preview-cell-on': 'white',
   'preview-cell-off': 'gray-700',
   'preview-cell-warning': 'cell-warning',

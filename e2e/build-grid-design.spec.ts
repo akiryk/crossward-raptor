@@ -40,6 +40,7 @@ const BUILD_OFF = 'rgb(221, 224, 230)'; // gray-200
 const SELECTED_CELL = 'rgb(252, 255, 77)'; // yellow-bright
 const ROW_ON = 'rgb(207, 238, 255)'; // blue-medium (17-S5, was yellow-medium)
 const ROW_OFF = 'rgb(202, 218, 226)'; // blue-dull (17-S5, was yellow-dull)
+const SISTER = 'rgb(232, 247, 255)'; // interactive-faint-hover (25-S1)
 const BUILD_BORDER = 'rgb(186, 188, 190)'; // gray-400
 const PREVIEW_BORDER = 'rgb(139, 144, 154)'; // gray-500
 const PREVIEW_OFF = 'rgb(20, 21, 27)'; // gray-700
@@ -119,7 +120,10 @@ test.describe('14-S5-1 build grid colors', () => {
       ['9,0', WHITE, 'a symmetry-white cell in the selected row, outside its word'],
       ['4,0', BUILD_OFF, 'an off cell in the selected row'],
       ['0,1', WHITE, 'a lettered cell outside it'],
-      ['14,14', WHITE, 'a symmetry-white cell outside it'],
+      // 25-S1: (14,14) is in ABC's sister word, pale blue; (14,13), D's
+      // counterpart, is a symmetry-white cell outside both.
+      ['14,14', SISTER, 'a symmetry-white cell in the sister word'],
+      ['14,13', WHITE, 'a symmetry-white cell outside it'],
       ['5,5', BUILD_OFF, 'an off cell outside it'],
     ];
     for (const [coord, color, label] of expected) {
