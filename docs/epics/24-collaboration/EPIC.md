@@ -1,14 +1,14 @@
 # Epic: Collaborative puzzle construction
 
-**Draft; direction approved, story split under review.** Written 2026-11-09
-from the human's draft epic, the agent's technical investigation and the
-human's decisions on it (D1–D9, 2026-11-09). On 2026-11-12 the human
-approved the architecture, the product decisions and the general order, and
-asked for smaller stories, the open questions folded into the decisions, and
-explicit plans for old browser tabs and multi-user testing. This revision
-does that and awaits the human's review of the new split. Each story's
-specification and acceptance are then drafted, approved and frozen on their
-own ([STORY](../../process/STORY.md)). Approving the epic authorizes no
+**Approved 2026-11-12.** Written 2026-11-09 from the human's draft epic,
+the agent's technical investigation and the human's decisions on it (D1–D9,
+2026-11-09). On 2026-11-12 the human approved the architecture, the product
+decisions and the general order, and asked for smaller stories, the open
+questions folded into the decisions, and explicit plans for old browser tabs
+and multi-user testing. The human then approved this revision, including the
+seven-story split and the resolved questions. Each story's specification and
+acceptance are drafted, approved and frozen on their own
+([STORY](../../process/STORY.md)). Approving the epic authorizes no
 implementation, migration, service or production change.
 
 A puzzle's owner invites collaborators by email. Collaborators open the

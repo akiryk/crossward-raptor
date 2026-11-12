@@ -16,9 +16,9 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-12)
 
-**Drafting; the revised story split awaits the human's review.** No story
-specification or acceptance exists, and nothing is frozen. No application
-code, schema, migration, service or production data has changed.
+**The EPIC is approved (2026-11-12); S1 is next.** No story specification
+or acceptance exists, and nothing is frozen. No application code, schema,
+migration, service or production data has changed.
 
 - 2026-11-09: the human answered D1–D9 and the agent drafted the EPIC.
 - 2026-11-12: the human approved the architecture, product decisions and
@@ -30,13 +30,12 @@ code, schema, migration, service or production data has changed.
     reconnecting.
 - The revision makes seven stories, close to the human's suggestion. The
   boundary changes are explained in the EPIC's "Why not other boundaries".
-- The four former open questions are recorded as resolved by the agent's
-  suggestions under the approval (EPIC, "Resolved with the epic's
-  approval"). The human didn't answer them individually, so their review
-  of the revision also confirms that reading.
-- The human held S1's drafting until they review this revision.
+- The four former open questions are resolved by the agent's
+  suggestions (EPIC, "Resolved with the epic's approval").
+- 2026-11-12: the human approved the revised EPIC, including the split
+  and those resolutions.
 
-**Authorization.** Epic drafting only: no implementation, migrations,
+**Authorization.** Drafting S1 only: no implementation, migrations,
 infrastructure, freezing, merging or deploying.
 
 **Constraint for every story.** Each one is on the risk paths: a branch,
@@ -58,11 +57,10 @@ changed.
 
 ## Next action
 
-The human reviews the revised split and the resolved questions, with any
-corrections. Then the next job is S1's specification and proposed
-acceptance (EPIC, Stories 1), drafted on `main` for the human's approval.
-There is no freeze and no implementation before approval.
+Draft S1's specification and proposed acceptance (EPIC, Stories 1) on
+`main` for the human's approval. There is no freeze and no implementation
+before approval.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md. Record the human's review of the revised story split, then draft S1's specification and proposed acceptance (EPIC, Stories 1) on main; no freeze or implementation without approval.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md. Draft S1's specification and proposed acceptance (EPIC, Stories 1) on main; no freeze or implementation without approval.
