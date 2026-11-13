@@ -10,7 +10,7 @@ reading or additional product specifications.
 ## Find the current work
 
 - [Collaborative puzzle construction](24-collaboration/HANDOFF.md)
-  (epic 24, EPIC approved 2026-11-12; S1's specification next)
+  (epic 24, EPIC approved 2026-11-12; S1 frozen, its implementation next)
 - [The sister word](25-sister-word/HANDOFF.md) (epic 25, closed
   2026-11-12; no open items)
 - [Account details](23-account-details/HANDOFF.md) (epic 23, closed

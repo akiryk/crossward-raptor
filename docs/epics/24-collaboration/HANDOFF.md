@@ -16,9 +16,12 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-12)
 
-**The EPIC is approved (2026-11-12); S1 is next.** No story specification
-or acceptance exists, and nothing is frozen. No application code, schema,
-migration, service or production data has changed.
+**S1 is specified and frozen (2026-11-12); its implementation is next.**
+[S1](stories/24-S1-operations-commit-path.md) was drafted and frozen under
+the delegation below, with amendments to three earlier frozen files that
+the EPIC's decisions require (listed in S1). The freeze is the
+specification-only commit "24-S1: freeze …" on `epic/24-collaboration`.
+No production schema, service or data has changed.
 
 - 2026-11-09: the human answered D1–D9 and the agent drafted the EPIC.
 - 2026-11-12: the human approved the architecture, product decisions and
@@ -68,20 +71,18 @@ a PR and independent review.
 
 ## Verification
 
-Documentation only: `EPIC.md` and this handoff. The checks:
-
-- the EPIC's internal story references were checked (S1–S7);
-- no other paths changed.
-
-`npm run verify` and `npm run test:e2e` were not run, since no code
-changed.
+S1's freeze: S1's Discrimination records the prototype runs (each rule
+removed fails at least one case; `npm run verify` exited 0, 1078 tests).
+The frozen files alone don't type-check or pass until the implementation
+lands; that is expected. `npm run test:e2e` not run (no runtime at the
+freeze).
 
 ## Next action
 
-Draft S1's specification and proposed acceptance (EPIC, Stories 1) on
-`main` for the human's approval. There is no freeze and no implementation
-before approval.
+Implement S1 on `story/24-S1-operations-commit-path` from the freeze
+commit, then a PR into `epic/24-collaboration` for independent review. No
+merge by the author, no production migration, no change to `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md. Draft S1's specification and proposed acceptance (EPIC, Stories 1) on main; no freeze or implementation without approval.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S1-operations-commit-path.md. Implement S1 on story/24-S1-operations-commit-path from the freeze commit and open a PR into epic/24-collaboration; no merge, no production migration.

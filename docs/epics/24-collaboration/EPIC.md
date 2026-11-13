@@ -197,6 +197,7 @@ a puzzle until S6 lets the owner invite them. S1, S2, S4 and S5 can
 therefore merge and deploy without changing anyone's experience.
 
 1. **S1 Operations and the commit path (C2a).**
+   [Story](stories/24-S1-operations-commit-path.md), frozen 2026-11-12.
    - Schema: `Puzzle.version`, `Puzzle.resetEpoch` and the operation log.
      These are the epic's only puzzle columns, so S2 needs no migration.
    - The operation envelope and the content kinds: `cells`, `hint` and

@@ -44,6 +44,8 @@ type Row = {
   id: string; builderId: string; title: string; phase: string;
   grid: unknown; hints: unknown; gridBeforeHints: unknown;
   publishedAt: Date | null; visibility: string; createdAt: Date; updatedAt: Date;
+  // 24-S1: the stored puzzle's commit version; 0 until an operation commits.
+  version: number;
 };
 type Where = Record<string, unknown>;
 type Query = { where: Where; data?: Record<string, unknown>; select?: Record<string, boolean> };
@@ -79,7 +81,7 @@ beforeEach(() => {
   afterRead = undefined;
   rows = ['target', 'decoy'].map((id) => ({
     ...structuredClone(stored), id, builderId: 'session-builder', title: `Original ${id}`,
-    gridBeforeHints: null, publishedAt: null, visibility: 'private',
+    gridBeforeHints: null, publishedAt: null, visibility: 'private', version: 0,
     createdAt: new Date('2026-01-01T00:00:00Z'), updatedAt: new Date('2026-01-02T00:00:00Z'),
   }));
   mocks.requireSession.mockResolvedValue({ user: { id: 'session-builder', role: 'user' } });
