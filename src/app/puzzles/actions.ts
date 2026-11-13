@@ -24,6 +24,7 @@ import { clearLetters } from '@/engine/grid';
 import { isCompatiblePlayEntries } from '@/lib/play-entries';
 import { isFull, isSolved } from '@/engine/play';
 import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
+import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
 
 export type Visibility = 'private' | 'public';
 
@@ -336,18 +337,37 @@ export async function listPuzzles(): Promise<
   });
 }
 
-/** Ownership and the published lock are checked by the write itself, so
- *  neither can change between a preliminary read and this mutation. */
+/** Epic 24 (24-S1): the snapshot fence. A snapshot write (the old editor's
+ *  saves, Enter Hints and Publish) changes a puzzle only while no operation
+ *  has been committed to it. Once one has, a tab still running the old
+ *  editor matches nothing rather than overwriting committed operations. */
+const SNAPSHOT_FENCE = { version: 0 } as const;
+
+/** Ownership, the published lock and the snapshot fence are checked by the
+ *  write itself, so none can change between a preliminary read and this
+ *  mutation. */
 async function updateUnlessPublished(
   id: string,
   builderId: string,
   action: string,
   data: Prisma.PuzzleUpdateManyMutationInput
 ): Promise<void> {
-  const { count } = await prisma.puzzle.updateMany({ where: { id, builderId, publishedAt: null }, data });
+  const { count } = await prisma.puzzle.updateMany({
+    where: { id, builderId, publishedAt: null, ...SNAPSHOT_FENCE },
+    data,
+  });
   if (count === 0) {
     throw new Error(`${action}: puzzle ${id} cannot be edited`);
   }
+}
+
+/** Epic 24 (24-S1): commits one operation as the signed-in builder. The
+ *  account comes from the session, never the input. S3's editor sends
+ *  through this; a page being left sends through the route handler at
+ *  `/api/puzzles/[id]/operations`. */
+export async function commitOperation(input: unknown): Promise<CommitOutcome> {
+  const session = await requireSession();
+  return commitPuzzleOperation(prisma, session.user.id, input);
 }
 
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
@@ -439,7 +459,7 @@ export async function publishPuzzle(
   // between makes the update match nothing rather than publish over it.
   const publishedAt = new Date();
   const { count } = await prisma.puzzle.updateMany({
-    where: { ...eligible, hints: { equals: record.hints as Prisma.InputJsonValue } },
+    where: { ...eligible, ...SNAPSHOT_FENCE, hints: { equals: record.hints as Prisma.InputJsonValue } },
     data: { publishedAt, visibility },
   });
   if (count === 0) throw notEligible;

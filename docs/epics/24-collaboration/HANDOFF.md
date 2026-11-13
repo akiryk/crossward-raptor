@@ -16,12 +16,15 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-12)
 
-**S1 is specified and frozen (2026-11-12); its implementation is next.**
-[S1](stories/24-S1-operations-commit-path.md) was drafted and frozen under
-the delegation below, with amendments to three earlier frozen files that
-the EPIC's decisions require (listed in S1). The freeze is the
-specification-only commit "24-S1: freeze …" on `epic/24-collaboration`.
-No production schema, service or data has changed.
+**S1 is implemented; its PR awaits independent review (2026-11-13).**
+[S1](stories/24-S1-operations-commit-path.md) was frozen at `a1a4db0` on
+`epic/24-collaboration` (specification-only, under the delegation below,
+with the amendments to three earlier frozen files listed in S1). The
+implementation is `5ae6393` on `story/24-S1-operations-commit-path`
+(pushed), with a PR into `epic/24-collaboration` (see Next action). Not
+merged. The migration `20261112120000_add_puzzle_operations` is applied to
+the local development and test databases only; production has not changed
+and must get it, from the human, before the epic merges to `main`.
 
 - 2026-11-09: the human answered D1–D9 and the agent drafted the EPIC.
 - 2026-11-12: the human approved the architecture, product decisions and
@@ -71,18 +74,38 @@ a PR and independent review.
 
 ## Verification
 
-S1's freeze: S1's Discrimination records the prototype runs (each rule
-removed fails at least one case; `npm run verify` exited 0, 1078 tests).
-The frozen files alone don't type-check or pass until the implementation
-lands; that is expected. `npm run test:e2e` not run (no runtime at the
-freeze).
+All on `5ae6393` (the frozen acceptance is unchanged from `a1a4db0`):
+
+- `npm run verify`: exit 0, 1078 tests (two lint warnings already on
+  `main`, in `e2e/reset-with-locks.spec.ts` and `request-logger/render.ts`).
+  It now includes the `*.db.test.ts` files (DEVELOPMENT, "Database tests").
+- Discrimination: S1, "Discrimination" (each rule removed fails a case;
+  the baseline alone fails every new file).
+- `npm run test:e2e`, full, under the standing E2E reset grant, on a heavily
+  loaded machine (load averages 10–31, multi-minute stalls):
+  - run 2: 1351 passed, 2 failed, both `ECONNRESET` in the auth helper
+    (`duplicate.spec.ts` 16-S4-3, `menu-reset.spec.ts` 19-S3-1); those two
+    files rerun alone after `npm run pretest:e2e`: 13 passed, exit 0;
+  - run 4: 1342 passed, 11 failed (timeouts during stalls, including
+    14-S4-5/6 Publish, which passed in run 2); the five failing files rerun
+    alone: 76 passed, exit 0;
+  - runs 1, 3, 5: stalls, a 180 s web-server startup timeout, and 33
+    timeout or transition-timing failures at 1.7 h;
+  - run 6, with `--workers=2` (a disclosed cap): stopped by the author
+    after about 1.5 h at 598 passed, 10 failed: nine 12–16 min stall
+    timeouts and `done-icon` 18-S5-5, a pixel read mid-transition after a
+    play reset (also in runs 4 and 5; it passed in run 2 and alone).
+  - **No full run was clean.** No failure was on a path S1 changes, and
+    every failing file passed when rerun alone. The reviewer should get a
+    clean full run on a quiet machine before merging.
+- No `src/engine/**` change.
 
 ## Next action
 
-Implement S1 on `story/24-S1-operations-commit-path` from the freeze
-commit, then a PR into `epic/24-collaboration` for independent review. No
-merge by the author, no production migration, no change to `main`.
+Independent review of the S1 PR into `epic/24-collaboration` (REVIEW);
+the reviewer merges it if no blockers remain. A clean full `npm run
+test:e2e` on a quiet machine is still needed as evidence. Not authorized: production migration, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S1-operations-commit-path.md. Implement S1 on story/24-S1-operations-commit-path from the freeze commit and open a PR into epic/24-collaboration; no merge, no production migration.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S1-operations-commit-path.md. Review S1's PR into epic/24-collaboration; merge only into the epic branch, no production migration, nothing into main.

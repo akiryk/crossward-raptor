@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,33 +7,66 @@ datasource db {
 }
 
 model Puzzle {
-  id              String    @id @default(cuid())
+  id              String            @id @default(cuid())
   builderId       String
-  builder         User      @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  title           String    @default("Untitled Puzzle")
+  builder         User              @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  title           String            @default("Untitled Puzzle")
   grid            Json
   gridBeforeHints Json?
   hints           Json
-  phase           String    @default("grid")
+  phase           String            @default("grid")
   publishedAt     DateTime?
-  visibility      String    @default("private")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  visibility      String            @default("private")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  // Epic 24 (24-S1): the commit order. Every accepted operation advances
+  // `version` by exactly one, under compare-and-swap; snapshot saves write
+  // only while it is 0. `resetEpoch` is the reset generation (S2's Start
+  // Over increments it); an operation from another epoch is refused.
+  version         Int               @default(0)
+  resetEpoch      Int               @default(0)
   playSessions    PlaySession[]
+  operations      PuzzleOperation[]
+}
+
+// Epic 24 (24-S1): the operation log. Synchronization metadata, not
+// revision history: it serves deduplication, catch-up and conflict notes,
+// and is pruned to a bounded window. An accepted operation has the version
+// it committed as; a refused one has none and records its refusal code.
+model PuzzleOperation {
+  id          String   @id @default(cuid())
+  puzzleId    String
+  puzzle      Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  opId        String   @unique
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  clientId    String
+  epoch       Int
+  baseVersion Int
+  status      String
+  code        String?
+  version     Int?
+  operation   Json
+  previous    Json?
+  createdAt   DateTime @default(now())
+
+  @@unique([puzzleId, version])
+  @@index([puzzleId, createdAt])
 }
 
 model User {
-  id            String    @id
+  id            String            @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean           @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
   sessions      Session[]
   accounts      Account[]
   puzzles       Puzzle[]
   playSessions  PlaySession[]
+  operations    PuzzleOperation[]
 
   // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
   // prompts for one when it is first needed.
@@ -43,7 +75,7 @@ model User {
   // the first migration so adding it later to a populated table -- the
   // expensive change -- isn't needed. Authorization machinery is deferred
   // until a second role exists (epic 09). Not an oversight; do not build on it.
-  role String @default("user")
+  role        String  @default("user")
 
   @@unique([email])
   @@map("user")
