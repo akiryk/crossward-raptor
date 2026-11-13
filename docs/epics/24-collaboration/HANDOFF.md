@@ -16,21 +16,22 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-13)
 
-**S3 is implemented; PR #41 into `epic/24-collaboration` awaits independent
-review.** [S3](stories/24-S3-editor-operations.md) was frozen at `a3c9d72`
-(specification-only, on `epic/24-collaboration`), with one post-freeze
-correction at `215468d`: a lint-only fix (`prefer-const`) to the frozen
-`outbox.test.ts`, with no semantic change. The story records it, and the
-reviewer should review it with the PR. S3 is implemented on
-`story/24-S3-editor-operations`, runtime at `c08b412`; later commits are
-docs only. It has no migration.
+**S3 merged.** PR #41 was independently reviewed and merged into
+`epic/24-collaboration` at `61068e2` (head `aa2547a`, runtime `c08b412`).
+[S3](stories/24-S3-editor-operations.md) was frozen at `a3c9d72`. The
+reviewer accepted the post-freeze correction `215468d`: a lint-only change
+(`prefer-const`) to the frozen `outbox.test.ts`, the same operations and
+assertions, in a separate specification-only commit. It has no migration.
+**S4 is next** and has no story file yet.
 
 **Pending for the human (before the epic merges to `main`):**
 
-- **Vercel Skew Protection is not determined.** The CLI available here
-  (37.4.2) can't show project settings, and fetching the production HTML
-  wasn't permitted. Check it under Project Settings → Advanced. The
-  deploy-order implication is in S3's decision 13:
+- **Vercel Skew Protection is not determined** (S3 reviewer's finding,
+  2026-11-13). This is a human item before `main`, not an epic-branch
+  blocker. The CLI available here (37.4.2) can't show project settings,
+  and fetching the production HTML wasn't permitted. Check it under
+  Project Settings → Advanced. The deploy-order implication is in S3's
+  decision 13:
   - if it is on, either turn it off for the cutover, or deploy S1's fence
     first and wait its maximum age;
   - if it is off, the epic can deploy at once, after the migration.
@@ -110,14 +111,25 @@ S2 (PR #40, merged): author's runs at `cf0cf19` were `npm run verify` exit
 0 (1156 tests), and full E2E `--workers=2` 1352 passed with 1 failure, a
 pixel read in `done-icon.spec.ts`. That file passed rerun alone.
 
-S3 (PR #41, author's runs at runtime commit `c08b412`):
+S3 (PR #41, merged at `61068e2`; reviewed at head `aa2547a`, runtime
+`c08b412`; `c08b412..aa2547a` is docs only):
 
-- `npm run verify`: exit 0, 94 files, 1135 tests. There are fewer tests
-  than S2's because the amendments deleted two superseded files.
-- Full `npm run test:e2e -- --workers=2`: **1364 passed, 0 failed**, exit 0
-  (12.2 min). Nothing needed a rerun.
-- Frozen acceptance is unchanged since `215468d`.
-- The story records which rules the tests discriminate.
+- Reviewer's `npm run verify` on `aa2547a`, in a separate worktree: exit
+  0, 94 files, 1135 tests (including the `*.db.test.ts` files).
+- Author's full `npm run test:e2e -- --workers=2` at `c08b412`: **1364
+  passed, 0 failed**, exit 0 (12.2 min). The reviewer verified its
+  provenance: the log, the worktree's reflog, and tested content identical
+  to `aa2547a`.
+- Reviewer's full E2E `--workers=2` on `aa2547a`: 1346 passed, 18 failed,
+  all stall timeouts (1.5 h, under heavy memory pressure).
+  - 8 of the 9 failing files were clean when rerun alone, after
+    `pretest:e2e`.
+  - `lock-button-side.spec.ts` was never clean in 4 attempts. Each attempt
+    had a different lock-dwell timeout, and every case passed in at least
+    one run on this head.
+  - `editor-operations.spec.ts` passed 11/11.
+- CI: Vercel and Vercel Preview Comments passed. Frozen acceptance is
+  unchanged since `215468d`. Details are in the PR's review comment.
 - **Harness note for worktrees:** run E2E with
   `COMPOSE_PROJECT_NAME=crossward-raptor`. Without it, preparation's
   `db:up` creates a second Compose project, fails on the shared ports and
@@ -125,12 +137,12 @@ S3 (PR #41, author's runs at runtime commit `c08b412`):
 
 ## Next action
 
-Independent review of PR #41 (`story/24-S3-editor-operations` into
-`epic/24-collaboration`) by an agent other than its author, including the
-post-freeze correction `215468d`. The reviewer merges if there are no
-blockers; S4 comes after. Not authorized: production migration, Vercel
-settings, `main`.
+S4 (EPIC, Stories item 4, "S4 Live sync by polling"): draft its story
+under `stories/`, freeze it as a specification-only commit on
+`epic/24-collaboration` under the human's delegation, implement it on
+`story/24-S4-<name>`, and open a PR into the epic branch for independent
+review. Not authorized: production migration, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S3-editor-operations.md. Independently review PR #41 into epic/24-collaboration and merge it if no blockers remain; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md and the "S4 Live sync by polling" item in docs/epics/24-collaboration/EPIC.md. Draft, freeze and implement S4 on a story branch from epic/24-collaboration, with a PR into the epic branch; no production migration, nothing into main.
