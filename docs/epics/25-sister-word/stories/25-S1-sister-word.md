@@ -5,8 +5,9 @@ In the build phase with Preview off, the cells of the cursor's word's
 whether they are gray, white with a letter or white without one. The two
 faint palette colors become #F1F8FC and #E8F7FF.
 
-**Status: Approved and frozen 2026-11-12** by the human, who also
-confirmed the "selected or not" reading below.
+**Status: Done 2026-11-12**, delivered on `main` (ab8b1a3); the human's
+visual check pending. Approved and frozen 2026-11-12 by the human, who
+also confirmed the "selected or not" reading below.
 
 **Blast radius: small, off the risk paths.** `src/lib/cell-appearance.ts`
 (a new function), `src/components/grid/PuzzleGridEditor.tsx`,
