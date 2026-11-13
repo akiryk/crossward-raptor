@@ -25,6 +25,7 @@ import { isCompatiblePlayEntries } from '@/lib/play-entries';
 import { isFull, isSolved } from '@/engine/play';
 import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
+import { publishPuzzleAt, type PublishOutcome } from '@/lib/collab/publish';
 
 export type Visibility = 'private' | 'public';
 
@@ -368,6 +369,16 @@ async function updateUnlessPublished(
 export async function commitOperation(input: unknown): Promise<CommitOutcome> {
   const session = await requireSession();
   return commitPuzzleOperation(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S2): publishes the signed-in owner's puzzle only if it is
+ *  still at the version their readiness check saw (`{ puzzleId, version,
+ *  visibility }`); otherwise a refusal the Publish dialog can show. The
+ *  account comes from the session. S3's Publish dialog calls this in place
+ *  of `publishPuzzle`. */
+export async function publishAtVersion(input: unknown): Promise<PublishOutcome> {
+  const session = await requireSession();
+  return publishPuzzleAt(prisma, session.user.id, input);
 }
 
 export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {

@@ -1,6 +1,6 @@
-// Epic 24 (24-S1): the operation envelope and its content kinds. Pure: no
-// React, DOM, database or network. S2 adds the structural kinds (lock,
-// unlock, enterHints, startOver) to `OperationBody`.
+// Epic 24 (24-S1, 24-S2): the operation envelope and its kinds: the content
+// kinds (cells, hint, title; 24-S1) and the structural ones (lock, unlock,
+// enterHints, startOver; 24-S2). Pure: no React, DOM, database or network.
 
 /** One cell's new value: a letter, a rebus string, or null to clear it. */
 export interface CellWrite {
@@ -9,10 +9,23 @@ export interface CellWrite {
   readonly value: string | null;
 }
 
+/** A word to lock or unlock, as `LockedWord` stores it: its first cell,
+ *  its direction and its length. */
+export interface WordRef {
+  readonly col: number;
+  readonly row: number;
+  readonly orientation: 'across' | 'down';
+  readonly length: number;
+}
+
 export type OperationBody =
   | { readonly kind: 'cells'; readonly writes: readonly CellWrite[] }
   | { readonly kind: 'hint'; readonly key: string; readonly text: string }
-  | { readonly kind: 'title'; readonly title: string };
+  | { readonly kind: 'title'; readonly title: string }
+  | { readonly kind: 'lock'; readonly word: WordRef }
+  | { readonly kind: 'unlock'; readonly word: WordRef }
+  | { readonly kind: 'enterHints' }
+  | { readonly kind: 'startOver'; readonly keepLockedWords: boolean };
 
 export type OperationKind = OperationBody['kind'];
 
@@ -71,6 +84,14 @@ function parseWrites(value: unknown): CellWrite[] | null {
   return writes;
 }
 
+function parseWord(value: unknown): WordRef | null {
+  if (!isRecord(value) || !isCount(value.col) || !isCount(value.row)) return null;
+  const { orientation, length } = value;
+  if (orientation !== 'across' && orientation !== 'down') return null;
+  if (!isCount(length) || length < 1 || length > MAX_WRITES) return null;
+  return { col: value.col, row: value.row, orientation, length };
+}
+
 /** Checks an untrusted operation's shape, returning a fresh copy with only
  *  known fields. It knows nothing of any puzzle's state: that is
  *  `validateOperation`'s job. */
@@ -95,6 +116,16 @@ export function parseOperation(input: unknown): ParseResult {
     const { title } = input;
     if (typeof title !== 'string' || title.length > MAX_TITLE_LENGTH) return { ok: false };
     return { ok: true, op: { ...envelope, kind, title } };
+  }
+  if (kind === 'lock' || kind === 'unlock') {
+    const word = parseWord(input.word);
+    return word ? { ok: true, op: { ...envelope, kind, word } } : { ok: false };
+  }
+  if (kind === 'enterHints') return { ok: true, op: { ...envelope, kind } };
+  if (kind === 'startOver') {
+    const { keepLockedWords } = input;
+    if (typeof keepLockedWords !== 'boolean') return { ok: false };
+    return { ok: true, op: { ...envelope, kind, keepLockedWords } };
   }
   return { ok: false };
 }
