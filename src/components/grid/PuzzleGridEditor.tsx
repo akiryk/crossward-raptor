@@ -32,6 +32,7 @@ import {
 } from "../../lib/locked-words";
 import { deleteProtected, isCellProtected, placeProtected } from "../../lib/locked-keys";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
+import { sisterWord } from "../../lib/cell-appearance";
 import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
@@ -737,9 +738,12 @@ export function PuzzleGridEditor({
   // belong to with a letter (22-S5), except where no letter can be typed,
   // a locked word's letter or end cell, which keeps its own word.
   const cursorWordOf = isCellProtected(grid, lockedWords, cursor.current) ? buildWord : wouldBeWord;
-  const cursorWord = isPreviewing || phase === "hints"
+  const cursorWordCells = isPreviewing || phase === "hints"
     ? undefined
-    : new Set((cursorWordOf(grid, cursor.current, cursor.orientation) ?? []).map(cellNumberKey));
+    : cursorWordOf(grid, cursor.current, cursor.orientation) ?? [];
+  const cursorWord = cursorWordCells && new Set(cursorWordCells.map(cellNumberKey));
+  // The word's 180° image, its sister, is pale blue (25-S1).
+  const cursorSister = cursorWordCells && new Set(sisterWord(grid, cursorWordCells).map(cellNumberKey));
 
   // Locks show only in the build phase with Preview off (21-S2). The
   // button and its outline show at once in a locked word, after the wait in
@@ -983,6 +987,7 @@ export function PuzzleGridEditor({
                 grid={grid}
                 highlights={highlights}
                 cursorWord={cursorWord}
+                sisterWord={cursorSister}
                 lockedWords={isLockShown ? lockedWords : undefined}
                 lockTarget={lockTarget}
                 hasLockButton={hasLockRoom}

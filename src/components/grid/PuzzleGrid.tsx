@@ -168,6 +168,7 @@ export function PuzzleGrid({
   onCellClick,
   rebus,
   cursorWord,
+  sisterWord,
   lockedWords = [],
   lockTarget = null,
   hasLockButton = true,
@@ -181,6 +182,9 @@ export function PuzzleGrid({
   /** Build phase: the cursor's word, keyed via cellNumberKey; the rest of
    *  its slot is plain 'slot' (21-S1). */
   cursorWord?: ReadonlySet<string>;
+  /** Build phase: the cursor's word's 180° image, pale blue whatever its
+   *  cells are (25-S1). Keyed via cellNumberKey. */
+  sisterWord?: ReadonlySet<string>;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   mode?: GridMode;
@@ -308,7 +312,9 @@ export function PuzzleGrid({
                   ? PLAY_HIGHLIGHT_BG[highlight]
                   : gridMode === 'preview' && highlight && cell.kind === 'active'
                     ? PREVIEW_HIGHLIGHT_BG[highlight]
-                    : modeBg[appearance] ?? '')
+                    : gridMode === 'build' && sisterWord?.has(key)
+                      ? 'bg-build-cell-sister'
+                      : modeBg[appearance] ?? '')
           }
         >
           <GridCell

@@ -96,6 +96,18 @@ export function cellAppearance(args: {
 }
 
 /**
+ * The sister word (25-S1): the 180° image of `word`, each cell's symmetric
+ * counterpart in the word's order. The word's own cells (a word crossing
+ * the center shares cells with its image) and black cells are left out.
+ */
+export function sisterWord(grid: Grid, word: readonly Coord[]): Coord[] {
+  const own = new Set(word.map(cellNumberKey));
+  return word
+    .map((coord) => symmetricCounterpart(grid, coord))
+    .filter((coord) => !own.has(cellNumberKey(coord)) && grid.at(coord.col, coord.row).kind === 'active');
+}
+
+/**
  * Keys (via cellNumberKey) of empty active cells that are the symmetric
  * counterpart of a cell holding a letter — the squares a symmetric grid
  * would want filled. Render-only; nothing is stored.
