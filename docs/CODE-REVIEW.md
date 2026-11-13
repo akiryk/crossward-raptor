@@ -12,7 +12,10 @@ A change requires a branch, PR and independent review if it touches:
 - `src/engine/**` — shared pure logic;
 - `src/lib/puzzle-storage.ts` — stored serialization compatibility;
 - `src/app/puzzles/actions.ts` — authenticated server write paths;
-- `prisma/**` — schema and migrations.
+- `prisma/**` — schema and migrations;
+- `src/lib/collab/**` — collaborative operations and their commit path
+  (epic 24);
+- `src/app/api/puzzles/[id]/operations/**` — the operation commit route.
 
 Check declared Repo paths before implementation and actual changed/new paths
 before committing. The actual diff controls; an omitted risky path still needs
