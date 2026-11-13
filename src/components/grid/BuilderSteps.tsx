@@ -12,9 +12,12 @@ export type BuilderStepId = 'build' | 'hints' | 'publish';
 export function BuilderSteps({
   phase,
   onStep,
+  status,
 }: {
   phase: Phase;
   onStep: (id: Exclude<BuilderStepId, 'build'>) => void;
+  /** The save status (24-S3), at the row's end. */
+  status?: ReactNode;
 }) {
   const isHints = phase === 'hints';
   const current: { id: BuilderStepId; number: number; label: string } = isHints
@@ -40,6 +43,7 @@ export function BuilderSteps({
       <Button number={next.number} data-step-id={next.id} onClick={() => onStep(next.id)}>
         {next.label}
       </Button>
+      {status}
     </div>
   );
 }

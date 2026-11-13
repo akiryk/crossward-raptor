@@ -18,7 +18,6 @@ import { hintsComplete } from "../../engine/hints";
 import {
   deserializeGrid,
   deserializeLockedWords,
-  serializeGrid,
   type SerializedGrid,
 } from "../../lib/puzzle-storage";
 import {
@@ -38,14 +37,13 @@ import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
 import { publishReadiness } from "../../lib/publish-readiness";
 import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from "../../lib/word-cursor";
-import {
-  saveGrid,
-  saveHints,
-  saveTitle,
-  publishPuzzle,
-  enterHints,
-} from "../../app/puzzles/actions";
+import { publishAtVersion } from "../../app/puzzles/actions";
 import type { Visibility } from "../../app/puzzles/actions";
+import type { PuzzleContent } from "../../lib/collab/apply";
+import { publishRefusalMessage } from "../../lib/collab/notice";
+import { useOperationSaving } from "./useOperationSaving";
+import { SaveStatus } from "./SaveStatus";
+import { SaveNotices } from "./SaveNotices";
 import { PuzzleGrid } from "./PuzzleGrid";
 import { HintsPanel } from "./HintsPanel";
 import { HintBox } from "./HintBox";
@@ -67,7 +65,9 @@ import { LockWordControl } from "./LockWordControl";
 import { StartOverDialog, StartOverLink } from "./StartOverDialog";
 import { gridMaxPx } from "../../lib/grid-max";
 
-const SAVE_DEBOUNCE_MS = 500;
+// How long Publish waits for the edits the readiness check saw to be
+// acknowledged before reporting that it couldn't publish (24-S3).
+const PUBLISH_SAVE_WAIT_MS = 10000;
 // How long the cursor stays in an unlocked word before its lock button
 // shows (21-S2), and the mouse's hover wait (21-S10): 2 seconds (22-S6).
 const LOCK_BUTTON_DELAY_MS = 2000;
@@ -131,6 +131,29 @@ function startCursor(grid: Grid, phase: Phase): CursorState {
   return phase === "hints" ? wordStart(grid, current) : { current, orientation: "across" };
 }
 
+// The editor showing saved content (24-S3: a refused edit's authoritative
+// cells, a journal's operations, Enter Hints confirmed). The cursor stays
+// unless the phase changed or its cell is no longer white.
+function withContent(prev: EditorState, content: PuzzleContent): EditorState {
+  const grid = deserializeGrid(content.grid);
+  const { col, row } = prev.cursor.current;
+  const keepsCursor = content.phase === prev.phase && col < grid.cols && row < grid.rows &&
+    grid.at(col, row).kind === "active";
+  return {
+    ...prev,
+    grid,
+    lockedWords: deserializeLockedWords(content.grid),
+    phase: content.phase,
+    hints: { ...content.hints },
+    title: content.title,
+    cursor: keepsCursor ? prev.cursor : startCursor(grid, content.phase),
+  };
+}
+
+function timeout(ms: number): Promise<never> {
+  return new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), ms));
+}
+
 export function PuzzleGridEditor({
   puzzleId,
   initialGrid,
@@ -139,6 +162,8 @@ export function PuzzleGridEditor({
   initialTitle,
   initialPublishedAt,
   initialVisibility,
+  initialVersion,
+  initialEpoch,
 }: {
   puzzleId: string;
   initialGrid: SerializedGrid;
@@ -147,6 +172,9 @@ export function PuzzleGridEditor({
   initialTitle: string;
   initialPublishedAt: Date | null;
   initialVisibility: Visibility;
+  /** 24-S3: the version and reset epoch the confirmed state starts at. */
+  initialVersion: number;
+  initialEpoch: number;
 }) {
   const [state, setState] = useState<EditorState>(() => {
     const grid = deserializeGrid(initialGrid);
@@ -161,29 +189,16 @@ export function PuzzleGridEditor({
       visibility: initialVisibility,
     };
   });
-  // What's already been persisted, so each autosave effect can tell a
-  // genuine edit apart from React re-running it with the same value.
-  // Seeded from the hook's own initial value (evaluated once, at the true
-  // mount), not a boolean "have we run before" flag: in dev, React's
-  // Strict Mode runs a fresh mount's effects twice (mount, simulated
-  // unmount, mount again) to surface exactly this class of bug, and a
-  // one-shot flag gets consumed by the first of those two passes, leaving
-  // the second to wrongly treat the untouched initial value as a real
-  // edit and schedule a save -- which a published puzzle's server-side
-  // guard then rejects. Comparing against the last-saved value instead is
-  // reentrant: replayed with the same value, it keeps skipping.
-  const lastSavedGridRef = useRef(state.grid);
-  const lastSavedLockedWordsRef = useRef(state.lockedWords);
-  const lastSavedHintsRef = useRef(state.hints);
-  const lastSavedTitleRef = useRef(state.title);
-  // Pending debounced-save timers, tracked so a publish click can cancel
-  // whatever's pending and save the latest value immediately instead --
-  // otherwise a save queued just before publishing loses the race against
-  // publishPuzzle's now-published guard and is silently dropped (PB4
-  // review finding).
-  const gridSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hintsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const titleSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 24-S3: edits are saved as operations (useOperationSaving).
+  const [initialContent] = useState<PuzzleContent>(() => ({
+    grid: initialGrid, hints: initialHints, title: initialTitle, phase: initialPhase,
+  }));
+  const { saver, saveState, notices, dismissNotice } = useOperationSaving({
+    puzzleId, initialContent, initialVersion, initialEpoch, state, setState, withContent,
+  });
+  // What Publish is pinned to (D7): the operations pending when the
+  // readiness check ran, and the confirmed version then.
+  const publishCheckRef = useRef<{ pendingIds: string[]; version: number } | null>(null);
   const [isReady, setIsReady] = useState(false);
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
@@ -250,49 +265,6 @@ export function PuzzleGridEditor({
   const [missingKeys, setMissingKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-
-  useEffect(() => {
-    if (lastSavedGridRef.current === state.grid && lastSavedLockedWordsRef.current === state.lockedWords) return;
-    lastSavedGridRef.current = state.grid;
-    lastSavedLockedWordsRef.current = state.lockedWords;
-    gridSaveTimer.current = setTimeout(() => {
-      gridSaveTimer.current = null;
-      saveGrid(puzzleId, serializeGrid(state.grid, state.lockedWords)).catch((error) => {
-        console.error("Failed to save puzzle grid", error);
-      });
-    }, SAVE_DEBOUNCE_MS);
-    return () => {
-      if (gridSaveTimer.current !== null) clearTimeout(gridSaveTimer.current);
-    };
-  }, [state.grid, state.lockedWords, puzzleId]);
-
-  useEffect(() => {
-    if (lastSavedHintsRef.current === state.hints) return;
-    lastSavedHintsRef.current = state.hints;
-    hintsSaveTimer.current = setTimeout(() => {
-      hintsSaveTimer.current = null;
-      saveHints(puzzleId, state.hints).catch((error) => {
-        console.error("Failed to save puzzle hints", error);
-      });
-    }, SAVE_DEBOUNCE_MS);
-    return () => {
-      if (hintsSaveTimer.current !== null) clearTimeout(hintsSaveTimer.current);
-    };
-  }, [state.hints, puzzleId]);
-
-  useEffect(() => {
-    if (lastSavedTitleRef.current === state.title) return;
-    lastSavedTitleRef.current = state.title;
-    titleSaveTimer.current = setTimeout(() => {
-      titleSaveTimer.current = null;
-      saveTitle(puzzleId, state.title).catch((error) => {
-        console.error("Failed to save puzzle title", error);
-      });
-    }, SAVE_DEBOUNCE_MS);
-    return () => {
-      if (titleSaveTimer.current !== null) clearTimeout(titleSaveTimer.current);
-    };
-  }, [state.title, puzzleId]);
 
   useEffect(() => {
     // Focusing the grid here (rather than leaving it unfocused until a
@@ -395,11 +367,15 @@ export function PuzzleGridEditor({
     return () => clearTimeout(timer);
   }, [hoverWait]);
 
+  // A lock or unlock is an operation of its own, after the burst before it
+  // (24-S3).
   function handleToggleLock() {
-    setState((prev) => {
-      const target = lockTargetAt(prev.grid, prev.lockedWords, prev.cursor);
-      return target ? { ...prev, lockedWords: toggleLock(prev.lockedWords, target.word) } : prev;
-    });
+    const target = lockTargetAt(state.grid, state.lockedWords, state.cursor);
+    if (target) {
+      saver.flushGrid();
+      saver.add({ kind: target.isLocked ? "unlock" : "lock", word: target.word });
+      setState((prev) => ({ ...prev, lockedWords: toggleLock(prev.lockedWords, target.word) }));
+    }
     // The button stays, in its new state.
     setLockDwell(state.cursor);
   }
@@ -437,6 +413,7 @@ export function PuzzleGridEditor({
   // An open rebus entry is placed as leaving it does, and the grid keeps
   // focus for after the dialog (20-S1).
   function handleStartOver() {
+    saver.flushGrid();
     if (rebusOpenRef.current) {
       closeRebusEntry(false);
       gridRegionRef.current?.focus({ preventScroll: true });
@@ -446,9 +423,11 @@ export function PuzzleGridEditor({
 
   // Every cell white and empty, the size kept, and no lock left; or, with
   // Keep Locked Words (21-S6), every cell outside a locked word, the locks
-  // kept. The cursor starts over on the first cell, Across. Saved by the
-  // grid's autosave; no undo.
+  // kept. The cursor starts over on the first cell, Across. Saved as a
+  // Start Over operation (24-S3), after anything typed before it; no undo.
   function handleConfirmStartOver(keepLockedWords: boolean) {
+    saver.flushGrid();
+    saver.add({ kind: "startOver", keepLockedWords });
     const lockedWords = keepLockedWords ? state.lockedWords : [];
     const next = clearOutsideLockedWords(state.grid, lockedWords);
     setState((prev) => ({
@@ -578,33 +557,11 @@ export function PuzzleGridEditor({
     setLockHover(null);
   }
 
-  // Cancels any pending debounced saves and re-issues them immediately
-  // with the current in-memory values, so an edit made just before
-  // publishing is persisted before publishPuzzle's guard would otherwise
-  // reject it.
-  function flushPendingSaves(): Promise<unknown> {
-    if (gridSaveTimer.current !== null) {
-      clearTimeout(gridSaveTimer.current);
-      gridSaveTimer.current = null;
-    }
-    if (hintsSaveTimer.current !== null) {
-      clearTimeout(hintsSaveTimer.current);
-      hintsSaveTimer.current = null;
-    }
-    if (titleSaveTimer.current !== null) {
-      clearTimeout(titleSaveTimer.current);
-      titleSaveTimer.current = null;
-    }
-    return Promise.all([
-      saveGrid(puzzleId, serializeGrid(state.grid, state.lockedWords)),
-      saveHints(puzzleId, state.hints),
-      saveTitle(puzzleId, state.title),
-    ]);
-  }
-
   // The one step button: 2 Create Hints in the build phase, 3 Publish in
   // the hints phase (17-S8).
   function handleStep(id: Exclude<BuilderStepId, "build">) {
+    // A step button finalizes every burst (24-S3).
+    saver.flushAll();
     if (id === "publish") {
       if (!hintsComplete(state)) {
         setMissingKeys(
@@ -618,6 +575,7 @@ export function PuzzleGridEditor({
         setIsHintsPreview(false);
         setIsNotQuiteOpen(true);
       } else {
+        publishCheckRef.current = saver.snapshot();
         setIsPublishDialogOpen(true);
       }
       return;
@@ -636,34 +594,47 @@ export function PuzzleGridEditor({
     setIsEnterHintsDialogOpen(false);
     // The hints phase has no Preview, so its grid starts in its own look.
     changePreview(false);
-    // enterHints reloads the puzzle from the database, so a letter typed
-    // within the last debounce window has to be flushed first or the
-    // conversion would read that cell as empty and blacken it.
-    flushPendingSaves()
-      .then(() => enterHints(puzzleId))
-      .then(({ phase, hints, grid }) => {
-        // The cursor starts over by the hints phase's rule: the conversion
-        // may have turned its cell black (17-S6).
-        setState((prev) => {
-          const next = deserializeGrid(grid);
-          // The conversion drops the locked words: the hints phase has none.
-          return { ...prev, phase, hints, grid: next, lockedWords: [], cursor: startCursor(next, phase) };
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to enter hints phase", error);
+    // Enter Hints converts the server's current state (D4), after every
+    // burst before it; the editor changes phase once the server confirms.
+    saver.flushAll();
+    const op = saver.add({ kind: "enterHints" });
+    void saver.settled(op.opId).then((settlement) => {
+      if (settlement?.status !== "accepted") return;
+      // The cursor starts over by the hints phase's rule: the conversion
+      // may have turned its cell black (17-S6).
+      const content = saver.projected();
+      setState((prev) => {
+        const next = withContent(prev, content);
+        return { ...next, cursor: startCursor(next.grid, next.phase) };
       });
+    });
   }
 
-  // The Publish dialog shows its own failure line, so a rejection is
-  // passed back to it.
-  function handlePublish(visibility: Visibility): Promise<void> {
-    return flushPendingSaves()
-      .then(() => publishPuzzle(puzzleId, visibility))
-      .then(({ publishedAt, visibility }) => {
-        setIsPublishDialogOpen(false);
-        setState((prev) => ({ ...prev, publishedAt, visibility }));
-      });
+  // Publishing is pinned to the version the readiness check saw (D7): once
+  // the edits pending then are acknowledged, at the version the last of them
+  // was committed as. A refusal is shown in the dialog; a failure to reach
+  // the server rejects, for the dialog's own failure line.
+  async function handlePublish(visibility: Visibility): Promise<string | null> {
+    const check = publishCheckRef.current ?? saver.snapshot();
+    let version = check.version;
+    if (check.pendingIds.length > 0) {
+      const settlements = await Promise.race([
+        Promise.all(check.pendingIds.map((opId) => saver.settled(opId))),
+        timeout(PUBLISH_SAVE_WAIT_MS),
+      ]);
+      if (settlements.some((settlement) => settlement?.status !== "accepted")) {
+        return publishRefusalMessage("unsaved");
+      }
+      const last = settlements[settlements.length - 1];
+      if (last?.status === "accepted") version = last.version;
+    }
+    const outcome = await publishAtVersion({ puzzleId, version, visibility });
+    if (outcome.status === "published") {
+      setIsPublishDialogOpen(false);
+      setState((prev) => ({ ...prev, publishedAt: outcome.publishedAt, visibility: outcome.visibility }));
+      return null;
+    }
+    return publishRefusalMessage(outcome.status === "refused" ? outcome.code : outcome.status);
   }
 
   function handleTitleChange(title: string) {
@@ -819,6 +790,8 @@ export function PuzzleGridEditor({
       return;
     }
     const { word } = hoverTarget;
+    saver.flushGrid();
+    saver.add({ kind: hoverTarget.isLocked ? "unlock" : "lock", word });
     setState((prev) => ({ ...prev, lockedWords: toggleLock(prev.lockedWords, word) }));
     // The mouse is on the button, which stays in its new state (21-S10):
     // its word's tick going picks nothing again.
@@ -853,6 +826,10 @@ export function PuzzleGridEditor({
     <div
       data-testid="puzzle-editor"
       data-ready={isReady}
+      // A text field losing focus finalizes the hint and title bursts (24-S3).
+      onBlur={(event) => {
+        if (event.target !== gridRegionRef.current) saver.flushText();
+      }}
       className="@container/editor m-auto"
       style={{ ["--grid-max" as string]: `${gridPx}px` }}
     >
@@ -876,7 +853,7 @@ export function PuzzleGridEditor({
               <PublishedState puzzleId={puzzleId} />
             </div>
           ) : (
-            <BuilderSteps phase={phase} onStep={handleStep} />
+            <BuilderSteps phase={phase} onStep={handleStep} status={<SaveStatus state={saveState} />} />
           )}
           <div className={`${isPublished ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
             <ToggleRow isPublished={isPublished} hasProgress={isProgressShown}>
@@ -961,6 +938,7 @@ export function PuzzleGridEditor({
             onCancel={() => setIsPublishDialogOpen(false)}
           />
         )}
+        <SaveNotices notices={notices} onDismiss={dismissNotice} />
         <div
           ref={editorLayoutRef}
           data-testid="editor-layout"
@@ -980,7 +958,11 @@ export function PuzzleGridEditor({
               tabIndex={isPublished || isLettersLocked ? undefined : 0}
               onKeyDown={handleGridKeyDown}
               onFocus={() => setIsGridFocused(true)}
-              onBlur={() => setIsGridFocused(false)}
+              onBlur={() => {
+                setIsGridFocused(false);
+                // The grid losing focus finalizes its burst (24-S3).
+                saver.flushGrid();
+              }}
               className="w-full outline-none"
             >
               <PuzzleGrid

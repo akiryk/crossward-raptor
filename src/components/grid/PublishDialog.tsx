@@ -8,29 +8,41 @@ import { ModalActions } from '../ui/ModalActions';
 import { RadioGroup } from '../ui/Radio';
 
 /** Story 14-S4. Confirms publishing; the human supplies the final copy
- *  later. Mounted only while open, so each opening starts at Unlisted. */
+ *  later. Mounted only while open, so each opening starts at Unlisted.
+ *  24-S3: `onPublish` resolves with null once published, or with the
+ *  reason it wasn't (a stale version, D7), shown in place of the failure
+ *  line; a rejection is a failure to reach the server. */
 export function PublishDialog({
   findings,
   onPublish,
   onCancel,
 }: {
   findings: readonly Finding[];
-  onPublish: (visibility: Visibility) => Promise<void>;
+  onPublish: (visibility: Visibility) => Promise<string | null>;
   onCancel: () => void;
 }) {
   const [visibility, setVisibility] = useState<Visibility>('private');
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [refusal, setRefusal] = useState<string | null>(null);
   const headingId = useId();
 
   function handlePublish() {
     setPending(true);
     setFailed(false);
-    onPublish(visibility).catch((error) => {
-      console.error('Failed to publish puzzle', error);
-      setPending(false);
-      setFailed(true);
-    });
+    setRefusal(null);
+    onPublish(visibility).then(
+      (reason) => {
+        if (reason === null) return;
+        setPending(false);
+        setRefusal(reason);
+      },
+      (error) => {
+        console.error('Failed to publish puzzle', error);
+        setPending(false);
+        setFailed(true);
+      },
+    );
   }
 
   return (
@@ -72,6 +84,11 @@ export function PublishDialog({
       {failed && (
         <p role="alert" className="text-body-small text-error">
           Couldn&apos;t publish. Try again.
+        </p>
+      )}
+      {refusal !== null && (
+        <p role="alert" data-testid="publish-refusal" className="text-body-small text-error">
+          {refusal}
         </p>
       )}
     </Modal>

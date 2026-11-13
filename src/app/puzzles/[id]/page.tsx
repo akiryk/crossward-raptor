@@ -25,6 +25,8 @@ export default async function PuzzleDetailPage({
         initialTitle={puzzle.title}
         initialPublishedAt={puzzle.publishedAt}
         initialVisibility={puzzle.visibility}
+        initialVersion={puzzle.version}
+        initialEpoch={puzzle.resetEpoch}
       />
     </div>
   );

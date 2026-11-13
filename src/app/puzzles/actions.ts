@@ -14,9 +14,7 @@ import {
   type SerializedGrid,
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
-import { enterHintsPhase } from '@/engine/phase';
-import { hintsComplete } from '@/engine/hints';
-import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
+import { requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 import type { LockedWord } from '@/lib/locked-words';
@@ -36,6 +34,10 @@ export type PuzzleWithMeta = Puzzle & {
   title: string;
   publishedAt: Date | null;
   visibility: Visibility;
+  /** 24-S3: the version and reset epoch the editor's confirmed state
+   *  starts from. */
+  version: number;
+  resetEpoch: number;
 };
 
 export interface PlayPuzzleView {
@@ -338,33 +340,9 @@ export async function listPuzzles(): Promise<
   });
 }
 
-/** Epic 24 (24-S1): the snapshot fence. A snapshot write (the old editor's
- *  saves, Enter Hints and Publish) changes a puzzle only while no operation
- *  has been committed to it. Once one has, a tab still running the old
- *  editor matches nothing rather than overwriting committed operations. */
-const SNAPSHOT_FENCE = { version: 0 } as const;
-
-/** Ownership, the published lock and the snapshot fence are checked by the
- *  write itself, so none can change between a preliminary read and this
- *  mutation. */
-async function updateUnlessPublished(
-  id: string,
-  builderId: string,
-  action: string,
-  data: Prisma.PuzzleUpdateManyMutationInput
-): Promise<void> {
-  const { count } = await prisma.puzzle.updateMany({
-    where: { id, builderId, publishedAt: null, ...SNAPSHOT_FENCE },
-    data,
-  });
-  if (count === 0) {
-    throw new Error(`${action}: puzzle ${id} cannot be edited`);
-  }
-}
-
 /** Epic 24 (24-S1): commits one operation as the signed-in builder. The
- *  account comes from the session, never the input. S3's editor sends
- *  through this; a page being left sends through the route handler at
+ *  account comes from the session, never the input. The editor sends
+ *  through this (24-S3); a page being left sends through the route handler at
  *  `/api/puzzles/[id]/operations`. */
 export async function commitOperation(input: unknown): Promise<CommitOutcome> {
   const session = await requireSession();
@@ -374,108 +352,10 @@ export async function commitOperation(input: unknown): Promise<CommitOutcome> {
 /** Epic 24 (24-S2): publishes the signed-in owner's puzzle only if it is
  *  still at the version their readiness check saw (`{ puzzleId, version,
  *  visibility }`); otherwise a refusal the Publish dialog can show. The
- *  account comes from the session. S3's Publish dialog calls this in place
- *  of `publishPuzzle`. */
+ *  account comes from the session. The Publish dialog calls this (24-S3). */
 export async function publishAtVersion(input: unknown): Promise<PublishOutcome> {
   const session = await requireSession();
   return publishPuzzleAt(prisma, session.user.id, input);
-}
-
-export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
-  const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveGrid', {
-    grid: grid as unknown as Prisma.InputJsonValue,
-  });
-}
-
-export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
-  const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveHints', {
-    hints: hints as unknown as Prisma.InputJsonValue,
-  });
-}
-
-export async function saveTitle(id: string, title: string): Promise<void> {
-  const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveTitle', { title: normalizeTitle(title) });
-}
-
-/** Loads the puzzle, transitions it to 'hints' phase via the engine's
- *  enterHintsPhase, persists the result (grid included -- the transition
- *  now converts empty cells to black, so the grid changes too), and
- *  returns the new phase, hints, and grid. */
-export async function enterHints(
-  id: string
-): Promise<{ phase: Phase; hints: Record<string, string>; grid: SerializedGrid }> {
-  const session = await requireSession();
-  const puzzle = await loadPuzzle(id);
-  if (!puzzle) {
-    throw new Error(`enterHints: puzzle ${id} not found`);
-  }
-
-  const updated = enterHintsPhase(puzzle);
-  const stored = serializePuzzle(updated);
-
-  await updateUnlessPublished(id, session.user.id, 'enterHints', {
-    grid: stored.grid as unknown as Prisma.InputJsonValue,
-    hints: stored.hints as unknown as Prisma.InputJsonValue,
-    phase: stored.phase,
-    // Only written on the actual grid->hints crossing (Story H2) -- a
-    // second call on an already-hints puzzle (enterHintsPhase is a
-    // no-op then) must not overwrite the one snapshot of the original,
-    // pre-conversion grid with the already-converted one.
-    ...(puzzle.phase === 'grid'
-      ? { gridBeforeHints: serializeGrid(puzzle.grid) as unknown as Prisma.InputJsonValue }
-      : {}),
-  });
-
-  return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
-}
-
-/** Publishes the puzzle with the given visibility, stamping publishedAt now.
- *  Requires the puzzle to be the caller's, in hints phase, not already
- *  published, and (14-S4) to have every required hint written. Each
- *  condition is repeated in the update's WHERE clause, the hints by value,
- *  so a concurrent save can't slip an ineligible puzzle through between
- *  the check and the write. Every rejection throws the same error. */
-export async function publishPuzzle(
-  id: string,
-  visibility: Visibility
-): Promise<{ publishedAt: Date; visibility: Visibility }> {
-  const session = await requireSession();
-  if (visibility !== 'private' && visibility !== 'public') {
-    throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
-  }
-
-  const notEligible = new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
-  const eligible = { id, builderId: session.user.id, phase: 'hints', publishedAt: null };
-  const record = await prisma.puzzle.findUnique({
-    where: eligible,
-    select: { grid: true, hints: true, phase: true },
-  });
-  if (
-    !record ||
-    !hintsComplete(
-      deserializePuzzle({
-        grid: record.grid as unknown as SerializedGrid,
-        hints: record.hints as Record<string, string>,
-        phase: record.phase as Puzzle['phase'],
-      })
-    )
-  ) {
-    throw notEligible;
-  }
-
-  // Conditioned on the hints just checked: a save that blanks one in
-  // between makes the update match nothing rather than publish over it.
-  const publishedAt = new Date();
-  const { count } = await prisma.puzzle.updateMany({
-    where: { ...eligible, ...SNAPSHOT_FENCE, hints: { equals: record.hints as Prisma.InputJsonValue } },
-    data: { publishedAt, visibility },
-  });
-  if (count === 0) throw notEligible;
-
-  return { publishedAt, visibility };
 }
 
 /** Story 16-S2: switches the caller's published puzzle between unlisted and
@@ -561,5 +441,7 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     title: record.title,
     publishedAt: record.publishedAt,
     visibility: record.visibility as Visibility,
+    version: record.version,
+    resetEpoch: record.resetEpoch,
   };
 }
