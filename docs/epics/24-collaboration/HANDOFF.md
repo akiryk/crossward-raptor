@@ -35,15 +35,36 @@ migration, service or production data has changed.
 - 2026-11-12: the human approved the revised EPIC, including the split
   and those resolutions.
 
-**Authorization.** Drafting S1 only: no implementation, migrations,
-infrastructure, freezing, merging or deploying.
+- 2026-11-12 (later): the human delegated the whole epic. They asked the
+  agent to orchestrate subagents and finish every story without checking
+  in on each decision, and they will review the result at the end. This
+  explicitly delegates approval and freezing of each story's
+  specification and acceptance (STORY, "Obtain approval and freeze").
+
+**Authorization.** All seven stories: drafting, freezing under that
+delegation, implementation, PRs and independent review. Not authorized:
+production migrations, Vercel settings, or merging into `main` (which
+deploys automatically).
+
+**Delivery plan (agent's decision, 2026-11-12).** S1's migration must be in
+production before any code using it reaches `main`, and production
+migrations are the human's. So the epic is integrated on
+`epic/24-collaboration`, branched from `main`:
+
+- each story's frozen specification and acceptance is a separate
+  specification-only commit on `epic/24-collaboration` (in place of
+  `main`, so `main` stays deployable);
+- each story is implemented on `story/24-Sn-<name>` from that baseline,
+  with a PR into `epic/24-collaboration`;
+- an independent reviewer agent reviews and merges each PR into the epic
+  branch;
+- at the end, one PR from `epic/24-collaboration` to `main`, merged only
+  after the human applies the epic's migrations to production. The
+  Vercel Skew Protection check (EPIC, "Retiring snapshot saves") is
+  settled before that merge.
 
 **Constraint for every story.** Each one is on the risk paths: a branch,
-a PR and independent review. S1 and S5 (and S7 if presence needs a table)
-merge only after their migration is applied to production, with the
-human's authorization (`main` deploys automatically). S3 may need the
-human's authorization for a Vercel setting (EPIC, "Retiring snapshot
-saves").
+a PR and independent review.
 
 ## Verification
 
