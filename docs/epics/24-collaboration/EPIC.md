@@ -218,6 +218,7 @@ therefore merge and deploy without changing anyone's experience.
      commit path; that is deliberate, not dead code.
    - Depends on: nothing.
 2. **S2 Phase changes, locks, Start Over and Publish.**
+   [Story](stories/24-S2-structural-operations.md), frozen 2026-11-13.
    - The structural operations: `lock` and `unlock`, `enterHints` and
      `startOver` (owner-only, incrementing `resetEpoch`).
    - Enter Hints converts the server's current state atomically; late Build
