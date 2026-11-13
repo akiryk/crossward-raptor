@@ -388,7 +388,10 @@ export default function StyleGuidePage() {
               findings={[
                 { kind: 'short-answers', count: 2, message: '2 answers are shorter than three letters.' },
               ]}
-              onPublish={async () => setPublishOpen(false)}
+              onPublish={async () => {
+                setPublishOpen(false);
+                return null;
+              }}
               onCancel={() => setPublishOpen(false)}
             />
           )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookie } from 'better-auth/cookies';
+import { RELOAD_COOKIE, staleEditorReload } from '@/lib/stale-editor';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,6 +14,20 @@ export function middleware(request: NextRequest) {
   if (!sessionCookie) {
     return NextResponse.redirect(new URL('/', request.url));
   }
+
+  // 24-S3: a server action from an editor tab of an earlier deployment
+  // reloads that tab into this one (src/lib/stale-editor.ts). Production
+  // builds only: `next dev` doesn't send the deployment ID.
+  const reload = process.env.NODE_ENV === 'production'
+    ? staleEditorReload({
+        method: request.method,
+        pathname,
+        search: request.nextUrl.search,
+        headers: request.headers,
+        hasReloadCookie: request.cookies.has(RELOAD_COOKIE),
+      }, process.env.NEXT_DEPLOYMENT_ID)
+    : null;
+  if (reload) return new NextResponse(null, { status: 200, headers: reload });
 
   // Next 16 skips the page subtree for router prefetches even on HTML
   // requests, leaving its HTML stream waiting on the omitted children.
