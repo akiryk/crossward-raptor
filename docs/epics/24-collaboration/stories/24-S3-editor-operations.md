@@ -289,6 +289,16 @@ intent that remains and carries a note citing 24-S3:
   actions lose the five and list `commitOperation` and `publishAtVersion`
   (already enumerated from the module).
 
+### Correction after the freeze
+
+2026-11-13, a separate specification-only commit on
+`epic/24-collaboration` ("24-S3: correct …"; its hash is in the handoff).
+`npm run verify`'s lint failed on the frozen `outbox.test.ts` (24-S3-2,
+"a refusal drops it…"): `prefer-const` on a `let` destructuring. The two
+operations are now made with two `const` destructurings; the same
+operations are made and the same assertions run (no semantic change). The
+reviewer reviews this correction with the PR.
+
 ### Discrimination
 
 2026-11-13, with a prototype of the decisions above (set aside until the

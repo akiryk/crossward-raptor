@@ -103,9 +103,8 @@ describe('24-S3-2 settling an operation', () => {
   });
 
   it('a refusal drops it without touching the confirmed state; later ones stay in order', () => {
-    let [box, first] = add(outbox(), { kind: 'cells', writes: [{ col: 0, row: 0, value: 'X' }] });
-    let second: Operation;
-    [box, second] = add(box, { kind: 'title', title: 'Kept' });
+    const [afterFirst, first] = add(outbox(), { kind: 'cells', writes: [{ col: 0, row: 0, value: 'X' }] });
+    const [box, second] = add(afterFirst, { kind: 'title', title: 'Kept' });
     const settled = settle(box, first.opId, { status: 'refused', code: 'locked' });
     expect(settled.confirmed).toBe(box.confirmed);
     expect(settled.pending).toEqual([second]);
