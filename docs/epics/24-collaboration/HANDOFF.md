@@ -91,17 +91,20 @@ All on `5ae6393` (the frozen acceptance is unchanged from `a1a4db0`):
     alone: 76 passed, exit 0;
   - runs 1, 3, 5: stalls, a 180 s web-server startup timeout, and 33
     timeout or transition-timing failures at 1.7 h;
-  - run 6, with `--workers=2` (a disclosed cap against the contention):
-    in progress when this handoff was written; its result is added below
-    or in the PR.
+  - run 6, with `--workers=2` (a disclosed cap): stopped by the author
+    after about 1.5 h at 598 passed, 10 failed: nine 12–16 min stall
+    timeouts and `done-icon` 18-S5-5, a pixel read mid-transition after a
+    play reset (also in runs 4 and 5; it passed in run 2 and alone).
+  - **No full run was clean.** No failure was on a path S1 changes, and
+    every failing file passed when rerun alone. The reviewer should get a
+    clean full run on a quiet machine before merging.
 - No `src/engine/**` change.
 
 ## Next action
 
 Independent review of the S1 PR into `epic/24-collaboration` (REVIEW);
 the reviewer merges it if no blockers remain. A clean full `npm run
-test:e2e` on a quiet machine is part of that evidence if run 6 (above) was
-not clean. Not authorized: production migration, Vercel settings, `main`.
+test:e2e` on a quiet machine is still needed as evidence. Not authorized: production migration, Vercel settings, `main`.
 
 ## Resume prompt
 
