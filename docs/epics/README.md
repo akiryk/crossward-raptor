@@ -9,10 +9,10 @@ reading or additional product specifications.
 
 ## Find the current work
 
-- [The sister word](25-sister-word/HANDOFF.md) (epic 25, one story;
-  25-S1 delivered 2026-11-12, the human's visual check pending)
 - [Collaborative puzzle construction](24-collaboration/HANDOFF.md)
   (epic 24, EPIC approved 2026-11-12; S1's specification next)
+- [The sister word](25-sister-word/HANDOFF.md) (epic 25, closed
+  2026-11-12; no open items)
 - [Account details](23-account-details/HANDOFF.md) (epic 23, closed
   2026-11-09; open items listed there)
 - [Build progress](22-build-progress/HANDOFF.md) (epic 22, closed
