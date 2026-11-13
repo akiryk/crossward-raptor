@@ -232,6 +232,7 @@ therefore merge and deploy without changing anyone's experience.
      own review rather than riding with S1's ordering machinery.
    - Depends on: S1.
 3. **S3 The editor saves by operations (C2b).**
+   [Story](stories/24-S3-editor-operations.md), frozen 2026-11-13.
    - The editor dispatches operations over a confirmed state plus pending
      operations.
    - Bursts, with a maximum wait; one in-flight operation per tab, in order.

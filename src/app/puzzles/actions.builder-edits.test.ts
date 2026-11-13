@@ -26,9 +26,6 @@ for (let row = 0; row < 3; row++) {
   for (let col = 0; col < 3; col++) grid = withLetter(grid, { col, row }, 'A');
 }
 const stored = serializePuzzle({ grid, hints: {}, phase: 'grid' });
-// 14-S4: publishing needs every hint, so a puzzle published here has them all.
-const ALL_HINTS = Object.fromEntries(['1-across', '4-across', '5-across', '1-down', '2-down', '3-down'].map((key) => [key, 'A hint']));
-const replacement = serializePuzzle({ grid: withLetter(grid, { col: 0, row: 0 }, 'Z'), hints: {}, phase: 'grid' }).grid;
 type Row = {
   id: string; builderId: string; title: string; phase: string;
   grid: unknown; hints: unknown; gridBeforeHints: unknown;
@@ -62,13 +59,12 @@ function matches(row: Row, where: Where): boolean {
   });
 }
 function own() { return rows.find((row) => row.id === 'target')!; }
-const contentActions = ['saveGrid', 'saveHints', 'saveTitle', 'enterHints'];
+// Amended by 24-S3: the snapshot saves (saveGrid, saveHints, saveTitle), the
+// snapshot enterHints and publishPuzzle are removed. The editor writes
+// through the commit path and publishAtVersion, whose authority, published
+// lock, Enter Hints snapshot and publishing are pinned by 24-S1-8/13/17,
+// 24-S2-8/11/12 against the database. deletePuzzle keeps its cases here.
 const calls: Array<[string, (id: string) => Promise<unknown>]> = [
-  ['saveGrid', (id) => actions.saveGrid(id, replacement)],
-  ['saveHints', (id) => actions.saveHints(id, { '1-across': 'Changed clue' })],
-  ['saveTitle', (id) => actions.saveTitle(id, '  Changed title  ')],
-  ['enterHints', (id) => actions.enterHints(id)],
-  ['publishPuzzle', (id) => actions.publishPuzzle(id, 'public')],
   ['deletePuzzle', (id) => actions.deletePuzzle(id)],
 ];
 
@@ -117,9 +113,8 @@ describe('O3 builder-only mutation authority', () => {
     for (const [name, effect] of Object.entries(mocks)) if (name !== 'requireSession') expect(effect).not.toHaveBeenCalled();
   });
 
-  it.each(calls)('%s cannot mutate another builder’s puzzle, even with an admin role', async (name, call) => {
+  it.each(calls)('%s cannot mutate another builder’s puzzle, even with an admin role', async (_name, call) => {
     own().builderId = 'other-builder';
-    if (name === 'publishPuzzle') own().phase = 'hints';
     const before = structuredClone(rows);
     await expect(call('target')).rejects.toThrow();
     expect(rows).toEqual(before);
@@ -134,82 +129,20 @@ describe('O3 builder-only mutation authority', () => {
   });
 
   it.each(calls)('%s preserves owner success and constrains every write to the trusted builder and ID', async (name, call) => {
-    if (name === 'publishPuzzle') { own().phase = 'hints'; own().hints = ALL_HINTS; }
     const original = structuredClone(own());
     const decoy = structuredClone(rows[1]);
-    const result = await call('target');
+    await call('target');
     expect(writes.length).toBeGreaterThan(0);
     for (const write of writes) {
       expect(matches(original, write.where)).toBe(true);
       expect(matches({ ...original, id: 'different' }, write.where)).toBe(false);
       expect(matches({ ...original, builderId: 'other-builder' }, write.where)).toBe(false);
-      if (contentActions.includes(name) || name === 'publishPuzzle') {
-        expect(matches({ ...original, publishedAt: new Date() }, write.where)).toBe(false);
-      }
-      if (name === 'publishPuzzle') expect(matches({ ...original, phase: 'grid' }, write.where)).toBe(false);
     }
     expect(rows.find((row) => row.id === 'decoy')).toEqual(decoy);
-    if (name === 'saveGrid') expect(own().grid).toEqual(replacement);
-    if (name === 'saveHints') expect(own().hints).toEqual({ '1-across': 'Changed clue' });
-    if (name === 'saveTitle') expect(own().title).toBe('Changed title');
-    if (name === 'enterHints') {
-      expect(own().phase).toBe('hints');
-      expect(own().gridBeforeHints).toEqual(original.grid);
-      expect(result).toEqual({ phase: 'hints', hints: own().hints, grid: own().grid });
-    }
-    if (name === 'publishPuzzle') {
-      expect(own().publishedAt).toBeInstanceOf(Date);
-      expect(own().visibility).toBe('public');
-      expect(result).toEqual({ publishedAt: own().publishedAt, visibility: 'public' });
-    }
     if (name === 'deletePuzzle') {
       expect(rows.some((row) => row.id === 'target')).toBe(false);
       expect(mocks.revalidatePath).toHaveBeenCalledWith('/puzzles');
     }
-  });
-
-  it.each(calls.filter(([name]) => contentActions.includes(name)))('%s retains the owner’s published content lock', async (_name, call) => {
-    own().publishedAt = new Date('2026-10-01T00:00:00Z');
-    own().phase = 'hints';
-    const before = structuredClone(rows);
-    await expect(call('target')).rejects.toThrow();
-    expect(rows).toEqual(before);
-    expect(mocks.revalidatePath).not.toHaveBeenCalled();
-  });
-
-  it.each(['private', 'public'] as const)('publishes an eligible owner puzzle as %s', async (visibility) => {
-    own().phase = 'hints';
-    own().hints = ALL_HINTS;
-    const result = await actions.publishPuzzle('target', visibility);
-    expect(result).toEqual({ publishedAt: own().publishedAt, visibility });
-    expect(own().visibility).toBe(visibility);
-  });
-
-  it.each(['grid', 'published', 'invalid visibility'])('retains publish rejection for %s', async (reason) => {
-    if (reason !== 'grid') own().phase = 'hints';
-    if (reason === 'published') own().publishedAt = new Date();
-    const before = structuredClone(rows);
-    await expect(actions.publishPuzzle('target', reason === 'invalid visibility' ? 'invalid' as actions.Visibility : 'public')).rejects.toThrow();
-    expect(rows).toEqual(before);
-  });
-
-  it('retains the original grid snapshot on repeat hints entry', async () => {
-    const originalGrid = structuredClone(own().grid);
-    await actions.enterHints('target');
-    own().grid = replacement;
-    await actions.enterHints('target');
-    expect(own().gridBeforeHints).toEqual(originalGrid);
-    expect(own().grid).toEqual(replacement);
-  });
-
-  it.each(['ownership', 'publication'])('enterHints rejects a %s change between read and write', async (change) => {
-    const expected = structuredClone(rows);
-    if (change === 'ownership') expected[0].builderId = 'other-builder';
-    else expected[0].publishedAt = new Date('2026-10-18T11:00:00Z');
-    afterRead = () => { rows = structuredClone(expected); };
-    await expect(actions.enterHints('target')).rejects.toThrow();
-    expect(rows).toEqual(expected);
-    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it.each([null, new Date('2026-10-01T00:00:00Z')])('allows owner deletion with publishedAt %j', async (publishedAt) => {
