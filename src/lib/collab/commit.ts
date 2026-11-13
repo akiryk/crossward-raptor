@@ -1,4 +1,4 @@
-// Epic 24 (24-S1): the commit path. Authorizes, deduplicates by `opId`,
+// Epic 24 (24-S1, 24-S2): the commit path. Authorizes, deduplicates by `opId`,
 // validates against the server's current state, then writes the puzzle
 // row (compare-and-swap on `version`) and its log record in one
 // transaction, retrying a lost race a bounded number of times. The
@@ -7,8 +7,11 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { Phase } from '@/engine/puzzle';
 import type { SerializedGrid } from '@/lib/puzzle-storage';
-import { editableBy } from './access';
-import { applyOperation, validateOperation, type PuzzleContent, type RefusalCode } from './apply';
+import { editableBy, ownedBy } from './access';
+import {
+  applyOperation, epochAfter, gridBeforeHints, isOwnerOnly, validateOperation,
+  type PuzzleContent, type PuzzleState, type RefusalCode,
+} from './apply';
 import { parseOperation, type Operation, type OperationBody } from './operation';
 
 export type CommitOutcome =
@@ -45,6 +48,7 @@ type Db = PrismaClient | Prisma.TransactionClient;
 
 const puzzleSelect = {
   grid: true, hints: true, title: true, phase: true, publishedAt: true, resetEpoch: true, version: true,
+  builderId: true,
 } as const;
 
 function isUniqueViolation(error: unknown): boolean {
@@ -56,6 +60,10 @@ function body(op: Operation): OperationBody {
     case 'cells': return { kind: op.kind, writes: op.writes };
     case 'hint': return { kind: op.kind, key: op.key, text: op.text };
     case 'title': return { kind: op.kind, title: op.title };
+    case 'lock':
+    case 'unlock': return { kind: op.kind, word: op.word };
+    case 'enterHints': return { kind: op.kind };
+    case 'startOver': return { kind: op.kind, keepLockedWords: op.keepLockedWords };
   }
 }
 
@@ -112,11 +120,22 @@ function record(op: Operation, userId: string, now: Date) {
   };
 }
 
-function changedFields(op: Operation, content: PuzzleContent): Prisma.PuzzleUpdateManyMutationInput {
+const json = (value: unknown) => value as Prisma.InputJsonValue;
+
+function changedFields(op: Operation, state: PuzzleState, content: PuzzleContent): Prisma.PuzzleUpdateManyMutationInput {
   switch (op.kind) {
-    case 'cells': return { grid: content.grid as unknown as Prisma.InputJsonValue };
-    case 'hint': return { hints: content.hints as Prisma.InputJsonValue };
+    case 'cells':
+    case 'lock':
+    case 'unlock': return { grid: json(content.grid) };
+    case 'hint': return { hints: json(content.hints) };
     case 'title': return { title: content.title };
+    // Accepted only from Build, so `gridBeforeHints` is written once, on
+    // the one crossing into Hints (Story H2).
+    case 'enterHints': return {
+      grid: json(content.grid), hints: json(content.hints), phase: content.phase,
+      gridBeforeHints: json(gridBeforeHints(state.grid)),
+    };
+    case 'startOver': return { grid: json(content.grid), resetEpoch: epochAfter(state.resetEpoch, op) };
   }
 }
 
@@ -144,7 +163,7 @@ export async function commitPuzzleOperation(
     const known = await recordedOutcome(db, op, userId);
     if (known) return known;
 
-    const state = {
+    const state: PuzzleState = {
       grid: puzzle.grid as unknown as SerializedGrid,
       hints: puzzle.hints as Record<string, string>,
       title: puzzle.title,
@@ -152,7 +171,8 @@ export async function commitPuzzleOperation(
       resetEpoch: puzzle.resetEpoch,
       published: puzzle.publishedAt !== null,
     };
-    const code = validateOperation(state, op) ?? (await isExpired(db, op, puzzle.version) ? 'expired' : null);
+    const committer = { isOwner: puzzle.builderId === userId };
+    const code = validateOperation(state, op, committer) ?? (await isExpired(db, op, puzzle.version) ? 'expired' : null);
 
     try {
       if (code) {
@@ -167,9 +187,9 @@ export async function commitPuzzleOperation(
         const { count } = await tx.puzzle.updateMany({
           where: {
             id: op.puzzleId, version: puzzle.version, resetEpoch: op.epoch, publishedAt: null,
-            AND: [editableBy(userId)],
+            AND: [editableBy(userId), ...(isOwnerOnly(op.kind) ? [ownedBy(userId)] : [])],
           },
-          data: { ...changedFields(op, content), version },
+          data: { ...changedFields(op, state, content), version },
         });
         if (count === 0) throw new LostRace();
         await tx.puzzleOperation.create({
