@@ -78,6 +78,7 @@ test.describe('24-S6-E1 adding from the row menu', () => {
     await expect(dialog(page).getByTestId('modal-title')).toHaveText('Collaborators');
     await expect(email(page)).toBeFocused();
     await expect(dialog(page).getByTestId('collaborators-empty')).toHaveText('No collaborators yet.');
+    await expect(dialog(page).getByTestId('collaborators-current-heading')).toHaveCount(0);
 
     await email(page).fill(`  ${COLLABORATOR_EMAIL.toUpperCase()} `);
     await email(page).press('Enter');
@@ -85,6 +86,15 @@ test.describe('24-S6-E1 adding from the row menu', () => {
     await expect(member).toHaveCount(1);
     await expect(member).toHaveAttribute('data-user-id', COLLABORATOR_ID);
     await expect(member).toContainText('Jay');
+    const heading = dialog(page).getByTestId('collaborators-current-heading');
+    await expect(heading).toHaveText('Current Collaborators');
+    await expect(heading).toHaveCSS('font-size', '14px');
+    await expect(heading).toHaveCSS('font-weight', '700');
+    const headingBox = (await heading.boundingBox())!;
+    const emailBox = (await email(page).boundingBox())!;
+    const memberBox = (await member.boundingBox())!;
+    expect(headingBox.y).toBeGreaterThanOrEqual(emailBox.y + emailBox.height);
+    expect(headingBox.y + headingBox.height).toBeLessThanOrEqual(memberBox.y);
     await expect(member.getByTestId('collaborator-remove')).toHaveText('Remove');
     await expect(dialog(page).getByTestId('collaborators-message')).toHaveText('Added Jay. They can edit this puzzle now.');
     await expect(email(page)).toHaveValue('');
@@ -131,6 +141,7 @@ test.describe('24-S6-E2 invitations and refusals', () => {
     await expect(pending).toHaveAttribute('data-email', invitee);
     await expect(pending).toContainText(invitee);
     await expect(pending).toContainText('Pending');
+    await expect(dialog(page).getByTestId('collaborators-current-heading')).toHaveCount(0);
     await expect(dialog(page).getByTestId('collaborators-message'))
       .toHaveText(`Invited ${invitee}. The puzzle will be in their library once they sign in with that address.`);
     expect(await readInvitations(id)).toEqual([invitee]);
@@ -211,6 +222,7 @@ test.describe('24-S6-E4 removal in the dialog while Jay edits', () => {
       await expect(member).toContainText('Jay');
       await member.getByTestId('collaborator-remove').click();
       await expect(member).toHaveCount(0);
+      await expect(dialog(page).getByTestId('collaborators-current-heading')).toHaveCount(0);
       await expect(dialog(page).getByTestId('collaborators-message')).toHaveText('Removed Jay.');
       expect(await readMembers(id)).toEqual([]);
 

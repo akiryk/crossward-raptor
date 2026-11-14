@@ -62,10 +62,10 @@ test('24-S8 library names show owner first and collaborators for both accounts',
     for (const viewer of [page, jay.page]) {
       await viewer.goto('/puzzles');
       const row = viewer.getByTestId('puzzle-list-item').filter({ has: viewer.getByTestId('puzzle-list-title').getByText(title, { exact: true }) });
-      await expect(row.getByTestId('puzzle-builder-name')).toHaveText(owner.displayName!.trim());
+      await expect(row.getByTestId('puzzle-builder-name')).toHaveText(viewer === page ? 'You' : owner.displayName!.trim());
       await expect(row.getByTestId('puzzle-owner-label')).toHaveText(', (owner)');
       await expect(row.getByTestId('puzzle-owner-label')).toHaveCSS('font-weight', '400');
-      await expect(row.getByTestId('puzzle-collaborator-name')).toHaveText('Jay');
+      await expect(row.getByTestId('puzzle-collaborator-name')).toHaveText(viewer === page ? 'Jay' : 'You');
       const titleBox = (await row.getByTestId('puzzle-list-title').boundingBox())!;
       const ownerBox = (await row.getByTestId('puzzle-builder-name').boundingBox())!;
       const memberBox = (await row.getByTestId('puzzle-collaborator-name').boundingBox())!;
