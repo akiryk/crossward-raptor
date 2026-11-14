@@ -380,13 +380,15 @@ export function PuzzleGridEditor({
 
   // The grid's width at most (21-S9); a short window scrolls the page.
   const gridPx = gridMaxPx(state.grid.cols);
+  const isMini = state.grid.cols === 5 && state.grid.rows === 5;
+  const gridRegionMaxPx = isMini ? 500 : gridPx;
   useEffect(() => {
     const region = gridRegionRef.current;
     if (!region) return;
     // A centered grid moves without resizing, so the window's resize counts.
     const measure = () => {
       const rect = region.getBoundingClientRect();
-      setHasLockRoom(rect.width >= gridPx - 0.5 && rect.left + window.scrollX >= LOCK_ROOM_PX - 0.25);
+      setHasLockRoom(rect.width >= gridRegionMaxPx - 0.5 && rect.left + window.scrollX >= LOCK_ROOM_PX - 0.25);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(region);
@@ -395,7 +397,7 @@ export function PuzzleGridEditor({
       observer.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [gridPx]);
+  }, [gridRegionMaxPx]);
 
   // The hover's wait, counted from the mouse moving onto the word (21-S10).
   const hoverWait = lockHover?.wait ?? null;
@@ -1039,7 +1041,7 @@ export function PuzzleGridEditor({
                 // The grid losing focus finalizes its burst (24-S3).
                 saver.flushGrid();
               }}
-              className="w-full outline-none"
+              className={`w-full outline-none ${isMini ? "mx-auto max-w-[500px]" : ""}`}
             >
               <PuzzleGrid
                 grid={grid}

@@ -3,13 +3,15 @@
 Mini grids look too large on desktop. Cap the construction editor's 5×5
 grid at 500px and center it within its existing grid column.
 
-**Status: implemented locally; final browser verification running (2026-11-14).** The human
+**Status: done; delivered on `polish/17-s11-mini-grid` (2026-11-14).** The human
 approved the investigated proposal and requested documentation in epic 17,
 implementation, commit and push. They subsequently approved proceeding on
 an isolated branch while the epic 26 agent is paused. This authorizes the
 500px mini cap, horizontal auto margins and corresponding supersession of
-the old mini sizing expectations below. Specification/acceptance frozen at `60d8941`, with the independently reviewed
-amendment/refreeze at `5f25068`. Runtime is not yet committed or pushed.
+the old mini sizing expectations below. Specification/acceptance frozen at
+`60d8941`, with independently reviewed
+amendments/refreezes at `5f25068` and `58f6ef7`. Implementation and evidence
+are delivered on the isolated branch; no PR or merge into main.
 
 **Blast radius: small.** One editor component; browser acceptance and epic
 documentation. No CODE-REVIEW risk path. Use `polish/17-s11-mini-grid` in a
@@ -152,8 +154,8 @@ procedure rather than concealed or changing assertions/timeouts.
 expectations in 15-S2-2/-3/-4: their helper defaults to a 5×5 fixture.
 They now use 500px and 92px as listed above; all internal column and
 breakpoint assertions stay frozen. Runtime was parked again before the
-separate specification-only refreeze. Independent exact diff review is
-required before restoring the identical implementation.
+separate specification-only refreeze. Independent `mini_spec_review`
+approved the exact diff before the identical implementation was restored.
 
 That full run completed with 1,397 passes and 16 failures: the 12 old mini
 expectations, a known icon pixel-color flake, two known auth-session
@@ -161,3 +163,33 @@ expectations, a known icon pixel-color flake, two known auth-session
 all passed unchanged in a guarded one-worker rerun (six passes including
 setup). The library timeout's exact known-flake classification was not
 established, so a fresh full run remains required after refreeze.
+
+
+## Final verification and delivery (2026-11-14)
+
+The independent `mini_spec_review` agent found no runtime review blockers.
+The separate `mini_verification` agent verified acceptance baseline
+`58f6ef7c9f03fc4072d19178c455c652839fa9a3` plus editor blob
+`40847003cb886d897ccd46d9a57e24efe4dd771e`:
+
+- `npm run verify`: exit 0; 113 files / 1,288 tests, two pre-existing lint
+  warnings.
+- `env COMPOSE_PROJECT_NAME=crossward-raptor npm run test:e2e -- --workers=2 --retries=1`:
+  exit 0; 1,411 passed, two flaky (1,413 total), 13.7 minutes. Both flakes
+  passed unchanged on their one bounded retry: 18-S5-5 icon corner color
+  (delta 3, tolerance 2) and 19-S3-1 magic-link `ECONNRESET`, both listed
+  in LEARNINGS §10. No assertions, timeouts or configuration were weakened.
+- All 15 new mini cases and 12 amended wide-layout cases passed first
+  attempt. The earlier library navigation timeout passed first attempt.
+- Frozen browser tests stayed unchanged after `58f6ef7`; runtime stayed
+  identical to the independently reviewed blob throughout final checks.
+
+The primary agent inspected desktop and phone screenshots: 500px centered
+in the 620px desktop column, and fluid at 359px on the 375px phone.
+Local evidence: `/tmp/17-s11-final-verification.md` and
+`/tmp/17-s11-mini-{desktop,phone}.png`.
+
+Only the editor component changes at runtime. The implementation commit
+contains the tested blob and unchanged frozen acceptance; commit/push is
+limited to `polish/17-s11-mini-grid`. The epic 26 worktree is preserved.
+See [HANDOFF](../HANDOFF.md) for the current delivery/resume state.
