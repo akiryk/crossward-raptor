@@ -14,16 +14,25 @@ The three external source drafts named there are not specifications.
 
 ## Current state (2026-11-14)
 
-**S1–S11 merged; one clean full E2E outstanding.** [S11](stories/24-S11-closeout-fixes.md)
-([PR #50](https://github.com/akiryk/crossward-raptor/pull/50), independently reviewed, merged as
-`4e68d5b`) fixed the four E2E failures and the audit's privacy finding.
-Full E2E at `4e68d5b`: 1396 passed, 2 failed, both known flakes (Epic 18's
-18-S5-5 pixel read; `ECONNRESET` on sign-in under load). A second full run
-was stopped at the human's request (610 passed, 2 failed so far). The human
-considers the epic done. [PR #46](https://github.com/akiryk/crossward-raptor/pull/46)
-into `main` is OPEN, not merged; its description predates S8–S10.
+**Closed 2026-11-14; merged to `main` via [PR #46](https://github.com/akiryk/crossward-raptor/pull/46).**
+S1–S11 merged into `epic/24-collaboration`, each after its own PR and
+independent review (#39–#45, #47–#50). [S11](stories/24-S11-closeout-fixes.md)
+(PR #50, merged as `4e68d5b`) fixed the four E2E failures and the audit's
+privacy finding. Full E2E at `4e68d5b`: 1396 passed, 2 failed, both known
+flakes ([LEARNINGS](../../LEARNINGS.md) entry 10). The human declared the
+epic done and authorized the merge.
 
-**Final verification at `93943f8`** (clean detached worktree, Prisma Client
+**Production cutover (human, 2026-11-14):** before-check `prisma migrate status`
+listed exactly the three pending migrations; `prisma migrate deploy`
+applied `20261112120000_add_puzzle_operations`,
+`20261113120000_add_puzzle_collaborators` and
+`20261114120000_add_puzzle_presence`; after-check status "up to date",
+`Puzzle` count 4 before and after, all 4 at `version = 0`, `resetEpoch = 0`.
+Vercel Skew Protection is disabled (Pro-only feature, not in use).
+The original S3/S6/S7 visual checks were not separately recorded; the
+human's done declaration accepts the epic as is.
+
+**Pre-S11 final verification at `93943f8`** (clean detached worktree, Prisma Client
 generated, `COMPOSE_PROJECT_NAME=crossward-raptor` so the existing test
 database is reused, two workers, HEAD fixed, lock held):
 
@@ -40,7 +49,7 @@ full, S1–S7 by targeted checks over the earlier `0135adb` audit, the
 `main...93943f8` diff, engine purity and PR states). No blockers. Findings
 and disposition:
 
-- Should-fix: PR #46 description stale → rewrite after the final full E2E.
+- Should-fix: PR #46 description stale → rewritten at merge.
   Epic index "closeout audited" stale → updated. EPIC lacked S8–S10 →
   follow-up stories and supersession notes added.
 - Should-fix (privacy): library collaboration metadata reached outsiders on
@@ -60,14 +69,6 @@ and disposition:
 Grid and Lock Word too; only 23-S1-2 amended); collaborator metadata only on
 puzzles the caller owns or collaborates on. See [S11](stories/24-S11-closeout-fixes.md).
 
-Human cutover items remain:
-
-1. Apply migrations in order: `20261112120000_add_puzzle_operations`,
-   `20261113120000_add_puzzle_collaborators`, `20261114120000_add_puzzle_presence`.
-2. Settle Vercel Skew Protection per EPIC “Retiring snapshot saves”.
-3. Complete any outstanding original S3/S6/S7 visual checks listed in history.
-4. Merge PR #46 only after verification, audit and human prerequisites are met.
-
 ## Verification and operating notes
 
 Use a clean checkout for verify: root lint traverses historical nested
@@ -82,15 +83,13 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-The human declared the epic done (2026-11-14) and asked to merge PR #46
-to `main` and go live, and authorized that merge. Known E2E flakes are recorded in
-[LEARNINGS](../../LEARNINGS.md) entry 10; no further full run is required.
-Gate before merging: the human confirms (a) the three migrations above
-were applied to production (`prisma migrate status` clean) and (b) Vercel
-Skew Protection is off or settled. Then: mark this handoff and the epic
-index closed, rewrite PR #46's description (it predates S8–S11), merge
-PR #46 and push. Don't merge before both confirmations.
+None in this epic. Open follow-ups: rotate the production `neondb_owner`
+password (it was exposed in a session transcript during cutover) and update
+`DATABASE_URL`/`DATABASE_URL_UNPOOLED` in Vercel, then redeploy; fold the
+DEVELOPMENT notes above (HEAD changes invalidate E2E runs; root lint scans
+nested `.claude/worktrees`); Epic 18's 18-S5-5 flake correction awaits the
+human's approval.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Once I confirm production migrations and Skew Protection, close the epic, rewrite PR #46's description and merge it to `main`.
+Read docs/epics/README.md. Choose the next epic with me; no specification or implementation without approval.
