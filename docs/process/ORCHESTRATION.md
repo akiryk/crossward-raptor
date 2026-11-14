@@ -18,6 +18,10 @@ for story work. Each definition fixes its model in its frontmatter.
 | Genuinely hard implementation (concurrency, sync, conflict, authorization logic) | `story-implementer` | Opus |
 | Independent review of risk-path PRs | `pr-reviewer` | Opus |
 
+Definitions load when a session starts. If one is missing in the current
+session, use `general-purpose` with the same `model` override and tell it to
+follow the definition file.
+
 Do not start an agent for something the orchestrator can do in a few commands.
 Prefer one agent per story; a reviewer may cover several stories' PRs at once.
 
