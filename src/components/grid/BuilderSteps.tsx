@@ -13,9 +13,13 @@ export function BuilderSteps({
   phase,
   onStep,
   status,
+  canPublish = true,
 }: {
   phase: Phase;
   onStep: (id: Exclude<BuilderStepId, 'build'>) => void;
+  /** 24-S5: false for a collaborator: publishing is the owner's (D7), so
+   *  Create Hints has no next step for them. */
+  canPublish?: boolean;
   /** The save status (24-S3), at the row's end. */
   status?: ReactNode;
 }) {
@@ -40,9 +44,11 @@ export function BuilderSteps({
         </span>
         {current.label}
       </p>
-      <Button number={next.number} data-step-id={next.id} onClick={() => onStep(next.id)}>
-        {next.label}
-      </Button>
+      {(next.id !== 'publish' || canPublish) && (
+        <Button number={next.number} data-step-id={next.id} onClick={() => onStep(next.id)}>
+          {next.label}
+        </Button>
+      )}
       {status}
     </div>
   );

@@ -25,6 +25,8 @@ import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
 import { publishPuzzleAt, type PublishOutcome } from '@/lib/collab/publish';
 import { readOperationsSince, type CatchUp } from '@/lib/collab/catchup';
+import { editableBy, ownedBy } from '@/lib/collab/access';
+import * as membership from '@/lib/collab/membership';
 
 export type Visibility = 'private' | 'public';
 
@@ -39,6 +41,8 @@ export type PuzzleWithMeta = Puzzle & {
    *  starts from. */
   version: number;
   resetEpoch: number;
+  /** 24-S5: whether the caller owns it (else a collaborator). */
+  isOwner: boolean;
 };
 
 export interface PlayPuzzleView {
@@ -386,7 +390,7 @@ export async function setPuzzleVisibility(
   }
 
   const notAllowed = new Error(`setPuzzleVisibility: puzzle ${id} cannot change visibility`);
-  const owned = { id, builderId: session.user.id, publishedAt: { not: null } };
+  const owned = { id, AND: [editableBy(session.user.id), ownedBy(session.user.id)], publishedAt: { not: null } };
   const record = await prisma.puzzle.findUnique({ where: owned, select: { updatedAt: true } });
   if (!record) throw notAllowed;
 
@@ -406,8 +410,9 @@ export async function setPuzzleVisibility(
  *  written. Another builder's puzzle and a missing one throw the same error. */
 export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
   const session = await requireSession();
+  // 24-S5: a collaborator may duplicate too (D6); the copy is theirs alone.
   const source = await prisma.puzzle.findUnique({
-    where: { id, builderId: session.user.id },
+    where: { id, AND: [editableBy(session.user.id)] },
     select: { title: true, grid: true, hints: true, phase: true, gridBeforeHints: true },
   });
   if (!source) throw new Error(`duplicatePuzzle: puzzle ${id} cannot be duplicated`);
@@ -431,13 +436,15 @@ export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   const session = await requireSession();
-  await prisma.puzzle.delete({ where: { id, builderId: session.user.id } });
+  // 24-S5: owner-only; memberships and invitations go with it.
+  await prisma.puzzle.delete({ where: { id, AND: [editableBy(session.user.id), ownedBy(session.user.id)] } });
   revalidatePath('/puzzles');
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
   const session = await requireSession();
-  const record = await prisma.puzzle.findUnique({ where: { id, builderId: session.user.id } });
+  // 24-S5: the owner or a collaborator.
+  const record = await prisma.puzzle.findUnique({ where: { id, AND: [editableBy(session.user.id)] } });
   if (!record) return null;
 
   const puzzle = deserializePuzzle({
@@ -455,5 +462,40 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     visibility: record.visibility as Visibility,
     version: record.version,
     resetEpoch: record.resetEpoch,
+    isOwner: record.builderId === session.user.id,
   };
+}
+
+/** Epic 24 (24-S5): adds a collaborator to the signed-in owner's puzzle by
+ *  email (`{ puzzleId, email }`): at once for an address with an account,
+ *  otherwise an invitation. The owner is the session's account. */
+export async function addCollaborator(input: unknown): Promise<membership.AddOutcome> {
+  const session = await requireSession();
+  return membership.addCollaborator(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): removes a collaborator (`{ puzzleId, userId }`). */
+export async function removeCollaborator(input: unknown): Promise<membership.RemoveOutcome> {
+  const session = await requireSession();
+  return membership.removeCollaborator(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): revokes an invitation (`{ puzzleId, email }`). */
+export async function revokeInvitation(input: unknown): Promise<membership.RevokeOutcome> {
+  const session = await requireSession();
+  return membership.revokeInvitation(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): the owner's view of a puzzle's collaborators and
+ *  pending invitations (`{ puzzleId }`). */
+export async function listCollaborators(input: unknown): Promise<membership.CollaboratorList> {
+  const session = await requireSession();
+  return membership.listCollaborators(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): claims the invitations to the signed-in account's
+ *  current email. The editor page and the library call it before reading. */
+export async function claimInvitations(): Promise<number> {
+  const session = await requireSession();
+  return membership.claimInvitations(prisma, { id: session.user.id, email: session.user.email });
 }

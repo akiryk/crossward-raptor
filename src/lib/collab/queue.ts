@@ -42,6 +42,11 @@ export interface QueueDeps {
   /** 24-S4: an operation was accepted as a version past the next one the
    *  confirmed state needs: others committed in between, to catch up on. */
   readonly onBehind?: () => void;
+  /** 24-S5: the server answered that the puzzle can no longer be edited:
+   *  `not-found` (removed or deleted) or refused `published`. The operation
+   *  stays pending (not settled), for the caller to halt and drop it with
+   *  the rest. Without this, such an answer is a refusal like any other. */
+  readonly onLost?: (code: 'not-found' | 'published') => void;
   readonly timers?: BurstTimers;
   readonly retryDelaysMs?: readonly number[];
 }
@@ -64,6 +69,8 @@ export class OperationQueue {
   private retry: unknown = null;
   private failures = 0;
   private leaving = false;
+  /** 24-S5: halted for good: nothing more is sent. */
+  private halted = false;
   private readonly waiters = new Map<string, ((settlement: Settlement) => void)[]>();
   /** The answers given this session, by `opId` (the latest 500). */
   private readonly answers = new Map<string, Settlement>();
@@ -89,6 +96,36 @@ export class OperationQueue {
   /** Whether the server has answered for any operation this session. */
   get hasAnswered(): boolean {
     return this.answers.size > 0;
+  }
+
+  /** 24-S5: whether the queue has halted for good. */
+  get isHalted(): boolean {
+    return this.halted;
+  }
+
+  /** 24-S5: stops sending for good: nothing more is sent, a waiting retry
+   *  is called off, and an answer still to come is ignored. The pending
+   *  operations stay (and stay journaled) until `dropAll`. */
+  halt(): void {
+    this.halted = true;
+    if (this.retry !== null) {
+      (this.deps.timers ?? defaultTimers).clearTimeout(this.retry);
+      this.retry = null;
+    }
+    this.inFlight = null;
+    this.deps.onChange?.();
+  }
+
+  /** 24-S5: every pending operation is refused with `code`, each reported
+   *  through `onRefused` (oldest first); the journal is emptied. */
+  dropAll(code: QueueRefusalCode): void {
+    for (const op of this.state.pending) {
+      const before = this.state;
+      const next = settle(this.state, op.opId, { status: 'refused', code });
+      this.update(next);
+      if (next !== before) this.deps.onRefused?.(op, code, before, this.state);
+      this.answered(op.opId, { status: 'refused', code });
+    }
   }
 
   /** Whether the page is being navigated away by a server redirect. */
@@ -179,7 +216,7 @@ export class OperationQueue {
   }
 
   private pump(): void {
-    if (this.inFlight !== null || this.retry !== null || this.leaving) return;
+    if (this.inFlight !== null || this.retry !== null || this.leaving || this.halted) return;
     const head = this.state.pending[0];
     if (!head) {
       for (const resolve of this.idleWaiters.splice(0)) resolve();
@@ -194,7 +231,16 @@ export class OperationQueue {
   }
 
   private answer(op: Operation, outcome: CommitOutcome): void {
+    if (this.halted) return;
     this.inFlight = null;
+    // 24-S5: no longer editable: the caller halts and drops everything.
+    const lost = outcome.status === 'not-found' ? 'not-found'
+      : outcome.status === 'refused' && outcome.code === 'published' ? 'published' : null;
+    if (lost && this.deps.onLost) {
+      this.deps.onLost(lost);
+      this.pump();
+      return;
+    }
     switch (outcome.status) {
       case 'accepted':
         this.done(op, { status: 'accepted', version: outcome.version });
@@ -215,6 +261,7 @@ export class OperationQueue {
   }
 
   private fail(op: Operation, error: unknown): void {
+    if (this.halted) return;
     this.inFlight = null;
     if (isNavigationError(error)) {
       // The page is going; the journal keeps the operation for the next one.

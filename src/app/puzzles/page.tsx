@@ -1,4 +1,4 @@
-import { listPuzzles } from './actions';
+import { claimInvitations, listPuzzles } from './actions';
 import { puzzleStatus } from '@/lib/puzzle-status';
 import { requireSession } from '@/lib/require-session';
 import { LibraryFreshness } from '@/components/puzzle/LibraryPlayControls';
@@ -9,6 +9,8 @@ function formatDate(date: Date): string {
 }
 
 export default async function PuzzlesPage() {
+  // 24-S5: an invitation to this account's email becomes membership first.
+  await claimInvitations();
   const [puzzles, session] = await Promise.all([listPuzzles(), requireSession()]);
 
   return (

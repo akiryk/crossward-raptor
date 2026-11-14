@@ -88,6 +88,13 @@ interface EditorState {
   title: string;
   publishedAt: Date | null;
   visibility: Visibility;
+  /** 24-S5: access lost while open (removed, or the puzzle deleted). */
+  isLost: boolean;
+}
+
+/** 24-S5: published, or access lost: nothing can be edited. */
+function isReadOnly(state: EditorState): boolean {
+  return state.publishedAt !== null || state.isLost;
 }
 
 // A mouse resting on a word (21-S10): the cell it last moved onto, and the
@@ -168,6 +175,7 @@ export function PuzzleGridEditor({
   initialVisibility,
   initialVersion,
   initialEpoch,
+  isOwner = true,
 }: {
   puzzleId: string;
   initialGrid: SerializedGrid;
@@ -179,6 +187,9 @@ export function PuzzleGridEditor({
   /** 24-S3: the version and reset epoch the confirmed state starts at. */
   initialVersion: number;
   initialEpoch: number;
+  /** 24-S5: false for a collaborator, whose editor has no Reset Grid or
+   *  Publish (the server refuses both from them). */
+  isOwner?: boolean;
 }) {
   const [state, setState] = useState<EditorState>(() => {
     const grid = deserializeGrid(initialGrid);
@@ -191,6 +202,7 @@ export function PuzzleGridEditor({
       title: initialTitle,
       publishedAt: initialPublishedAt,
       visibility: initialVisibility,
+      isLost: false,
     };
   });
   // 24-S3: edits are saved as operations (useOperationSaving).
@@ -199,6 +211,15 @@ export function PuzzleGridEditor({
   }));
   const { saver, saveState, notices, dismissNotice } = useOperationSaving({
     puzzleId, initialContent, initialVersion, initialEpoch, state, setState, withContent,
+    published: initialPublishedAt !== null,
+    // 24-S5: losing access makes the editor read-only: published, it shows
+    // the published state; removed or deleted, "No longer available".
+    onAccessLost: (loss) => setState((prev) => loss.kind === "published"
+      ? { ...prev, publishedAt: loss.publishedAt, visibility: loss.visibility }
+      : { ...prev, isLost: true }),
+    // 24-S5: the session is gone: the reload goes to the sign-in, and the
+    // journal re-sends the work at the next open.
+    onSignedOut: () => window.location.reload(),
   });
   // What Publish is pinned to (D7): the operations pending when the
   // readiness check ran, and the confirmed version then.
@@ -292,7 +313,7 @@ export function PuzzleGridEditor({
   // A locked word's letters and end cells take no rebus (21-S3).
   function canRebus() {
     return (
-      state.publishedAt === null &&
+      !isReadOnly(state) &&
       !isLettersLocked &&
       !(isPreviewing && isPreviewCursorHidden) &&
       !isCellProtected(state.grid, state.lockedWords, state.cursor.current)
@@ -472,13 +493,13 @@ export function PuzzleGridEditor({
       // hints phase (Story E): the cursor only reaches on cells, so a
       // letter there overtypes and never changes the shape (14-S12).
       if (intent.type === "letter") {
-        if (prev.publishedAt !== null) return prev;
+        if (isReadOnly(prev)) return prev;
         // A locked word's letters and end cells hold (21-S3).
         const { grid, cursor } = placeProtected(prev.grid, prev.lockedWords, prev.cursor, intent.letter);
         return { ...prev, grid, cursor };
       }
       if (intent.type === "delete") {
-        if (prev.publishedAt !== null) return prev;
+        if (isReadOnly(prev)) return prev;
         // Deletion stays blocked in the hints phase (Story H4): every
         // legal repair is an overtype once geometry is frozen, so a
         // cleared cell could only ever leave a hole.
@@ -508,14 +529,14 @@ export function PuzzleGridEditor({
   function previewKey(prev: EditorState, intent: NonNullable<ReturnType<typeof keyToIntent>>): EditorState {
     const shown = intendedGeometry(prev.grid);
     if (intent.type === "letter") {
-      if (prev.publishedAt !== null) return prev;
+      if (isReadOnly(prev)) return prev;
       // Locked cells hold with Preview on too (21-S3).
       const grid = placeProtected(prev.grid, prev.lockedWords, prev.cursor, intent.letter).grid;
       const { cursor } = place(intendedGeometry(grid), prev.cursor, intent.letter);
       return { ...prev, grid, cursor };
     }
     if (intent.type === "delete") {
-      if (prev.publishedAt !== null) return prev;
+      if (isReadOnly(prev)) return prev;
       const deleted = deleteProtected(shown, prev.lockedWords, prev.cursor);
       if (deleted.grid === shown) {
         return deleted.cursor === prev.cursor ? prev : { ...prev, cursor: deleted.cursor };
@@ -535,7 +556,7 @@ export function PuzzleGridEditor({
   function handleCellClick(coord: Coord) {
     // A published puzzle's grid, or one with its letters locked, takes no
     // focus, and a click selects nothing (14-S12).
-    if (state.publishedAt !== null || isLettersLocked) return;
+    if (isReadOnly(state) || isLettersLocked) return;
     if (isPreviewing) {
       if (intendedGeometry(state.grid).at(coord.col, coord.row).kind === "black") return;
       gridRegionRef.current?.focus();
@@ -635,7 +656,14 @@ export function PuzzleGridEditor({
       const last = settlements[settlements.length - 1];
       if (last?.status === "accepted") version = last.version;
     }
-    const outcome = await publishAtVersion({ puzzleId, version, visibility });
+    // 24-S5: a publication the catch-up sees meanwhile is this one.
+    saver.beginPublish();
+    let outcome;
+    try {
+      outcome = await publishAtVersion({ puzzleId, version, visibility });
+    } finally {
+      saver.endPublish(outcome?.status === "published");
+    }
     if (outcome.status === "published") {
       setIsPublishDialogOpen(false);
       setState((prev) => ({ ...prev, publishedAt: outcome.publishedAt, visibility: outcome.visibility }));
@@ -678,8 +706,11 @@ export function PuzzleGridEditor({
     hints,
     title,
     publishedAt,
+    isLost,
   } = state;
   const isPublished = publishedAt !== null;
+  // 24-S5: published or access lost, the editor shows the content only.
+  const isLocked = isPublished || isLost;
   const slotLookup = buildSlotLookup(grid);
   const activeKey = activeHintKey(slotLookup, cursor);
   if (activeKey !== null && activeKey !== boxKey) setBoxKey(activeKey);
@@ -727,11 +758,11 @@ export function PuzzleGridEditor({
   // button and its outline show at once in a locked word, after the wait in
   // another word of 3 or more letters, and only while the grid (or a lock
   // button) has focus. The toggle row's Lock Word is enabled at once (21-S5).
-  const isLockShown = phase === "grid" && !isPublished && !isPreviewing;
+  const isLockShown = phase === "grid" && !isLocked && !isPreviewing;
   // The build progress (22-S2): a daily or Sunday's build phase with
   // Preview on, in place of Rebus and Lock Word.
   const isProgressShown =
-    phase === "grid" && !isPublished && isPreviewing && grid.cols === grid.rows && (grid.cols === 15 || grid.cols === 21);
+    phase === "grid" && !isLocked && isPreviewing && grid.cols === grid.rows && (grid.cols === 15 || grid.cols === 21);
   const cursorTarget = isLockShown ? lockTargetAt(grid, lockedWords, cursor) : null;
   const cursorLockTarget =
     isFocused && cursorTarget && (cursorTarget.isLocked || lockDwell === cursor) ? cursorTarget : null;
@@ -844,14 +875,14 @@ export function PuzzleGridEditor({
         <PuzzleTitle
           value={title}
           onChange={handleTitleChange}
-          disabled={isPublished}
+          disabled={isLocked}
         />
         {/* The step row, then the toggle row, 20px apart; in one column, 16px
             (17-S8). 36px above the grid wherever the lock button can show,
             the published state wide too; else 16px (21-S12). */}
         <div
           className={`${
-            isPublished ? "mb-4 @min-[1092px]/editor:mb-9" : hasLockRoom ? "mb-9" : "mb-4"
+            isLocked ? "mb-4 @min-[1092px]/editor:mb-9" : hasLockRoom ? "mb-9" : "mb-4"
           } flex flex-col gap-4 @min-[1092px]/editor:gap-5`}
         >
           {isPublished ? (
@@ -859,18 +890,30 @@ export function PuzzleGridEditor({
             <div className="@min-[1092px]/editor:min-h-8">
               <PublishedState puzzleId={puzzleId} />
             </div>
+          ) : isLost ? (
+            // 24-S5: access lost while open; the note above the grid says why.
+            <div className="@min-[1092px]/editor:min-h-8">
+              <p data-testid="access-lost-state" className="text-title-3 text-primary">
+                No longer available
+              </p>
+            </div>
           ) : (
-            <BuilderSteps phase={phase} onStep={handleStep} status={<SaveStatus state={saveState} />} />
+            <BuilderSteps
+              phase={phase}
+              onStep={handleStep}
+              canPublish={isOwner}
+              status={<SaveStatus state={saveState} />}
+            />
           )}
-          <div className={`${isPublished ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
-            <ToggleRow isPublished={isPublished} hasProgress={isProgressShown}>
+          <div className={`${isLocked ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
+            <ToggleRow isPublished={isLocked} hasProgress={isProgressShown}>
               {phase === "grid" && (
                 <PreviewToggle
                   isPreviewing={isPreviewing}
                   onToggle={() => changePreview(!isPreviewing)}
                 />
               )}
-              {phase === "hints" && !isPublished && (
+              {phase === "hints" && !isLocked && (
                 <PreviewToggle
                   data-testid="lock-letters-toggle"
                   label="Lock Grid Letters"
@@ -879,7 +922,7 @@ export function PuzzleGridEditor({
                 />
               )}
               {isProgressShown && <BuildProgress grid={grid} />}
-              {!isPublished && !isProgressShown && (
+              {!isLocked && !isProgressShown && (
                 <div className="flex items-center gap-5">
                   {phase === "grid" && !hasLockRoom && (
                     <LockWordControl
@@ -910,10 +953,10 @@ export function PuzzleGridEditor({
               <div
                 data-testid="preview-hints-row"
                 className={`hidden h-12 min-w-0 flex-1 items-center rounded-modal px-4 @min-[1092px]/editor:flex ${
-                  isPublished ? "invisible" : "bg-toggle-row"
+                  isLocked ? "invisible" : "bg-toggle-row"
                 }`}
               >
-                {!isPublished && (
+                {!isLocked && (
                   <PreviewToggle
                     data-testid="preview-hints-toggle"
                     label="Preview Hints"
@@ -962,7 +1005,7 @@ export function PuzzleGridEditor({
               data-testid="grid-region"
               // A published puzzle's grid, or one with its letters locked,
               // takes no focus: no Tab stop, no click focus, no keys (14-S12).
-              tabIndex={isPublished || isLettersLocked ? undefined : 0}
+              tabIndex={isLocked || isLettersLocked ? undefined : 0}
               onKeyDown={handleGridKeyDown}
               onFocus={() => setIsGridFocused(true)}
               onBlur={() => {
@@ -1000,13 +1043,14 @@ export function PuzzleGridEditor({
             {/* Under the grid in the build phase: the color key from the
                 left, Reset Grid at the right on the key's first line, in one
                 spot with or without the key (20-S4). */}
-            {phase === "grid" && !isPublished && (
+            {phase === "grid" && !isLocked && (
               <div className="flex items-start gap-5">
                 <div className="min-w-0 flex-1">
                   {isPreviewing && <PreviewLegend grid={grid} />}
                 </div>
                 <div className="mt-4 flex h-6 shrink-0 items-center">
-                  <StartOverLink onClick={handleStartOver} />
+                  {/* 24-S5: Start Over is the owner's alone (D5). */}
+                  {isOwner && <StartOverLink onClick={handleStartOver} />}
                 </div>
               </div>
             )}
@@ -1019,7 +1063,7 @@ export function PuzzleGridEditor({
                   slot={shownSlot}
                   hint={hints[shownKey] ?? ""}
                   isMissing={missingKeys.has(shownKey)}
-                  disabled={isPublished}
+                  disabled={isLocked}
                   inputRef={boxInputRef}
                   onHintChange={(text) => handleHintChange(shownKey, text)}
                   onHintFocus={() => handleHintFocus(shownKey)}
@@ -1050,7 +1094,7 @@ export function PuzzleGridEditor({
                   slots={slotLookup}
                   hints={hints}
                   activeKey={activeKey}
-                  disabled={isPublished}
+                  disabled={isLocked}
                   selectedKey={isGridFocused ? activeKey : null}
                   missingKeys={missingKeys}
                   onHintChange={handleHintChange}

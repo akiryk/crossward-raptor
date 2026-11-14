@@ -27,6 +27,16 @@ export type CatchUp =
       readonly resetEpoch: number;
       readonly content: PuzzleContent;
     }
+  /** 24-S5: the puzzle is published, so it can't be edited any more: the
+   *  puzzle as stored, and its publication. Whatever `since` is. */
+  | {
+      readonly status: 'published';
+      readonly version: number;
+      readonly resetEpoch: number;
+      readonly content: PuzzleContent;
+      readonly publishedAt: Date;
+      readonly visibility: 'private' | 'public';
+    }
   /** Malformed input. */
   | { readonly status: 'invalid' }
   /** No such puzzle that the caller can edit. */
@@ -56,11 +66,13 @@ function parse(input: unknown): CatchUpInput | null {
 async function snapshot(db: PrismaClient, userId: string, puzzleId: string): Promise<CatchUp> {
   const row = await db.puzzle.findFirst({
     where: { id: puzzleId, AND: [editableBy(userId)] },
-    select: { grid: true, hints: true, title: true, phase: true, version: true, resetEpoch: true },
+    select: {
+      grid: true, hints: true, title: true, phase: true, version: true, resetEpoch: true,
+      publishedAt: true, visibility: true,
+    },
   });
   if (!row) return { status: 'not-found' };
-  return {
-    status: 'snapshot',
+  const stored = {
     version: row.version,
     resetEpoch: row.resetEpoch,
     content: {
@@ -70,11 +82,15 @@ async function snapshot(db: PrismaClient, userId: string, puzzleId: string): Pro
       phase: row.phase as Phase,
     },
   };
+  if (row.publishedAt) {
+    return { status: 'published', ...stored, publishedAt: row.publishedAt, visibility: row.visibility === 'public' ? 'public' : 'private' };
+  }
+  return { status: 'snapshot', ...stored };
 }
 
 /** What `userId`, who must be able to edit the puzzle, needs to catch up
  *  from `since`. When nothing has been committed since (the usual answer),
- *  it reads only the puzzle's version. */
+ *  it reads only the puzzle's version and publication. */
 export async function readOperationsSince(
   db: PrismaClient,
   userId: string,
@@ -88,15 +104,19 @@ export async function readOperationsSince(
 
   const puzzle = await db.puzzle.findFirst({
     where: { id: puzzleId, AND: [editableBy(userId)] },
-    select: { version: true },
+    select: { version: true, publishedAt: true },
   });
   if (!puzzle) return { status: 'not-found' };
+  // 24-S5: a published puzzle is answered as such, with the puzzle as stored.
+  if (puzzle.publishedAt) return snapshot(db, userId, puzzleId);
   if (since === puzzle.version) return { status: 'ops', ops: [] };
   const limit = options.limit ?? CATCH_UP_LIMIT;
   if (since > puzzle.version || puzzle.version - since > limit) return snapshot(db, userId, puzzleId);
 
+  // 24-S5: authorized in its own WHERE too, so a removal after the read
+  // above returns nothing (and the snapshot read then answers not-found).
   const records = await db.puzzleOperation.findMany({
-    where: { puzzleId, version: { gt: since, lte: puzzle.version } },
+    where: { puzzleId, version: { gt: since, lte: puzzle.version }, puzzle: { AND: [editableBy(userId)] } },
     orderBy: { version: 'asc' },
     select: { version: true, opId: true, clientId: true, epoch: true, baseVersion: true, operation: true },
   });

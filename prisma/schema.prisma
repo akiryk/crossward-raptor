@@ -7,26 +7,59 @@ datasource db {
 }
 
 model Puzzle {
-  id              String            @id @default(cuid())
+  id              String               @id @default(cuid())
   builderId       String
-  builder         User              @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  title           String            @default("Untitled Puzzle")
+  builder         User                 @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  title           String               @default("Untitled Puzzle")
   grid            Json
   gridBeforeHints Json?
   hints           Json
-  phase           String            @default("grid")
+  phase           String               @default("grid")
   publishedAt     DateTime?
-  visibility      String            @default("private")
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  visibility      String               @default("private")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
   // Epic 24 (24-S1): the commit order. Every accepted operation advances
   // `version` by exactly one, under compare-and-swap; snapshot saves write
   // only while it is 0. `resetEpoch` is the reset generation (S2's Start
   // Over increments it); an operation from another epoch is refused.
-  version         Int               @default(0)
-  resetEpoch      Int               @default(0)
+  version         Int                  @default(0)
+  resetEpoch      Int                  @default(0)
   playSessions    PlaySession[]
   operations      PuzzleOperation[]
+  collaborators   PuzzleCollaborator[]
+  invitations     PuzzleInvitation[]
+}
+
+// Epic 24 (24-S5): a puzzle's collaborators, keyed by account. Collaborators
+// edit the grid, hints and locks as the owner does; Start Over, Publish,
+// Delete and managing collaborators stay with the owner. No email is kept:
+// an email or username change never removes access.
+model PuzzleCollaborator {
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([puzzleId, userId])
+  @@index([userId])
+}
+
+// Epic 24 (24-S5): an invitation to an address without an account (yet).
+// The email is stored trimmed and lowercased. It is claimed, becoming a
+// collaborator row and deleted, when an account with that current email
+// loads a puzzle page before `expiresAt` (30 days, renewed by inviting again).
+model PuzzleInvitation {
+  id        String   @id @default(cuid())
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  email     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@unique([puzzleId, email])
+  @@index([email])
 }
 
 // Epic 24 (24-S1): the operation log. Synchronization metadata, not
@@ -55,18 +88,19 @@ model PuzzleOperation {
 }
 
 model User {
-  id            String            @id
-  name          String
-  email         String
-  emailVerified Boolean           @default(false)
-  image         String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  puzzles       Puzzle[]
-  playSessions  PlaySession[]
-  operations    PuzzleOperation[]
+  id             String               @id
+  name           String
+  email          String
+  emailVerified  Boolean              @default(false)
+  image          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  puzzles        Puzzle[]
+  playSessions   PlaySession[]
+  operations     PuzzleOperation[]
+  collaborations PuzzleCollaborator[]
 
   // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
   // prompts for one when it is first needed.
