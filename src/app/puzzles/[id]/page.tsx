@@ -30,6 +30,7 @@ export default async function PuzzleDetailPage({
         initialVersion={puzzle.version}
         initialEpoch={puzzle.resetEpoch}
         isOwner={puzzle.isOwner}
+        userId={puzzle.viewerId}
       />
     </div>
   );

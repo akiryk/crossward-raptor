@@ -236,3 +236,72 @@ label:has(input:is([type="checkbox"], [type="radio"]):focus-visible),
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 0;
 }
+
+/* Story 24-S7: the session panel's entrance, grown from nothing (its
+   frame's height) and faded in. A conflict's outline and a hint's
+   highlight fade in over 400 ms, hold 1.5 s and fade out over 500 ms (the
+   element is removed after 2.4 s). With reduced motion the panel just
+   appears, and the outline shows for the same 2.4 s without fading. */
+@keyframes session-panel-in {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 12rem;
+    opacity: 1;
+  }
+}
+
+.session-panel-enter {
+  animation: session-panel-in 300ms ease-out;
+}
+
+@keyframes conflict-fade {
+  0% {
+    opacity: 0;
+  }
+  16.7% {
+    opacity: 1;
+  }
+  79.2% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.conflict-fade {
+  animation: conflict-fade 2400ms linear forwards;
+}
+
+/* A hint's input superseded: a 2px red ring with the outline's timing. */
+@keyframes conflict-ring {
+  0% {
+    outline-color: transparent;
+  }
+  16.7% {
+    outline-color: var(--palette-cell-error);
+  }
+  79.2% {
+    outline-color: var(--palette-cell-error);
+  }
+  100% {
+    outline-color: transparent;
+  }
+}
+
+.conflict-ring :is(textarea, input) {
+  outline: 2px solid var(--palette-cell-error);
+  outline-offset: 1px;
+  animation: conflict-ring 2400ms linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-panel-enter,
+  .conflict-fade,
+  .conflict-ring :is(textarea, input) {
+    animation: none;
+  }
+}

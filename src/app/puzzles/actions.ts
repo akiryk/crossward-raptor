@@ -25,6 +25,7 @@ import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
 import { publishPuzzleAt, type PublishOutcome } from '@/lib/collab/publish';
 import { readOperationsSince, type CatchUp } from '@/lib/collab/catchup';
+import { parseClientId, readSession, updatePresence as updatePresenceRow, type PresenceUpdate, type SessionInfo } from '@/lib/collab/presence';
 import { editableBy, ownedBy } from '@/lib/collab/access';
 import * as membership from '@/lib/collab/membership';
 
@@ -43,6 +44,8 @@ export type PuzzleWithMeta = Puzzle & {
   resetEpoch: number;
   /** 24-S5: whether the caller owns it (else a collaborator). */
   isOwner: boolean;
+  /** 24-S7: the caller's account. */
+  viewerId: string;
 };
 
 export interface PlayPuzzleView {
@@ -361,9 +364,26 @@ export async function commitOperation(input: unknown): Promise<CommitOutcome> {
  *  editor polls it through the route handler at
  *  `/api/puzzles/[id]/operations` (GET), so a poll never waits behind a
  *  commit in Next.js's queue of server actions. */
-export async function catchUpOperations(input: unknown): Promise<CatchUp> {
+export async function catchUpOperations(input: unknown): Promise<CatchUp | (CatchUp & SessionInfo)> {
   const session = await requireSession();
-  return readOperationsSince(prisma, session.user.id, input);
+  const result = await readOperationsSince(prisma, session.user.id, input);
+  // 24-S7: asked as a tab (`clientId`), the catch-up is its heartbeat and
+  // answers who else is present and who committed what it returns. Only
+  // for a puzzle the caller can edit and that isn't published.
+  const clientId = typeof input === 'object' && input !== null ? parseClientId((input as { clientId?: unknown }).clientId) : null;
+  if (clientId === null || (result.status !== 'ops' && result.status !== 'snapshot')) return result;
+  const { puzzleId } = input as { puzzleId: string };
+  const opIds = result.status === 'ops' ? result.ops.map((op) => op.opId) : [];
+  return { ...result, ...(await readSession(prisma, session.user.id, puzzleId, clientId, opIds)) };
+}
+
+/** Epic 24 (24-S7): a tab of the signed-in builder going away (hidden) or
+ *  leaving (closed), `{ puzzleId, clientId, state }`. The editor sends it
+ *  through the route handler at `/api/puzzles/[id]/presence` (POST), with
+ *  keepalive. */
+export async function updatePresence(input: unknown): Promise<PresenceUpdate> {
+  const session = await requireSession();
+  return updatePresenceRow(prisma, session.user.id, input);
 }
 
 /** Epic 24 (24-S2): publishes the signed-in owner's puzzle only if it is
@@ -464,6 +484,8 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     version: record.version,
     resetEpoch: record.resetEpoch,
     isOwner: record.builderId === session.user.id,
+    // 24-S7: the editor tells others' edits from its own account's.
+    viewerId: session.user.id,
   };
 }
 
