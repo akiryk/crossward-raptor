@@ -191,6 +191,11 @@ function CollaboratorsPanel({ puzzleId, onClose, onChange }: { puzzleId: string;
       <div data-testid="collaborators-list" aria-label="Collaborators and invitations">
         {listing.status === 'loading' && <p className="text-muted">Loading…</p>}
         {empty && <p data-testid="collaborators-empty" className="text-muted">No collaborators yet.</p>}
+        {listing.status === 'ok' && listing.collaborators.length > 0 && (
+          <h3 data-testid="collaborators-current-heading" className="mb-2 text-body-normal font-bold">
+            Current Collaborators
+          </h3>
+        )}
         {listing.status === 'ok' && !empty && (
           <ul className="flex flex-col">
             {listing.collaborators.map((collaborator) => (
