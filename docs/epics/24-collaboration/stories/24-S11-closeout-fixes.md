@@ -76,3 +76,31 @@ An independent `pr-reviewer` first requested the played-puzzle case, then
 approved the amendments and this specification (2026-11-14). Against the
 unchanged runtime the db file fails 2, passes 1 (both outsider assertions);
 the label amendments fail on Reset Grid and Lock Word, still 12px.
+
+## Implementation notes
+
+- `listLibraryCollaboration` filters with `editableBy` (owner or member)
+  instead of the library's full visibility rule; `listPuzzles` keeps it.
+- Reset Grid and Lock Word use `text-body-normal`.
+- Cause of the shift: at 490px the row has 450px; step, Next and S8's 120px
+  link use 421px, so the first "Saved" wrapped the link (+30px). The save
+  status now reserves its usual labels' width ("Saving…", an invisible
+  zero-height `::before`, absent from text content and the accessibility
+  tree), and for the owner sits with the link in one right-aligned group
+  that wraps as a unit. Measured in the E2E build: open and ready rows are
+  identical at 700/600/540/490/375px; at 490px and below the group starts
+  on the second line. "Not saved — retrying" is wider and may still wrap;
+  it is a rare error state outside 22-S2-7.
+
+## Verification (implementation `a196993`, clean detached worktree)
+
+- `npm run verify` exit 0: 113 files/1288 tests (2 lint warnings, no errors).
+- Full `npm run test:e2e`, two workers: 1395 passed, 3 failed. All four
+  original failures (23-S1-2, 20-S1-1, 21-S5-1, 22-S2-7) passed. The three
+  failures were unrelated to S11 and environmental (load average about 6):
+  `ECONNRESET` on `/api/auth/get-session` in library-play P5 and ownership
+  O1, and a response body read after 24-S4-E4 ended.
+- Rerun of those three files: 28 passed, 2 failed (other live-sync E1
+  cases stuck on retrying under load); `live-sync.spec.ts` alone then
+  passed 10/10. Every failing case has since passed at `a196993`.
+- The final clean full E2E on the integrated epic branch is still due.
