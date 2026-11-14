@@ -20,7 +20,9 @@ export function SaveStatus({ state }: { state: SaveStatusState | null }) {
       data-state={state ?? 'none'}
       role="status"
       aria-live="polite"
-      className={`ml-auto min-h-4 shrink-0 text-label ${state === 'retrying' ? 'text-error' : 'text-subtle'}`}
+      // 24-S11: an invisible, zero-height "Saving…" reserves the usual
+      // labels' width, so the first status can't wrap the owner's link.
+      className={`ml-auto min-h-4 shrink-0 text-label before:invisible before:block before:h-0 before:content-['Saving…'] ${state === 'retrying' ? 'text-error' : 'text-subtle'}`}
     >
       {state ? LABELS[state] : ''}
     </p>

@@ -271,7 +271,7 @@ export async function createPuzzle(input: {
   return { id: record.id };
 }
 
-/** The library's existing visibility rules, shared by its display reads. */
+/** The library's existing visibility rules. */
 function libraryAccess(userId: string): Prisma.PuzzleWhereInput {
   return { OR: [
     editableBy(userId),
@@ -280,15 +280,16 @@ function libraryAccess(userId: string): Prisma.PuzzleWhereInput {
   ] };
 }
 
-/** Username-only collaboration metadata; rechecks access even when called
- *  directly with arbitrary IDs rather than through the library page. */
+/** Username-only collaboration metadata, only for puzzles the caller owns or
+ *  collaborates on (24-S11); rechecks access even when called directly with
+ *  arbitrary IDs rather than through the library page. */
 export async function listLibraryCollaboration(ids: string[]) {
   const session = await requireSession();
   if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string')) {
     throw new Error('listLibraryCollaboration: invalid identifiers');
   }
   const records = await prisma.puzzle.findMany({
-    where: { id: { in: ids }, ...libraryAccess(session.user.id) },
+    where: { AND: [{ id: { in: ids } }, editableBy(session.user.id)] },
     select: {
       id: true,
       collaborators: {

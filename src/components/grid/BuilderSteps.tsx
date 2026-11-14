@@ -52,8 +52,15 @@ export function BuilderSteps({
           {next.label}
         </Button>
       )}
-      {status}
-      {collaborators && <div className="ml-auto flex justify-end">{collaborators}</div>}
+      {/* 24-S11: the status and the owner's link wrap together, right-aligned. */}
+      {collaborators ? (
+        <div className="ml-auto flex items-center justify-end gap-x-3 min-[748px]:gap-x-5">
+          {status}
+          {collaborators}
+        </div>
+      ) : (
+        status
+      )}
     </div>
   );
 }

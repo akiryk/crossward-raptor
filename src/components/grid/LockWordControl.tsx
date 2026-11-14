@@ -38,7 +38,7 @@ export function LockWordControl({
       }}
       onFocus={onFocus}
       onBlur={onBlur}
-      className={`shrink-0 cursor-pointer whitespace-nowrap text-label outline-hidden focus-visible:underline aria-disabled:cursor-not-allowed ${
+      className={`shrink-0 cursor-pointer whitespace-nowrap text-body-normal outline-hidden focus-visible:underline aria-disabled:cursor-not-allowed ${
         disabled ? 'text-subtle' : 'text-link-muted hover:text-button-hover'
       } ${hidden ? 'invisible' : ''}`}
     >
