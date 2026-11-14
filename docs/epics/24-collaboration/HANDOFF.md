@@ -14,8 +14,13 @@ The three external source drafts named there are not specifications.
 
 ## Current state (2026-11-14)
 
-**Final verification found blockers; fix story S11 in progress.** All ten
-stories S1–S10 are merged into `epic/24-collaboration`. [PR #46](https://github.com/akiryk/crossward-raptor/pull/46)
+**S1–S11 merged; one clean full E2E outstanding.** [S11](stories/24-S11-closeout-fixes.md)
+([PR #50](https://github.com/akiryk/crossward-raptor/pull/50), independently reviewed, merged as
+`4e68d5b`) fixed the four E2E failures and the audit's privacy finding.
+Full E2E at `4e68d5b`: 1396 passed, 2 failed, both known flakes (Epic 18's
+18-S5-5 pixel read; `ECONNRESET` on sign-in under load). A second full run
+was stopped at the human's request (610 passed, 2 failed so far). The human
+considers the epic done. [PR #46](https://github.com/akiryk/crossward-raptor/pull/46)
 into `main` is OPEN, not merged; its description predates S8–S10.
 
 **Final verification at `93943f8`** (clean detached worktree, Prisma Client
@@ -77,11 +82,9 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-Finish S11: independent review of its frozen amendments, freeze commit on
-the epic branch, implementation on `story/24-S11-closeout-fixes`, verify and
-affected browser files, independently reviewed PR into the epic. Then one
-clean full E2E on the final epic branch, recheck the audit's privacy finding,
-and rewrite PR #46's description. Do not deploy or merge main.
+If the human wants the gate formally closed: one clean full E2E on
+`epic/24-collaboration`, then rewrite PR #46's description (it predates
+S8–S11). Do not deploy or merge main.
 
 ## Resume prompt
 
