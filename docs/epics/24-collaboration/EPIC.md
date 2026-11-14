@@ -259,6 +259,7 @@ therefore merge and deploy without changing anyone's experience.
      and a context taken offline and back catches up.
    - Depends on: S3.
 5. **S5 Collaborator membership and authorization (C1a, server side).**
+   [Story](stories/24-S5-collaborator-membership.md), frozen 2026-11-13.
    - Schema: the collaborator and invitation tables.
    - One "editable by" predicate in every write's own `WHERE`: the commit
      path, the catch-up read, the editor page and every remaining action.

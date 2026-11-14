@@ -4,16 +4,25 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestDatabase, migrationNames, type TestDatabase } from '@/test-support/database';
 
+// Amended by 24-S5: S1's migration is no longer the newest. Its migration
+// and every later one are held back, applied together by `migrateRest`;
+// each is additive, so the rows-preserved assertions below are unchanged.
+const NAME = /_add_puzzle_operations$/;
+
 let db: TestDatabase;
-beforeAll(async () => { db = await createTestDatabase({ holdBack: 1 }); }, 60_000);
+beforeAll(async () => {
+  const names = await migrationNames();
+  const index = names.findIndex((name) => NAME.test(name));
+  db = await createTestDatabase({ holdBack: index < 0 ? 0 : names.length - index });
+}, 60_000);
 afterAll(async () => { await db?.drop(); });
 
 const rows = async (table: string) =>
   (await db.query(`SELECT to_jsonb(t) AS row FROM "${table}" t ORDER BY id`)).rows.map(({ row }) => row);
 
 describe('24-S1-15 the migration', () => {
-  it('is the newest, preserves every row, and adds the columns and an empty log', async () => {
-    expect((await migrationNames()).at(-1)).toMatch(/_add_puzzle_operations$/);
+  it('is held back with every later one, preserves every row, and adds the columns and an empty log', async () => {
+    expect((await migrationNames()).some((name) => NAME.test(name))).toBe(true);
 
     await db.query(`INSERT INTO "user" (id, name, email, "updatedAt", "displayName") VALUES
       ('owner', 'Owner', 'owner@24s1.example.test', '2024-01-02', 'Owner'),

@@ -46,6 +46,12 @@ function matches(row: Row, where: Where): boolean {
     if (key === 'AND') return (Array.isArray(value) ? value : [value]).every((part) => matches(row, part as Where));
     if (key === 'OR') return (value as Where[]).some((part) => matches(row, part));
     if (key === 'NOT') return !(Array.isArray(value) ? value : [value]).some((part) => matches(row, part as Where));
+    // Amended by 24-S5: the widened `editableBy`'s relation filter, matched
+    // against a row's collaborators (none in these fixtures).
+    if (key === 'collaborators') {
+      const { userId } = (value as { some: { userId: string } }).some;
+      return ((row as Row & { collaborators?: string[] }).collaborators ?? []).includes(userId);
+    }
     const actual = row[key as keyof Row];
     if (value instanceof Date) return actual instanceof Date && actual.getTime() === value.getTime();
     if (value !== null && typeof value === 'object') {

@@ -6,6 +6,9 @@ import { e2eEnvironment } from '../../scripts/e2e-env.mjs';
 import { getSession } from './auth';
 
 export const SUITE_BUILDER_EMAIL = 'crossward-e2e-suite-builder@example.test';
+/** Epic 24 (24-S5): the second seeded account, "Jay", for two-user tests. */
+export const COLLABORATOR_ID = 'crossward-e2e-collaborator';
+export const COLLABORATOR_EMAIL = 'crossward-e2e-collaborator@example.test';
 
 /** Every ownership fixture uses the harness's effective-target validation. */
 export function ownershipTestClient(): PrismaClient {
@@ -29,6 +32,20 @@ export async function ensureSuiteBuilder(client: PrismaClient): Promise<string> 
   const user = await client.user.update({
     where: { email: SUITE_BUILDER_EMAIL },
     data: { email: SUITE_BUILDER_EMAIL, displayName: 'E2E Suite Builder' },
+  });
+  return user.id;
+}
+
+/** Epic 24 (24-S5): the second seeded account, created like the suite
+ *  builder (idempotently, under concurrent setup). */
+export async function ensureCollaborator(client: PrismaClient): Promise<string> {
+  await client.user.createMany({
+    data: { id: COLLABORATOR_ID, email: COLLABORATOR_EMAIL, name: 'Jay', displayName: 'Jay' },
+    skipDuplicates: true,
+  });
+  const user = await client.user.update({
+    where: { email: COLLABORATOR_EMAIL },
+    data: { email: COLLABORATOR_EMAIL, displayName: 'Jay' },
   });
   return user.id;
 }

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, type Page } from '@playwright/test';
 import { requestMagicLink, readMagicLinkUrl, getSession } from './auth';
-import { ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './ownership';
+import { COLLABORATOR_EMAIL, ensureCollaborator, ensureSuiteBuilder, ownershipTestClient, SUITE_BUILDER_EMAIL } from './ownership';
 import { registerFixtureBuilder } from './fixture-builder';
 
 /**
@@ -54,4 +54,26 @@ export async function signInSeededUser(page: Page): Promise<{ email: string }> {
   }
   registerFixtureBuilder(builderId);
   return { email };
+}
+
+/**
+ * Epic 24 (24-S5): leave `page` signed in as the second seeded account,
+ * "Jay", for the setup project's `e2e/.auth/collaborator.json`. The same
+ * magic-link sign-in as above; it never becomes a fixture builder.
+ */
+export async function signInSeededCollaborator(page: Page): Promise<{ email: string }> {
+  const client = ownershipTestClient();
+  let collaboratorId: string;
+  try {
+    collaboratorId = await ensureCollaborator(client);
+  } finally {
+    await client.$disconnect();
+  }
+  await requestMagicLink(page, COLLABORATOR_EMAIL);
+  await page.goto(await readMagicLinkUrl(COLLABORATOR_EMAIL));
+  const session = await getSession(page);
+  if (session?.user?.id !== collaboratorId || session.user.email !== COLLABORATOR_EMAIL) {
+    throw new Error('Seeded sign-in did not establish the collaborator session.');
+  }
+  return { email: COLLABORATOR_EMAIL };
 }
