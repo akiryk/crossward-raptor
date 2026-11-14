@@ -16,7 +16,7 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**S7 implemented; PR pending independent review**, stacked on PR #44
+**S7 implemented; PR #45 pending independent review**, stacked on PR #44
 (S6), which merges first. [S7](stories/24-S7-presence-and-conflicts.md)
 was frozen at `f4a0225` and amended at `b8fd5e6` (23-S3-U7 lists the new
 presence route; 24-S5-8 "is among them"; a lint-only test change), both
@@ -312,13 +312,16 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Independent review of PR #44 (`story/24-S6-collaborator-management`
-into `epic/24-collaboration`, head `c352d0f`). The author does not merge
-its own PR. After S6 merges, S7 is the epic's next story (EPIC, Stories
-item 7); draft it per the normal lifecycle.
+One independent review covering PR #44 (S6, head `c352d0f`) and PR #45
+(S7, `story/24-S7-presence-and-conflicts`), both into
+`epic/24-collaboration`: merge #44 first, then #45 (it stacks on #44).
+The author does not merge its own PRs. With S7 merged, every story is
+done; the epic then needs one clean full `npm run test:e2e` on the final
+epic branch, and the human's production migrations and Skew Protection
+check before its PR to `main`.
 
 Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S6-collaborator-management.md. Independently review and, if no blockers remain, merge PR #44 into epic/24-collaboration.
+Read docs/epics/24-collaboration/HANDOFF.md and the stories 24-S6-collaborator-management.md and 24-S7-presence-and-conflicts.md. Independently review PR #44 and PR #45 and, if no blockers remain, merge #44 and then #45 into epic/24-collaboration.
