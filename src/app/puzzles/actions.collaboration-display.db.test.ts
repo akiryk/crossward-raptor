@@ -49,17 +49,38 @@ describe('24-S8 authenticated library collaboration display', () => {
     }
   });
 
-  it('counts only live invitations and permits the existing public-puzzle library path', async () => {
+  // Amended by 24-S11: another builder's published puzzle discloses no
+  // collaboration metadata; invitation counting is the owner's.
+  it('counts only live invitations and gives outsiders nothing for public puzzles', async () => {
     const puzzle = await db.client.puzzle.create({ data: {
       builderId: 'owner', title: 'Public metadata', grid: {}, hints: {},
       publishedAt: new Date(), visibility: 'public',
       invitations: { create: { email: 'expired@example.test', expiresAt: new Date(0) } },
     } });
-    as('outsider');
+    as('owner');
     expect(await listLibraryCollaboration([puzzle.id])).toEqual([{ id: puzzle.id, collaborators: [], hasCollaborators: false }]);
     await db.client.puzzleInvitation.create({ data: {
       puzzleId: puzzle.id, email: 'live@example.test', expiresAt: new Date(Date.now() + 60_000),
     } });
     expect(await listLibraryCollaboration([puzzle.id])).toEqual([{ id: puzzle.id, collaborators: [], hasCollaborators: true }]);
+    as('outsider');
+    expect(await listLibraryCollaboration([puzzle.id])).toEqual([]);
+  });
+
+  // Added by 24-S11: a played, unlisted published puzzle discloses nothing either.
+  it('gives an outsider nothing for a published puzzle they have played', async () => {
+    const puzzle = await db.client.puzzle.create({ data: {
+      builderId: 'owner', title: 'Played metadata', grid: {}, hints: {},
+      publishedAt: new Date(), visibility: 'unlisted',
+      collaborators: { create: { userId: 'member' } },
+      invitations: { create: { email: 'played-invite@example.test', expiresAt: new Date(Date.now() + 60_000) } },
+      playSessions: { create: { userId: 'outsider', entries: {} } },
+    } });
+    as('outsider');
+    expect(await listLibraryCollaboration([puzzle.id])).toEqual([]);
+    as('member');
+    expect(await listLibraryCollaboration([puzzle.id])).toEqual([
+      { id: puzzle.id, collaborators: [{ userId: 'member', name: 'Member Name' }], hasCollaborators: true },
+    ]);
   });
 });
