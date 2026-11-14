@@ -3,7 +3,7 @@
 Mini grids look too large on desktop. Cap the construction editor's 5×5
 grid at 500px and center it within its existing grid column.
 
-**Status: done; delivered on `polish/17-s11-mini-grid` (2026-11-14).** The human
+**Status: done; delivered on `main` (2026-11-14).** The human
 approved the investigated proposal and requested documentation in epic 17,
 implementation, commit and push. They subsequently approved proceeding on
 an isolated branch while the epic 26 agent is paused. This authorizes the
@@ -11,15 +11,17 @@ an isolated branch while the epic 26 agent is paused. This authorizes the
 the old mini sizing expectations below. Specification/acceptance frozen at
 `60d8941`, with independently reviewed
 amendments/refreezes at `5f25068` and `58f6ef7`. Implementation and evidence
-are delivered on the isolated branch; no PR or merge into main.
+were delivered on the isolated branch. The human subsequently authorized
+integration into `main`; it fast-forwarded unchanged to `4dd1f1a`, preserving
+epic 26 work. No PR was required because no risk path changed.
 
 **Blast radius: small.** One editor component; browser acceptance and epic
 documentation. No CODE-REVIEW risk path. Use `polish/17-s11-mini-grid` in a
 separate worktree to preserve the other agent's uncommitted epic 26 work.
 Keep the specification/acceptance baseline separate from runtime changes
 on that branch (the human's isolation instruction takes precedence over
-the usual baseline on main). Commit and push the branch; merging is not
-part of this task.
+the usual baseline on main). Initial delivery was commit/push of the branch;
+the later integration task authorizes delivery to `main`.
 
 ## Decisions
 
@@ -113,7 +115,8 @@ refreeze commit. All other assertions remain frozen.
 - Inspect desktop/mobile browser output for centering and lock-button
   placement. Record observed checks and content identity in the handoff.
 - Preserve epic 26 work and all acceptance outside the listed amendments;
-  commit and push only this branch. No next story is authorized.
+  initially commit and push only this branch. The later human instruction
+  authorizes integration and delivery to `main`. No next story is authorized.
 
 ## Discrimination / evidence
 
@@ -190,6 +193,13 @@ Local evidence: `/tmp/17-s11-final-verification.md` and
 `/tmp/17-s11-mini-{desktop,phone}.png`.
 
 Only the editor component changes at runtime. The implementation commit
-contains the tested blob and unchanged frozen acceptance; commit/push is
-limited to `polish/17-s11-mini-grid`. The epic 26 worktree is preserved.
+contains the tested blob and unchanged frozen acceptance. Initial commit/push
+was limited to `polish/17-s11-mini-grid`; the subsequently authorized integration
+fast-forwarded `main` to the same commit. Integration reused the separate
+verification agent's evidence after confirming the exact editor blob, unchanged
+frozen acceptance and absence of any other non-documentation changes since the
+tested baseline. No application/browser suite was rerun solely for integration.
+The four epic 26 working files retain their pre-integration blob hashes and
+remain excluded from S11 commits. Only epic 17 delivery documentation changed
+after the fast-forward; see the handoff for preservation and delivery checks.
 See [HANDOFF](../HANDOFF.md) for the current delivery/resume state.
