@@ -71,7 +71,7 @@ test.describe('24-S6-E1 adding from the row menu', () => {
     const item = row(page, title);
     await trigger(item).click();
     await expect(menu(page)).toBeVisible();
-    expect(await itemTexts(page)).toEqual(['Duplicate', 'Collaborators…', 'Delete']);
+    expect(await itemTexts(page)).toEqual(['Duplicate', 'Add Collaborators', 'Delete']);
     await menu(page).getByTestId('puzzle-menu-collaborators').click();
 
     await expect(dialog(page)).toBeVisible();
@@ -166,7 +166,7 @@ test.describe('24-S6-E3 the editor’s Collaborators…', () => {
 
     await open(page, build);
     const button = page.getByTestId('editor-collaborators');
-    await expect(button).toHaveText('Collaborators…');
+    await expect(button).toHaveText('Edit Collaborators');
     await button.click();
     await expect(dialog(page)).toBeVisible();
     await expect(dialog(page).getByTestId('collaborator-row')).toContainText('Jay');

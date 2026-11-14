@@ -69,7 +69,7 @@ describe('F6 Preview toggle and Radio source', () => {
       'border-button-active',
       'border-button-hover',
       'bg-inverse',
-      'text-label',
+      'text-body-normal',
       'text-link-muted',
       'text-button-active',
     ]) {
