@@ -6,6 +6,7 @@ import { seedBuilderEditPuzzle } from './helpers/builder-edits';
 import { currentBuilderId } from './helpers/ownership';
 import { commitFromElsewhere, isAction, journalEntries, readSaved, savedRow } from './helpers/operations';
 import { waitForEditorReady } from './helpers/wait-for-ready';
+import { blockCatchUp } from './helpers/live-sync';
 
 // Story 24-S3 — the editor saves by operations.
 //
@@ -173,6 +174,11 @@ test.describe('24-S3-E3 refusals', () => {
   test('a burst into a word locked elsewhere is explained, its input kept; the grid shows the saved letters', async ({ page }) => {
     const { id } = await seedCat();
     await open(page, id);
+    // Amended by 24-S4: the editor now catches up about once a second, and a
+    // lock it has seen protects the word before any burst is made. Catching
+    // up is held off, so the lock is committed while this editor hasn't yet
+    // seen it, the case this test is about.
+    await blockCatchUp(page, id);
     expect(await commitFromElsewhere(id, { kind: 'lock', word: { col: 0, row: 0, orientation: 'across', length: 3 } }))
       .toMatchObject({ status: 'accepted', version: 1 });
     await typeAt(page, '1,0', 'O');

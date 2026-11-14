@@ -75,8 +75,11 @@ describe('23-S3-U7 the guard is central', () => {
     const commitRoute = code.get('app/api/puzzles/[id]/operations/route.ts') ?? '';
     const imports = [...commitRoute.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]).sort();
     expect(imports).toEqual(['@/app/puzzles/actions', 'next/server']);
-    expect(commitRoute).toMatch(/import \{ commitOperation \} from ['"]@\/app\/puzzles\/actions['"]/);
+    // 24-S4 amendment: its GET, the catch-up read, only calls the checked
+    // `catchUpOperations` action, as POST only calls `commitOperation`.
+    expect(commitRoute).toMatch(/import \{ catchUpOperations, commitOperation \} from ['"]@\/app\/puzzles\/actions['"]/);
     expect(commitRoute).toMatch(/\bawait commitOperation\(/);
+    expect(commitRoute).toMatch(/\bawait catchUpOperations\(/);
   });
 
   it('every page outside / sits under a layout that calls requireSession()', () => {

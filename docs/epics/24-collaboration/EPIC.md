@@ -246,6 +246,7 @@ therefore merge and deploy without changing anyone's experience.
      proves it.
    - Depends on: S2.
 4. **S4 Live sync by polling (C3a).**
+   [Story](stories/24-S4-live-sync.md), frozen 2026-11-13.
    - Catch-up "operations since version N" about once a second while the
      editor is visible, and at once on becoming visible again.
    - Remote operations of every kind, phase changes and resets included,
