@@ -16,8 +16,27 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**All seven stories are merged into `epic/24-collaboration`.** One
-independent review covered S6 and S7:
+**Epic complete on `epic/24-collaboration`; closeout audited; PR to `main`
+open, not merged.** The final full E2E on `0135adb` is clean (Verification,
+"Final full run"). The PR waits for the human's items (Next action).
+
+**Closeout audit (2026-11-14).** Independent, report-only (a Sonnet agent
+that authored none of the epic), scoped to the seven stories against the
+EPIC, the epic's diff from `main`, its docs and the repo-policy files changed
+during the epic. Static inspection only, at `0135adb`. No blockers.
+Findings and disposition:
+
+- The epic index's line was stale (said "S4 next"): fixed.
+- S1's frozen Definition of Done asks for a full `npm run test:e2e` exit
+  0, which S1's own runs never met (rerun policy below). Accepted: the
+  final clean full run on the integrated branch, which contains S1,
+  meets it. S1's frozen text is left unchanged.
+- The `isOthers` citation was off by one line: fixed (122).
+- The 18-S5-5 correction's branch was unspecified. Moot for the gate,
+  since the final run passed clean. Left as a recommendation for the
+  human (carry-overs).
+
+All seven stories are merged. One independent review covered S6 and S7:
 
 - **S7 merged:** PR #45, merge `29982d0`.
   - Reviewed at `d091d62` (runtime `1d5df64`), no blockers. GitHub saw a
@@ -51,10 +70,11 @@ independent review covered S6 and S7:
   - S6's "render-path weight" diagnosis is unsupported: the tested row
     has no menu. The `next/dynamic` import in `c352d0f` is harmless but
     is not the fix.
-  - The frozen test needs a correction under STORY's procedure (poll
-    until the pixel settles, as `expectRowColors` does) before the final
-    full run can be relied on.
-- **`src/lib/collab/conflict.ts:121` (`isOthers`)** treats an operation
+  - It passed in the final clean full run. A correction (poll until the
+    pixel settles, as `expectRowColors` does) is recommended, but it is
+    an Epic 18 frozen test, so it is outside this epic. It needs the
+    human's approval under STORY's procedure, on `main`.
+- **`src/lib/collab/conflict.ts:122` (`isOthers`)** treats an operation
   with an unknown author (its log user deleted) as another account's.
   This can only happen in a batch that also has known authors. It is
   rare.
@@ -167,6 +187,11 @@ migrations are the human's. So the epic is integrated on
 a PR and independent review.
 
 ## Verification
+
+**Final full run (2026-11-14, orchestrator).** `npm run test:e2e --
+--workers=2` on `epic/24-collaboration` at `0135adb`, after `pretest:e2e`:
+**1396 passed, 0 failed, 0 flaky**, exit 0, 13.4 min
+(`/tmp/epic24-e2e-full-0135adb.log`). Every later commit is docs only.
 
 **E2E evidence policy.** From S6 on (2026-11-14, under the human's usage
 constraints), stories run only their own and directly affected spec files
@@ -304,16 +329,21 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Every story is merged. Before the epic's PR to `main`:
+Every story is merged and the epic is closed out on its branch. The PR from
+`epic/24-collaboration` to `main` is open and must not merge until the human:
 
-1. Correct the frozen `e2e/done-icon.spec.ts` 18-S5-5 timing read under
-   STORY's correction procedure (Current state, carry-overs).
-2. Run one clean full `npm run test:e2e` on the final epic branch.
-3. The human's items: the production migrations, the Skew Protection
-   check and the visual checks.
+1. applies the production migrations in order: S1's
+   `20261112120000_add_puzzle_operations`, S5's
+   `20261113120000_add_puzzle_collaborators`, S7's
+   `20261114120000_add_puzzle_presence`;
+2. settles Vercel Skew Protection (Current state);
+3. does the visual checks: S3's save status and refusal note, S6's
+   Collaborators dialog and shared rows, S7's session panel and its
+   entrance, and the conflict outline and hint highlight fading;
+4. merges the PR.
 
-Not authorized: production migrations, Vercel settings, `main`.
+Not authorized for agents: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Correct the frozen 18-S5-5 timing read under STORY's correction procedure, then run the one clean full `npm run test:e2e` on epic/24-collaboration; no production migrations, Vercel settings or `main`.
+Read docs/epics/24-collaboration/HANDOFF.md. Fix any problem the human reports from testing epic 24 locally on epic/24-collaboration, through a story branch and PR into it; no production migrations, Vercel settings or `main`.
