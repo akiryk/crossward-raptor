@@ -277,7 +277,8 @@ therefore merge and deploy without changing anyone's experience.
      reachable, and so an open editor learns of removal by polling.
 6. **S6 Collaborator management and the library (C1a, UI).**
    [Story](stories/24-S6-collaborator-management.md), frozen 2026-11-13.
-   - The owner's "Collaborators…" dialog from the row menu and the editor:
+   - The owner's "Collaborators…" dialog (relabeled by S8) from the row
+     menu and the editor:
      an email field, the list, pending invitations, remove and revoke.
    - The library: shared rows with the owner's username, Create filters
      counting editable puzzles, and Duplicate as a collaborator's only row
@@ -293,6 +294,21 @@ therefore merge and deploy without changing anyone's experience.
    - The four-screen scenario and the rest of the two-user browser tests
      (see "Multi-user testing").
    - Depends on: S6.
+
+**Follow-up stories (2026-11-14).** The human's local testing after S7 added
+three small, separately approved UI stories. They supersede S6's labels and
+layout where they differ:
+
+8. **S8 Collaboration UI polish.**
+   [Story](stories/24-S8-collaboration-ui-polish.md). Toolbar placement and
+   14px controls; "Add Collaborators"/"Edit Collaborators" replace
+   "Collaborators…"; owner-first library rows listing members.
+9. **S9 Personal and current collaborator labels.**
+   [Story](stories/24-S9-collaboration-labels.md). "You" for the signed-in
+   account in library rows; the dialog's Current Collaborators heading.
+10. **S10 Current collaborators spacing.**
+    [Story](stories/24-S10-collaborators-spacing.md). A 36px gap between the
+    email form and Current Collaborators.
 
 **Why not other boundaries.**
 
@@ -519,7 +535,8 @@ draft's open questions are therefore settled as it suggested:
 
 - **Remote selections are out of this epic.** Polling would make them lag
   about a second. A later push transport can revisit them.
-- **Collaborator management** is a "Collaborators…" item in the owner's
+- **Collaborator management** (labels and placement later revised by S8)
+  is a "Collaborators…" item in the owner's
   row menu and in the editor. It opens the existing modal with an email
   field and the list (S6). A mockup from the human, if any, settles the
   look in S6's specification.

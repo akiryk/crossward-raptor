@@ -14,29 +14,48 @@ The three external source drafts named there are not specifications.
 
 ## Current state (2026-11-14)
 
-**Implementation complete on `epic/24-collaboration`; final closeout pending.**
-All ten stories are merged. Live checkout before this handoff update:
-`1444b91`, clean and synchronized with origin. The human accepted the latest
-local result (“Looks good”) and asked about transitioning back to Claude.
+**Final verification found blockers; fix story S11 in progress.** All ten
+stories S1–S10 are merged into `epic/24-collaboration`. [PR #46](https://github.com/akiryk/crossward-raptor/pull/46)
+into `main` is OPEN, not merged; its description predates S8–S10.
 
-Local-testing follow-ups are independently reviewed and merged:
+**Final verification at `93943f8`** (clean detached worktree, Prisma Client
+generated, `COMPOSE_PROJECT_NAME=crossward-raptor` so the existing test
+database is reused, two workers, HEAD fixed, lock held):
 
-- [S8](stories/24-S8-collaboration-ui-polish.md), [PR #47](https://github.com/akiryk/crossward-raptor/pull/47):
-  toolbar position/14px controls, Add/Edit labels, owner-first library rows.
-- [S9](stories/24-S9-collaboration-labels.md), [PR #48](https://github.com/akiryk/crossward-raptor/pull/48):
-  “You” for the viewer, Current Collaborators heading; approved frozen-test
-  correction and its separate baseline are recorded in the story/history.
-- [S10](stories/24-S10-collaborators-spacing.md), [PR #49](https://github.com/akiryk/crossward-raptor/pull/49):
-  36px form-to-heading gap, measured in the browser.
+- `npm run verify` exit 0: 113 files/1287 tests; 2 lint warnings, no errors.
+- Full `npm run test:e2e`: **4 failed, 1394 passed**. All four are older
+  frozen tests that S8's 14px toolbar broke and its affected runs missed:
+  23-S1-2 build phase (Preview/Rebus 14 vs 12), 20-S1-1 (Reset Grid 12 vs
+  Preview 14), 21-S5-1 (Lock Word 12 vs Rebus 14) and 22-S2-7 (at 540px
+  the first save status wraps S8's link, moving the bar 30px).
 
-The earlier independent audit and clean full E2E covered S1–S7 at `0135adb`.
-**Neither covers S8–S10. A fresh independent closeout audit and a clean full
-E2E run on the final integrated branch remain required.** The epic index's
-older “closeout audited” description refers to that historical audit.
+**Independent report-only closeout audit** (fresh agent, author of none of
+the audited work; 2026-11-14; commit `93943f8`; covered EPIC, S8–S10 in
+full, S1–S7 by targeted checks over the earlier `0135adb` audit, the
+`main...93943f8` diff, engine purity and PR states). No blockers. Findings
+and disposition:
 
-[PR #46](https://github.com/akiryk/crossward-raptor/pull/46) into `main` is
-confirmed OPEN, not merged. Production migrations, Vercel settings and main
-remain outside agent authorization. Human cutover items remain:
+- Should-fix: PR #46 description stale → rewrite after the final full E2E.
+  Epic index "closeout audited" stale → updated. EPIC lacked S8–S10 →
+  follow-up stories and supersession notes added.
+- Should-fix (privacy): library collaboration metadata reached outsiders on
+  public/played published puzzles → the human chose own/shared rows only;
+  fixed in S11.
+- Notes accepted as-is: owner without username renders ", (owner)" (frozen
+  14-S2-4); invitations listed under Current Collaborators; no test for the
+  36px gap or the "Edit Collaborators" menu label; presence route not named
+  in CODE-REVIEW risk paths (thin wrapper over the `actions.ts` risk path);
+  stale "Collaborators…" comments in frozen files; S9/S10 freeze and
+  implementation commits share timestamps (review order recorded in their
+  stories/PRs); STORY's "before the epic's PR" wording; Epic 18 carry-overs.
+- Note to fold into DEVELOPMENT later: HEAD changes invalidate E2E runs
+  (deployment ID), and root lint scans nested `.claude/worktrees`.
+
+**Human decisions (2026-11-14):** all build-toolbar controls at 14px (Reset
+Grid and Lock Word too; only 23-S1-2 amended); collaborator metadata only on
+puzzles the caller owns or collaborates on. See [S11](stories/24-S11-closeout-fixes.md).
+
+Human cutover items remain:
 
 1. Apply migrations in order: `20261112120000_add_puzzle_operations`,
    `20261113120000_add_puzzle_collaborators`, `20261114120000_add_puzzle_presence`.
@@ -46,29 +65,23 @@ remain outside agent authorization. Human cutover items remain:
 
 ## Verification and operating notes
 
-Latest author gate at `1883fc5`: `npm run verify` exit 0, **113 files/1287 tests**;
-S10 affected browser suite **7 passed**. S8 affected coverage passed **117**;
-S9 passed **84**. Independent reviewer `review_polish` inspected the diffs,
-verified source identity, reused author evidence, confirmed configured CI and
-merged PRs #47–49. Exact heads, commands, review links and logs are preserved
-in history and PRs. No new application checks ran for this documentation update.
-
 Use a clean checkout for verify: root lint traverses historical nested
 `.claude/worktrees` and generated output. Preserve those existing worktrees.
-Serialize browser suites under `/tmp/crossward-e2e.lock`; guarded test resets
-have the standing grant in DEVELOPMENT. Use two workers on this machine.
-Stop local dev before browser runs sharing build output, and keep **git HEAD
-fixed throughout build and run**: deployment identity changes trigger stale-tab
-reloads. Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
+In a fresh worktree run `npx prisma generate` first and export
+`COMPOSE_PROJECT_NAME=crossward-raptor` for E2E. Serialize browser suites
+under `/tmp/crossward-e2e.lock`; guarded test resets have the standing grant
+in DEVELOPMENT. Use two workers on this machine. Stop local dev before
+browser runs sharing build output, and keep **git HEAD fixed throughout
+build and run**: deployment identity changes trigger stale-tab reloads.
+Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-Claude can orchestrate final full E2E verification and a fresh independent,
-report-only audit covering S1–S10 and affected docs/code. A Claude session that
-authored S1–S7 must delegate the audit to a fresh agent that authored none of
-the audited files. The auditor edits nothing; the non-auditing orchestrator
-records findings/disposition. Resolve any blockers through reviewed story PRs
-into the epic branch, then recheck affected findings. Do not deploy or merge main.
+Finish S11: independent review of its frozen amendments, freeze commit on
+the epic branch, implementation on `story/24-S11-closeout-fixes`, verify and
+affected browser files, independently reviewed PR into the epic. Then one
+clean full E2E on the final epic branch, recheck the audit's privacy finding,
+and rewrite PR #46's description. Do not deploy or merge main.
 
 ## Resume prompt
 
