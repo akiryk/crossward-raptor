@@ -48,7 +48,7 @@ export function PreviewToggle({
       />
       <span
         data-toggle-label
-        className={`text-label transition-colors duration-150 ease-out ${isPreviewing ? 'text-button-active' : 'text-link-muted'}`}
+        className={`text-body-normal transition-colors duration-150 ease-out ${isPreviewing ? 'text-button-active' : 'text-link-muted'}`}
       >
         {label}
       </span>

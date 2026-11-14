@@ -16,6 +16,33 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
+**Local-testing follow-up S8: implemented and verified; PR #47 awaits final review/merge.**
+[UI polish](stories/24-S8-collaboration-ui-polish.md) implements the human’s
+five requests: grid-aligned Add/Edit Collaborators link, 14px controls, Rebus
+colors, and owner-first library rows with collaborator names. Specification
+baselines `59ff0a8` and `741e686` amend only requested old label/size assertions;
+independent agent `review_polish` approved them before refreeze. Work is on
+`story/24-S8-collaboration-ui-polish`, targeting this epic branch only.
+[PR #47](https://github.com/akiryk/crossward-raptor/pull/47), runtime `ede7d82`.
+
+S8 verification: clean temporary checkout `npm run verify` exit 0, **113 files,
+1287 tests passed**, including database cases; two existing lint warnings.
+Stable-HEAD affected E2E rerun: **60 passed**, exit 0. Final expanded affected
+run at `ede7d82`: **117 passed**, exit 0, 49.7 seconds, two workers, ten files:
+`collaboration-polish`, `collaborator-management`, `toggle-radio`, `rebus`,
+`builder-controls`, `puzzle-library`, `row-menu`, `menu-reset`,
+`delete-published`, and `duplicate`. Verified source identity (435 tracked
+files, no mismatches) is in `/tmp/epic24-s8-verification.json`; docs-only
+commits after `ede7d82` do not change that tested content. The guarded test reset uses DEVELOPMENT’s standing authorization.
+Root-checkout verification hit generated files in old nested agent worktrees;
+no worktrees or lint rules changed. An earlier browser run was invalidated by
+a mid-run commit changing Next’s deployment ID (stale-tab reloads); its failures
+are not claimed as passing evidence. Logs: `/tmp/epic24-s8-verify.log` and
+`/tmp/epic24-s8-stable-browser.log`; final run:
+`/tmp/epic24-s8-final-browser.log`. The full epic E2E gate is owed again after
+S8 before main; the historical clean run below predates this follow-up.
+
+
 **Epic complete on `epic/24-collaboration`; closeout audited; PR to `main`
 open as #46, not merged.** The final full E2E on `0135adb` is clean (Verification,
 "Final full run"). The PR waits for the human's items (Next action).

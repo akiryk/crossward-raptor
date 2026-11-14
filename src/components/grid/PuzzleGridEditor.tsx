@@ -179,6 +179,7 @@ export function PuzzleGridEditor({
   initialVisibility,
   initialVersion,
   initialEpoch,
+  initialHasCollaborators = false,
   isOwner = true,
   userId,
 }: {
@@ -192,6 +193,7 @@ export function PuzzleGridEditor({
   /** 24-S3: the version and reset epoch the confirmed state starts at. */
   initialVersion: number;
   initialEpoch: number;
+  initialHasCollaborators?: boolean;
   /** 24-S5: false for a collaborator, whose editor has no Reset Grid or
    *  Publish (the server refuses both from them). */
   isOwner?: boolean;
@@ -294,6 +296,7 @@ export function PuzzleGridEditor({
   const [isStartOverOpen, setIsStartOverOpen] = useState(false);
   // 24-S6: the owner's Collaborators… dialog.
   const [isCollaboratorsOpen, setIsCollaboratorsOpen] = useState(false);
+  const [hasCollaborators, setHasCollaborators] = useState(initialHasCollaborators);
   // Set on confirming Start Over: once the dialog has closed (and Modal has
   // returned focus to its opener), the grid takes focus (20-S1).
   const focusGridAfterStartOverRef = useRef(false);
@@ -913,13 +916,8 @@ export function PuzzleGridEditor({
               phase={phase}
               onStep={handleStep}
               canPublish={isOwner}
-              status={
-                <>
-                  <SaveStatus state={saveState} />
-                  {/* 24-S6: the owner's, after the save status. */}
-                  {isOwner && <CollaboratorsButton onClick={() => setIsCollaboratorsOpen(true)} />}
-                </>
-              }
+              status={<SaveStatus state={saveState} />}
+              collaborators={isOwner && <CollaboratorsButton hasCollaborators={hasCollaborators} onClick={() => setIsCollaboratorsOpen(true)} />}
             />
           )}
           <div className={`${isLocked ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
@@ -1002,6 +1000,7 @@ export function PuzzleGridEditor({
             puzzleId={puzzleId}
             open={isCollaboratorsOpen}
             onClose={() => setIsCollaboratorsOpen(false)}
+            onChange={setHasCollaborators}
           />
         )}
         <TooEarlyDialog open={isNotQuiteOpen} onClose={() => setIsNotQuiteOpen(false)} />

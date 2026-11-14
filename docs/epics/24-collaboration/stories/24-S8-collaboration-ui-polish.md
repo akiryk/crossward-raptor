@@ -45,14 +45,20 @@ No unrelated visual redesign. The existing 66px rows remain when unshared.
 
 ## Repo paths
 
-`src/app/puzzles/{page.tsx,[id]/page.tsx}`;
+`src/app/puzzles/{actions.ts,page.tsx,[id]/page.tsx}`;
 `src/components/grid/{PuzzleGridEditor,BuilderSteps,RebusControl,PreviewToggle}.tsx`;
 `src/components/puzzle/{PuzzleRow,PuzzleRowMenu,CollaboratorsDialog}.tsx`;
 `src/components/ui/radio-source.test.ts`; `e2e/{collaborator-management,toggle-radio,collaboration-polish,row-menu,menu-reset,delete-published,duplicate}.spec.ts`; epic handoff.
 
-The library page reads membership display metadata only for IDs returned by
-the existing authenticated library query. Keep the frozen listPuzzles action
-and its return shape unchanged.
+The library page requests membership display metadata only for IDs returned
+by the existing authenticated library query. A separate authenticated action
+rechecks the same visibility predicate for those IDs, preserving listPuzzles
+return shape and every existing access rule. The existing route-guard frozen
+test requires database reads in actions rather than page modules; this scope
+addition also adds focused database tests in
+`src/app/puzzles/actions.collaboration-display.db.test.ts` for anonymous and
+private-ID denial, owner/member names, public visibility and invitation expiry.
+This is a risk-path change and requires independent PR review.
 
 ## Freeze evidence
 
@@ -69,3 +75,17 @@ the epic-integration exception, serialized under the guarded local test reset
 standing grant. Independent review, passing configured CI, and normal PR merge
 into `epic/24-collaboration`. The final epic full-suite gate is owed again
 before main. UI-only rules are not tested by disabling them.
+
+## Verification notes
+
+The root checkout contains 7 GB of historical `.claude/worktrees`, which the
+existing root lint command traverses, including their generated output. No
+worktrees were deleted and no lint rules changed. Run `npm run verify` in a
+clean temporary checkout with identical source content and the existing
+dependencies. Database tests require local-network execution permission.
+
+Keep git HEAD fixed throughout browser build and run: Next derives its
+deployment ID from HEAD. An early run changed HEAD mid-run, causing stale-tab
+reloads and invalidating interaction results; a stable-HEAD rerun passed all
+60 tests in the five initially affected files. The final affected run and
+verification identities are recorded in the handoff.

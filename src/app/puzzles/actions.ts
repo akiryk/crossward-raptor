@@ -271,6 +271,42 @@ export async function createPuzzle(input: {
   return { id: record.id };
 }
 
+/** The library's existing visibility rules, shared by its display reads. */
+function libraryAccess(userId: string): Prisma.PuzzleWhereInput {
+  return { OR: [
+    editableBy(userId),
+    { publishedAt: { not: null }, visibility: 'public' },
+    { publishedAt: { not: null }, playSessions: { some: { userId } } },
+  ] };
+}
+
+/** Username-only collaboration metadata; rechecks access even when called
+ *  directly with arbitrary IDs rather than through the library page. */
+export async function listLibraryCollaboration(ids: string[]) {
+  const session = await requireSession();
+  if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string')) {
+    throw new Error('listLibraryCollaboration: invalid identifiers');
+  }
+  const records = await prisma.puzzle.findMany({
+    where: { id: { in: ids }, ...libraryAccess(session.user.id) },
+    select: {
+      id: true,
+      collaborators: {
+        orderBy: [{ createdAt: 'asc' }, { userId: 'asc' }],
+        select: { userId: true, user: { select: { displayName: true } } },
+      },
+      _count: { select: { invitations: { where: { expiresAt: { gt: new Date() } } } } },
+    },
+  });
+  return records.map((record) => ({
+    id: record.id,
+    collaborators: record.collaborators.map((member) => ({
+      userId: member.userId, name: member.user.displayName?.trim() || '(no username)',
+    })),
+    hasCollaborators: record.collaborators.length > 0 || record._count.invitations > 0,
+  }));
+}
+
 export async function listPuzzles(): Promise<
   {
     id: string;
@@ -295,13 +331,7 @@ export async function listPuzzles(): Promise<
   // Another builder's unlisted puzzle is listed only once the caller has started it.
   // 24-S6: every puzzle the caller can edit is listed, shared ones included.
   const records = await prisma.puzzle.findMany({
-    where: {
-      OR: [
-        editableBy(authSession.user.id),
-        { publishedAt: { not: null }, visibility: 'public' },
-        { publishedAt: { not: null }, playSessions: { some: { userId: authSession.user.id } } },
-      ],
-    },
+    where: libraryAccess(authSession.user.id),
     orderBy: { updatedAt: 'desc' },
     select: {
       builder: { select: { displayName: true } },

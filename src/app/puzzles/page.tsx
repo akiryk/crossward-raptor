@@ -1,4 +1,4 @@
-import { claimInvitations, listPuzzles, listSharedPuzzleIds } from './actions';
+import { claimInvitations, listPuzzles, listSharedPuzzleIds, listLibraryCollaboration } from './actions';
 import { puzzleStatus } from '@/lib/puzzle-status';
 import { requireSession } from '@/lib/require-session';
 import { LibraryFreshness } from '@/components/puzzle/LibraryPlayControls';
@@ -14,6 +14,8 @@ export default async function PuzzlesPage() {
   const [puzzles, sharedIds, session] = await Promise.all([listPuzzles(), listSharedPuzzleIds(), requireSession()]);
   // 24-S6: the puzzles shared with the caller (they collaborate, another owns).
   const shared = new Set(sharedIds);
+  const metadata = await listLibraryCollaboration(puzzles.map((puzzle) => puzzle.id));
+  const collaboration = new Map(metadata.map((puzzle) => [puzzle.id, puzzle]));
 
   return (
     <>
@@ -25,6 +27,8 @@ export default async function PuzzlesPage() {
           builderId: puzzle.builderId,
           shared: puzzle.builderId !== session.user.id && shared.has(puzzle.id),
           builderName: puzzle.builderName,
+          collaborators: collaboration.get(puzzle.id)?.collaborators ?? [],
+          hasCollaborators: collaboration.get(puzzle.id)?.hasCollaborators ?? false,
           title: puzzle.title,
           phase: puzzle.phase,
           hintsComplete: puzzle.hintsComplete,
