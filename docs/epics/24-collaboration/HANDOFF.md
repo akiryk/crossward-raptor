@@ -16,45 +16,51 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**S7 implemented; PR #45 pending independent review**, stacked on PR #44
-(S6), which merges first. [S7](stories/24-S7-presence-and-conflicts.md)
-was frozen at `f4a0225` and amended at `b8fd5e6` (23-S3-U7 lists the new
-presence route; 24-S5-8 "is among them"; a lint-only test change), both
-specification-only commits on `epic/24-collaboration` under the
-delegation, for the reviewer to check. Branch
-`story/24-S7-presence-and-conflicts` at `1d5df64` (runtime); frozen
-acceptance unchanged since `b8fd5e6`. `npm run verify` exit 0 (112 files,
-1282 tests); S7's two browser files and nine directly affected ones, 112
-passed. Risk-path rules disabled one at a time: all but one caught (the
-story's table). Visual checks added for the end of the epic: the panel
-(look and entrance) and the conflict outline and hint highlight (S7,
-"Visual checks").
+**All seven stories are merged into `epic/24-collaboration`.** One
+independent review covered S6 and S7:
 
-**S7 migration** `20261114120000_add_puzzle_presence` (one table,
-additive): applied to the local development and test databases only.
+- **S7 merged:** PR #45, merge `29982d0`.
+  - Reviewed at `d091d62` (runtime `1d5df64`), no blockers. GitHub saw a
+    criss-cross conflict, so the reviewer pushed a content-neutral merge
+    `16dd3d9`; its tree is identical to `d091d62`.
+  - [Frozen](stories/24-S7-presence-and-conflicts.md) at `f4a0225`,
+    amended at `b8fd5e6` (23-S3-U7, 24-S5-8, lint only). The reviewer
+    checked the amendment.
+  - Its migration, `20261114120000_add_puzzle_presence` (additive), is
+    applied to the local development and test databases only.
+- **S6 merged:** PR #44, merge `edcb6fb`.
+  - Reviewed at `ffdd44e` (runtime `c352d0f`), no blockers.
+  - [Frozen](stories/24-S6-collaborator-management.md) at `30ed5b9`,
+    corrected at `6158a8b` (24-S6-4 types DOGMA). The reviewer checked
+    the correction.
+  - It fixes both S5 carry-overs: the `claimInvitations` races, and
+    `lose` now always drops.
+- **Reviewer evidence:** `npm run verify` exit 0 at `ffdd44e` (1248
+  tests) and at `d091d62` (1282 tests). The review comments on #44 and
+  #45 have the details.
 
-**S6 implemented; PR #44 pending independent review** into
-`epic/24-collaboration` from `story/24-S6-collaborator-management` at
-`c352d0f` (frozen `30ed5b9`, corrected `6158a8b`; frozen acceptance
-unchanged, confirmed by diff). `npm run verify`: exit 0, 107 files, 1248
-tests. Full E2E `--workers=2` at `7cf5cf9` (before the fix below): 1383
-passed, 3 failed; `builder-controls` 14-S4-6 and `menu-reset` 19-S3-1
-passed alone afterward, but `done-icon` 18-S5-5 failed alone and on a
-second alone run, consistently. A baseline check at `6158a8b` (a
-temporary worktree, removed after) passed cleanly 4 times under matching
-conditions, so this was the runtime's regression, not pre-existing.
-Cause: `PuzzleRowMenu.tsx`, imported by every library row, had gained an
-unconditional top-level import of the new `CollaboratorsDialog` module;
-that render-path weight, on every row's re-render including a completed
-row's Reset, shifted a pixel capture into the row's existing frozen
-150ms Reset transition (pinned by 18-S5-4, not a lever). Fixing the
-import to `next/dynamic` (commit `c352d0f`) removed the weight; the five
-affected spec files (`collaborator-management`, `done-icon`,
-`menu-reset`, `builder-controls`, `step-controls`) then passed, 64/64 —
-the epic's integration-branch exception (STORY, Verification), not a
-full suite rerun; one clean full run is still owed on the final epic
-branch before `main`. Details and evidence paths: the story's
-Implementation section.
+**Carry-overs from the S6/S7 review (non-blocking):**
+
+- **The `e2e/done-icon.spec.ts` 18-S5-5 flake predates S6.**
+  - With `--repeat-each=10 --workers=2`, it failed 1 of 10 at `6158a8b`
+    (before S6) and 2 of 10 at `d091d62`
+    (`/tmp/review-base-done-icon-repeat.log`,
+    `/tmp/review-s7-done-icon-repeat.log`).
+  - It reads the icon's pixels once, right after `data-play-state` flips,
+    which can land inside the row's 150 ms colour transition.
+  - S6's "render-path weight" diagnosis is unsupported: the tested row
+    has no menu. The `next/dynamic` import in `c352d0f` is harmless but
+    is not the fix.
+  - The frozen test needs a correction under STORY's procedure (poll
+    until the pixel settles, as `expectRowColors` does) before the final
+    full run can be relied on.
+- **`src/lib/collab/conflict.ts:121` (`isOthers`)** treats an operation
+  with an unknown author (its log user deleted) as another account's.
+  This can only happen in a batch that also has known authors. It is
+  rare.
+- **`PuzzleRowMenu.tsx`'s comment** says the dialog chunk loads only once
+  Collaborators… is chosen. It actually loads when an own unpublished
+  row's menu mounts.
 
 **S5 merged** into `epic/24-collaboration` (PR #43, merge `421f258`;
 reviewed independently at head `2e6ec05`, runtime `f514378`, no blockers).
@@ -67,23 +73,6 @@ The freeze amended two earlier frozen tests:
 **S5 migration** `20261113120000_add_puzzle_collaborators` (two new
 tables): applied to the local development and test databases only. The
 human applies it to production, with S1's, before `main`.
-
-**Carry-overs from the S5 review (non-blocking):**
-- **S6:** tighten `claimInvitations` (`src/lib/collab/membership.ts`
-  ~173-184) when the revoke UI lands. It reads and then inserts under
-  READ COMMITTED, so two narrow races remain:
-  - a revocation committed between the read and the insert can still
-    produce a membership;
-  - a puzzle deleted in between makes the FK error escape, and the page
-    render fails.
-- **S6 or S7:** `editor-saver.ts` `lose()` (~298) drops pending work on
-  the published path only if the queue isn't already halted. Edits typed
-  after a commit is refused `published` (`publishedElsewhere`) but before
-  the confirming catch-up are neither dropped nor explained then:
-  - the read-only published view projects them;
-  - they stay journaled and are refused visibly at the next open.
-
-  Fix: always `dropAll` in `lose`.
 
 S4 is merged (PR #42, `3d88b4b`; reviewed at head `6c982e8`, runtime
 `172c9d8`), frozen at `5abfd4f`. Its review's two non-blocking items for
@@ -309,19 +298,22 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
   clean full run is still owed on the final epic branch before `main`.
 - Rules disabled one at a time: the story's "What the tests catch"
   (`/tmp/s6-rules.log`, `/tmp/s6-browser-rules.log`).
+- Reviewer's correction: 18-S5-5 is a flake that predates S6, not an S6
+  regression. It failed 1 of 10 at `6158a8b` under
+  `--repeat-each=10 --workers=2` (Current state, carry-overs).
 
 ## Next action
 
-One independent review covering PR #44 (S6, head `c352d0f`) and PR #45
-(S7, `story/24-S7-presence-and-conflicts`), both into
-`epic/24-collaboration`: merge #44 first, then #45 (it stacks on #44).
-The author does not merge its own PRs. With S7 merged, every story is
-done; the epic then needs one clean full `npm run test:e2e` on the final
-epic branch, and the human's production migrations and Skew Protection
-check before its PR to `main`.
+Every story is merged. Before the epic's PR to `main`:
+
+1. Correct the frozen `e2e/done-icon.spec.ts` 18-S5-5 timing read under
+   STORY's correction procedure (Current state, carry-overs).
+2. Run one clean full `npm run test:e2e` on the final epic branch.
+3. The human's items: the production migrations, the Skew Protection
+   check and the visual checks.
 
 Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and the stories 24-S6-collaborator-management.md and 24-S7-presence-and-conflicts.md. Independently review PR #44 and PR #45 and, if no blockers remain, merge #44 and then #45 into epic/24-collaboration.
+Read docs/epics/24-collaboration/HANDOFF.md. Correct the frozen 18-S5-5 timing read under STORY's correction procedure, then run the one clean full `npm run test:e2e` on epic/24-collaboration; no production migrations, Vercel settings or `main`.
