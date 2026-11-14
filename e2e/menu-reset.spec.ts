@@ -167,7 +167,7 @@ test.describe('19-S3-1 the own completed row resets from its menu', () => {
       [untouched, ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
       [inPlay, ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
       // Amended by 24-S6: unpublished rows add Collaborators… second.
-      [draft, ['Duplicate', 'Collaborators…', 'Delete']],
+      [draft, ['Duplicate', 'Add Collaborators', 'Delete']],
     ] as const) {
       const item = row(page, fixture.title);
       await expect(item.getByTestId('puzzle-reset-button')).toHaveCount(0);

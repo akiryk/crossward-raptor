@@ -212,8 +212,8 @@ test.describe('16-S3-1 Delete on published rows', () => {
     for (const [state, expected] of [
       // 16-S4: every row offers Duplicate first. 18-S4: published rows add Open in builder.
       // Amended by 24-S6: unpublished rows add Collaborators… second.
-      ['grid', ['Duplicate', 'Collaborators…', 'Delete']],
-      ['hints', ['Duplicate', 'Collaborators…', 'Delete']],
+      ['grid', ['Duplicate', 'Add Collaborators', 'Delete']],
+      ['hints', ['Duplicate', 'Add Collaborators', 'Delete']],
       ['private published', ['Duplicate', 'Open in builder', 'Make public', 'Delete']],
       ['public published', ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
     ] as const) {

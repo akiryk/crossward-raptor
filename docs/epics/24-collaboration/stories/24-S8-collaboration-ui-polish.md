@@ -48,7 +48,7 @@ No unrelated visual redesign. The existing 66px rows remain when unshared.
 `src/app/puzzles/{page.tsx,[id]/page.tsx}`;
 `src/components/grid/{PuzzleGridEditor,BuilderSteps,RebusControl,PreviewToggle}.tsx`;
 `src/components/puzzle/{PuzzleRow,PuzzleRowMenu,CollaboratorsDialog}.tsx`;
-`src/components/ui/radio-source.test.ts`; `e2e/{collaborator-management,toggle-radio,collaboration-polish}.spec.ts`; epic handoff.
+`src/components/ui/radio-source.test.ts`; `e2e/{collaborator-management,toggle-radio,collaboration-polish,row-menu,menu-reset,delete-published,duplicate}.spec.ts`; epic handoff.
 
 The library page reads membership display metadata only for IDs returned by
 the existing authenticated library query. Keep the frozen listPuzzles action
