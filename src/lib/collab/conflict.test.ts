@@ -22,8 +22,6 @@ function letters(grid: Grid, entries: Array<[number, number, string | null]>): G
 }
 const content = (grid: Grid, phase: 'grid' | 'hints' = 'grid', hints: Record<string, string> = {}): PuzzleContent =>
   ({ grid: serializeGrid(grid), hints, title: 'T', phase });
-const down = (col: number, from: number, word: string): Array<[number, number, string | null]> =>
-  [...word].map((letter, index) => [col, from + index, letter === '.' ? null : letter]);
 const writes = (entries: Array<[number, number, string | null]>): CellWrite[] =>
   entries.map(([col, row, value]) => ({ col, row, value }));
 let n = 0;
