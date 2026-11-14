@@ -16,24 +16,36 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-13)
 
-**S5 implemented; PR #43 pending independent review** (into
-`epic/24-collaboration`). [S5](stories/24-S5-collaborator-membership.md)
-was frozen at `e29e562` (a specification-only commit on
-`epic/24-collaboration`, under the human's delegation). Runtime head
-`f514378` on `story/24-S5-collaborator-membership`; the later commits are
-docs only. The freeze amends two earlier frozen tests (24-S1-15: S1's
-migration is no longer the newest; O3's in-memory store learns the
-collaborator relation filter); no assertion changed. S4's two carried
-review items are covered: 24-S5-9 pins saving the half-typed word before a
-remote Start Over or Enter Hints, and the catch-up's log read carries the
-predicate itself (24-S5-5).
+**S5 merged** into `epic/24-collaboration` (PR #43, merge `421f258`;
+reviewed independently at head `2e6ec05`, runtime `f514378`, no blockers).
+[S5](stories/24-S5-collaborator-membership.md) was frozen at `e29e562`.
+The freeze amended two earlier frozen tests:
+- 24-S1-15: "is the newest" became "is among them", because 24-S5-8 now
+  carries that check;
+- O3: helper only.
+
+**S6 not started.** No story file, branch or PR.
 
 **S5 migration** `20261113120000_add_puzzle_collaborators` (two new
 tables): applied to the local development and test databases only. The
 human applies it to production, with S1's, before `main`.
 
-**Next:** independent review and merge of the S5 PR; then S6, with the
-same draft, freeze, implement and PR procedure.
+**Carry-overs from the S5 review (non-blocking):**
+- **S6:** tighten `claimInvitations` (`src/lib/collab/membership.ts`
+  ~173-184) when the revoke UI lands. It reads and then inserts under
+  READ COMMITTED, so two narrow races remain:
+  - a revocation committed between the read and the insert can still
+    produce a membership;
+  - a puzzle deleted in between makes the FK error escape, and the page
+    render fails.
+- **S6 or S7:** `editor-saver.ts` `lose()` (~298) drops pending work on
+  the published path only if the queue isn't already halted. Edits typed
+  after a commit is refused `published` (`publishedElsewhere`) but before
+  the confirming catch-up are neither dropped nor explained then:
+  - the read-only published view projects them;
+  - they stay journaled and are refused visibly at the next open.
+
+  Fix: always `dropAll` in `lose`.
 
 S4 is merged (PR #42, `3d88b4b`; reviewed at head `6c982e8`, runtime
 `172c9d8`), frozen at `5abfd4f`. Its review's two non-blocking items for
@@ -195,7 +207,30 @@ S4 (PR #42, merged at `3d88b4b`; reviewed at head `6c982e8`, runtime
   `db:up` creates a second Compose project, fails on the shared ports and
   skips the reset.
 
-S5 (PR #43, pending review; runtime head `f514378`):
+S5 (PR #43, merged at `421f258`; reviewed at head `2e6ec05`, runtime
+`f514378`; `f514378..2e6ec05` is docs only; frozen acceptance unchanged
+since `e29e562`):
+
+- Reviewer's `npm run verify` on `2e6ec05`, in a separate worktree: exit
+  0, 103 files, 1234 tests (`/tmp/s5-review-verify-2e6ec05.log`).
+- Reviewer's `e2e/collaborators.spec.ts` after `pretest:e2e`: 10 passed.
+  `e2e/username-step.spec.ts` (23-S3-7, given the reload delay): 26
+  passed.
+- The reviewer reused the author's full E2E run below and verified its
+  provenance:
+  - the log names worktree `agent-a84592eb271dafedc` at `f514378`;
+  - the reflog has HEAD at `f514378` from 19:48 to 20:22, and the run
+    ended at 20:18 after 12.9 min;
+  - its `prisma/`, `src/` and `e2e/` are identical to the PR head.
+
+  The one failure (an `ECONNRESET` on a sign-in request) isn't on S5's
+  paths.
+- CI: Vercel and Vercel Preview Comments passed. Review comment on PR
+  #43.
+- **Harness note:** in a fresh worktree, run `npx prisma generate` after
+  `npm ci`. Without it, `verify`'s `tsc` fails on the new models.
+
+Author's evidence:
 
 - Author's `npm run verify` on `f514378`: exit 0, 103 files, 1234 tests
   (`/tmp/s5-verify-f514378.log`).
@@ -209,16 +244,17 @@ S5 (PR #43, pending review; runtime head `f514378`):
 
 ## Next action
 
-1. An independent reviewer reviews S5's PR #43 against
-   [S5](stories/24-S5-collaborator-membership.md) and merges it into
-   `epic/24-collaboration`.
-2. Then S6, Collaborator management and the library (EPIC, Stories item
-   6): draft, freeze as a specification-only commit on
-   `epic/24-collaboration`, implement on `story/24-S6-<name>` with a PR.
-   No migration is expected.
+S6, Collaborator management and the library (EPIC, Stories item 6):
+1. Draft it.
+2. Freeze it as a specification-only commit on `epic/24-collaboration`.
+3. Implement it on `story/24-S6-<name>`, with a PR into the epic branch
+   for independent review.
+
+Weigh the `claimInvitations` carry-over above. No migration is expected.
+The production migrations stay a human item before `main`.
 
 Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Have S5's PR #43 independently reviewed and merged into epic/24-collaboration; then draft, freeze and implement S6 (EPIC, Stories item 6) on a story branch with a PR into epic/24-collaboration; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md (Stories item 6). Draft, freeze and implement S6 on a story branch with a PR into epic/24-collaboration; no production migration, nothing into main.
