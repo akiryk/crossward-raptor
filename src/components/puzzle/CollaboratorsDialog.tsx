@@ -188,7 +188,11 @@ function CollaboratorsPanel({ puzzleId, onClose, onChange }: { puzzleId: string;
       {outcome?.tone === 'error' && (
         <p data-testid="collaborators-error" role="alert" className="text-error">{outcome.text}</p>
       )}
-      <div data-testid="collaborators-list" aria-label="Collaborators and invitations">
+      <div
+        data-testid="collaborators-list"
+        aria-label="Collaborators and invitations"
+        className={listing.status === 'ok' && listing.collaborators.length > 0 ? 'pt-6' : undefined}
+      >
         {listing.status === 'loading' && <p className="text-muted">Loading…</p>}
         {empty && <p data-testid="collaborators-empty" className="text-muted">No collaborators yet.</p>}
         {listing.status === 'ok' && listing.collaborators.length > 0 && (
