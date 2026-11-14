@@ -16,6 +16,23 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
+**S7 implemented; PR #45 pending independent review**, stacked on PR #44
+(S6), which merges first. [S7](stories/24-S7-presence-and-conflicts.md)
+was frozen at `f4a0225` and amended at `b8fd5e6` (23-S3-U7 lists the new
+presence route; 24-S5-8 "is among them"; a lint-only test change), both
+specification-only commits on `epic/24-collaboration` under the
+delegation, for the reviewer to check. Branch
+`story/24-S7-presence-and-conflicts` at `1d5df64` (runtime); frozen
+acceptance unchanged since `b8fd5e6`. `npm run verify` exit 0 (112 files,
+1282 tests); S7's two browser files and nine directly affected ones, 112
+passed. Risk-path rules disabled one at a time: all but one caught (the
+story's table). Visual checks added for the end of the epic: the panel
+(look and entrance) and the conflict outline and hint highlight (S7,
+"Visual checks").
+
+**S7 migration** `20261114120000_add_puzzle_presence` (one table,
+additive): applied to the local development and test databases only.
+
 **S6 implemented; PR #44 pending independent review** into
 `epic/24-collaboration` from `story/24-S6-collaborator-management` at
 `c352d0f` (frozen `30ed5b9`, corrected `6158a8b`; frozen acceptance
@@ -93,8 +110,9 @@ frozen at `a3c9d72`, with the lint-only correction `215468d`.
 
 - **Production migrations, in order:** S1's
   `20261112120000_add_puzzle_operations`, then S5's
-  `20261113120000_add_puzzle_collaborators`. Both are additive; neither has
-  been applied to production.
+  `20261113120000_add_puzzle_collaborators`, then S7's
+  `20261114120000_add_puzzle_presence`. All are additive; none has been
+  applied to production.
 
 - **Vercel Skew Protection is not determined** (S3 reviewer's finding,
   2026-11-13). This is a human item before `main`, not an epic-branch
@@ -106,7 +124,7 @@ frozen at `a3c9d72`, with the lint-only correction `215468d`.
     first and wait its maximum age;
   - if it is off, the epic can deploy at once, after the migration.
 - **A visual check of S3's save status and refusal note** (S3's decisions
-  6 and 7).
+  6 and 7), and of S6's and S7's (their stories, "Visual checks").
 
 S2 is merged (PR #40, `0ded6ae`). S1 is merged into `epic/24-collaboration` (PR #39, `f51f969`). It was
 [frozen](stories/24-S1-operations-commit-path.md) at `a1a4db0`. The migration `20261112120000_add_puzzle_operations`
@@ -294,13 +312,16 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Independent review of PR #44 (`story/24-S6-collaborator-management`
-into `epic/24-collaboration`, head `c352d0f`). The author does not merge
-its own PR. After S6 merges, S7 is the epic's next story (EPIC, Stories
-item 7); draft it per the normal lifecycle.
+One independent review covering PR #44 (S6, head `c352d0f`) and PR #45
+(S7, `story/24-S7-presence-and-conflicts`), both into
+`epic/24-collaboration`: merge #44 first, then #45 (it stacks on #44).
+The author does not merge its own PRs. With S7 merged, every story is
+done; the epic then needs one clean full `npm run test:e2e` on the final
+epic branch, and the human's production migrations and Skew Protection
+check before its PR to `main`.
 
 Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S6-collaborator-management.md. Independently review and, if no blockers remain, merge PR #44 into epic/24-collaboration.
+Read docs/epics/24-collaboration/HANDOFF.md and the stories 24-S6-collaborator-management.md and 24-S7-presence-and-conflicts.md. Independently review PR #44 and PR #45 and, if no blockers remain, merge #44 and then #45 into epic/24-collaboration.

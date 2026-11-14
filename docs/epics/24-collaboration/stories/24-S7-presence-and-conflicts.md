@@ -320,6 +320,99 @@ A separate specification-only commit on `epic/24-collaboration` ("24-S7:
 amend …"), made under the human's delegation; the PR's independent
 reviewer reviews it.
 
+## Implementation
+
+Runtime on `story/24-S7-presence-and-conflicts` (stacked on S6's
+`ffdd44e`, `epic/24-collaboration` merged in): `812c8d2`, then `1d5df64`.
+Frozen at `f4a0225`, amended at `b8fd5e6`; the acceptance files are
+unchanged since (`git diff b8fd5e6 HEAD` over every acceptance file in
+this story: no change).
+
+- **Migration** `20261114120000_add_puzzle_presence` (one table, additive):
+  applied to the local development and test databases only; `prisma
+  migrate diff` against the development database shows no difference
+  from the schema. Production is the human's, after S1's and S5's.
+- `src/lib/collab/presence.ts`: `heartbeat` (an `updateMany` only when
+  fewer than 10 s are left, else `createMany … skipDuplicates`, which
+  prunes on a new row), `markAway`, `leave` (the caller's `userId` in each
+  `WHERE`), `presentBuilders` (unexpired, not the caller, still owner or
+  collaborator), `readSession` (heartbeat, present, authors by `opId`) and
+  `updatePresence`. The `catchUpOperations` action adds the session only
+  for a valid `clientId` and an `ops` or `snapshot` answer; the GET passes
+  `x-client-id`; `POST /api/puzzles/[id]/presence` wraps
+  `updatePresence`.
+- `src/lib/collab/session.ts` (`PresenceNotes`, `operationNote`, the
+  formats) and `src/lib/collab/conflict.ts` (`recordBurst`, `recordHint`,
+  `leftEntry`, `isRecent`, `gridConflict`, `hintConflict`), pure.
+- `EditorSaver`: the catch-up sent as the tab; presence notes on every
+  answer; `noticeSession` after applying a catch-up's operations (notes
+  for others' Enter Hints and Start Over, then the grid and hint rules)
+  only when the answer named authors; `flushGrid` and `flushHints` record
+  the latest burst and hint, `cursorMoved` marks leaving, a refusal clears
+  them; hidden sends `away`, `pagehide` `leave`, unless published, lost or
+  signing out.
+- UI: `SessionPanel.tsx`; `useOperationSaving` keeps the notes, the
+  outlines and the highlighted hints (each removed after 2.4 s);
+  `PuzzleGrid`'s `conflicts` overlays; `HintsPanel`'s `conflictKeys` and
+  `HintBox`'s `isConflict` (`.conflict-ring`); `globals.css` holds the
+  keyframes; the editor page passes the session's account (`viewerId`
+  from `loadPuzzle`).
+- **A regression found and fixed:** `hint-box.spec.ts` 15-S4-2 failed at
+  `812c8d2` (alone too): the Hint Box's class became a template literal
+  with `py-[6.5px]${…}`, which Tailwind's scanner reads as one token, so
+  the padding class wasn't generated. A space before the interpolation
+  fixes it (`1d5df64`); the spec then passed (20/20).
+
+### Evidence
+
+- `npm run verify` at `1d5df64`: exit 0, 112 files, 1282 tests
+  (`/tmp/s7-verify-1d5df64.log`).
+- Browser, after `npm run pretest:e2e`'s reset, at `1d5df64`, one run
+  `--workers=2`: this story's `session-panel` and `conflicts` and the
+  directly affected `live-sync`, `editor-operations`,
+  `collaborator-management`, `collaborators`, `editor-layout`,
+  `hints-layout`, `hint-box`, `hints-panel` and `step-controls`: 112
+  passed, exit 0 (`/tmp/s7-e2e-1d5df64.log`). Not the full suite (STORY,
+  Verification, the epic-branch exception); one clean full run is owed on
+  the final epic branch.
+- S4's idle-answer measure (under 100 bytes) still holds: its 24-S4 case
+  in `live-sync.spec.ts` passed with the heartbeat's `present` field.
+
+### What the tests catch
+
+2026-11-14, one risk-path rule disabled at a time and restored, the unit
+and database files of S4–S7's catch-up, presence and saver each time
+(`/tmp/s7-rules.log`).
+
+| Rule disabled | Failing |
+| --- | --- |
+| Heartbeat recorded whatever the catch-up answered (not-found, published) | 24-S7-2 |
+| Session fields added without the tab header | 24-S7-2 ×3, 24-S4-9 ×2 |
+| Present: a removed builder still listed | 24-S7-1 |
+| Present: the caller's own account listed | 24-S7-1, 24-S7-2 |
+| Present: expired rows listed | 24-S7-1 ×2 |
+| Heartbeat writes on every poll | 24-S7-1 |
+| Away and leave act on another account's tab | 24-S7-1, 24-S7-2 |
+| Presence update without the editable check | 24-S7-2 |
+| Presence posts after access is lost | 24-S7-5 |
+| Conflicts from my own account's other tabs | 24-S7-4 ×2 |
+| Conflicts from this tab's own operations | 24-S7-4 |
+| D2: no 3 s limit after leaving the entry | 24-S7-4 ×2 |
+| D2: the cursor staying in the entry ignored | 24-S7-4 ×5 |
+| D2: a cell not showing my value still counts | 24-S7-4 |
+| D2: the batch's last writer not considered | 24-S7-4 |
+| My own account's Enter Hints and Start Over noted | 24-S7-5 |
+| A leave noted at once (no grace) | 24-S7-3 |
+
+Not caught: **a refused burst kept as recent.** Redundant with the rule
+that a cell must show my value before the batch: after a refusal the
+grid shows the authoritative cells, never the refused letters, so the
+stale burst can't match.
+
+Not tested by disabling (UI-only): the panel's place, look, fixed height,
+scrolling and entrance; the outline's and highlight's look and timing;
+the note wording beyond the cases above. The browser cases pin them.
+
 ## Visual checks for the human (at the end of the epic)
 
 The browser tests run with reduced motion and pin behavior, not looks:

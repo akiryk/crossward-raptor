@@ -29,6 +29,7 @@ model Puzzle {
   operations      PuzzleOperation[]
   collaborators   PuzzleCollaborator[]
   invitations     PuzzleInvitation[]
+  presence        PuzzlePresence[]
 }
 
 // Epic 24 (24-S5): a puzzle's collaborators, keyed by account. Collaborators
@@ -60,6 +61,22 @@ model PuzzleInvitation {
 
   @@unique([puzzleId, email])
   @@index([email])
+}
+
+// Epic 24 (24-S7): who has a puzzle open, one row per editor tab. A visible
+// tab's catch-up keeps its row alive for 15 s; a hidden one is away for 5
+// minutes; a closing one deletes it. Presence, not authorization: readers
+// list only accounts that can still edit the puzzle.
+model PuzzlePresence {
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  clientId  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt DateTime
+
+  @@id([puzzleId, clientId])
+  @@index([puzzleId, expiresAt])
 }
 
 // Epic 24 (24-S1): the operation log. Synchronization metadata, not
@@ -101,6 +118,7 @@ model User {
   playSessions   PlaySession[]
   operations     PuzzleOperation[]
   collaborations PuzzleCollaborator[]
+  presence       PuzzlePresence[]
 
   // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
   // prompts for one when it is first needed.

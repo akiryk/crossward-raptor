@@ -44,6 +44,7 @@ import { publishRefusalMessage } from "../../lib/collab/notice";
 import { useOperationSaving } from "./useOperationSaving";
 import { SaveStatus } from "./SaveStatus";
 import { SaveNotices } from "./SaveNotices";
+import { SessionPanel } from "./SessionPanel";
 import { PuzzleGrid } from "./PuzzleGrid";
 import { HintsPanel } from "./HintsPanel";
 import { HintBox } from "./HintBox";
@@ -179,6 +180,7 @@ export function PuzzleGridEditor({
   initialVersion,
   initialEpoch,
   isOwner = true,
+  userId,
 }: {
   puzzleId: string;
   initialGrid: SerializedGrid;
@@ -193,6 +195,8 @@ export function PuzzleGridEditor({
   /** 24-S5: false for a collaborator, whose editor has no Reset Grid or
    *  Publish (the server refuses both from them). */
   isOwner?: boolean;
+  /** 24-S7: the signed-in account, for telling others' edits from mine. */
+  userId?: string;
 }) {
   const [state, setState] = useState<EditorState>(() => {
     const grid = deserializeGrid(initialGrid);
@@ -212,8 +216,8 @@ export function PuzzleGridEditor({
   const [initialContent] = useState<PuzzleContent>(() => ({
     grid: initialGrid, hints: initialHints, title: initialTitle, phase: initialPhase,
   }));
-  const { saver, saveState, notices, dismissNotice } = useOperationSaving({
-    puzzleId, initialContent, initialVersion, initialEpoch, state, setState, withContent,
+  const { saver, saveState, notices, dismissNotice, sessionNotes, outlines, conflictHints } = useOperationSaving({
+    puzzleId, initialContent, initialVersion, initialEpoch, state, setState, withContent, userId,
     published: initialPublishedAt !== null,
     // 24-S5: losing access makes the editor read-only: published, it shows
     // the published state; removed or deleted, "No longer available".
@@ -1008,6 +1012,9 @@ export function PuzzleGridEditor({
             onCancel={() => setIsPublishDialogOpen(false)}
           />
         )}
+        {/* 24-S7: the session panel, under the step and toggle rows, the
+            grid at its usual distance below it. */}
+        <SessionPanel notes={sessionNotes} className={hasLockRoom && !isLocked ? "mb-9" : "mb-4"} />
         <SaveNotices notices={notices} onDismiss={dismissNotice} />
         <div
           ref={editorLayoutRef}
@@ -1048,6 +1055,7 @@ export function PuzzleGridEditor({
                 onHoverCell={handleHoverCell}
                 mode={isPreviewing ? "preview" : "build"}
                 isFading={previewFade.isFading}
+                conflicts={outlines}
                 isHintsPhase={phase === "hints"}
                 isGridFocused={isGridFocused}
                 isLettersLocked={phase === "hints" && isLettersLocked}
@@ -1083,6 +1091,7 @@ export function PuzzleGridEditor({
                   slot={shownSlot}
                   hint={hints[shownKey] ?? ""}
                   isMissing={missingKeys.has(shownKey)}
+                  isConflict={conflictHints.has(shownKey)}
                   disabled={isLocked}
                   inputRef={boxInputRef}
                   onHintChange={(text) => handleHintChange(shownKey, text)}
@@ -1117,6 +1126,7 @@ export function PuzzleGridEditor({
                   disabled={isLocked}
                   selectedKey={isGridFocused ? activeKey : null}
                   missingKeys={missingKeys}
+                  conflictKeys={conflictHints}
                   onHintChange={handleHintChange}
                   onHintFocus={handleHintFocus}
                   gridPx={gridPx}

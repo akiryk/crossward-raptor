@@ -19,6 +19,12 @@ import { CatchUpPoller, parseCatchUp, type PollOutcome } from "../../lib/collab/
 import { readJournal, removeJournalKeys, writeJournal, type JournalStorage } from "../../lib/collab/journal";
 import { refusalNotice, type RefusalNotice } from "../../lib/collab/notice";
 import type { CellWrite, Operation, OperationBody } from "../../lib/collab/operation";
+import type { Coord } from "../../engine/grid";
+import {
+  gridConflict, hintConflict, leftEntry, recordBurst, recordHint, type IncomingOp, type RecentBurst, type RecentHint,
+} from "../../lib/collab/conflict";
+import type { Builder } from "../../lib/collab/presence";
+import { PresenceNotes, operationNote } from "../../lib/collab/session";
 import {
   cellWrites, hintChanges, projectOutbox, rebaseView, titleChange, type Confirmed, type Outbox, type Settlement,
 } from "../../lib/collab/outbox";
@@ -73,20 +79,65 @@ function sendKeepalive(puzzleId: string, op: Operation): void {
  *  (no session, or no username). */
 class SignedOut extends Error {}
 
+/** 24-S7: what a heartbeat's answer adds: who else is present, and who
+ *  committed the operations it returns. Null when the answer has neither. */
+interface SessionAnswer {
+  readonly present: readonly Builder[] | null;
+  readonly authors: ReadonlyMap<string, Builder>;
+}
+
+function isBuilder(value: unknown): value is Builder {
+  if (typeof value !== "object" || value === null) return false;
+  const { userId, username } = value as Record<string, unknown>;
+  return typeof userId === "string" && (username === null || typeof username === "string");
+}
+
+function parseSession(input: unknown): SessionAnswer {
+  const body = typeof input === "object" && input !== null ? input as Record<string, unknown> : {};
+  const present = Array.isArray(body.present) && body.present.every(isBuilder) ? body.present as Builder[] : null;
+  const authors = new Map<string, Builder>();
+  if (typeof body.authors === "object" && body.authors !== null) {
+    for (const [opId, author] of Object.entries(body.authors as Record<string, unknown>)) {
+      if (isBuilder(author)) authors.set(opId, author);
+    }
+  }
+  return { present, authors };
+}
+
+/** 24-S7: a tab going away (hidden) or leaving (closed), with keepalive. */
+function sendPresence(puzzleId: string, clientId: string, state: "away" | "leave"): void {
+  try {
+    void fetch(`/api/puzzles/${encodeURIComponent(puzzleId)}/presence`, {
+      method: "POST",
+      keepalive: true,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ clientId, state }),
+    }).catch(() => undefined);
+  } catch {
+    // Best effort: the row expires by itself.
+  }
+}
+
 /** 24-S4: the catch-up read (the route's GET), from the confirmed version,
  *  or the snapshot for null. Anything but an answer is a failure, retried.
  *  24-S5: a 400 (`invalid`) is an answer too, and a redirect is `SignedOut`. */
-async function fetchCatchUp(puzzleId: string, since: number | null): Promise<CatchUp> {
+async function fetchCatchUp(
+  puzzleId: string, clientId: string, since: number | null,
+): Promise<{ result: CatchUp; session: SessionAnswer }> {
+  // 24-S7: asked as this tab, which makes it the tab's heartbeat.
+  const headers: Record<string, string> = { "x-client-id": clientId };
+  if (since !== null) headers["x-catch-up-since"] = String(since);
   const response = await fetch(`/api/puzzles/${encodeURIComponent(puzzleId)}/operations`, {
-    headers: since === null ? {} : { "x-catch-up-since": String(since) },
+    headers,
     cache: "no-store",
     redirect: "manual",
   });
   if (response.type === "opaqueredirect" || (response.status >= 300 && response.status < 400)) throw new SignedOut();
   if (response.status !== 200 && response.status !== 404 && response.status !== 400) throw new Error(`catch-up: ${response.status}`);
-  const result = parseCatchUp(await response.json(), puzzleId);
+  const body: unknown = await response.json();
+  const result = parseCatchUp(body, puzzleId);
   if (!result) throw new Error("catch-up: malformed answer");
-  return result;
+  return { result, session: parseSession(body) };
 }
 
 const cellKey = ({ col, row }: { col: number; row: number }) => `${col},${row}`;
@@ -160,6 +211,14 @@ export interface EditorSaverOptions {
   readonly onAccessLost?: (loss: AccessLoss) => void;
   /** 24-S5: the session is gone; the page reloads (to the sign-in). */
   readonly onSignedOut?: () => void;
+  /** 24-S7: the signed-in account, which operation authors are compared
+   *  with (my own account's other tabs raise nothing). */
+  readonly userId?: string;
+  /** 24-S7: a note for the session panel. */
+  readonly onSessionNote?: (text: string) => void;
+  /** 24-S7: my recent work was superseded: outline these cells, or
+   *  highlight this hint. */
+  readonly onConflict?: (conflict: { readonly cells: readonly Coord[] } | { readonly hintKey: string }) => void;
 }
 
 export class EditorSaver {
@@ -186,6 +245,14 @@ export class EditorSaver {
   private publishing = false;
   /** 24-S5: the session is gone and the page is reloading. */
   private signingOut = false;
+  /** 24-S7: who else is present, from one catch-up to the next. */
+  private readonly presenceNotes = new PresenceNotes();
+  /** 24-S7: the latest answer's session part, for `caughtUp`. */
+  private session: SessionAnswer = { present: null, authors: new Map() };
+  /** 24-S7: my latest grid burst and hint, which a remote edit could
+   *  supersede (D2). */
+  private recentBurst: (RecentBurst & { readonly opId: string }) | null = null;
+  private recentHint: (RecentHint & { readonly opId: string }) | null = null;
 
   constructor(private readonly options: EditorSaverOptions) {
     this.view = options.view;
@@ -215,7 +282,9 @@ export class EditorSaver {
     this.poller = new CatchUpPoller({
       fetch: async (since) => {
         try {
-          return await fetchCatchUp(puzzleId, since);
+          const { result, session } = await fetchCatchUp(puzzleId, this.clientId, since);
+          this.session = session;
+          return result;
         } catch (error) {
           if (error instanceof SignedOut) this.signedOut();
           throw error;
@@ -249,13 +318,18 @@ export class EditorSaver {
     }
     const { outbox } = this.queue;
     const own = new Set([...outbox.pending, ...(outbox.acknowledged ?? [])].map((op) => op.opId));
+    // 24-S7: who joined or left.
+    const { present, authors } = this.session;
+    if (present) for (const note of this.presenceNotes.update(present, Date.now())) this.options.onSessionNote?.(note);
     if (result.status === "ops") {
       const fresh = result.ops.filter((op) => op.version > outbox.confirmed.version);
       if (fresh.length === 0) return "ok";
       if (fresh.some((op) => (op.kind === "startOver" || op.kind === "enterHints") && !own.has(op.opId))) this.flushAll();
       const before = this.projected();
       const diverged = this.queue.catchUp(fresh);
-      this.showRemote(before, this.projected());
+      const after = this.projected();
+      this.showRemote(before, after);
+      this.noticeSession(fresh.map((op) => ({ op, author: authors.get(op.opId) ?? null, own: own.has(op.opId) })), before, after);
       return diverged ? "resync" : "ok";
     }
     if (result.version <= outbox.confirmed.version) return "ok";
@@ -265,6 +339,33 @@ export class EditorSaver {
     this.queue.resync({ content: result.content, version: result.version, resetEpoch: result.resetEpoch });
     this.showRemote(before, this.projected());
     return "ok";
+  }
+
+  /** 24-S7: what the session panel and the grid say about operations a
+   *  catch-up brought: another account's Enter Hints or Start Over, and my
+   *  recent work superseded (D2). Only when the answer named their authors:
+   *  my own account's other tabs raise nothing. */
+  private noticeSession(ops: readonly IncomingOp[], before: PuzzleContent, after: PuzzleContent): void {
+    const self = this.options.userId;
+    if (self === undefined || !ops.some((incoming) => incoming.author !== null)) return;
+    const others = (incoming: IncomingOp) => !incoming.own && incoming.author !== null && incoming.author.userId !== self;
+    for (const incoming of ops) {
+      const note = others(incoming) ? operationNote(incoming.op, incoming.author) : null;
+      if (note) this.options.onSessionNote?.(note);
+    }
+    const input = { before, after, ops, self, cursor: this.view.cursor.current, now: Date.now() };
+    const grid = gridConflict({ ...input, recent: this.recentBurst });
+    if (grid) {
+      this.recentBurst = null;
+      this.options.onConflict?.({ cells: grid.cells });
+      this.options.onSessionNote?.(grid.message);
+    }
+    const hint = hintConflict({ ...input, recent: this.recentHint });
+    if (hint) {
+      this.recentHint = null;
+      this.options.onConflict?.({ hintKey: hint.key });
+      this.options.onSessionNote?.(hint.message);
+    }
   }
 
   /** 24-S5: the queue halts for good; every burst finalizes and every
@@ -357,6 +458,9 @@ export class EditorSaver {
   }
 
   private refused(op: Operation, code: QueueRefusalCode, before: Outbox, after: Outbox): void {
+    // 24-S7: refused work isn't there to be superseded.
+    if (this.recentBurst?.opId === op.opId) this.recentBurst = null;
+    if (this.recentHint?.opId === op.opId) this.recentHint = null;
     const view = viewContent(this.view);
     // The refused letters as typed, even where the view no longer shows
     // them (24-S4: a Start Over from elsewhere left them out).
@@ -370,11 +474,17 @@ export class EditorSaver {
 
   flushGrid(): void {
     this.gridClock.cancel();
+    const orientation = (this.burstWord?.orientation ?? this.view.cursor.orientation) === "down" ? "down" : "across";
     this.burstWord = null;
     const from = this.base();
     if (from) {
       const writes = cellWrites(from.grid, serializeGrid(this.view.grid));
-      if (writes.length > 0) this.queue.add({ kind: "cells", writes });
+      if (writes.length > 0) {
+        const op = this.queue.add({ kind: "cells", writes });
+        // 24-S7: my latest burst, with the entry holding it (D2).
+        const recent = recordBurst(this.projected(), writes, orientation, Date.now());
+        this.recentBurst = { ...leftEntry(recent, this.view.cursor.current), opId: op.opId };
+      }
     }
     this.options.onChange();
   }
@@ -383,7 +493,11 @@ export class EditorSaver {
     this.hintClock.cancel();
     const from = this.base();
     if (from?.phase === "hints") {
-      for (const { key, text } of hintChanges(from.hints, this.view.hints)) this.queue.add({ kind: "hint", key, text });
+      for (const { key, text } of hintChanges(from.hints, this.view.hints)) {
+        const op = this.queue.add({ kind: "hint", key, text });
+        // 24-S7: my latest hint, with its entry (D8's clue conflicts).
+        this.recentHint = { ...recordHint(this.projected(), key, text, Date.now()), opId: op.opId };
+      }
     }
     this.options.onChange();
   }
@@ -472,6 +586,9 @@ export class EditorSaver {
 
   /** The cursor leaving the burst's word, or turning, finalizes it. */
   cursorMoved(cursor: CursorState): void {
+    // 24-S7: leaving the entry makes recent work recent only by time.
+    if (this.recentBurst) this.recentBurst = { ...leftEntry(this.recentBurst, cursor.current), opId: this.recentBurst.opId };
+    if (this.recentHint) this.recentHint = { ...leftEntry(this.recentHint, cursor.current), opId: this.recentHint.opId };
     const word = this.burstWord;
     if (!word || !this.gridClock.isOpen) return;
     if (cursor.orientation !== word.orientation || !word.cells.has(cellKey(cursor.current))) this.gridClock.finalize();
@@ -511,6 +628,8 @@ export class EditorSaver {
       this.poller.pause();
       this.flushAll();
       this.queue.leave();
+      // 24-S7: hidden, the tab stays present a while without polling.
+      this.sendPresence("away");
     };
     // 24-S4: back online, catch up and send at once.
     const onOnline = () => {
@@ -520,6 +639,8 @@ export class EditorSaver {
     const onPageHide = () => {
       this.flushAll();
       this.queue.leave();
+      // 24-S7: closing, the tab leaves the session.
+      this.sendPresence("leave");
     };
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
       this.flushAll();
@@ -541,6 +662,13 @@ export class EditorSaver {
       this.poller.stop();
       this.flushAll();
     };
+  }
+
+  /** 24-S7: tells the server this tab is away or gone, unless nothing is
+   *  being followed any more (published, lost, signing out). */
+  private sendPresence(state: "away" | "leave"): void {
+    if (this.options.published || this.stopped || this.signingOut) return;
+    sendPresence(this.options.puzzleId, this.clientId, state);
   }
 
   /** The status line: anything typed or queued and not yet answered is
