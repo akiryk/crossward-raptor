@@ -250,9 +250,92 @@ commit on the story branch until the freeze).
 - Which tests each rule is caught by (one rule disabled at a time) is
   recorded by the implementation below.
 
+### What the tests catch
+
+2026-11-13, on the implementation (`172c9d8`), one rule disabled at a time
+and restored (logs `/tmp/s4-rules.log`, `/tmp/s4-browser-rules.log`).
+
+Unit and database files (`src/lib/collab`, `src/app/api`, the route-guard
+and `src/app/puzzles` tests):
+
+| Rule disabled | Failing |
+| --- | --- |
+| An acceptance ahead applied at once (no `acknowledged`) | 9: 24-S4-2, -3, -6, -8 |
+| Catching up keeps this tab's own pending operations | 3: 24-S4-1, -6 |
+| Catching up applies across a gap | 1: 24-S4-1 |
+| No divergence check | 1: 24-S4-1 |
+| An older snapshot replaces a newer state | 1: 24-S4-2 |
+| Caught-up operations don't answer waiters | 1: 24-S4-6 |
+| A waiting retry isn't called off | 1: 24-S4-6 |
+| A caught-up operation's failed send is retried | 1: 24-S4-6 |
+| No poll on an acceptance ahead (`onBehind`) | 1: 24-S4-6 |
+| No retry backoff | 1: 24-S4-4 |
+| Asking during a request is dropped | 1: 24-S4-4 |
+| No snapshot after a divergence | 1: 24-S4-4 |
+| Both guards against a pruned log (index and count) | 1: 24-S4-7 |
+| The read not authorized by `editableBy` | 3: 24-S4-7, -9 |
+| The route ignores the header | 2: 24-S4-9 |
+| The route's answer cacheable | 1: 24-S4-9 |
+| `parseCatchUp` accepts another puzzle's operations | 1: 24-S4-5 |
+
+Browser (`e2e/live-sync.spec.ts` alone):
+
+| Rule disabled | Failing |
+| --- | --- |
+| No polling at all | all 8 cases (E1 ×2, E2 ×2, E3 ×3, E4); only the setup passed |
+| The refusal note from the view, not the letters typed | 1: 24-S4-E2 Start Over |
+| Preview kept on into Create Hints | 1: 24-S4-E2 Enter Hints |
+
+Not caught by the frozen acceptance (recorded, not hidden):
+
+- Either one of the two pruned-log guards alone (they are redundant: each
+  catches pruning by itself; only removing both fails 24-S4-7).
+- The 200-operation limit (a cost bound; without it a long catch-up is
+  served as operations, still correct).
+- A `pollNow` while hidden (the `online` event on a hidden page would then
+  poll once; the schedule still stops while hidden, which 24-S4-4 and
+  24-S4-E4 check).
+- Finalizing the burst before another tab's Start Over or Enter Hints
+  (24-S4-E2 holds the edit as a pending operation, not a draft). In that
+  run 24-S4-E4 failed once, a timing read unrelated to the rule; E4 then
+  passed 3 of 3 alone.
+- A remote change extending the burst (only its timing differs).
+
 ## Measurements
 
-Recorded by the implementation (decision 11).
+2026-11-13, local production build (`next start`, local Docker
+PostgreSQL over `PrismaPg`), Chromium, one worker, a 15×15 puzzle, three
+runs (`/tmp/s4-measure.log`, a temporary measuring spec not committed;
+24-S4-E4 also passed 3 of 3 in that run).
+
+- **Commit to shown** (a commit elsewhere until the editor shows it), 20
+  commits a run: median 0.80 s, p90 1.30 s, max 1.31 s (min 0.03 s). As
+  expected for a 1 s interval after each answer.
+- **Keystroke to the other context** (a letter typed in one context until
+  the other shows it, 500 ms burst idle included), 10 a run: median 1.31 s,
+  max 1.33 s (min 0.80 s).
+- **Requests**: exactly 1.0 catch-up request a second per visible editor
+  (30 in 30 s), none while hidden; 0 bytes up beyond headers, a 25-byte
+  answer when idle (`{"status":"ops","ops":[]}`).
+- **Server time per idle request**: median 17–21 ms, p90 23–32 ms, max
+  35–54 ms (request start to response end, local).
+- **Database work per idle request**: 3.8–4.0 transactions (from
+  `pg_stat_database.xact_commit`): Better Auth's session and user reads,
+  and the puzzle's version. Changes add one log read.
+
+Cost, per visible editor: 3,600 function invocations and about 14,000
+small queries an hour. For example, 10 builders with an editor open 2 h a
+day is about 2.2 M invocations a month, and keeps the Neon compute awake
+while any editor is open (no scale to zero then). Each invocation is short
+(tens of ms locally; Neon's network adds latency to each of its ~4
+queries). Compare with the plan's quotas rather than list prices, which
+weren't checked here.
+
+**For the push decision:** polling meets "within about a second" (median
+0.8 s from commit, 1.3 s from keystroke, under 1.4 s worst). Push transport
+isn't needed for latency now. Its case would be cost at scale (invocations
+and an always-awake database grow with open editor-hours), or S7's
+remote-selection wish; revisit then, as a separately approved story.
 
 ## Repo paths
 
