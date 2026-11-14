@@ -37,17 +37,23 @@ export function CollaboratorsDialog({ puzzleId, open, onClose }: {
 }
 
 /** Story 24-S6: the editor's "Collaborators…", at the end of the owner's
- *  step row, in Reset Grid's quiet look. */
+ *  step row, in Reset Grid's quiet look. A link to the dialog
+ *  (`#collaborators`), not a button: the step row holds exactly one button,
+ *  the next step (17-S8), and the step row's tests read it as such. */
 export function CollaboratorsButton({ onClick }: { onClick: () => void }) {
   return (
-    <button
-      type="button"
+    <a
+      href="#collaborators"
       data-testid="editor-collaborators"
-      onClick={onClick}
+      aria-haspopup="dialog"
+      onClick={(event) => {
+        event.preventDefault();
+        onClick();
+      }}
       className="shrink-0 cursor-pointer text-label text-subtle outline-hidden transition-colors duration-150 ease-out hover:text-primary focus-visible:text-primary"
     >
       Collaborators…
-    </button>
+    </a>
   );
 }
 
