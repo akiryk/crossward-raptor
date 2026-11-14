@@ -24,6 +24,7 @@ import { isFull, isSolved } from '@/engine/play';
 import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
 import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
 import { publishPuzzleAt, type PublishOutcome } from '@/lib/collab/publish';
+import { readOperationsSince, type CatchUp } from '@/lib/collab/catchup';
 
 export type Visibility = 'private' | 'public';
 
@@ -347,6 +348,17 @@ export async function listPuzzles(): Promise<
 export async function commitOperation(input: unknown): Promise<CommitOutcome> {
   const session = await requireSession();
   return commitPuzzleOperation(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S4): what the signed-in builder's editor needs to catch up
+ *  from the version its confirmed state is at (`{ puzzleId, since }`):
+ *  the operations committed since, in order, or the puzzle as stored. The
+ *  editor polls it through the route handler at
+ *  `/api/puzzles/[id]/operations` (GET), so a poll never waits behind a
+ *  commit in Next.js's queue of server actions. */
+export async function catchUpOperations(input: unknown): Promise<CatchUp> {
+  const session = await requireSession();
+  return readOperationsSince(prisma, session.user.id, input);
 }
 
 /** Epic 24 (24-S2): publishes the signed-in owner's puzzle only if it is

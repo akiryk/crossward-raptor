@@ -36,7 +36,7 @@ import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-loo
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
 import { publishReadiness } from "../../lib/publish-readiness";
-import { wordArrowKey, wordMoveTo, wordStart, wordToggle } from "../../lib/word-cursor";
+import { hasWord, wordArrowKey, wordMoveTo, wordStart, wordToggle } from "../../lib/word-cursor";
 import { publishAtVersion } from "../../app/puzzles/actions";
 import type { Visibility } from "../../app/puzzles/actions";
 import type { PuzzleContent } from "../../lib/collab/apply";
@@ -132,13 +132,17 @@ function startCursor(grid: Grid, phase: Phase): CursorState {
 }
 
 // The editor showing saved content (24-S3: a refused edit's authoritative
-// cells, a journal's operations, Enter Hints confirmed). The cursor stays
-// unless the phase changed or its cell is no longer white.
+// cells, a journal's operations, Enter Hints confirmed; 24-S4: changes
+// committed elsewhere). The cursor stays unless its cell is no longer
+// white; moved into the hints phase, it turns only where its direction has
+// no word (17-S6).
 function withContent(prev: EditorState, content: PuzzleContent): EditorState {
   const grid = deserializeGrid(content.grid);
   const { col, row } = prev.cursor.current;
-  const keepsCursor = content.phase === prev.phase && col < grid.cols && row < grid.rows &&
-    grid.at(col, row).kind === "active";
+  const onWhite = col < grid.cols && row < grid.rows && grid.at(col, row).kind === "active";
+  const keepsCursor = onWhite && (content.phase === prev.phase || content.phase === "grid" ||
+    hasWord(grid, prev.cursor.current, prev.cursor.orientation));
+  const turned = onWhite && !keepsCursor ? wordStart(grid, prev.cursor.current) : null;
   return {
     ...prev,
     grid,
@@ -146,7 +150,7 @@ function withContent(prev: EditorState, content: PuzzleContent): EditorState {
     phase: content.phase,
     hints: { ...content.hints },
     title: content.title,
-    cursor: keepsCursor ? prev.cursor : startCursor(grid, content.phase),
+    cursor: keepsCursor ? prev.cursor : turned ?? startCursor(grid, content.phase),
   };
 }
 
@@ -202,7 +206,10 @@ export function PuzzleGridEditor({
   const [isReady, setIsReady] = useState(false);
   // Preview is component state, not persisted (Story D4) -- a reload
   // always returns to build view.
-  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [previewSetting, setIsPreviewing] = useState(false);
+  // 24-S4: the hints phase has no Preview, so a move to Create Hints from
+  // elsewhere leaves it (the local one turns it off itself).
+  const isPreviewing = previewSetting && state.phase === "grid";
   // Preview turned on with the cursor on a cell it shows black: nothing is
   // selected, and keys do nothing, until a cell is clicked (17-S4).
   const [isPreviewCursorHidden, setIsPreviewCursorHidden] = useState(false);
