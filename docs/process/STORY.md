@@ -73,6 +73,10 @@ do not opportunistically clean up adjacent code.
   require the full `npm run test:e2e` suite plus any story-specific demonstrations.
   Focused browser tests help iteration but do not replace that gate. Preserve
   frozen cases, timeouts and assertions. Disclose any permitted resource cap.
+- Exception for stories merged into an epic integration branch (which deploys
+  nothing): run the story's own and directly affected spec files instead of the
+  full suite. One clean full `npm run test:e2e` on the final epic branch, not
+  only reruns of failing files, is required before the epic's PR to `main`.
 - Before browser preparation/reset, follow [DEVELOPMENT](../DEVELOPMENT.md#e2e-environment).
   Its user-approved standing grant covers necessary guarded local test resets
   across runs, sessions and stories; do not ask again within that scope. Other
