@@ -88,4 +88,4 @@ S8–S11). Do not deploy or merge main.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Complete final epic verification and arrange a fresh independent, report-only closeout audit on epic/24-collaboration; no production migrations, Vercel settings or `main`.
+Read docs/epics/24-collaboration/HANDOFF.md. Run one clean full E2E on epic/24-collaboration and rewrite PR #46's description; no production migrations, Vercel settings or `main`.
