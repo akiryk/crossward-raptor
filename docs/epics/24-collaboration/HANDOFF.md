@@ -83,9 +83,9 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-None in this epic. Open follow-ups: rotate the production `neondb_owner`
-password (it was exposed in a session transcript during cutover) and update
-`DATABASE_URL`/`DATABASE_URL_UNPOOLED` in Vercel, then redeploy; fold the
+None in this epic. After the merge the human rotated the production
+`neondb_owner` password (it was exposed in a session transcript), updated
+Vercel and redeployed; production loads (2026-11-14). Open follow-ups: fold the
 DEVELOPMENT notes above (HEAD changes invalidate E2E runs; root lint scans
 nested `.claude/worktrees`); Epic 18's 18-S5-5 flake correction awaits the
 human's approval.
