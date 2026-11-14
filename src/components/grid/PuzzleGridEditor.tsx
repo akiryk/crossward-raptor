@@ -68,6 +68,8 @@ import { gridMaxPx } from "../../lib/grid-max";
 // How long Publish waits for the edits the readiness check saw to be
 // acknowledged before reporting that it couldn't publish (24-S3).
 const PUBLISH_SAVE_WAIT_MS = 10000;
+// 24-S5: how long a signed-out editor waits before reloading to the sign-in.
+const SIGNED_OUT_RELOAD_MS = 2000;
 // How long the cursor stays in an unlocked word before its lock button
 // shows (21-S2), and the mouse's hover wait (21-S10): 2 seconds (22-S6).
 const LOCK_BUTTON_DELAY_MS = 2000;
@@ -218,8 +220,10 @@ export function PuzzleGridEditor({
       ? { ...prev, publishedAt: loss.publishedAt, visibility: loss.visibility }
       : { ...prev, isLost: true }),
     // 24-S5: the session is gone: the reload goes to the sign-in, and the
-    // journal re-sends the work at the next open.
-    onSignedOut: () => window.location.reload(),
+    // journal re-sends the work at the next open. It waits a moment, so a
+    // server action already being redirected (23-S3) navigates first rather
+    // than the page vanishing under the builder's click.
+    onSignedOut: () => setTimeout(() => window.location.reload(), SIGNED_OUT_RELOAD_MS),
   });
   // What Publish is pinned to (D7): the operations pending when the
   // readiness check ran, and the confirmed version then.
