@@ -16,6 +16,36 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
+**Local-testing follow-up S9: implemented and verified; PR #48 awaits final review/merge.**
+[Personal and current collaborator labels](stories/24-S9-collaboration-labels.md)
+changes only three puzzle components: the signed-in owner/member reads “You”
+in library rows, and the dialog shows a bold 14px “Current Collaborators”
+heading above existing members. Other people’s names and account settings
+retain actual usernames. Branch `story/24-S9-collaboration-labels`; target is
+this epic branch only. [PR #48](https://github.com/akiryk/crossward-raptor/pull/48).
+Runtime `b7b569c`, integrated test baseline/tested head `ac436a0`.
+Independent reviewer `review_polish` approved the scope, frozen display
+amendments (`38c6329`) and implementation with no blockers.
+
+The human explicitly approved the additional frozen narrow-layout test
+correction (“1. Yes”): measure the full owner line, rather than the intrinsic
+width of “You”. Independent review confirmed the original 90px minimum and
+all overflow/date/control assertions are preserved. This was separately
+refrozen on the epic at `287cc85` before affected verification resumed.
+The initial run passed 81 of 84 browser checks; its three measurement failures
+are recorded in `/tmp/epic24-s9-browser.log`. Initial clean-checkout verify
+passed 113 files/1287 tests. Final checks at `ac436a0`, including the approved
+correction: **npm run verify exit 0, 113 files/1287 tests passed**;
+**seven-file browser run exit 0, 84 passed, 0 failed, 51.8 seconds, two workers**.
+Files: `collaboration-polish`, `collaborator-management`, `puzzle-library`,
+`muted-text`, `account-details`, `account-email`, `narrow-margin`. Source/config
+identity compared across 435 tracked files with zero mismatches against
+`/tmp/crossward-24-s9-verify`. Logs and command/head/content identities:
+`/tmp/epic24-s9-final-{verify,browser}.log` and
+`/tmp/epic24-s9-final-verification.json`. E2E resets use DEVELOPMENT’s standing
+grant. The full epic E2E gate remains due before main after these follow-ups.
+
+
 **Local-testing follow-up S8: merged into `epic/24-collaboration`.**
 [UI polish](stories/24-S8-collaboration-ui-polish.md) implements the human’s
 five requests: grid-aligned Add/Edit Collaborators link, 14px controls, Rebus
