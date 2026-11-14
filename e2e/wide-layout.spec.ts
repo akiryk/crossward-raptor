@@ -109,7 +109,7 @@ for (const [id, phase] of [['15-S2-2', 'grid'], ['15-S2-3', 'hints']] as const) 
 
   test.describe(`${id} ${name}, two columns`, () => {
     for (const viewport of [{ width: 1440, height: 900 }, HUGE, { width: 1430, height: 900 }]) {
-      test(`at ${viewport.width}px: 32px from a 620px grid, two equal columns 32px apart filling the room`, async ({ page }) => {
+      test(`at ${viewport.width}px: 92px from a centered 500px mini, two equal columns 32px apart filling the room`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await openBuilder(page, phase);
         const g = await box(grid(page));
@@ -117,8 +117,9 @@ for (const [id, phase] of [['15-S2-2', 'grid'], ['15-S2-3', 'hints']] as const) 
         const across = await box(column(page, phase, 'across'));
         const down = await box(column(page, phase, 'down'));
 
-        expect(g.width, 'grid width').toBeCloseTo(GRID_PX, 0);
-        expect(across.x - g.right, 'from the grid').toBeCloseTo(GAP_PX, 0);
+        // 17-S11: only the mini shrinks; its column keeps 60px auto margins.
+        expect(g.width, 'mini grid width').toBeCloseTo(500, 0);
+        expect(across.x - g.right, 'from the centered mini').toBeCloseTo(GAP_PX + 60, 0);
         expect(down.y, 'side by side').toBeCloseTo(across.y, 0);
         expect(down.x - across.right, 'between the columns').toBeCloseTo(GAP_PX, 0);
         expect(down.width, 'equal columns').toBeCloseTo(across.width, 0);
@@ -135,7 +136,7 @@ for (const [id, phase] of [['15-S2-2', 'grid'], ['15-S2-3', 'hints']] as const) 
 test.describe('15-S2-4 one column below 1430px', () => {
   for (const phase of ['grid', 'hints'] as const) {
     for (const width of [1429, 1240, 1164]) {
-      test(`${phase === 'grid' ? 'build' : 'hints'} phase at ${width}px: Down below Across, beside a 620px grid`, async ({ page }) => {
+      test(`${phase === 'grid' ? 'build' : 'hints'} phase at ${width}px: Down below Across, beside a centered 500px mini`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await openBuilder(page, phase);
         const g = await box(grid(page));
@@ -143,8 +144,9 @@ test.describe('15-S2-4 one column below 1430px', () => {
         const across = await box(column(page, phase, 'across'));
         const down = await box(column(page, phase, 'down'));
 
-        expect(g.width, 'grid width').toBeCloseTo(GRID_PX, 0);
-        expect(across.x - g.right, 'from the grid').toBeCloseTo(GAP_PX, 0);
+        // 17-S11: retain the original column width and stacking threshold.
+        expect(g.width, 'mini grid width').toBeCloseTo(500, 0);
+        expect(across.x - g.right, 'from the centered mini').toBeCloseTo(GAP_PX + 60, 0);
         expect(across.y, 'level with the grid').toBeCloseTo(g.y, 0);
         expect(down.x, 'one column').toBeCloseTo(across.x, 0);
         expect(down.y - across.bottom, 'Down 32px below Across').toBeCloseTo(GAP_PX, 0);

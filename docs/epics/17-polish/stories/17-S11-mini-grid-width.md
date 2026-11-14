@@ -3,12 +3,13 @@
 Mini grids look too large on desktop. Cap the construction editor's 5×5
 grid at 500px and center it within its existing grid column.
 
-**Status: approved; specification and acceptance ready to freeze (2026-11-14).** The human
+**Status: implemented locally; final browser verification running (2026-11-14).** The human
 approved the investigated proposal and requested documentation in epic 17,
 implementation, commit and push. They subsequently approved proceeding on
 an isolated branch while the epic 26 agent is paused. This authorizes the
 500px mini cap, horizontal auto margins and corresponding supersession of
-the old mini sizing expectations below. Freeze follows independent review.
+the old mini sizing expectations below. Specification/acceptance frozen at `60d8941`, with the independently reviewed
+amendment/refreeze at `5f25068`. Runtime is not yet committed or pushed.
 
 **Blast radius: small.** One editor component; browser acceptance and epic
 documentation. No CODE-REVIEW risk path. Use `polish/17-s11-mini-grid` in a
@@ -78,7 +79,7 @@ refreeze commit. All other assertions remain frozen.
 | `e2e/larger-grid.spec.ts`, 17-S7-1 mini width and 17-S7-8 mini letter size | 620px grid / pitch | 500px grid / pitch; existing type/clearance assertions retained; 17-S7-6 title updated |
 | `e2e/grid-size-by-puzzle.spec.ts`, 21-S9-1/-2 mini grid/toggle/hints relationships and 21-S9-5 mini builder | Grid and toggle both 620px; hints 32px from grid; grid fills column at 636/635px viewport | Editor grid 500px, centered in retained column; toggle stays column width, hints remain 32px from column; player expectations unchanged |
 | `e2e/narrow-builder.spec.ts`, 15-S3-1/-2 mini width and title/control alignment; 15-S3-6 legend alignment | 620px grid; grid edges equal column edges | 500px centered grid, 60px inset at these viewports; retain title/controls/legend positions |
-| `e2e/wide-layout.spec.ts`, 15-S2-5 mini Preview/legend cases | 620px grid, legend at grid left, skeleton 32px from grid | 500px grid, legend remains at column left, skeleton remains 32px from column (92px from grid) |
+| `e2e/wide-layout.spec.ts`, 15-S2-2/-3/-4 builder cases (12 cases) and 15-S2-5 mini Preview/legend cases | 620px grid, Across/skeleton 32px from grid, legend at grid left | 500px grid, Across/skeleton remain 32px from column (92px from grid), legend remains at column left; internal widths/stacking/fill/vertical positions unchanged; explicit daily/player cases unchanged |
 | `e2e/hint-box.spec.ts`, 15-S4-1 mini Hint Box alignment | Hint Box equals grid width/left | Retain 620px Hint Box, 60px left of centered 500px grid |
 | `e2e/hint-phase-design.spec.ts`, 14-S6-5 mini Across gap | 32px from grid | 92px from grid (60px margin + unchanged 32px column gap) |
 | `e2e/hint-preview-alignment.spec.ts`, 18-S7-5 mini Across skeleton label at 1440px/1280px | 38px from grid | 98px from grid (60px margin + unchanged 32px gap + 6px inset); internal alignment assertions unchanged |
@@ -141,4 +142,22 @@ That exploratory full run was interrupted after the known failures, not
 counted as passing: 627 passed, four failed, two interrupted, 780 not run.
 The fourth failure was a 3×3 private-publish dialog timing assertion in
 `builder-controls.spec.ts`, outside the mini change; its assertions remain
-unchanged. A clean full run is required before delivery.
+unchanged. A complete passing full run is required before delivery; any
+known flakes must be reported under the repository's documented
+[LEARNINGS §10](../../../LEARNINGS.md#10-known-browser-suite-flakes-and-what-a-full-run-needs-on-this-machine)
+procedure rather than concealed or changing assertions/timeouts.
+
+**Further wide-layout amendment:** the completed four-worker full run at
+`5f25068` plus the unchanged editor blob exposed 12 additional width/gap
+expectations in 15-S2-2/-3/-4: their helper defaults to a 5×5 fixture.
+They now use 500px and 92px as listed above; all internal column and
+breakpoint assertions stay frozen. Runtime was parked again before the
+separate specification-only refreeze. Independent exact diff review is
+required before restoring the identical implementation.
+
+That full run completed with 1,397 passes and 16 failures: the 12 old mini
+expectations, a known icon pixel-color flake, two known auth-session
+`ECONNRESET`s, and a library navigation timeout. The four unrelated cases
+all passed unchanged in a guarded one-worker rerun (six passes including
+setup). The library timeout's exact known-flake classification was not
+established, so a fresh full run remains required after refreeze.
