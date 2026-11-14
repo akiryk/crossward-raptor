@@ -7,7 +7,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { PuzzleContent } from "../../lib/collab/apply";
-import { EditorSaver, viewContent, type SavedView } from "./editor-saver";
+import { EditorSaver, viewContent, type AccessLoss, type SavedView } from "./editor-saver";
 import type { SaveNotice } from "./SaveNotices";
 import type { SaveStatusState } from "./SaveStatus";
 
@@ -19,6 +19,9 @@ export function useOperationSaving<T extends SavedView>({
   state,
   setState,
   withContent,
+  published,
+  onAccessLost,
+  onSignedOut,
 }: {
   puzzleId: string;
   initialContent: PuzzleContent;
@@ -28,6 +31,12 @@ export function useOperationSaving<T extends SavedView>({
   setState: Dispatch<SetStateAction<T>>;
   /** The editor's state showing the content (its cursor kept where it can be). */
   withContent: (prev: T, content: PuzzleContent) => T;
+  /** 24-S5: the puzzle is already published (nothing to poll for). */
+  published?: boolean;
+  /** 24-S5: access lost while open (removed, deleted or published). */
+  onAccessLost?: (loss: AccessLoss) => void;
+  /** 24-S5: the session is gone. */
+  onSignedOut?: () => void;
 }): { saver: EditorSaver; saveState: SaveStatusState | null; notices: readonly SaveNotice[]; dismissNotice: (id: string) => void } {
   const [, setTick] = useState(0);
   const [notices, setNotices] = useState<SaveNotice[]>([]);
@@ -40,6 +49,9 @@ export function useOperationSaving<T extends SavedView>({
     onChange: () => setTick((tick) => tick + 1),
     showContent: (update) => setState((prev) => withContent(prev, update(viewContent(prev)))),
     notify: (id, notice) => setNotices((prev) => [...prev, { id, ...notice }]),
+    published,
+    onAccessLost,
+    onSignedOut,
   }));
 
   useLayoutEffect(() => {

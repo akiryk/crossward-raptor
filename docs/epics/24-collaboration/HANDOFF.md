@@ -16,22 +16,28 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-13)
 
-**S4 merged** into `epic/24-collaboration` (PR #42, `3d88b4b`; reviewed
-at head `6c982e8`, runtime `172c9d8`). [S4](stories/24-S4-live-sync.md)
-was frozen at `5abfd4f` (a specification-only commit on
-`epic/24-collaboration`, under the human's delegation). No migration. The
-freeze amends two earlier frozen tests: 24-S3-E3 holds off catching up
-before its lock elsewhere, and the route-guard source test admits the
-catch-up GET. The reviewer found both amendments justified. The review
-found no blockers; its non-blocking findings are in the PR's review
-comment. Two of them are for S5 to carry:
+**S5 implemented; PR #43 pending independent review** (into
+`epic/24-collaboration`). [S5](stories/24-S5-collaborator-membership.md)
+was frozen at `e29e562` (a specification-only commit on
+`epic/24-collaboration`, under the human's delegation). Runtime head
+`f514378` on `story/24-S5-collaborator-membership`; the later commits are
+docs only. The freeze amends two earlier frozen tests (24-S1-15: S1's
+migration is no longer the newest; O3's in-memory store learns the
+collaborator relation filter); no assertion changed. S4's two carried
+review items are covered: 24-S5-9 pins saving the half-typed word before a
+remote Start Over or Enter Hints, and the catch-up's log read carries the
+predicate itself (24-S5-5).
 
-- a test that a draft typed before a remote Start Over is refused
-  (`editor-saver.ts` flushes it, untested);
-- the catch-up's log read stays behind the authorized puzzle read when
-  `editableBy` widens.
+**S5 migration** `20261113120000_add_puzzle_collaborators` (two new
+tables): applied to the local development and test databases only. The
+human applies it to production, with S1's, before `main`.
 
-**Next: S5**, with the same draft, freeze, implement and PR procedure.
+**Next:** independent review and merge of the S5 PR; then S6, with the
+same draft, freeze, implement and PR procedure.
+
+S4 is merged (PR #42, `3d88b4b`; reviewed at head `6c982e8`, runtime
+`172c9d8`), frozen at `5abfd4f`. Its review's two non-blocking items for
+S5 are done (above).
 
 **Human note: polling cost** (story, "Measurements"; not a blocker, since
 the EPIC sets no cost limit):
@@ -51,6 +57,11 @@ S3 is merged (PR #41, `61068e2`; head `aa2547a`, runtime `c08b412`),
 frozen at `a3c9d72`, with the lint-only correction `215468d`.
 
 **Pending for the human (before the epic merges to `main`):**
+
+- **Production migrations, in order:** S1's
+  `20261112120000_add_puzzle_operations`, then S5's
+  `20261113120000_add_puzzle_collaborators`. Both are additive; neither has
+  been applied to production.
 
 - **Vercel Skew Protection is not determined** (S3 reviewer's finding,
   2026-11-13). This is a human item before `main`, not an epic-branch
@@ -184,19 +195,30 @@ S4 (PR #42, merged at `3d88b4b`; reviewed at head `6c982e8`, runtime
   `db:up` creates a second Compose project, fails on the shared ports and
   skips the reset.
 
+S5 (PR #43, pending review; runtime head `f514378`):
+
+- Author's `npm run verify` on `f514378`: exit 0, 103 files, 1234 tests
+  (`/tmp/s5-verify-f514378.log`).
+- Author's full `npm run test:e2e -- --workers=2` on `f514378`: 1380 passed, 1 failed (`menu-reset.spec.ts` 19-S3-1, an `ECONNRESET` on its sign-in request; rerun alone after `pretest:e2e`, 9 passed: `/tmp/s5-e2e-rerun-menu-reset-f514378.log`)
+  (`/tmp/s5-e2e-full-f514378.log`, which names the worktree
+  `agent-a84592eb271dafedc` and the head). An earlier full run on
+  `8d8c66e` (`/tmp/s5-e2e-full-8d8c66e.log`): 1380 passed, 1 failed
+  (23-S3-7, fixed by `f514378`'s reload delay; story, "Implementation").
+- Rules disabled one at a time: the story's "What the tests catch"
+  (`/tmp/s5-rules.log`, `/tmp/s5-browser-rules.log`).
+
 ## Next action
 
-S5, Collaborator membership and authorization (EPIC, Stories item 5):
+1. An independent reviewer reviews S5's PR #43 against
+   [S5](stories/24-S5-collaborator-membership.md) and merges it into
+   `epic/24-collaboration`.
+2. Then S6, Collaborator management and the library (EPIC, Stories item
+   6): draft, freeze as a specification-only commit on
+   `epic/24-collaboration`, implement on `story/24-S6-<name>` with a PR.
+   No migration is expected.
 
-1. Draft its specification and acceptance.
-2. Freeze them as a specification-only commit on `epic/24-collaboration`.
-3. Implement on `story/24-S5-<name>`, with a PR into the epic branch for
-   independent review.
-
-S5 includes a migration (the collaborator and invitation tables). Apply it
-to the local development and test databases only. Not authorized:
-production migration, Vercel settings, `main`.
+Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and the S5 section of docs/epics/24-collaboration/EPIC.md. Draft, freeze and implement S5 on a story branch with a PR into epic/24-collaboration; its migration goes to the local dev and test databases only; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md. Have S5's PR #43 independently reviewed and merged into epic/24-collaboration; then draft, freeze and implement S6 (EPIC, Stories item 6) on a story branch with a PR into epic/24-collaboration; no production migration, nothing into main.

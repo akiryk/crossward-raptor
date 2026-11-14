@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PuzzleGridEditor } from '@/components/grid/PuzzleGridEditor';
 import { serializeGrid } from '@/lib/puzzle-storage';
-import { loadPuzzle } from '../actions';
+import { claimInvitations, loadPuzzle } from '../actions';
 
 export default async function PuzzleDetailPage({
   params,
@@ -9,6 +9,8 @@ export default async function PuzzleDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  // 24-S5: an invitation to this account's email becomes membership first.
+  await claimInvitations();
   const puzzle = await loadPuzzle(id);
 
   if (!puzzle) {
@@ -27,6 +29,7 @@ export default async function PuzzleDetailPage({
         initialVisibility={puzzle.visibility}
         initialVersion={puzzle.version}
         initialEpoch={puzzle.resetEpoch}
+        isOwner={puzzle.isOwner}
       />
     </div>
   );

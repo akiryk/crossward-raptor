@@ -1,16 +1,17 @@
 import type { Prisma } from '@prisma/client';
 
-/** Epic 24: the one "editable by" condition, placed in the commit path's
- *  own WHERE. Owner-only for now (`builderId`); S5 widens it here to
- *  collaborators. Wrap it in `AND` so a widened condition's `OR` can't
- *  collide with the caller's. */
+/** Epic 24: the one "editable by" condition: the owner or a collaborator
+ *  (24-S5). It goes in the WHERE of every puzzle read and write that edits
+ *  or opens a puzzle for editing (the commit path, the catch-up, the editor
+ *  page, Duplicate, and with `ownedBy` the owner-only ones). Wrap it in
+ *  `AND` so its `OR` can't collide with the caller's. */
 export function editableBy(userId: string): Prisma.PuzzleWhereInput {
-  return { builderId: userId };
+  return { OR: [{ builderId: userId }, { collaborators: { some: { userId } } }] };
 }
 
-/** Epic 24 (24-S2): the owner-only condition (Start Over, Publish; D5, D7),
- *  placed in those writes' own WHERE alongside `editableBy`. It stays the
- *  owner when S5 widens `editableBy`. */
+/** Epic 24 (24-S2): the owner-only condition (Start Over, Publish, Delete,
+ *  visibility, collaborators; D5, D7), placed in those reads' and writes'
+ *  own WHERE alongside `editableBy`. */
 export function ownedBy(userId: string): Prisma.PuzzleWhereInput {
   return { builderId: userId };
 }

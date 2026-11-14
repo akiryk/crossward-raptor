@@ -155,6 +155,17 @@ export function parseCatchUp(input: unknown, puzzleId: string): CatchUp | null {
     if (!isCount(input.version) || !isCount(input.resetEpoch) || !isContent(input.content)) return null;
     return { status: 'snapshot', version: input.version, resetEpoch: input.resetEpoch, content: input.content };
   }
+  // 24-S5: a published puzzle, as stored, with its publication.
+  if (input.status === 'published') {
+    if (!isCount(input.version) || !isCount(input.resetEpoch) || !isContent(input.content)) return null;
+    const publishedAt = typeof input.publishedAt === 'string' || input.publishedAt instanceof Date ? new Date(input.publishedAt) : null;
+    if (!publishedAt || Number.isNaN(publishedAt.getTime())) return null;
+    if (input.visibility !== 'private' && input.visibility !== 'public') return null;
+    return {
+      status: 'published', version: input.version, resetEpoch: input.resetEpoch, content: input.content,
+      publishedAt, visibility: input.visibility,
+    };
+  }
   if (input.status !== 'ops' || !Array.isArray(input.ops)) return null;
   const ops: CommittedOperation[] = [];
   for (const raw of input.ops) {

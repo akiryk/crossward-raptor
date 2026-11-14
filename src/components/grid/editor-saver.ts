@@ -20,7 +20,7 @@ import { readJournal, removeJournalKeys, writeJournal, type JournalStorage } fro
 import { refusalNotice, type RefusalNotice } from "../../lib/collab/notice";
 import type { CellWrite, Operation, OperationBody } from "../../lib/collab/operation";
 import {
-  cellWrites, hintChanges, projectOutbox, rebaseView, titleChange, type Outbox, type Settlement,
+  cellWrites, hintChanges, projectOutbox, rebaseView, titleChange, type Confirmed, type Outbox, type Settlement,
 } from "../../lib/collab/outbox";
 import { OperationQueue, type QueueRefusalCode } from "../../lib/collab/queue";
 import { serializeGrid } from "../../lib/puzzle-storage";
@@ -69,15 +69,21 @@ function sendKeepalive(puzzleId: string, op: Operation): void {
   }
 }
 
+/** 24-S5: the catch-up was answered with a redirect: the session gate's
+ *  (no session, or no username). */
+class SignedOut extends Error {}
+
 /** 24-S4: the catch-up read (the route's GET), from the confirmed version,
- *  or the snapshot for null. Anything but an answer is a failure, retried. */
+ *  or the snapshot for null. Anything but an answer is a failure, retried.
+ *  24-S5: a 400 (`invalid`) is an answer too, and a redirect is `SignedOut`. */
 async function fetchCatchUp(puzzleId: string, since: number | null): Promise<CatchUp> {
   const response = await fetch(`/api/puzzles/${encodeURIComponent(puzzleId)}/operations`, {
     headers: since === null ? {} : { "x-catch-up-since": String(since) },
     cache: "no-store",
     redirect: "manual",
   });
-  if (response.status !== 200 && response.status !== 404) throw new Error(`catch-up: ${response.status}`);
+  if (response.type === "opaqueredirect" || (response.status >= 300 && response.status < 400)) throw new SignedOut();
+  if (response.status !== 200 && response.status !== 404 && response.status !== 400) throw new Error(`catch-up: ${response.status}`);
   const result = parseCatchUp(await response.json(), puzzleId);
   if (!result) throw new Error("catch-up: malformed answer");
   return result;
@@ -124,6 +130,18 @@ function editedCells(before: Grid, after: Grid): { col: number; row: number }[] 
   return edited;
 }
 
+/** 24-S5: why the editor can no longer edit the puzzle. */
+export type AccessLoss =
+  /** Removed from it, or it was deleted (not told apart). */
+  | { readonly kind: "removed" }
+  /** It was published elsewhere. */
+  | { readonly kind: "published"; readonly publishedAt: Date; readonly visibility: "private" | "public" };
+
+const LOSS_MESSAGES: Record<AccessLoss["kind"], string> = {
+  removed: "This puzzle is no longer available to you: it was deleted, or you were removed from it. Nothing more can be saved here.",
+  published: "This puzzle was published, so it can't be edited any more.",
+};
+
 export interface EditorSaverOptions {
   readonly puzzleId: string;
   readonly initialContent: PuzzleContent;
@@ -136,6 +154,12 @@ export interface EditorSaverOptions {
   readonly showContent: (update: (view: PuzzleContent) => PuzzleContent) => void;
   /** A refused operation, explained. */
   readonly notify: (id: string, notice: RefusalNotice) => void;
+  /** 24-S5: the puzzle is already published: nothing to poll for. */
+  readonly published?: boolean;
+  /** 24-S5: the editor lost access (once); it becomes read-only. */
+  readonly onAccessLost?: (loss: AccessLoss) => void;
+  /** 24-S5: the session is gone; the page reloads (to the sign-in). */
+  readonly onSignedOut?: () => void;
 }
 
 export class EditorSaver {
@@ -156,6 +180,12 @@ export class EditorSaver {
   /** 24-S4: the cells a remote change is about to show, so the grid's
    *  change isn't taken for the builder's edit. */
   private remoteCells = new Set<string>();
+  /** 24-S5: access lost, or published here: no more polling or sending. */
+  private stopped = false;
+  /** 24-S5: this editor's own Publish is in flight. */
+  private publishing = false;
+  /** 24-S5: the session is gone and the page is reloading. */
+  private signingOut = false;
 
   constructor(private readonly options: EditorSaverOptions) {
     this.view = options.view;
@@ -179,10 +209,18 @@ export class EditorSaver {
         onChange: () => options.onChange(),
         onRefused: (op, code, before, after) => this.refused(op, code, before, after),
         onBehind: () => this.poller.pollNow(),
+        onLost: (code) => (code === "not-found" ? this.lose({ kind: "removed" }) : this.publishedElsewhere()),
       },
     );
     this.poller = new CatchUpPoller({
-      fetch: (since) => fetchCatchUp(puzzleId, since),
+      fetch: async (since) => {
+        try {
+          return await fetchCatchUp(puzzleId, since);
+        } catch (error) {
+          if (error instanceof SignedOut) this.signedOut();
+          throw error;
+        }
+      },
       since: () => this.queue.outbox.confirmed.version,
       apply: (result) => this.caughtUp(result),
       isVisible: () => document.visibilityState === "visible",
@@ -197,7 +235,18 @@ export class EditorSaver {
    *  in, which the server judges (a reset refuses them, D5; Hints takes
    *  only what fits, D4), each visibly. */
   private caughtUp(result: CatchUp): PollOutcome {
-    if (result.status === "not-found" || result.status === "invalid") return "stop";
+    if (this.stopped) return "stop";
+    if (result.status === "not-found" || result.status === "invalid") {
+      this.lose({ kind: "removed" });
+      return "stop";
+    }
+    if (result.status === "published") {
+      // This editor's own Publish decides (endPublish).
+      if (this.publishing) return "ok";
+      const snapshot = { content: result.content, version: result.version, resetEpoch: result.resetEpoch };
+      this.lose({ kind: "published", publishedAt: result.publishedAt, visibility: result.visibility }, snapshot);
+      return "stop";
+    }
     const { outbox } = this.queue;
     const own = new Set([...outbox.pending, ...(outbox.acknowledged ?? [])].map((op) => op.opId));
     if (result.status === "ops") {
@@ -216,6 +265,72 @@ export class EditorSaver {
     this.queue.resync({ content: result.content, version: result.version, resetEpoch: result.resetEpoch });
     this.showRemote(before, this.projected());
     return "ok";
+  }
+
+  /** 24-S5: the queue halts for good; every burst finalizes and every
+   *  pending operation is dropped, each explained with its input kept. The
+   *  journal empties with the pending list. */
+  private dropEverything(code: QueueRefusalCode, explain?: () => void): void {
+    this.queue.halt();
+    this.flushAll();
+    explain?.();
+    this.queue.dropAll(code);
+  }
+
+  /** 24-S5: a commit was refused as published: nothing more is sent, and
+   *  the catch-up, asked at once, brings the publication. */
+  private publishedElsewhere(): void {
+    if (this.stopped || this.queue.isHalted) return;
+    this.dropEverything("published");
+    this.poller.pollNow();
+  }
+
+  /** 24-S5: access is lost, once: polling and sending stop, the loss is
+   *  explained, unsaved input is kept in notes, and the editor is told. */
+  private lose(loss: AccessLoss, stored?: Confirmed): void {
+    if (this.stopped) return;
+    this.stopped = true;
+    this.poller.stop();
+    const notifyLoss = () => this.options.notify(`access-${loss.kind}`, { message: LOSS_MESSAGES[loss.kind], input: null });
+    if (loss.kind === "removed") {
+      this.dropEverything("not-found", notifyLoss);
+    } else {
+      if (!this.queue.isHalted) this.dropEverything("published");
+      notifyLoss();
+    }
+    if (stored) {
+      const before = this.projected();
+      this.queue.resync(stored);
+      this.showRemote(before, this.projected());
+    }
+    this.options.onAccessLost?.(loss);
+  }
+
+  /** 24-S5: the session is gone. Nothing is retried; the work stays
+   *  journaled for the next open, and the page reloads without warning. */
+  private signedOut(): void {
+    if (this.signingOut) return;
+    this.signingOut = true;
+    this.poller.stop();
+    this.queue.halt();
+    this.flushAll();
+    this.options.onSignedOut?.();
+  }
+
+  /** 24-S5: this editor's own Publish is about to be sent: a publication
+   *  seen by the catch-up meanwhile is its own, not a loss. */
+  beginPublish(): void {
+    this.publishing = true;
+  }
+
+  /** 24-S5: this editor's own Publish was answered. Published, polling and
+   *  sending stop quietly. */
+  endPublish(published: boolean): void {
+    this.publishing = false;
+    if (!published || this.stopped) return;
+    this.stopped = true;
+    this.poller.stop();
+    this.queue.halt();
   }
 
   /** Shows a change of the projection from elsewhere, keeping the draft.
@@ -406,7 +521,7 @@ export class EditorSaver {
     };
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
       this.flushAll();
-      if (this.queue.isLeaving || this.queue.outbox.pending.length === 0) return;
+      if (this.queue.isLeaving || this.signingOut || this.queue.outbox.pending.length === 0) return;
       event.preventDefault();
       event.returnValue = "";
     };
@@ -414,7 +529,8 @@ export class EditorSaver {
     window.addEventListener("pagehide", onPageHide);
     window.addEventListener("beforeunload", onBeforeUnload);
     window.addEventListener("online", onOnline);
-    this.poller.start();
+    // 24-S5: a published puzzle has nothing to catch up on.
+    if (!this.options.published && !this.stopped) this.poller.start();
     return () => {
       document.removeEventListener("visibilitychange", onHidden);
       window.removeEventListener("pagehide", onPageHide);

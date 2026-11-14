@@ -376,11 +376,119 @@ proposed files above.
 - Which tests catch each authorization rule (one disabled at a time) is
   recorded by the implementation below.
 
+## Implementation
+
+Runtime head `f514378` on `story/24-S5-collaborator-membership` (frozen at
+`e29e562`; frozen acceptance unchanged since).
+
+- **Migration** `20261113120000_add_puzzle_collaborators`, generated with
+  `prisma migrate diff` from the previous schema to the new one: two new
+  tables and their indexes and foreign keys, no change to an existing
+  table. Applied to the local development database (`prisma migrate
+  deploy`, localhost:5432/crossward) and to the local test database (the
+  E2E preparation's migrate). **Not applied to production**: the human
+  applies it, with S1's `20261112120000_add_puzzle_operations`, before the
+  epic merges to `main`.
+- `loadPuzzle` and `duplicatePuzzle` read with `findUnique` and the
+  predicate (an ID plus `AND`), which the frozen in-memory stores of
+  24-S3-11 and 16-S4-5 already model.
+- **A signed-out editor reloads after 2 s**, not at once (decision 11).
+  The first full run failed 23-S3-7 ("an open editor's grid save is
+  refused"): its username was removed and the next poll, about a second
+  later, reloaded the page before the test's click reached the grid. With
+  the delay, an action already being redirected by the session gate
+  navigates first; 24-S5-E4 still lands on `/` within its 8 s. The queue
+  halts at once, so nothing is sent meanwhile; edits made in those 2 s are
+  journaled.
+- `prisma format` realigned `schema.prisma`'s existing columns
+  (whitespace only).
+- **Evidence** on `f514378`: `npm run verify` exit 0, 103 files, 1234
+  tests (`/tmp/s5-verify-f514378.log`); full `npm run test:e2e --
+  --workers=2` 1380 passed, 1 failed (`/tmp/s5-e2e-full-f514378.log`):
+  `menu-reset.spec.ts` 19-S3-1, an `ECONNRESET` on its magic-link sign-in
+  request, not on this story's paths; that file rerun alone after
+  `pretest:e2e`: 9 passed (`/tmp/s5-e2e-rerun-menu-reset-f514378.log`).
+  `e2e/collaborators.spec.ts` alone: 10 passed
+  (`/tmp/s5-e2e-focused.log`, with `username-step`, `session-validation`
+  and `route-protection`: 48 passed).
+
+### What the tests catch
+
+2026-11-13, one rule disabled at a time and restored; the whole unit and
+database suite each time (logs `/tmp/s5-rules.log`, counts
+`/tmp/s5-rules-counts.log`), and `e2e/collaborators.spec.ts` alone for the
+editor's controls (`/tmp/s5-browser-rules.log`).
+
+| Rule disabled | Failing |
+| --- | --- |
+| `editableBy` without the collaborator clause | 11: 24-S5-1, -2, -3, -4, -5, -7 |
+| `editableBy` matching anyone | 23: 24-S5-2 to -5, -7; 24-S1-8, -17, -18; 24-S4-7, -9; O3; 16-S4-5 |
+| Commit: the authorizing read without `editableBy` | 6: 24-S5-4, -7; 24-S1-8, -17, -18 |
+| Commit: the compare-and-swap without `editableBy` | 2: 24-S5-4 |
+| Commit: the compare-and-swap without `ownedBy` (Start Over) | 1: 24-S5-4 |
+| Validation without the owner check (Start Over) | 2: 24-S5-4, 24-S2-4 |
+| Catch-up: the version read without `editableBy` | 3: 24-S5-5, 24-S4-7, -9 |
+| Catch-up: **the log read without `editableBy`** | 1: 24-S5-5 |
+| Catch-up: the snapshot read without `editableBy` | 4: 24-S5-5, 24-S4-7, -9 |
+| Catch-up: publication not reported | 1: 24-S5-5 |
+| Publish: read and write without `ownedBy` | 2: 24-S5-6 |
+| Publish: the write without `ownedBy` | 1: 24-S5-6 |
+| `loadPuzzle` without the predicate / owner-only | 5: 24-S5-7, O3 / 2: 24-S5-7 |
+| `duplicatePuzzle` without the predicate | 2: 24-S5-7, 16-S4-5 |
+| `deletePuzzle` without `ownedBy` | 1: 24-S5-7 |
+| `setPuzzleVisibility` without `ownedBy` | 1: 24-S5-7 |
+| Membership's owner condition without `ownedBy` | 5: 24-S5-1, -3, -7 |
+| Remove's delete without the owner condition | 1: 24-S5-3 |
+| Revoke's delete without the owner condition | 1: 24-S5-3 |
+| Binding at once leaves the invitation | 1: 24-S5-1 |
+| The account matched by the raw address (case) | 3: 24-S5-1, -7 |
+| Addresses not normalized | 7: 24-S5-1, -2, -7 |
+| Invitations never expire | 3: 24-S5-1, -2, -3 |
+| Claiming ignores expiry | 1: 24-S5-2 |
+| Claiming the account's own puzzle | 1: 24-S5-2 |
+| Claiming keeps the invitation | 2: 24-S5-2 |
+| The list shows expired invitations | 1: 24-S5-3 |
+| `claimInvitations` by an address other than the session's | 1: 24-S5-7 |
+| Loss: the poller not stopped | 1: 24-S5-10 |
+| Loss: the queue not halted | 2: 24-S5-10 |
+| Loss: pending work not dropped (input not kept) | 3: 24-S5-10 |
+| Loss: no explaining note | 4: 24-S5-10 |
+| A catch-up 400 retried | 1: 24-S5-10 |
+| A redirected catch-up retried | 1: 24-S5-11 |
+| The editor's own Publish taken for a loss | 1: 24-S5-10 |
+| An editor opened published polls | 1: 24-S5-10 |
+| A commit `not-found` not a loss | 2: 24-S5-10 |
+| A `published` refusal doesn't ask the catch-up | 1: 24-S5-10 |
+| The published puzzle not shown | 1: 24-S5-10 |
+| A halted queue still sends | 4: 24-S5-10, -11 |
+| The `published` answer not parsed | 2: 24-S5-10 |
+| Finalizing before a remote reset (operations / snapshot path) | 24-S5-9 (2 / 1; at the freeze) |
+
+Browser (`e2e/collaborators.spec.ts` alone):
+
+| Rule disabled | Failing |
+| --- | --- |
+| Reset Grid shown to a collaborator | 24-S5-E1 (Build) |
+| 3 Publish shown to a collaborator | 24-S5-E1 (Create Hints) |
+| Removal leaves the editor editable | 24-S5-E2 ×2, 24-S5-E3 (deleted) |
+
+Not caught by the frozen acceptance (recorded, not hidden):
+
+- Either one of the two owner-address guards in `addCollaborator` alone
+  (the owner's address, and an account found that is the owner): each
+  catches it by itself; removing both fails 24-S5-1.
+- Halting the queue on a lost session. 24-S5-11's in-flight operation
+  never answers, so nothing else would be sent either way; unhalted, the
+  next send meets the same session gate and redirects (S3).
+- In the "invitations never expire" run 24-S1-7 (the randomized
+  convergence test) also failed once, a timeout under load unrelated to
+  the rule; it passes in every other run.
+
 ## Repo paths
 
 Acceptance: the files above. Runtime: `prisma/schema.prisma`,
 `prisma/migrations/20261113120000_add_puzzle_collaborators/migration.sql`,
-`src/lib/collab/{access,catchup,commit,membership,poller,publish,queue}.ts`,
+`src/lib/collab/{access,catchup,membership,poller,queue}.ts`,
 `src/app/puzzles/actions.ts`, `src/app/puzzles/page.tsx`,
 `src/app/puzzles/[id]/page.tsx`,
 `src/components/grid/{editor-saver.ts,useOperationSaving.ts,PuzzleGridEditor.tsx,BuilderSteps.tsx}`.
