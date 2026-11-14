@@ -23,6 +23,8 @@ export const NO_FILTERS: LibraryFilters = { play: [], create: [], size: [] };
 
 export interface FilterablePuzzle {
   builderId: string;
+  /** 24-S6: shared with the caller, who collaborates on it. */
+  shared?: boolean;
   phase: Phase;
   publishedAt: Date | string | null;
   visibility: string;
@@ -41,10 +43,15 @@ const PLAY_MATCH: Record<PlayFilter, (p: FilterablePuzzle) => boolean> = {
   complete: (p) => p.publishedAt !== null && playState(p) === 'completed',
 };
 
+/** 24-S6: Create counts every puzzle the caller can edit: own or shared. */
+function editable(puzzle: FilterablePuzzle, userId: string): boolean {
+  return puzzle.builderId === userId || puzzle.shared === true;
+}
+
 const CREATE_MATCH: Record<CreateFilter, (p: FilterablePuzzle, userId: string) => boolean> = {
-  build: (p, userId) => p.builderId === userId && p.publishedAt === null && p.phase === 'grid',
-  hint: (p, userId) => p.builderId === userId && p.publishedAt === null && p.phase === 'hints',
-  unlisted: (p, userId) => p.builderId === userId && p.publishedAt !== null && p.visibility === 'private',
+  build: (p, userId) => editable(p, userId) && p.publishedAt === null && p.phase === 'grid',
+  hint: (p, userId) => editable(p, userId) && p.publishedAt === null && p.phase === 'hints',
+  unlisted: (p, userId) => editable(p, userId) && p.publishedAt !== null && p.visibility === 'private',
 };
 
 /** Play and Create options combine with OR, as one status filter; Size

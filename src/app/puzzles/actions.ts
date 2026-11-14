@@ -290,10 +290,11 @@ export async function listPuzzles(): Promise<
   const authSession = await requireSession();
   // The caller's attempt comes from the same query, so the snapshot is atomic.
   // Another builder's unlisted puzzle is listed only once the caller has started it.
+  // 24-S6: every puzzle the caller can edit is listed, shared ones included.
   const records = await prisma.puzzle.findMany({
     where: {
       OR: [
-        { builderId: authSession.user.id },
+        editableBy(authSession.user.id),
         { publishedAt: { not: null }, visibility: 'public' },
         { publishedAt: { not: null }, playSessions: { some: { userId: authSession.user.id } } },
       ],
@@ -498,4 +499,11 @@ export async function listCollaborators(input: unknown): Promise<membership.Coll
 export async function claimInvitations(): Promise<number> {
   const session = await requireSession();
   return membership.claimInvitations(prisma, { id: session.user.id, email: session.user.email });
+}
+
+/** Epic 24 (24-S6): the puzzles the signed-in account is a collaborator
+ *  of, which the library marks as shared. */
+export async function listSharedPuzzleIds(): Promise<string[]> {
+  const session = await requireSession();
+  return membership.sharedPuzzleIds(prisma, session.user.id);
 }

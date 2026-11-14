@@ -32,6 +32,7 @@ import { PlayHintBar } from '@/components/play/PlayHintBar';
 const SAMPLE_ROW: LibraryPuzzle = {
   id: 'sg-sample',
   builderId: 'sg-builder',
+  shared: false,
   builderName: 'crossworder',
   title: 'Sample puzzle',
   phase: 'grid',

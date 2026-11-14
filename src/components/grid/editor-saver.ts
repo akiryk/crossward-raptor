@@ -295,7 +295,9 @@ export class EditorSaver {
     if (loss.kind === "removed") {
       this.dropEverything("not-found", notifyLoss);
     } else {
-      if (!this.queue.isHalted) this.dropEverything("published");
+      // 24-S6: always, even after a `published` refusal halted the queue:
+      // edits made since are dropped and explained now.
+      this.dropEverything("published");
       notifyLoss();
     }
     if (stored) {

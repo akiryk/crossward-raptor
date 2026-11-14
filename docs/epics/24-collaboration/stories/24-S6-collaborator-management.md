@@ -319,6 +319,115 @@ halted) it fails. The correction is a separate specification-only commit
 on `epic/24-collaboration` ("24-S6: correct 24-S6-4 …"), made under the
 human's delegation; the PR's independent reviewer reviews it.
 
+## Implementation
+
+Runtime head `c352d0f` on `story/24-S6-collaborator-management` (frozen
+at `30ed5b9`, corrected at `6158a8b`; frozen acceptance unchanged since,
+confirmed by diffing every acceptance file in this story against `6158a8b`:
+no change).
+
+- **No migration.**
+- `claimInvitations` (`membership.ts`) follows decision 7: per
+  invitation, insert the membership, then delete the invitation by ID and
+  expiry, and undo a membership just made if the invitation was gone;
+  `P2003` and `P2034` retry the whole claim, three attempts, then 0.
+- `listPuzzles`'s first clause is `editableBy(caller)`;
+  `listSharedPuzzleIds` (action) over `sharedPuzzleIds` (membership)
+  reads the caller's memberships; the library page marks rows `shared`
+  only when another account owns them.
+- `CollaboratorsDialog.tsx` holds the dialog and the editor's
+  `CollaboratorsButton`. The dialog mounts fresh on each opening, so it
+  reads the list each time. `PuzzleRowMenu` takes `own`; a shared row's
+  menu is Duplicate (and the player's Reset). The style guide's sample row
+  gains `shared: false` (the type's new field).
+- `EditorSaver.lose` calls `dropEverything("published")` unconditionally
+  (decision 8).
+- **The editor's Collaborators… is a link, not a `<button>`** (a recorded
+  tradeoff within decision 1). The first full run at `7c84e8f` failed the
+  frozen 17-S8-1 and 17-S8-2 (`e2e/step-controls.spec.ts`): the step row
+  must hold exactly one button, the next step, and its tests read every
+  `button` in it. Moving the control outside the row, on its line,
+  squeezed the row at 375px and 320px, so the step button wrapped (17-S8-2
+  "label to button"). It is therefore an `<a href="#collaborators">` with
+  `aria-haspopup="dialog"`, at the end of the step row after the save
+  status as decided. A click (or Enter) opens the dialog without
+  navigating. It looks and behaves as specified, and 24-S6-E3 is
+  unchanged; only the element differs from "button".
+- **A done-icon regression, found and fixed at delivery.** The full E2E
+  run at `7cf5cf9` (`/tmp/s6-e2e-full-7cf5cf9.log`): 1383 passed, 3 failed
+  (`builder-controls` 14-S4-6, `done-icon` 18-S5-5, `menu-reset` 19-S3-1).
+  The first and third didn't reproduce alone
+  (`/tmp/s6-e2e-rerun-7cf5cf9.log`); `done-icon` 18-S5-5 failed again alone
+  and on a second alone run (`/tmp/s6-e2e-rerun2-done-icon-7cf5cf9.log`):
+  right after Reset, the row's icon-corner pixel read `{r:243,g:244,b:229}`
+  against `#F0F5E5` (limit 2 on each channel). A baseline check at
+  `6158a8b` (a temporary detached worktree, removed after; the same
+  spec, `--workers=1` to match) passed cleanly 4 times running, so the
+  regression is the runtime's, not pre-existing. Both samples land
+  consistently about two-thirds through the row's existing
+  `transition-colors duration-150` from complete-orange to play-green
+  (pinned by frozen 18-S5-4, so not a lever here): a timing shift, not a
+  wrong resting color — a debug script polling the same pixel every 30ms
+  confirmed it settles exactly on target within about 30ms of paint.
+  Isolated experiments narrowed the cause: reverting the extra
+  `listSharedPuzzleIds` round trip in `page.tsx` alone did not fix it
+  (same exact failing pixel), ruling out added server latency.
+  `PuzzleRowMenu.tsx`, imported unconditionally by every library row, had
+  gained a top-level import of the new ~240-line `CollaboratorsDialog`
+  module, weight that sits in the `/puzzles` route's render-path bundle
+  for every row's re-render — including a completed row's Reset — whether
+  or not that row ever shows a menu. Making that import a `next/dynamic`
+  one (loaded only once a row's own menu actually mounts) removed the
+  weight from the hot path; `e2e/done-icon.spec.ts` then passed reliably
+  (3 repeats at `--workers=1`, matching the failing conditions, plus the
+  required run below). Commit `c352d0f`.
+- **Evidence.** `npm run verify` at `c352d0f`: exit 0, 107 files, 1248
+  tests (`/tmp/s6-verify-postfix.log`; unchanged from `7cf5cf9`'s
+  `/tmp/s6-verify-7cf5cf9.log` for everything the fix didn't touch).
+  `e2e/collaborator-management.spec.ts`, `e2e/done-icon.spec.ts`,
+  `e2e/menu-reset.spec.ts`, `e2e/builder-controls.spec.ts` and
+  `e2e/step-controls.spec.ts` together at `c352d0f`, after
+  `npm run pretest:e2e`'s reset: 64 passed, exit 0
+  (`/tmp/s6-e2e-5files-postfix.log`). Discrimination and the rules table
+  below are unchanged from `7cf5cf9` (the fix is a bundling change with no
+  behavioral effect any acceptance test observes).
+
+### What the tests catch
+
+2026-11-13/14, one rule disabled at a time and restored; the whole unit
+and database suite each time (`/tmp/s6-rules.log`), and
+`e2e/collaborator-management.spec.ts` alone for the UI rules
+(`/tmp/s6-browser-rules.log`).
+
+| Rule disabled | Failing |
+| --- | --- |
+| Claim: a revoked invitation's membership not undone | 24-S6-1 (revocation) |
+| Claim: a race not retried (thrown) | 24-S6-1 (deletion; the action) |
+| Claim: the owner's own puzzle claimed | 24-S5-2 |
+| `sharedPuzzleIds` returns every editable puzzle | 24-S6-2 (`listSharedPuzzleIds`) |
+| `listPuzzles` own only (no `editableBy`) | 24-S6-2 (listing; removal) |
+| Create filters ignore `shared` | 24-S6-3 |
+| Create filters count every puzzle | 24-S6-3 ×2, 18-S4-1 ×2 |
+| `lose` drops only when the queue isn't halted | 24-S6-4 |
+| Row menu without Collaborators… | 24-S6-E1, -E2 |
+| The editor's Collaborators… shown to a collaborator | 24-S6-E3 |
+| A shared row without a menu | 24-S6-E5 |
+| A shared row offered the owner's menu | 24-S6-E5 |
+| Rows never marked shared | 24-S6-E1, -E5 |
+| The dialog's list not read again after a change | 24-S6-E1, -E2, -E4 |
+
+Not caught (recorded, not hidden):
+
+- **Giving up by throwing** after the last attempt: one race makes one
+  retry, which succeeds, so no test reaches the third attempt.
+- **The order inside a claim** (deleting the invitation before inserting
+  the membership): the interleaving tests can't tell the orders apart,
+  since their racing write commits at once on another connection. The
+  order matters only for two transactions both in flight. Inserting first
+  takes the puzzle's key-share lock before touching the invitation, the
+  same order as a cascading puzzle delete, so the two can't deadlock. The
+  other order could deadlock a concurrent owner Delete and fail it.
+
 ## Visual checks for the human (at the end of the epic)
 
 The browser tests pin behavior, not looks. With no mockup, these need the

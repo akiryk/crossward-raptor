@@ -14,7 +14,30 @@ not a specification. The EPIC supersedes all three:
   (`~/Downloads/collaboration-technical-investigation.md`);
 - the human's decisions (`~/Downloads/response-01.md`).
 
-## Current state (2026-11-13)
+## Current state (2026-11-14)
+
+**S6 implemented; PR #44 pending independent review** into
+`epic/24-collaboration` from `story/24-S6-collaborator-management` at
+`c352d0f` (frozen `30ed5b9`, corrected `6158a8b`; frozen acceptance
+unchanged, confirmed by diff). `npm run verify`: exit 0, 107 files, 1248
+tests. Full E2E `--workers=2` at `7cf5cf9` (before the fix below): 1383
+passed, 3 failed; `builder-controls` 14-S4-6 and `menu-reset` 19-S3-1
+passed alone afterward, but `done-icon` 18-S5-5 failed alone and on a
+second alone run, consistently. A baseline check at `6158a8b` (a
+temporary worktree, removed after) passed cleanly 4 times under matching
+conditions, so this was the runtime's regression, not pre-existing.
+Cause: `PuzzleRowMenu.tsx`, imported by every library row, had gained an
+unconditional top-level import of the new `CollaboratorsDialog` module;
+that render-path weight, on every row's re-render including a completed
+row's Reset, shifted a pixel capture into the row's existing frozen
+150ms Reset transition (pinned by 18-S5-4, not a lever). Fixing the
+import to `next/dynamic` (commit `c352d0f`) removed the weight; the five
+affected spec files (`collaborator-management`, `done-icon`,
+`menu-reset`, `builder-controls`, `step-controls`) then passed, 64/64 —
+the epic's integration-branch exception (STORY, Verification), not a
+full suite rerun; one clean full run is still owed on the final epic
+branch before `main`. Details and evidence paths: the story's
+Implementation section.
 
 **S5 merged** into `epic/24-collaboration` (PR #43, merge `421f258`;
 reviewed independently at head `2e6ec05`, runtime `f514378`, no blockers).
@@ -23,8 +46,6 @@ The freeze amended two earlier frozen tests:
 - 24-S1-15: "is the newest" became "is among them", because 24-S5-8 now
   carries that check;
 - O3: helper only.
-
-**S6 not started.** No story file, branch or PR.
 
 **S5 migration** `20261113120000_add_puzzle_collaborators` (two new
 tables): applied to the local development and test databases only. The
@@ -245,19 +266,41 @@ Author's evidence:
 - Rules disabled one at a time: the story's "What the tests catch"
   (`/tmp/s5-rules.log`, `/tmp/s5-browser-rules.log`).
 
+S6 (PR #44, not yet reviewed; runtime `c352d0f`; frozen
+acceptance unchanged since `6158a8b`, confirmed by diff):
+
+- Author's `npm run verify` on `c352d0f`: exit 0, 107 files, 1248 tests
+  (`/tmp/s6-verify-postfix.log`; identical counts to `7cf5cf9`'s
+  `/tmp/s6-verify-7cf5cf9.log`).
+- Author's full `npm run test:e2e -- --workers=2` on `7cf5cf9` (before
+  the fix): 1383 passed, 3 failed (`/tmp/s6-e2e-full-7cf5cf9.log`); the
+  3 failing files rerun alone after `pretest:e2e`
+  (`/tmp/s6-e2e-rerun-7cf5cf9.log`): `builder-controls` 14-S4-6 and
+  `menu-reset` 19-S3-1 passed; `done-icon` 18-S5-5 failed again
+  (`/tmp/s6-e2e-rerun2-done-icon-7cf5cf9.log`).
+- A baseline check of `e2e/done-icon.spec.ts` at `6158a8b` (no S6
+  runtime), in a temporary detached worktree removed afterward: passed
+  cleanly 4 times (`--workers=1` and `--workers=4`), ruling out a
+  pre-existing failure. Story, "Implementation", has the full
+  root-cause narrowing and the fix (`c352d0f`, `PuzzleRowMenu.tsx`'s
+  `CollaboratorsDialog` import made `next/dynamic`).
+- After the fix, the five affected spec files together at `c352d0f`,
+  after `pretest:e2e`: 64 passed, exit 0
+  (`/tmp/s6-e2e-5files-postfix.log`). Per the epic's integration-branch
+  exception (STORY, Verification), no full-suite rerun for this fix; one
+  clean full run is still owed on the final epic branch before `main`.
+- Rules disabled one at a time: the story's "What the tests catch"
+  (`/tmp/s6-rules.log`, `/tmp/s6-browser-rules.log`).
+
 ## Next action
 
-S6, Collaborator management and the library (EPIC, Stories item 6):
-1. Draft it.
-2. Freeze it as a specification-only commit on `epic/24-collaboration`.
-3. Implement it on `story/24-S6-<name>`, with a PR into the epic branch
-   for independent review.
-
-Weigh the `claimInvitations` carry-over above. No migration is expected.
-The production migrations stay a human item before `main`.
+Independent review of PR #44 (`story/24-S6-collaborator-management`
+into `epic/24-collaboration`, head `c352d0f`). The author does not merge
+its own PR. After S6 merges, S7 is the epic's next story (EPIC, Stories
+item 7); draft it per the normal lifecycle.
 
 Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md (Stories item 6). Draft, freeze and implement S6 on a story branch with a PR into epic/24-collaboration; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S6-collaborator-management.md. Independently review and, if no blockers remain, merge PR #44 into epic/24-collaboration.

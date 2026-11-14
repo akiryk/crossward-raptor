@@ -162,26 +162,61 @@ export async function listCollaborators(db: PrismaClient, ownerId: string, input
   };
 }
 
+/** A claim lost a race it can't settle in place: retried whole. */
+const CLAIM_RETRIES = new Set(['P2003', 'P2034']);
+const CLAIM_ATTEMPTS = 3;
+
 /** Claims, for the account `user`, every unexpired invitation to its
  *  current email: each becomes a membership (never of the account's own
- *  puzzle) and is deleted. Returns the number of memberships made. */
+ *  puzzle) and is deleted. Returns the number of memberships made.
+ *
+ *  24-S6: safe against a racing revocation or deletion. Per invitation the
+ *  membership is inserted first: its foreign-key check key-share locks the
+ *  puzzle, so a deletion of the puzzle waits for this claim or has already
+ *  happened (`P2003`: the whole claim is retried). Then the invitation is
+ *  deleted by ID; if it is gone (revoked or claimed meanwhile), a membership
+ *  this claim just made is deleted again. After a few lost races it gives
+ *  up with 0, and the next page load claims again. */
 export async function claimInvitations(db: PrismaClient, user: { readonly id: string; readonly email: unknown }, options: Options = {}): Promise<number> {
   const email = normalizeEmail(user.email);
   if (!email) return 0;
   const now = options.now ?? new Date();
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await claimOnce(db, user.id, email, now);
+    } catch (error) {
+      const code = (error as { code?: unknown } | null)?.code;
+      if (typeof code !== 'string' || !CLAIM_RETRIES.has(code)) throw error;
+      if (attempt >= CLAIM_ATTEMPTS) return 0;
+    }
+  }
+}
+
+function claimOnce(db: PrismaClient, userId: string, email: string, now: Date): Promise<number> {
   return db.$transaction(async (tx) => {
     const invitations = await tx.puzzleInvitation.findMany({
       where: { email, expiresAt: { gt: now } },
       select: { id: true, puzzleId: true, puzzle: { select: { builderId: true } } },
     });
-    if (invitations.length === 0) return 0;
-    const data = invitations
-      .filter((invitation) => invitation.puzzle.builderId !== user.id)
-      .map(({ puzzleId }) => ({ puzzleId, userId: user.id }));
-    const { count } = data.length > 0
-      ? await tx.puzzleCollaborator.createMany({ data, skipDuplicates: true })
-      : { count: 0 };
-    await tx.puzzleInvitation.deleteMany({ where: { id: { in: invitations.map((invitation) => invitation.id) } } });
-    return count;
+    let claimed = 0;
+    for (const invitation of invitations) {
+      const own = invitation.puzzle.builderId === userId;
+      const { count: made } = own
+        ? { count: 0 }
+        : await tx.puzzleCollaborator.createMany({ data: { puzzleId: invitation.puzzleId, userId }, skipDuplicates: true });
+      const { count: taken } = await tx.puzzleInvitation.deleteMany({ where: { id: invitation.id, expiresAt: { gt: now } } });
+      if (taken === 0 && made > 0) {
+        await tx.puzzleCollaborator.deleteMany({ where: { puzzleId: invitation.puzzleId, userId } });
+      } else {
+        claimed += made;
+      }
+    }
+    return claimed;
   });
+}
+
+/** 24-S6: the puzzles `userId` is a collaborator of (not their own). */
+export async function sharedPuzzleIds(db: PrismaClient, userId: string): Promise<string[]> {
+  const rows = await db.puzzleCollaborator.findMany({ where: { userId }, select: { puzzleId: true } });
+  return rows.map((row) => row.puzzleId);
 }
