@@ -16,6 +16,27 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
+**Local-testing follow-up S10: merged into `epic/24-collaboration`.**
+[Current collaborators spacing](stories/24-S10-collaborators-spacing.md)
+triples the fresh email-form-to-heading gap from 12px to 36px only when
+current members exist. Baseline `7ad0be4`, reviewed/tested head `1883fc5`.
+[PR #49](https://github.com/akiryk/crossward-raptor/pull/49) merged normally
+as `cad8695`; independent reviewer `review_polish` found no findings.
+Vercel and Vercel Preview Comments passed.
+[Review evidence](https://github.com/akiryk/crossward-raptor/pull/49#issuecomment-6882741898).
+
+Author verification at `1883fc5`: `npm run verify` exit 0, **113 files/1287
+passed**; directly affected `collaborator-management` E2E exit 0, **7 passed,
+0 failed**, 20.9 seconds, two workers. The read-only fresh-dialog measurement
+confirmed **36px**. The reviewer reused these checks, inspected the measurement
+script/log and independently compared 443 tracked source/config/test files
+with the clean verification checkout; no differences. No suites rerun by the
+reviewer and no frozen acceptance changed. Evidence:
+`/tmp/epic24-s10-verification.json`, `/tmp/epic24-s10-{verify,browser}.log`,
+`/tmp/epic24-s10-measure.log` and `/tmp/epic24-s10-dialog.png`.
+The full epic E2E remains due before main. Local checkout is back on the
+epic branch for continuing human testing; no main/settings/migrations changed.
+
 **Local-testing follow-up S9: merged into `epic/24-collaboration`.**
 [Personal and current collaborator labels](stories/24-S9-collaboration-labels.md)
 changes only three puzzle components: the signed-in owner/member reads “You”
@@ -400,7 +421,7 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-All nine stories, including local-testing follow-ups S8 and S9, are merged into the
+All ten stories, including local-testing follow-ups S8–S10, are merged into the
 epic branch. Continue local visual testing and fix any newly reported problems
 through independently reviewed story PRs into this branch. A clean full E2E
 run on the final integrated branch is still required before main. PR #46 from
