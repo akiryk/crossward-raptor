@@ -14,7 +14,7 @@ export function StartOverLink({ onClick }: { onClick: () => void }) {
       data-testid="start-over"
       onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
-      className="shrink-0 cursor-pointer text-label text-subtle outline-hidden transition-colors duration-150 ease-out hover:text-primary focus-visible:text-primary"
+      className="shrink-0 cursor-pointer text-body-normal text-subtle outline-hidden transition-colors duration-150 ease-out hover:text-primary focus-visible:text-primary"
     >
       Reset Grid
     </button>
