@@ -82,10 +82,15 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-If the human wants the gate formally closed: one clean full E2E on
-`epic/24-collaboration`, then rewrite PR #46's description (it predates
-S8–S11). Do not deploy or merge main.
+The human declared the epic done (2026-11-14) and asked to merge PR #46
+to `main` and go live, and authorized that merge. Known E2E flakes are recorded in
+[LEARNINGS](../../LEARNINGS.md) entry 10; no further full run is required.
+Gate before merging: the human confirms (a) the three migrations above
+were applied to production (`prisma migrate status` clean) and (b) Vercel
+Skew Protection is off or settled. Then: mark this handoff and the epic
+index closed, rewrite PR #46's description (it predates S8–S11), merge
+PR #46 and push. Don't merge before both confirmations.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Run one clean full E2E on epic/24-collaboration and rewrite PR #46's description; no production migrations, Vercel settings or `main`.
+Read docs/epics/24-collaboration/HANDOFF.md. Once I confirm production migrations and Skew Protection, close the epic, rewrite PR #46's description and merge it to `main`.
