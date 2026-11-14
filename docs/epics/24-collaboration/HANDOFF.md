@@ -140,8 +140,11 @@ a PR and independent review.
 
 ## Verification
 
-**E2E evidence policy (agent's decision, 2026-11-13).** This 8 GB machine
-stalls under the full suite (1353 tests). S1's six author runs and two
+**E2E evidence policy.** From S6 on (2026-11-14, under the human's usage
+constraints), stories run only their own and directly affected spec files
+(STORY, "Verification"; [ORCHESTRATION](../../process/ORCHESTRATION.md)). The
+earlier policy (agent's decision, 2026-11-13), which S1–S5 followed: this 8 GB
+machine stalls under the full suite (1353 tests). S1's six author runs and two
 review runs never came out clean; every failure was a stall timeout or
 timing read, and every failing file passed rerun alone. For merges into
 `epic/24-collaboration` only (which deploys nothing), a full run with

@@ -42,8 +42,9 @@ or unsafe operations, or missing access/authorization. Continue unaffected work
 while a necessary decision is pending. Do not invoke grilling automatically;
 use it when requested or when a substantive decision needs an interview.
 
-Use separate implementation/testing agents when useful and authorized; preserve
-required reviewer independence. Serialize browser suites sharing a database.
+Use separate implementation/testing agents when useful and authorized, run per
+[ORCHESTRATION](docs/process/ORCHESTRATION.md); preserve required reviewer
+independence. Serialize browser suites sharing a database.
 Run ordinary commands directly, with narrowly reusable approval prefixes where
 needed; avoid shell wrappers and changing log redirection. Report explicitly
 when waiting for approval, user input or another agent. A denied operation is
@@ -59,6 +60,7 @@ next task is already explicitly within the user's authorized scope.
 | Drafting, human approval/freeze, implementation, checks and delivery | [STORY](docs/process/STORY.md) |
 | Risk paths, independent review criteria, evidence and merge policy | [CODE-REVIEW](docs/CODE-REVIEW.md) |
 | Performing an independent PR review | [REVIEW](docs/process/REVIEW.md) |
+| Orchestrating subagents: models, context, runs, waiting | [ORCHESTRATION](docs/process/ORCHESTRATION.md) |
 | Writing a concise operational resume point | [HANDOFF](docs/process/HANDOFF.md) |
 | Epic locations, skills and closeout routing | [Epic index](docs/epics/README.md) |
 | Local commands, E2E harness and data safety | [DEVELOPMENT](docs/DEVELOPMENT.md) |
