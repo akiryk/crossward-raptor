@@ -81,15 +81,16 @@ function noHorizontalOverflow(page: Page) {
 // --- 15-S3-1: the threshold ---
 test.describe('15-S3-1 the threshold', () => {
   for (const phase of PHASES) {
-    test(`${phase} phase at 1140px: the wide layout, the hints 32px right of the grid`, async ({ page }) => {
+    test(`${phase} phase at 1140px: the wide layout, the hints 32px right of the grid column`, async ({ page }) => {
       await openBuilder(page, phase, 1140);
       const g = await box(grid(page));
       const editor = await box(page.getByTestId('puzzle-editor'));
       const hints = await box(page.getByTestId(phase === 'grid' ? 'hint-skeleton' : 'hints-region'));
       // 21-S12 amended this: 12px in from the editor's left, so with the
       // page's 24px the lock button has 36px left of the grid.
-      expect(g.x - editor.x, 'the grid 12px in from the editor’s left').toBeCloseTo(12, 0);
-      expect(hints.x - g.right, 'beside the grid').toBeCloseTo(WIDE_GAP_PX, 0);
+      // 17-S11: the 500px mini has 60px auto margins in its 620px column.
+      expect(g.x - editor.x, 'the grid 12px plus its margin from the editor’s left').toBeCloseTo(72, 0);
+      expect(hints.x - g.right, 'beside the column').toBeCloseTo(WIDE_GAP_PX + 60, 0);
       expect(hints.y, 'level with the grid').toBeCloseTo(g.y, 0);
     });
 
@@ -97,7 +98,7 @@ test.describe('15-S3-1 the threshold', () => {
       await openBuilder(page, phase, 1139);
       const g = await box(grid(page));
       const editor = await box(page.getByTestId('puzzle-editor'));
-      expect(g.width, 'grid width').toBeCloseTo(GRID_PX, 0);
+      expect(g.width, 'mini grid width (17-S11)').toBeCloseTo(500, 0);
       expect(g.x - editor.x, 'centered').toBeCloseTo(editor.right - g.right, 0);
       if (phase === 'grid') await expect(page.getByTestId('hint-skeleton')).toBeHidden();
       // 15-S4 amended this: the Hint Box, not the hint list, below the grid.
@@ -118,12 +119,12 @@ test.describe('15-S3-2 one centered column', () => {
         const s = await box(steps(page));
         const toggle = await box(page.getByTestId(TOGGLE[phase]));
 
-        expect(g.width, 'grid width').toBeCloseTo(GRID_PX, 0);
+        expect(g.width, 'mini grid width (17-S11)').toBeCloseTo(500, 0);
         expect(g.x - editor.x, 'centered').toBeCloseTo(editor.right - g.right, 0);
-        expect(t.x, 'title from the grid’s left').toBeCloseTo(g.x, 0);
-        expect(t.right, 'title to the grid’s right').toBeCloseTo(g.right, 0);
-        expect(s.x, 'buttons from the grid’s left').toBeCloseTo(g.x, 0);
-        expect(toggle.right, 'toggle within the column').toBeLessThanOrEqual(g.right + 0.5);
+        expect(t.x, 'title from the column’s left').toBeCloseTo(g.x - 60, 0);
+        expect(t.right, 'title to the column’s right').toBeCloseTo(g.right + 60, 0);
+        expect(s.x, 'buttons from the column’s left').toBeCloseTo(g.x - 60, 0);
+        expect(toggle.right, 'toggle within the column').toBeLessThanOrEqual(g.right + 60.5);
         expect(await noHorizontalOverflow(page), 'no horizontal overflow').toBe(true);
       });
     }
@@ -174,7 +175,7 @@ test.describe('15-S3-5 tighter spacing', () => {
 
 // --- 15-S3-6: below the grid, the build phase ---
 test.describe('15-S3-6 below the grid, the build phase', () => {
-  test('at 768px: no skeleton, and with Preview on only the legend, under the grid within its width', async ({ page }) => {
+  test('at 768px: no skeleton, and with Preview on only the legend, under the grid within its existing column', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 900 });
     // A corner letter without its symmetric partner is an error, so the
     // legend shows.
@@ -191,8 +192,8 @@ test.describe('15-S3-6 below the grid, the build phase', () => {
     const g = await box(grid(page));
     const legend = await box(page.getByTestId('preview-legend'));
     expect(legend.y, 'under the grid').toBeGreaterThan(g.bottom);
-    expect(legend.x, 'from the grid’s left').toBeCloseTo(g.x, 0);
-    expect(legend.right, 'within the grid’s width').toBeLessThanOrEqual(g.right + 0.5);
+    expect(legend.x, 'from the existing column’s left (17-S11)').toBeCloseTo(g.x - 60, 0);
+    expect(legend.right, 'within the existing column').toBeLessThanOrEqual(g.right + 60.5);
   });
 });
 

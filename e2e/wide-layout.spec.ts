@@ -170,7 +170,7 @@ test.describe('15-S2-4 one column below 1430px', () => {
 // --- 15-S2-5: Preview's legend ---
 test.describe('15-S2-5 Preview’s legend', () => {
   for (const width of [1440, 1240]) {
-    test(`at ${width}px the legend sits under the grid, within its width, the skeleton 32px from the grid`, async ({ page }) => {
+    test(`at ${width}px the legend retains its column under the centered mini, the skeleton 32px from the column`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       // A corner letter without its symmetric partner is an error, so the
       // legend shows.
@@ -184,11 +184,12 @@ test.describe('15-S2-5 Preview’s legend', () => {
       const g = await box(grid(page));
       const legend = await box(page.getByTestId('preview-legend'));
       expect(legend.y, 'below the grid').toBeGreaterThanOrEqual(g.bottom - 0.5);
-      expect(legend.x, 'from the grid’s left').toBeCloseTo(g.x, 0);
-      expect(legend.right, 'within the grid’s width').toBeLessThanOrEqual(g.right + 0.5);
-      expect(g.width, 'grid width').toBeCloseTo(GRID_PX, 0);
+      // 17-S11: the grid is capped inside its unchanged 620px column.
+      expect(legend.x, 'from the column’s left').toBeCloseTo(g.x - 60, 0);
+      expect(legend.right, 'within the column’s width').toBeLessThanOrEqual(g.right + 60.5);
+      expect(g.width, 'mini grid width').toBeCloseTo(500, 0);
       const across = await box(column(page, 'grid', 'across'));
-      expect(across.x - g.right, 'skeleton from the grid').toBeCloseTo(GAP_PX, 0);
+      expect(across.x - g.right, 'skeleton from the column').toBeCloseTo(GAP_PX + 60, 0);
     });
   }
 });

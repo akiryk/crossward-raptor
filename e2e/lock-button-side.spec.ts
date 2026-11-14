@@ -178,8 +178,9 @@ test.describe('21-S12-3 the button only where it has room', () => {
   const cases: [string, number, number, 'beside' | 'row'][] = [
     ['a Daily at 692px', 15, 692, 'beside'],
     ['a Daily at 691px', 15, 691, 'row'],
-    ['a Mini at 692px', 5, 692, 'beside'],
-    ['a Mini at 691px', 5, 691, 'row'],
+    // 17-S11: the centered 500px mini has 36px left clearance at 572px.
+    ['a Mini at 572px', 5, 572, 'beside'],
+    ['a Mini at 571px', 5, 571, 'row'],
     ['a Sunday at 772px', 21, 772, 'beside'],
     ['a Sunday at 771px', 21, 771, 'row'],
   ];
@@ -188,7 +189,7 @@ test.describe('21-S12-3 the button only where it has room', () => {
       await open(page, filled(size), width);
       const g = await rect(grid(page));
       const row = await rect(toggleRow(page));
-      expect(g.width, 'the grid at its full width').toBeCloseTo(size === 21 ? 700 : 620, 0);
+      expect(g.width, 'the grid at its full width').toBeCloseTo(size === 21 ? 700 : size === 5 ? 500 : 620, 0);
 
       await cell(page, '1,1').click();
       await expect(cell(page, '1,1')).toHaveAttribute('data-selected', 'true');

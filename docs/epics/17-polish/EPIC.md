@@ -1,5 +1,12 @@
 # Epic: Polish
 
+**Follow-up authorized 2026-11-14:** [S11 — Smaller, centered mini grids
+in the editor](stories/17-S11-mini-grid-width.md). The human requested a
+500px maximum and horizontal auto margins for mini grids only, approved
+the investigated editor-only proposal, and authorized implementation,
+commit and push on an isolated branch. The original S1–S10 closeout below
+is historical; S11 is a separately tracked follow-up.
+
 **Closed 2026-11-02**, after two independent closeout audits (see
 [At closeout](#at-closeout-2026-11-02)). **Approved by the human 2026-10-27.** Drafted the same day from the
 human's list of design and UX issues and the NYT-style Rebus mockup. Their
@@ -374,7 +381,8 @@ slot data.
   Answers stay opaque, as `src/engine/play.ts` says.
 - Grid-engine changes.
 - Changes to the library or sign-in. Layout changes beyond S7's grid
-  size and the breakpoints that follow from it. (Epic 15, which owns the
+  size and the breakpoints that follow from it, plus S11's editor-only
+  mini grid cap and centering. (Epic 15, which owns the
   layout, is closed.)
 - Going back from the hints phase to the build phase.
 
@@ -466,6 +474,14 @@ Done 2026-11-02:
 [17-S10-rebus.md](stories/17-S10-rebus.md).
 
 ---
+
+### S11 — Smaller, centered mini grids in the editor
+
+Cap only the 5×5 editor grid at 500px and center it within its existing
+column. Preserve other sizes, the player and the surrounding layout;
+retain correct lock-button clearance. See
+[17-S11-mini-grid-width.md](stories/17-S11-mini-grid-width.md) for the
+approved scope, narrow acceptance amendments and delivery state.
 
 ## Pending questions
 

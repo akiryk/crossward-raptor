@@ -40,7 +40,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 const GRID_PX = 700;
 // A Mini's, Midi's and Daily's grid (21-S9).
 const SMALL_GRID_PX = 620;
-const gridPx = (size: number) => (size === 21 ? GRID_PX : SMALL_GRID_PX);
+// 17-S11: only the editor's mini cap changes; the player stays unchanged.
+const gridPx = (size: number) => (size === 21 ? GRID_PX : size === 5 ? 500 : SMALL_GRID_PX);
 const PAGE_PADDING_PX = 24;
 const NARROW_PADDING_PX = 8;
 const GAP_PX = 32;
@@ -431,7 +432,7 @@ test.describe('17-S7-6 numbers never touch letters', () => {
   });
 
   for (const size of [5, 15]) {
-    test(`a ${size}×${size} at 620px`, async ({ page }) => {
+    test(`a ${size}×${size} at ${gridPx(size)}px`, async ({ page }) => {
       await openBuilder(page, { width: 1440, height: 900 }, filled(size, 'Q'), 'grid');
       expectClear(await cellInks(page, grid(page)), `${size}×${size}`);
     });
@@ -464,9 +465,9 @@ test.describe('17-S7-7 the style guide’s Sunday corner', () => {
 // --- 17-S7-8: the other sizes keep their type ---
 test.describe('17-S7-8 a Mini’s, Midi’s and Daily’s letters and numbers as before 17-S7', () => {
   for (const size of [5, 9, 15]) {
-    test(`a ${size}×${size} at 620px: the letter centered, 16px in a 35px pitch; the number 10px at the top left`, async ({ page }) => {
+    test(`a ${size}×${size} at ${gridPx(size)}px: the letter centered, 16px in a 35px pitch; the number 10px at the top left`, async ({ page }) => {
       await openBuilder(page, { width: 1440, height: 900 }, filled(size), 'grid');
-      const pitch = (SMALL_GRID_PX - 1) / size;
+      const pitch = (gridPx(size) - 1) / size;
       const number = page.locator('[data-coord="0,0"]').getByTestId('cell-number');
       const letterPx = parseFloat(await number.locator('..').evaluate((el) => getComputedStyle(el).fontSize));
       expect(Math.abs(letterPx - pitch * (LETTER_PX / LETTER_PITCH_PX)), `letter ${letterPx}px`).toBeLessThanOrEqual(0.3);

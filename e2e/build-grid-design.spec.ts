@@ -165,8 +165,8 @@ test.describe('14-S5-2 Preview', () => {
 test.describe('14-S5-3 size', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  // A 21×21 is 700px, every other size 620px (21-S9).
-  for (const [size, gridPx] of [[5, 620], [9, 620], [15, 620], [21, 700]]) {
+  // 17-S11: the editor's mini is 500px; other sizes retain 21-S9's widths.
+  for (const [size, gridPx] of [[5, 500], [9, 620], [15, 620], [21, 700]]) {
     test(`a ${size}×${size} is ${gridPx}px wide, its cells sharing 1px lines`, async ({ page }) => {
       await open(page, squareGrid(size));
       const g = await box(grid(page));
@@ -189,8 +189,9 @@ test.describe('14-S5-3 size', () => {
 test.describe('14-S5-4 letters and numbers', () => {
   test.use({ viewport: { width: 1440, height: 1000 } });
 
-  // The letter in a 620px grid's cell, (620 - 1) / size wide (21-S9).
-  const sizes: [number, number][] = [15, 5].map((size) => [size, (619 / size) * (16 / 35)]);
+  // 17-S11: same letter scaling, within a 500px mini or 620px daily.
+  const sizes: [number, number][] = [[15, 620], [5, 500]]
+    .map(([size, width]) => [size, ((width - 1) / size) * (16 / 35)]);
   for (const [size, px] of sizes) {
     test(`a ${size}×${size}'s letters are cell-letter at ${px.toFixed(1)}px; numbers are 10px`, async ({ page }) => {
       await open(page, squareGrid(size));

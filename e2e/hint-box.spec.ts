@@ -103,15 +103,17 @@ function noHorizontalOverflow(page: Page) {
 // --- 15-S4-1: where it shows ---
 test.describe('15-S4-1 where it shows', () => {
   for (const width of [1139, 768]) {
-    test(`hints phase at ${width}px: the box under the grid at its width, the list hidden`, async ({ page }) => {
+    test(`hints phase at ${width}px: the box under the centered mini at the existing column width, the list hidden`, async ({ page }) => {
       await open(page, width);
       await expect(hintBox(page)).toBeVisible();
       await expect(page.getByTestId('hints-region')).toBeHidden();
       const g = await rect(grid(page));
       const b = await rect(hintBox(page));
       expect(b.y, 'directly under the grid').toBeCloseTo(g.bottom, 0);
-      expect(b.x, 'from the grid’s left').toBeCloseTo(g.x, 0);
-      expect(b.width, 'at the grid’s width').toBeCloseTo(g.width, 0);
+      // 17-S11: retain the 620px Hint Box beneath the 500px centered mini.
+      expect(g.width, 'mini grid').toBeCloseTo(500, 0);
+      expect(b.x, 'from the existing column’s left').toBeCloseTo(g.x - 60, 0);
+      expect(b.width, 'existing column width').toBeCloseTo(620, 0);
     });
   }
 

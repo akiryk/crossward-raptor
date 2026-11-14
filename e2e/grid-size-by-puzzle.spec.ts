@@ -107,9 +107,9 @@ async function expectGrid(page: Page, size: number, px: number, label: string) {
   expect(last.x - g.x, `${label}: the last cell at a pitch of (${px} − 1) / ${size}`).toBeCloseTo(1 + (size - 1) * ((px - 1) / size), 0);
 }
 
-/** The toggle row is the grid's width, its left edge the grid's. */
+/** 17-S11: the toggle row retains the outer column's width and position. */
 async function expectToggleRowAtGrid(page: Page, label: string) {
-  const g = await rect(grid(page));
+  const g = await rect(gridRegion(page).locator('..'));
   const r = await rect(toggleRow(page));
   expect(r.width, `${label}: the toggle row at the grid's width`).toBeCloseTo(g.width, 0);
   expect(r.x, `${label}: the toggle row over the grid`).toBeCloseTo(g.x, 0);
@@ -118,14 +118,16 @@ async function expectToggleRowAtGrid(page: Page, label: string) {
 // --- 21-S9-1: the build phase and Preview ---
 test.describe('21-S9-1 the build phase and Preview', () => {
   for (const { name, size, px } of SIZES) {
-    test(`${name} is ${px}px, its toggle row too, with Preview off and on`, async ({ page }) => {
+    const editorPx = size === 5 ? 500 : px;
+    test(`${name} is ${editorPx}px in its ${px}px column, with Preview off and on`, async ({ page }) => {
       await openBuilder(page, WIDE, filled(size), 'grid');
-      await expectGrid(page, size, px, 'build');
+      await expectGrid(page, size, editorPx, 'build');
+      expect((await rect(toggleRow(page))).width, 'existing toggle width').toBeCloseTo(px, 0);
       await expectToggleRowAtGrid(page, 'build');
 
       await page.getByTestId('preview-toggle').locator('input').click({ force: true });
       await expect(grid(page)).toHaveAttribute('data-grid-mode', 'preview');
-      await expectGrid(page, size, px, 'Preview');
+      await expectGrid(page, size, editorPx, 'Preview');
       await expectToggleRowAtGrid(page, 'Preview');
     });
   }
@@ -134,12 +136,14 @@ test.describe('21-S9-1 the build phase and Preview', () => {
 // --- 21-S9-2: the hints phase ---
 test.describe('21-S9-2 the hints phase', () => {
   for (const { name, size, px } of SIZES) {
-    test(`${name} is ${px}px, its toggle row too; the hints 32px beside it`, async ({ page }) => {
+    const editorPx = size === 5 ? 500 : px;
+    test(`${name} is ${editorPx}px in its ${px}px column; the hints 32px beside the column`, async ({ page }) => {
       await openBuilder(page, WIDE, filled(size), 'hints');
-      await expectGrid(page, size, px, 'hints');
+      await expectGrid(page, size, editorPx, 'hints');
+      expect((await rect(toggleRow(page))).width, 'existing toggle width').toBeCloseTo(px, 0);
       await expectToggleRowAtGrid(page, 'hints');
       const g = await rect(grid(page));
-      expect((await rect(hintColumn(page, 'across'))).x - g.right, 'the hints beside the grid').toBeCloseTo(GAP_PX, 0);
+      expect((await rect(hintColumn(page, 'across'))).x - g.right, 'the hints beside the column').toBeCloseTo(GAP_PX + (px - editorPx) / 2, 0);
     });
   }
 
@@ -243,11 +247,14 @@ test.describe('21-S9-5 the grid shrinks with a narrow window', () => {
     ['a Sunday at 715px is the window less 16px, 8px in', 21, 715, 715 - 2 * NARROW_PADDING_PX, NARROW_PADDING_PX],
   ];
   for (const [name, size, width, px, left] of cases) {
-    test(`${name}, in the builder (its toggle row too) and play`, async ({ page }) => {
+    const builderPx = size === 5 ? Math.min(500, px) : px;
+    const description = size === 5 ? `a Mini at ${width}px: ${builderPx}px editor in a ${px}px column; ${px}px player` : `${name}, in the builder (its toggle row too) and play`;
+    test(description, async ({ page }) => {
       await openBuilder(page, { width, height: 1000 }, filled(size), 'grid');
       let g = await rect(grid(page));
-      expect(g.width, 'builder').toBeCloseTo(px, 0);
-      expect(g.x, 'builder left').toBeCloseTo(left, 0);
+      expect(g.width, 'builder').toBeCloseTo(builderPx, 0);
+      expect(g.x, 'builder left').toBeCloseTo(left + (px - builderPx) / 2, 0);
+      expect((await rect(toggleRow(page))).width, 'existing toggle width').toBeCloseTo(px, 0);
       await expectToggleRowAtGrid(page, 'builder');
 
       await openPlay(page, { width, height: 1000 }, filled(size));
