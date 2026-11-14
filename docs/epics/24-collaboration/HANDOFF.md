@@ -16,13 +16,20 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-13)
 
-**S3 merged.** PR #41 was independently reviewed and merged into
-`epic/24-collaboration` at `61068e2` (head `aa2547a`, runtime `c08b412`).
-[S3](stories/24-S3-editor-operations.md) was frozen at `a3c9d72`. The
-reviewer accepted the post-freeze correction `215468d`: a lint-only change
-(`prefer-const`) to the frozen `outbox.test.ts`, the same operations and
-assertions, in a separate specification-only commit. It has no migration.
-**S4 is next** and has no story file yet.
+**S4 implemented, PR #42 pending independent review.**
+[S4](stories/24-S4-live-sync.md) was frozen at `5abfd4f` (a
+specification-only commit on `epic/24-collaboration`, under the human's
+delegation); the branch is `story/24-S4-live-sync`, runtime head
+`172c9d8` (later commits are docs only). No migration. The freeze amends
+two earlier frozen tests: 24-S3-E3 holds off catching up before its lock
+elsewhere, and the route-guard source test admits the catch-up GET. S4
+measured polling: commit-to-shown median 0.8 s (max 1.3 s), one 25-byte
+request a second per visible editor, about four database transactions
+each; no push transport is needed for latency (story, "Measurements").
+**Next: independent review of PR #42**, then S5.
+
+S3 is merged (PR #41, `61068e2`; head `aa2547a`, runtime `c08b412`),
+frozen at `a3c9d72`, with the lint-only correction `215468d`.
 
 **Pending for the human (before the epic merges to `main`):**
 
@@ -130,6 +137,18 @@ S3 (PR #41, merged at `61068e2`; reviewed at head `aa2547a`, runtime
   - `editor-operations.spec.ts` passed 11/11.
 - CI: Vercel and Vercel Preview Comments passed. Frozen acceptance is
   unchanged since `215468d`. Details are in the PR's review comment.
+S4 (PR #42, author's runs at runtime `172c9d8`):
+
+- `npm run verify`: exit 0, 98 files, 1175 tests
+  (`/tmp/s4-verify-precommit.log`, the tree committed as `172c9d8`).
+- Full `npm run test:e2e -- --workers=2`: **1372 passed, 0 failed**, exit
+  0, 14.1 min (`/tmp/s4-e2e-full-172c9d8.log`).
+- Rules disabled one at a time, and the measurements: the story; logs
+  `/tmp/s4-rules.log`, `/tmp/s4-browser-rules.log`, `/tmp/s4-measure.log`.
+- **Harness note:** a worktree needs its own `node_modules` (`npm ci`);
+  the build fetches Google Fonts and failed twice on a fetch error, passing
+  on retry.
+
 - **Harness note for worktrees:** run E2E with
   `COMPOSE_PROJECT_NAME=crossward-raptor`. Without it, preparation's
   `db:up` creates a second Compose project, fails on the shared ports and
@@ -137,12 +156,11 @@ S3 (PR #41, merged at `61068e2`; reviewed at head `aa2547a`, runtime
 
 ## Next action
 
-S4 (EPIC, Stories item 4, "S4 Live sync by polling"): draft its story
-under `stories/`, freeze it as a specification-only commit on
-`epic/24-collaboration` under the human's delegation, implement it on
-`story/24-S4-<name>`, and open a PR into the epic branch for independent
-review. Not authorized: production migration, Vercel settings, `main`.
+Independent review of PR #42 (S4) per [REVIEW](../../process/REVIEW.md),
+merging into `epic/24-collaboration` when no blockers remain. Then S5
+(EPIC, Stories item 5): draft, freeze, implement and PR the same way. Not
+authorized: production migration, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and the "S4 Live sync by polling" item in docs/epics/24-collaboration/EPIC.md. Draft, freeze and implement S4 on a story branch from epic/24-collaboration, with a PR into the epic branch; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md. Independently review and merge PR #42 (24-S4 live sync) into epic/24-collaboration per docs/process/REVIEW.md; then draft, freeze and implement S5 on a story branch with a PR into the epic branch; no production migration, nothing into main.

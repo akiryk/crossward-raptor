@@ -3,12 +3,14 @@
 // pending operations; what the builder sees is the confirmed state with the
 // pending operations applied, plus the edits of the burst being typed (the
 // draft). Pure: no React, DOM, storage, network or timers, and inputs are
-// never mutated. S4 applies remote operations to the confirmed state and
-// rebases the view with `rebaseView`.
+// never mutated. 24-S4: committed operations caught up from the server
+// (`applyCommitted`, `applySnapshot`) advance the confirmed state, and the
+// editor rebases the view with `rebaseView`.
 
 import { normalizeTitle } from '@/lib/puzzle-title';
 import type { SerializedGrid } from '@/lib/puzzle-storage';
 import { applyOperation, epochAfter, evaluateOperation, type PuzzleContent, type RefusalCode } from './apply';
+import type { CommittedOperation } from './catchup';
 import type { CellWrite, Operation, OperationBody } from './operation';
 
 /** What the server has acknowledged. */
@@ -25,6 +27,11 @@ export interface Confirmed {
 export interface Outbox {
   readonly confirmed: Confirmed;
   readonly pending: readonly Operation[];
+  /** 24-S4: operations the server accepted as a version past the next one
+   *  the confirmed state needs (others committed in between, not yet caught
+   *  up). They are no longer sent, but still shown, until catching up
+   *  reaches them. Oldest first; absent when there are none. */
+  readonly acknowledged?: readonly CommittedOperation[];
 }
 
 /** The server's answer for one operation, as far as the outbox is
@@ -43,7 +50,7 @@ const OWNER = { isOwner: true };
 export function projectOutbox(outbox: Outbox): { readonly content: PuzzleContent; readonly resetEpoch: number } {
   let content = outbox.confirmed.content;
   let resetEpoch = outbox.confirmed.resetEpoch;
-  for (const op of outbox.pending) {
+  for (const op of [...(outbox.acknowledged ?? []), ...outbox.pending]) {
     const result = evaluateOperation({ ...content, resetEpoch, published: false }, op, OWNER);
     if (!result.ok) continue;
     content = result.content;
@@ -75,11 +82,19 @@ export function enqueue(outbox: Outbox, op: Operation): Outbox {
   return { ...outbox, pending: [...outbox.pending, op] };
 }
 
-/** The outbox once the server has answered for `opId`. An acceptance at a
- *  version past the confirmed one applies the operation to the confirmed
- *  state; one at or below it (a resend whose first commit the confirmed
- *  state already holds) changes nothing but the pending list. A refusal
- *  only drops the operation. */
+/** The outbox with `acknowledged` left out when empty. */
+function withAcknowledged(outbox: Outbox, acknowledged: readonly CommittedOperation[]): Outbox {
+  const { confirmed, pending } = outbox;
+  return acknowledged.length > 0 ? { confirmed, pending, acknowledged } : { confirmed, pending };
+}
+
+/** The outbox once the server has answered for `opId`. An acceptance as
+ *  the version after the confirmed one applies the operation to the
+ *  confirmed state; one at or below it (a resend whose first commit the
+ *  confirmed state already holds) changes nothing but the pending list. A
+ *  refusal only drops the operation. 24-S4: an acceptance further ahead
+ *  (others committed in between) is kept as acknowledged, for catching up
+ *  to apply in its place. */
 export function settle(outbox: Outbox, opId: string, settlement: Settlement): Outbox {
   const op = outbox.pending.find((candidate) => candidate.opId === opId);
   if (!op) return outbox;
@@ -88,14 +103,80 @@ export function settle(outbox: Outbox, opId: string, settlement: Settlement): Ou
     return { ...outbox, pending };
   }
   const { confirmed } = outbox;
-  return {
+  if (settlement.version > confirmed.version + 1) {
+    const acknowledged = [...(outbox.acknowledged ?? []), { ...op, version: settlement.version }]
+      .sort((a, b) => a.version - b.version);
+    return withAcknowledged({ ...outbox, pending }, acknowledged);
+  }
+  return withAcknowledged({
     pending,
     confirmed: {
       content: applyOperation(confirmed.content, op).content,
       version: settlement.version,
       resetEpoch: epochAfter(confirmed.resetEpoch, op),
     },
-  };
+  }, outbox.acknowledged ?? []);
+}
+
+/** What applying caught-up operations did. `settled` are this tab's own
+ *  operations (pending, or acknowledged ahead) that the log showed
+ *  committed, with their versions; `diverged` means an operation didn't
+ *  fit the confirmed state, which should never happen: the caller reloads
+ *  the snapshot. */
+export interface CatchUpResult {
+  readonly outbox: Outbox;
+  readonly settled: readonly { readonly opId: string; readonly version: number }[];
+  readonly diverged: boolean;
+}
+
+/** The builder isn't known here; the server already checked who committed
+ *  each operation. */
+const ANYONE_ALLOWED = { isOwner: true };
+
+/** The outbox after operations committed on the server (by anyone, this
+ *  tab included), in version order. Each one the confirmed state doesn't
+ *  hold yet is applied to it, in turn, if it is the next version; earlier
+ *  ones are skipped, and a gap stops there (the next catch-up starts from
+ *  the confirmed version). One of this tab's own operations is applied from
+ *  the log too, and leaves the pending (or acknowledged) list, so it is
+ *  never applied twice and never sent again. */
+export function applyCommitted(outbox: Outbox, ops: readonly CommittedOperation[]): CatchUpResult {
+  let { confirmed } = outbox;
+  let pending = outbox.pending;
+  let acknowledged = outbox.acknowledged ?? [];
+  const settled: { opId: string; version: number }[] = [];
+  for (const op of ops) {
+    if (op.version <= confirmed.version) continue;
+    if (op.version !== confirmed.version + 1) break;
+    const result = evaluateOperation(
+      { ...confirmed.content, resetEpoch: confirmed.resetEpoch, published: false }, op, ANYONE_ALLOWED,
+    );
+    if (!result.ok) {
+      return { outbox: withAcknowledged({ confirmed, pending }, acknowledged), settled, diverged: true };
+    }
+    const { grid, hints, title, phase } = result.content;
+    confirmed = { content: { grid, hints, title, phase }, version: op.version, resetEpoch: result.resetEpoch };
+    if (pending.some((candidate) => candidate.opId === op.opId)) {
+      pending = pending.filter((candidate) => candidate.opId !== op.opId);
+      settled.push({ opId: op.opId, version: op.version });
+    }
+    acknowledged = acknowledged.filter((candidate) => candidate.opId !== op.opId);
+  }
+  acknowledged = acknowledged.filter((candidate) => candidate.version > confirmed.version);
+  const changed = confirmed !== outbox.confirmed || pending !== outbox.pending ||
+    acknowledged.length !== (outbox.acknowledged ?? []).length;
+  return { outbox: changed ? withAcknowledged({ confirmed, pending }, acknowledged) : outbox, settled, diverged: false };
+}
+
+/** The outbox with the puzzle as stored for its confirmed state, when that
+ *  is newer than the confirmed one (a snapshot older than what the tab
+ *  holds changes nothing). Acknowledged operations it already holds leave;
+ *  pending ones stay, to be answered by the server (one that had landed is
+ *  answered with its first outcome, and then only dropped). */
+export function applySnapshot(outbox: Outbox, snapshot: Confirmed): Outbox {
+  if (snapshot.version <= outbox.confirmed.version) return outbox;
+  const acknowledged = (outbox.acknowledged ?? []).filter((op) => op.version > snapshot.version);
+  return withAcknowledged({ confirmed: snapshot, pending: outbox.pending }, acknowledged);
 }
 
 /** The cells the view changed from the base: each active cell (in both)

@@ -14,9 +14,11 @@ import type { Phase } from "../../engine/puzzle";
 import { commitOperation } from "../../app/puzzles/actions";
 import type { PuzzleContent } from "../../lib/collab/apply";
 import { BurstClock } from "../../lib/collab/burst";
+import type { CatchUp } from "../../lib/collab/catchup";
+import { CatchUpPoller, parseCatchUp, type PollOutcome } from "../../lib/collab/poller";
 import { readJournal, removeJournalKeys, writeJournal, type JournalStorage } from "../../lib/collab/journal";
 import { refusalNotice, type RefusalNotice } from "../../lib/collab/notice";
-import type { Operation, OperationBody } from "../../lib/collab/operation";
+import type { CellWrite, Operation, OperationBody } from "../../lib/collab/operation";
 import {
   cellWrites, hintChanges, projectOutbox, rebaseView, titleChange, type Outbox, type Settlement,
 } from "../../lib/collab/outbox";
@@ -67,7 +69,46 @@ function sendKeepalive(puzzleId: string, op: Operation): void {
   }
 }
 
+/** 24-S4: the catch-up read (the route's GET), from the confirmed version,
+ *  or the snapshot for null. Anything but an answer is a failure, retried. */
+async function fetchCatchUp(puzzleId: string, since: number | null): Promise<CatchUp> {
+  const response = await fetch(`/api/puzzles/${encodeURIComponent(puzzleId)}/operations`, {
+    headers: since === null ? {} : { "x-catch-up-since": String(since) },
+    cache: "no-store",
+    redirect: "manual",
+  });
+  if (response.status !== 200 && response.status !== 404) throw new Error(`catch-up: ${response.status}`);
+  const result = parseCatchUp(await response.json(), puzzleId);
+  if (!result) throw new Error("catch-up: malformed answer");
+  return result;
+}
+
 const cellKey = ({ col, row }: { col: number; row: number }) => `${col},${row}`;
+
+/** The cells whose stored value differs between two grids of one shape. */
+function changedCells(before: PuzzleContent, after: PuzzleContent): Set<string> {
+  const changed = new Set<string>();
+  const a = before.grid;
+  const b = after.grid;
+  if (a.rows !== b.rows || a.cols !== b.cols) return changed;
+  for (let row = 0; row < a.rows; row++) {
+    for (let col = 0; col < a.cols; col++) {
+      if (JSON.stringify(a.cells[row][col]) !== JSON.stringify(b.cells[row][col])) changed.add(cellKey({ col, row }));
+    }
+  }
+  return changed;
+}
+
+/** The grid with the writes applied to its white cells. */
+function withWrites(grid: PuzzleContent["grid"], writes: readonly CellWrite[]): PuzzleContent["grid"] {
+  const cells = grid.cells.map((line) => line.map((cell) => ({ ...cell })));
+  for (const { col, row, value } of writes) {
+    if (cells[row]?.[col]?.kind === "active") cells[row][col] = { kind: "active", letter: value };
+  }
+  return { ...grid, cells };
+}
+
+const sameContent = (a: PuzzleContent, b: PuzzleContent) => JSON.stringify(a) === JSON.stringify(b);
 
 /** The cells one grid change edited. */
 function editedCells(before: Grid, after: Grid): { col: number; row: number }[] {
@@ -110,6 +151,11 @@ export class EditorSaver {
   private readonly gridClock = new BurstClock(() => this.flushGrid());
   private readonly hintClock = new BurstClock(() => this.flushHints());
   private readonly titleClock = new BurstClock(() => this.flushTitle());
+  /** 24-S4: polls for committed operations while the page is visible. */
+  private readonly poller: CatchUpPoller;
+  /** 24-S4: the cells a remote change is about to show, so the grid's
+   *  change isn't taken for the builder's edit. */
+  private remoteCells = new Set<string>();
 
   constructor(private readonly options: EditorSaverOptions) {
     this.view = options.view;
@@ -132,8 +178,53 @@ export class EditorSaver {
         },
         onChange: () => options.onChange(),
         onRefused: (op, code, before, after) => this.refused(op, code, before, after),
+        onBehind: () => this.poller.pollNow(),
       },
     );
+    this.poller = new CatchUpPoller({
+      fetch: (since) => fetchCatchUp(puzzleId, since),
+      since: () => this.queue.outbox.confirmed.version,
+      apply: (result) => this.caughtUp(result),
+      isVisible: () => document.visibilityState === "visible",
+    });
+  }
+
+  /** 24-S4: what the catch-up read brought. Committed operations (or the
+   *  snapshot) advance the confirmed state; the view is rebased, so the
+   *  builder's draft stays and nothing local (the cursor, Preview, focus)
+   *  moves. Before another tab's Start Over or Enter Hints is applied, every
+   *  burst finalizes: the draft becomes operations of the state it was made
+   *  in, which the server judges (a reset refuses them, D5; Hints takes
+   *  only what fits, D4), each visibly. */
+  private caughtUp(result: CatchUp): PollOutcome {
+    if (result.status === "not-found" || result.status === "invalid") return "stop";
+    const { outbox } = this.queue;
+    const own = new Set([...outbox.pending, ...(outbox.acknowledged ?? [])].map((op) => op.opId));
+    if (result.status === "ops") {
+      const fresh = result.ops.filter((op) => op.version > outbox.confirmed.version);
+      if (fresh.length === 0) return "ok";
+      if (fresh.some((op) => (op.kind === "startOver" || op.kind === "enterHints") && !own.has(op.opId))) this.flushAll();
+      const before = this.projected();
+      const diverged = this.queue.catchUp(fresh);
+      this.showRemote(before, this.projected());
+      return diverged ? "resync" : "ok";
+    }
+    if (result.version <= outbox.confirmed.version) return "ok";
+    const { confirmed } = outbox;
+    if (result.resetEpoch !== confirmed.resetEpoch || result.content.phase !== confirmed.content.phase) this.flushAll();
+    const before = this.projected();
+    this.queue.resync({ content: result.content, version: result.version, resetEpoch: result.resetEpoch });
+    this.showRemote(before, this.projected());
+    return "ok";
+  }
+
+  /** Shows a change of the projection from elsewhere, keeping the draft.
+   *  Not while Enter Hints awaits the server (the view isn't in the
+   *  projection's phase): its confirmation shows the projection. */
+  private showRemote(before: PuzzleContent, after: PuzzleContent): void {
+    if (sameContent(before, after) || viewContent(this.view).phase !== before.phase) return;
+    this.remoteCells = changedCells(before, after);
+    this.options.showContent((shown) => rebaseView(before, shown, after));
   }
 
   /** The editor's latest state. */
@@ -150,7 +241,10 @@ export class EditorSaver {
 
   private refused(op: Operation, code: QueueRefusalCode, before: Outbox, after: Outbox): void {
     const view = viewContent(this.view);
-    this.options.notify(op.opId, refusalNotice(op, code, view.grid, view.phase));
+    // The refused letters as typed, even where the view no longer shows
+    // them (24-S4: a Start Over from elsewhere left them out).
+    const typed = op.kind === "cells" ? withWrites(view.grid, op.writes) : view.grid;
+    this.options.notify(op.opId, refusalNotice(op, code, typed, view.phase));
     // The grid shows the authoritative cells; edits still being typed stay.
     const oldBase = projectOutbox(before).content;
     const newBase = projectOutbox(after).content;
@@ -237,6 +331,8 @@ export class EditorSaver {
   gridChanged(grid: Grid, cursor: CursorState): void {
     const before = this.previousGrid;
     this.previousGrid = grid;
+    const remote = this.remoteCells;
+    this.remoteCells = new Set();
     if (before === grid) return;
     const from = this.base();
     if (!from || cellWrites(from.grid, serializeGrid(grid)).length === 0) {
@@ -244,9 +340,13 @@ export class EditorSaver {
       this.burstWord = null;
       return;
     }
+    // 24-S4: a remote change shown under the draft neither extends the burst
+    // nor joins its word.
+    const edited = editedCells(before, grid).filter((coord) => !remote.has(cellKey(coord)));
+    if (remote.size > 0 && edited.length === 0) return;
     const word = this.burstWord?.orientation === cursor.orientation ? this.burstWord : null;
     const cells = new Set(word?.cells ?? []);
-    for (const coord of [...editedCells(before, grid), cursor.current]) {
+    for (const coord of [...edited, cursor.current]) {
       for (const cell of wouldBeWord(grid, coord, cursor.orientation) ?? [coord]) cells.add(cellKey(cell));
     }
     this.burstWord = { orientation: cursor.orientation, cells };
@@ -280,12 +380,25 @@ export class EditorSaver {
    *  operation goes with keepalive. Leaving with anything unanswered warns,
    *  unless a server redirect is taking the page away (the journal keeps
    *  it). Returns the cleanup, which finalizes too (leaving the editor
-   *  within the app: the queue carries on sending). */
+   *  within the app: the queue carries on sending). 24-S4: it also runs
+   *  the catch-up polling, which stops with it. */
   attachPage(): () => void {
     const onHidden = () => {
+      // 24-S4: visible again, catch up at once; hidden, stop polling.
+      if (document.visibilityState === "visible") {
+        this.poller.pollNow();
+        this.queue.flush();
+        return;
+      }
       if (document.visibilityState !== "hidden") return;
+      this.poller.pause();
       this.flushAll();
       this.queue.leave();
+    };
+    // 24-S4: back online, catch up and send at once.
+    const onOnline = () => {
+      this.poller.pollNow();
+      this.queue.flush();
     };
     const onPageHide = () => {
       this.flushAll();
@@ -300,10 +413,14 @@ export class EditorSaver {
     document.addEventListener("visibilitychange", onHidden);
     window.addEventListener("pagehide", onPageHide);
     window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("online", onOnline);
+    this.poller.start();
     return () => {
       document.removeEventListener("visibilitychange", onHidden);
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("online", onOnline);
+      this.poller.stop();
       this.flushAll();
     };
   }

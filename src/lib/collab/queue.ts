@@ -10,7 +10,10 @@ import type { RefusalCode } from './apply';
 import type { BurstTimers } from './burst';
 import type { CommitOutcome } from './commit';
 import type { Operation, OperationBody } from './operation';
-import { enqueue, makeOperation, settle, type Outbox, type Settlement } from './outbox';
+import type { CommittedOperation } from './catchup';
+import {
+  applyCommitted, applySnapshot, enqueue, makeOperation, settle, type Confirmed, type Outbox, type Settlement,
+} from './outbox';
 
 /** Re-sending waits 1 s, 2 s, 4 s, 8 s, then 15 s each time. */
 export const RETRY_DELAYS_MS = [1000, 2000, 4000, 8000, 15000];
@@ -36,6 +39,9 @@ export interface QueueDeps {
   /** Called when an operation is refused, with the outbox before and after
    *  it was dropped. */
   readonly onRefused?: (op: Operation, code: QueueRefusalCode, before: Outbox, after: Outbox) => void;
+  /** 24-S4: an operation was accepted as a version past the next one the
+   *  confirmed state needs: others committed in between, to catch up on. */
+  readonly onBehind?: () => void;
   readonly timers?: BurstTimers;
   readonly retryDelaysMs?: readonly number[];
 }
@@ -135,6 +141,26 @@ export class OperationQueue {
     if (head) this.deps.keepalive?.(head);
   }
 
+  /** 24-S4: operations committed on the server, in version order, applied
+   *  to the confirmed state (`applyCommitted`). This tab's own operations
+   *  among them are answered as accepted (their waiters too) and never sent
+   *  again; a retry waiting on one of them is called off. Returns whether
+   *  the confirmed state diverged (then the caller reloads the snapshot). */
+  catchUp(ops: readonly CommittedOperation[]): boolean {
+    const result = applyCommitted(this.state, ops);
+    if (result.outbox !== this.state) this.update(result.outbox);
+    for (const { opId, version } of result.settled) this.answered(opId, { status: 'accepted', version });
+    if (result.settled.length > 0) this.recover();
+    return result.diverged;
+  }
+
+  /** 24-S4: the puzzle as stored, when the log can't catch the tab up
+   *  (`applySnapshot`). */
+  resync(snapshot: Confirmed): void {
+    const next = applySnapshot(this.state, snapshot);
+    if (next !== this.state) this.update(next);
+  }
+
   /** Sends the first pending operation now, if nothing is in flight. A
    *  waiting retry is brought forward. */
   flush(): void {
@@ -183,7 +209,7 @@ export class OperationQueue {
         this.done(op, { status: 'refused', code: 'not-found' });
         return;
       case 'busy':
-        this.scheduleRetry();
+        this.retryUnlessCaughtUp(op);
         return;
     }
   }
@@ -196,7 +222,34 @@ export class OperationQueue {
       this.deps.onChange?.();
       return;
     }
-    this.scheduleRetry();
+    this.retryUnlessCaughtUp(op);
+  }
+
+  /** 24-S4: an operation catching up showed committed needs no retry. */
+  private retryUnlessCaughtUp(op: Operation): void {
+    if (this.state.pending.some((candidate) => candidate.opId === op.opId)) {
+      this.scheduleRetry();
+      return;
+    }
+    this.failures = 0;
+    this.pump();
+  }
+
+  /** A retry waiting for an operation no longer pending is called off. */
+  private recover(): void {
+    if (this.retry === null) return;
+    (this.deps.timers ?? defaultTimers).clearTimeout(this.retry);
+    this.retry = null;
+    this.failures = 0;
+    this.deps.onChange?.();
+    this.pump();
+  }
+
+  private answered(opId: string, settlement: Settlement): void {
+    this.answers.set(opId, settlement);
+    if (this.answers.size > 500) this.answers.delete(this.answers.keys().next().value as string);
+    for (const resolve of this.waiters.get(opId) ?? []) resolve(settlement);
+    this.waiters.delete(opId);
   }
 
   private scheduleRetry(): void {
@@ -212,13 +265,12 @@ export class OperationQueue {
 
   private done(op: Operation, settlement: Settlement): void {
     this.failures = 0;
-    this.answers.set(op.opId, settlement);
-    if (this.answers.size > 500) this.answers.delete(this.answers.keys().next().value as string);
     const before = this.state;
-    this.update(settle(this.state, op.opId, settlement));
-    if (settlement.status === 'refused') this.deps.onRefused?.(op, settlement.code, before, this.state);
-    for (const resolve of this.waiters.get(op.opId) ?? []) resolve(settlement);
-    this.waiters.delete(op.opId);
+    const next = settle(this.state, op.opId, settlement);
+    this.update(next);
+    if (settlement.status === 'refused' && next !== before) this.deps.onRefused?.(op, settlement.code, before, this.state);
+    if (settlement.status === 'accepted' && (next.acknowledged?.length ?? 0) > 0) this.deps.onBehind?.();
+    this.answered(op.opId, settlement);
     this.pump();
   }
 }
