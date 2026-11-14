@@ -56,6 +56,7 @@ import { BuildProgress } from "./BuildProgress";
 import { TooEarlyDialog } from "./TooEarlyDialog";
 import { PublishDialog } from "./PublishDialog";
 import { PuzzleTitle } from "../puzzle/PuzzleTitle";
+import { CollaboratorsButton, CollaboratorsDialog } from "../puzzle/CollaboratorsDialog";
 import { PlayerHints } from "../play/PlayerHints";
 import { slotsWithNumbers } from "../../engine/numbering";
 import { closeRebus, rebusIntent } from "../../lib/rebus-entry";
@@ -287,6 +288,8 @@ export function PuzzleGridEditor({
   const [isNotQuiteOpen, setIsNotQuiteOpen] = useState(false);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [isStartOverOpen, setIsStartOverOpen] = useState(false);
+  // 24-S6: the owner's Collaborators… dialog.
+  const [isCollaboratorsOpen, setIsCollaboratorsOpen] = useState(false);
   // Set on confirming Start Over: once the dialog has closed (and Modal has
   // returned focus to its opener), the grid takes focus (20-S1).
   const focusGridAfterStartOverRef = useRef(false);
@@ -906,7 +909,13 @@ export function PuzzleGridEditor({
               phase={phase}
               onStep={handleStep}
               canPublish={isOwner}
-              status={<SaveStatus state={saveState} />}
+              status={
+                <>
+                  <SaveStatus state={saveState} />
+                  {/* 24-S6: the owner's, after the save status. */}
+                  {isOwner && <CollaboratorsButton onClick={() => setIsCollaboratorsOpen(true)} />}
+                </>
+              }
             />
           )}
           <div className={`${isLocked ? "hidden" : "flex"} @min-[1092px]/editor:flex @min-[1092px]/editor:gap-8`}>
@@ -984,6 +993,13 @@ export function PuzzleGridEditor({
           onKeepLocked={() => handleConfirmStartOver(true)}
           onCancel={() => setIsStartOverOpen(false)}
         />
+        {isOwner && !isLocked && (
+          <CollaboratorsDialog
+            puzzleId={puzzleId}
+            open={isCollaboratorsOpen}
+            onClose={() => setIsCollaboratorsOpen(false)}
+          />
+        )}
         <TooEarlyDialog open={isNotQuiteOpen} onClose={() => setIsNotQuiteOpen(false)} />
         {isPublishDialogOpen && (
           <PublishDialog

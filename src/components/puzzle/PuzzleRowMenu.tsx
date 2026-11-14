@@ -5,17 +5,22 @@ import { useRouter } from 'next/navigation';
 import { duplicatePuzzle, setPuzzleVisibility } from '@/app/puzzles/actions';
 import { Menu, type MenuItem } from '@/components/ui/Menu';
 import { LibraryDelete } from './LibraryDeleteDialog';
+import { CollaboratorsDialog } from './CollaboratorsDialog';
 import type { LibraryPuzzle } from './PuzzleRow';
 
 /** Story 16-S2: an own row's three-dot menu. Story 16-S4 adds Duplicate, first;
  *  18-S4 adds Open in builder to published rows; 19-S3 adds a completed
- *  row's Reset before Delete, which a hairline sets apart. */
-export function PuzzleRowMenu({ puzzle, onDeleted, onReset }: {
+ *  row's Reset before Delete, which a hairline sets apart. 24-S6 adds
+ *  Collaborators… second on unpublished rows; a shared row (not `own`)
+ *  offers Duplicate only, and its player's Reset. */
+export function PuzzleRowMenu({ puzzle, own, onDeleted, onReset }: {
   puzzle: LibraryPuzzle;
+  own: boolean;
   onDeleted: () => void;
   onReset?: () => void;
 }) {
   const [deleting, setDeleting] = useState(false);
+  const [managing, setManaging] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const published = puzzle.publishedAt !== null;
   const makePublic = puzzle.visibility !== 'public';
@@ -52,7 +57,12 @@ export function PuzzleRowMenu({ puzzle, onDeleted, onReset }: {
   const reset: MenuItem[] = onReset
     ? [{ key: 'reset', label: 'Reset', testId: 'puzzle-menu-reset', tone: 'error', onSelect: onReset }]
     : [];
-  const items: MenuItem[] = published
+  const collaborators: MenuItem = {
+    key: 'collaborators', label: 'Collaborators…', testId: 'puzzle-menu-collaborators', onSelect: () => setManaging(true),
+  };
+  const items: MenuItem[] = !own
+    ? [duplicate, ...reset]
+    : published
     ? [duplicate, openInBuilder, {
       key: 'visibility',
       label: makePublic ? 'Make public' : 'Make unlisted',
@@ -68,7 +78,7 @@ export function PuzzleRowMenu({ puzzle, onDeleted, onReset }: {
         }
       },
     }, ...reset, remove]
-    : [duplicate, remove];
+    : [duplicate, collaborators, remove];
 
   return (
     <>
@@ -83,7 +93,10 @@ export function PuzzleRowMenu({ puzzle, onDeleted, onReset }: {
           </p>
         )}
       />
-      <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} published={published} onDeleted={onDeleted} open={deleting} setOpen={setDeleting} />
+      {own && !published && (
+        <CollaboratorsDialog puzzleId={puzzle.id} open={managing} onClose={() => setManaging(false)} />
+      )}
+      {own && <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} published={published} onDeleted={onDeleted} open={deleting} setOpen={setDeleting} />}
     </>
   );
 }
