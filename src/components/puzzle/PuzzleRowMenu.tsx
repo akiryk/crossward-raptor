@@ -2,11 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { duplicatePuzzle, setPuzzleVisibility } from '@/app/puzzles/actions';
 import { Menu, type MenuItem } from '@/components/ui/Menu';
 import { LibraryDelete } from './LibraryDeleteDialog';
-import { CollaboratorsDialog } from './CollaboratorsDialog';
 import type { LibraryPuzzle } from './PuzzleRow';
+
+// 24-S6: every own row's menu imports this module (any row can gain a menu
+// as soon as it is the caller's own), so the dialog itself loads in its own
+// chunk, fetched only once a row's Collaborators… is actually chosen. Kept
+// out of the list's own render path: every library row re-renders on every
+// change (a completed one's Reset included, 18-S5-5), so this module's
+// unrelated weight on that path is avoided, not just its unused markup.
+const CollaboratorsDialog = dynamic(() => import('./CollaboratorsDialog').then((module) => module.CollaboratorsDialog));
 
 /** Story 16-S2: an own row's three-dot menu. Story 16-S4 adds Duplicate, first;
  *  18-S4 adds Open in builder to published rows; 19-S3 adds a completed
