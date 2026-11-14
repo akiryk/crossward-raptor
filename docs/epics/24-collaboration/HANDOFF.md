@@ -16,7 +16,7 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**S6 implemented; PR pending independent review** into
+**S6 implemented; PR #44 pending independent review** into
 `epic/24-collaboration` from `story/24-S6-collaborator-management` at
 `c352d0f` (frozen `30ed5b9`, corrected `6158a8b`; frozen acceptance
 unchanged, confirmed by diff). `npm run verify`: exit 0, 107 files, 1248
@@ -263,7 +263,7 @@ Author's evidence:
 - Rules disabled one at a time: the story's "What the tests catch"
   (`/tmp/s5-rules.log`, `/tmp/s5-browser-rules.log`).
 
-S6 (PR #<PR_NUMBER>, not yet reviewed; runtime `c352d0f`; frozen
+S6 (PR #44, not yet reviewed; runtime `c352d0f`; frozen
 acceptance unchanged since `6158a8b`, confirmed by diff):
 
 - Author's `npm run verify` on `c352d0f`: exit 0, 107 files, 1248 tests
@@ -291,7 +291,7 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Independent review of PR #<PR_NUMBER> (`story/24-S6-collaborator-management`
+Independent review of PR #44 (`story/24-S6-collaborator-management`
 into `epic/24-collaboration`, head `c352d0f`). The author does not merge
 its own PR. After S6 merges, S7 is the epic's next story (EPIC, Stories
 item 7); draft it per the normal lifecycle.
@@ -300,4 +300,4 @@ Not authorized: production migrations, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S6-collaborator-management.md. Independently review and, if no blockers remain, merge PR #<PR_NUMBER> into epic/24-collaboration.
+Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/stories/24-S6-collaborator-management.md. Independently review and, if no blockers remain, merge PR #44 into epic/24-collaboration.
