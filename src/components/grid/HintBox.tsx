@@ -43,7 +43,7 @@ export function HintBox({
       data-testid="hint-box"
       data-missing={isMissing ? 'true' : undefined}
       data-conflict={isConflict ? 'true' : undefined}
-      className={`border-hint-box-border border-t-hint-rule flex min-h-12 items-start border border-t-4 px-3 py-[6.5px]${isConflict ? ' conflict-ring' : ''}`}
+      className={`border-hint-box-border border-t-hint-rule flex min-h-12 items-start border border-t-4 px-3 py-[6.5px] ${isConflict ? 'conflict-ring' : ''}`}
     >
       <div className="flex h-[30px] items-center">
         <HintArrow direction="previous" onClick={() => onStep(-1)} />
