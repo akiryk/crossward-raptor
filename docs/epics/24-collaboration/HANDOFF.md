@@ -16,16 +16,18 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**Local-testing follow-up S9: implemented and verified; PR #48 awaits final review/merge.**
+**Local-testing follow-up S9: merged into `epic/24-collaboration`.**
 [Personal and current collaborator labels](stories/24-S9-collaboration-labels.md)
 changes only three puzzle components: the signed-in owner/member reads “You”
 in library rows, and the dialog shows a bold 14px “Current Collaborators”
 heading above existing members. Other people’s names and account settings
-retain actual usernames. Branch `story/24-S9-collaboration-labels`; target is
-this epic branch only. [PR #48](https://github.com/akiryk/crossward-raptor/pull/48).
-Runtime `b7b569c`, integrated test baseline/tested head `ac436a0`.
-Independent reviewer `review_polish` approved the scope, frozen display
-amendments (`38c6329`) and implementation with no blockers.
+retain actual usernames. [PR #48](https://github.com/akiryk/crossward-raptor/pull/48)
+merged normally as `67488ce`, reviewed at `e11ba0d` (runtime `b7b569c`,
+integrated tested head `ac436a0`). Independent reviewer `review_polish`
+approved the scope, frozen display amendments (`38c6329`) and final diff
+with no findings. Vercel and Vercel Preview Comments passed.
+[Review evidence](https://github.com/akiryk/crossward-raptor/pull/48#issuecomment-6882549996).
+The local checkout is back on the epic branch for continuing human testing.
 
 The human explicitly approved the additional frozen narrow-layout test
 correction (“1. Yes”): measure the full owner line, rather than the intrinsic
@@ -34,13 +36,16 @@ all overflow/date/control assertions are preserved. This was separately
 refrozen on the epic at `287cc85` before affected verification resumed.
 The initial run passed 81 of 84 browser checks; its three measurement failures
 are recorded in `/tmp/epic24-s9-browser.log`. Initial clean-checkout verify
-passed 113 files/1287 tests. Final checks at `ac436a0`, including the approved
+passed 113 files/1287 tests. Final author checks at `ac436a0`, including the approved
 correction: **npm run verify exit 0, 113 files/1287 tests passed**;
 **seven-file browser run exit 0, 84 passed, 0 failed, 51.8 seconds, two workers**.
 Files: `collaboration-polish`, `collaborator-management`, `puzzle-library`,
 `muted-text`, `account-details`, `account-email`, `narrow-margin`. Source/config
 identity compared across 435 tracked files with zero mismatches against
-`/tmp/crossward-24-s9-verify`. Logs and command/head/content identities:
+`/tmp/crossward-24-s9-verify`; the reviewer independently compared 443 tracked
+source/config/test files with that checkout and also found no differences.
+The reviewer reused author verification/browser evidence and ran no suites.
+Only handoff documentation changed after the tested head. Logs and identities:
 `/tmp/epic24-s9-final-{verify,browser}.log` and
 `/tmp/epic24-s9-final-verification.json`. E2E resets use DEVELOPMENT’s standing
 grant. The full epic E2E gate remains due before main after these follow-ups.
@@ -395,7 +400,7 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-All eight stories, including local-testing follow-up S8, are merged into the
+All nine stories, including local-testing follow-ups S8 and S9, are merged into the
 epic branch. Continue local visual testing and fix any newly reported problems
 through independently reviewed story PRs into this branch. A clean full E2E
 run on the final integrated branch is still required before main. PR #46 from
