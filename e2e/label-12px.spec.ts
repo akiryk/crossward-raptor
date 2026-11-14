@@ -37,6 +37,8 @@ import { waitForEditorReady } from './helpers/wait-for-ready';
 
 const WIDE = { width: 1440, height: 900 };
 const LABEL = { size: 12, weight: 400, lineHeight: 16 };
+// Amended by 24-S11: the build-toolbar controls use `body-normal` (24-S8).
+const BODY_NORMAL = { size: 14, weight: 400, lineHeight: 20 };
 const TRACKING_PX = 1.2; // 0.1em at 12px
 const ANSWER_GAP_PX = 4; // the caption's box under the line (15-S6)
 /** Line to the caption's cap top, measured on main before S1 (14px / 20px): 9.31px. */
@@ -98,12 +100,12 @@ function textStyleOf(locator: Locator): Promise<TextStyle> {
   });
 }
 
-async function expectLabel(locator: Locator, name: string) {
+async function expectLabel(locator: Locator, name: string, style = LABEL) {
   await expect(locator, name).toBeVisible();
   const s = await textStyleOf(locator);
-  expect(s.size, `${name} size`).toBe(LABEL.size);
-  expect(s.weight, `${name} weight`).toBe(LABEL.weight);
-  expect(s.lineHeight, `${name} line height`).toBe(LABEL.lineHeight);
+  expect(s.size, `${name} size`).toBe(style.size);
+  expect(s.weight, `${name} weight`).toBe(style.weight);
+  expect(s.lineHeight, `${name} line height`).toBe(style.lineHeight);
 }
 
 /**
@@ -180,12 +182,13 @@ test.describe('23-S1-2 every use is 12px', () => {
     expect((await textStyleOf(word)).tracking, 'Hint Box word tracking').toBeCloseTo(TRACKING_PX, 1);
   });
 
-  test('the build phase: Preview, Rebus, Reset Grid and the progress tooltip', async ({ page }) => {
+  // Amended by 24-S11: Preview, Rebus and Reset Grid are 14px; the tooltip stays 12px.
+  test('the build phase: Preview, Rebus, Reset Grid at 14px and the progress tooltip', async ({ page }) => {
     await openPuzzle(page, dailyGrid(), 'grid');
     const toggle = page.getByTestId('preview-toggle');
-    await expectLabel(toggle.locator('[data-toggle-label]'), 'Preview label');
-    await expectLabel(page.getByTestId('rebus-control').filter({ visible: true }), 'Rebus');
-    await expectLabel(page.getByTestId('start-over'), 'Reset Grid');
+    await expectLabel(toggle.locator('[data-toggle-label]'), 'Preview label', BODY_NORMAL);
+    await expectLabel(page.getByTestId('rebus-control').filter({ visible: true }), 'Rebus', BODY_NORMAL);
+    await expectLabel(page.getByTestId('start-over'), 'Reset Grid', BODY_NORMAL);
 
     await toggle.click();
     await expect(toggle.locator('input')).toBeChecked();
@@ -198,9 +201,10 @@ test.describe('23-S1-2 every use is 12px', () => {
     expect(await tip.evaluate((el) => getComputedStyle(el).maxWidth), 'still at most 280px wide').toBe('280px');
   });
 
-  test('Lock Word in the toggle row, below the full grid width', async ({ page }) => {
+  // Amended by 24-S11: Lock Word matches Rebus at 14px.
+  test('Lock Word in the toggle row, below the full grid width, at 14px', async ({ page }) => {
     await openPuzzle(page, dailyGrid(), 'grid', { width: 635, height: 1000 });
-    await expectLabel(page.getByTestId('lock-word-control').filter({ visible: true }), 'Lock Word');
+    await expectLabel(page.getByTestId('lock-word-control').filter({ visible: true }), 'Lock Word', BODY_NORMAL);
   });
 
   test('the library: a size group\'s dimensions', async ({ page }) => {

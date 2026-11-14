@@ -315,7 +315,7 @@ test.describe('F6-2 Preview toggle', () => {
       expect(kb.x + kb.width, `${name} knob inside the pill`).toBeLessThanOrEqual(pb.x + pb.width + 0.5);
       const knobRight = kb.x + kb.width / 2 > pb.x + pb.width / 2;
       expect(knobRight, `${name} knob side`).toBe(name === 'on');
-      await expectTextStyle(page, t.label, 'label', 12, 400, `${name} label`); // 23-S1: was 14
+      await expectTextStyle(page, t.label, 'body-normal', 14, 400, `${name} label`); // 24-S8: restore 14px
       const labelStyle = name === 'on' ? 'button-active' : 'link-muted';
       expectColor((await styleOf(t.label)).color, await token(page, labelStyle), `${name} label`);
       const lb = await box(t.label);

@@ -35,11 +35,14 @@ import * as actions from './actions';
 const stored = serializePuzzle(createBlankPuzzle('mini'));
 const requestHeaders = new Headers({ cookie: 'better-auth.session_token=token' });
 
-/** The actions this story enumerated on main; the module may add more, never lose these. */
+/** The actions this story enumerated on main; the module may add more, never lose these.
+ *  Amended by 24-S3: the snapshot saves (`saveGrid`, `saveHints`, `saveTitle`),
+ *  the snapshot `enterHints` and `publishPuzzle` are removed, replaced by
+ *  `commitOperation` and `publishAtVersion` (epic 24), which are listed. */
 const KNOWN_ACTIONS = [
   'loadPlayPuzzle', 'startPlaySession', 'resetPlaySession', 'savePlayEntries',
-  'inspectPlayCompletion', 'createPuzzle', 'listPuzzles', 'saveGrid', 'saveHints',
-  'saveTitle', 'enterHints', 'publishPuzzle', 'setPuzzleVisibility', 'duplicatePuzzle',
+  'inspectPlayCompletion', 'createPuzzle', 'listPuzzles', 'commitOperation',
+  'publishAtVersion', 'setPuzzleVisibility', 'duplicatePuzzle',
   'deletePuzzle', 'loadPuzzle',
 ];
 
@@ -52,11 +55,8 @@ const ARGS: Record<string, unknown[]> = {
   inspectPlayCompletion: ['existing'],
   createPuzzle: [{ title: 'Gate', size: 'mini' }],
   listPuzzles: [],
-  saveGrid: ['existing', stored.grid],
-  saveHints: ['existing', {}],
-  saveTitle: ['existing', 'Changed'],
-  enterHints: ['existing'],
-  publishPuzzle: ['existing', 'public'],
+  commitOperation: [{ opId: 'op', puzzleId: 'existing', clientId: 'tab', epoch: 0, baseVersion: 0, kind: 'title', title: 'Changed' }],
+  publishAtVersion: [{ puzzleId: 'existing', version: 0, visibility: 'public' }],
   setPuzzleVisibility: ['existing', 'public'],
   duplicatePuzzle: ['existing'],
   deletePuzzle: ['existing'],

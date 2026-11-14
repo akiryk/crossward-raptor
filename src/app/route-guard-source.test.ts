@@ -14,7 +14,10 @@ import { describe, expect, it } from 'vitest';
 // Better Auth's session.
 // Server actions live only in the modules whose every action is checked by a
 // unit test (puzzles/actions.username-gate.test.ts, account-actions.test.ts);
-// the only route handler is Better Auth's; and every page outside `/` sits
+// the only route handlers are Better Auth's and (amended by 24-S1, as epic
+// 24 requires) the keepalive commit route, which only calls the checked
+// `commitOperation` action (and, amended by 24-S7, the presence route,
+// which only calls the checked `updatePresence` action); and every page outside `/` sits
 // under a layout that calls `requireSession()`, so a page added later is
 // guarded before it renders. The database client is imported only by the
 // checked action modules and Better Auth's configuration, so no page or
@@ -66,9 +69,32 @@ describe('23-S3-U7 the guard is central', () => {
     expect(readers).toEqual(['lib/require-session.ts']);
   });
 
-  it('the only route handler is Better Auth’s', () => {
+  it('the only route handlers are Better Auth’s and the commit route, which only calls the checked action', () => {
     const handlers = [...code.keys()].filter((path) => /^app\/.*\/route\.tsx?$/.test(path));
-    expect(handlers).toEqual(['app/api/auth/[...all]/route.ts']);
+    // 24-S1 amendment: epic 24's keepalive commit route joins Better Auth's.
+    // 24-S7 amendment: and its presence route (checked below).
+    expect(handlers.sort()).toEqual([
+      'app/api/auth/[...all]/route.ts', 'app/api/puzzles/[id]/operations/route.ts', 'app/api/puzzles/[id]/presence/route.ts',
+    ]);
+    const commitRoute = code.get('app/api/puzzles/[id]/operations/route.ts') ?? '';
+    const imports = [...commitRoute.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]).sort();
+    expect(imports).toEqual(['@/app/puzzles/actions', 'next/server']);
+    // 24-S4 amendment: its GET, the catch-up read, only calls the checked
+    // `catchUpOperations` action, as POST only calls `commitOperation`.
+    expect(commitRoute).toMatch(/import \{ catchUpOperations, commitOperation \} from ['"]@\/app\/puzzles\/actions['"]/);
+    expect(commitRoute).toMatch(/\bawait commitOperation\(/);
+    expect(commitRoute).toMatch(/\bawait catchUpOperations\(/);
+  });
+
+  // 24-S7 amendment: the presence route (a tab away or leaving, sent with
+  // keepalive) joins them, and only calls the checked `updatePresence`
+  // action.
+  it('24-S7: the presence route only calls the checked action', () => {
+    const presenceRoute = code.get('app/api/puzzles/[id]/presence/route.ts') ?? '';
+    const imports = [...presenceRoute.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]).sort();
+    expect(imports).toEqual(['@/app/puzzles/actions', 'next/server']);
+    expect(presenceRoute).toMatch(/import \{ updatePresence \} from ['"]@\/app\/puzzles\/actions['"]/);
+    expect(presenceRoute).toMatch(/\bawait updatePresence\(/);
   });
 
   it('every page outside / sits under a layout that calls requireSession()', () => {

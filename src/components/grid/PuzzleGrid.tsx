@@ -148,6 +148,16 @@ const CELL_NUMBER_PITCH_PX = (560 - 1) / 21;
 // The lock button is 2/3 of a cell, at most 32px (21-S2).
 const LOCK_BUTTON_MAX_PX = 32;
 
+/** Whether the cells are one unbroken row or column run (24-S7). */
+function isStraightRun(cells: readonly Coord[]): boolean {
+  if (cells.length === 0) return false;
+  const sameRow = cells.every((c) => c.row === cells[0].row);
+  const sameCol = cells.every((c) => c.col === cells[0].col);
+  if (!sameRow && !sameCol) return false;
+  const steps = cells.map((c) => (sameRow ? c.col : c.row)).sort((a, b) => a - b);
+  return steps.every((step, index) => index === 0 || step === steps[index - 1] + 1);
+}
+
 /** The grid area spanning the cells, for an absolutely placed overlay. */
 function gridArea(coords: Coord[]) {
   const cols = coords.map((c) => c.col);
@@ -176,6 +186,7 @@ export function PuzzleGrid({
   onToggleLock,
   onHoverCell,
   isFading = false,
+  conflicts = [],
 }: {
   rebus?: RebusEntryProps & { coord: Coord };
   grid: Grid;
@@ -210,6 +221,10 @@ export function PuzzleGrid({
   onHoverCell?: (coord: Coord | null) => void;
   /** Preview has just turned on or off: colors fade (22-S5). */
   isFading?: boolean;
+  /** 24-S7: cells whose recent edit another builder just replaced, each
+   *  set outlined in red for a moment (D2): a straight run as one outline,
+   *  anything else cell by cell. */
+  conflicts?: readonly { readonly id: number; readonly cells: readonly Coord[] }[];
 }) {
   // The cell under the mouse, in Preview, and the cell its tooltip stays
   // over (20-S3); a touch or pen shows nothing.
@@ -438,6 +453,15 @@ export function PuzzleGrid({
         style={{ ...gridArea(lockedWordCells(word)), inset: 'calc(-1 * var(--grid-line-width))' }}
       />
     )),
+    ...conflicts.flatMap(({ id, cells }) => (isStraightRun(cells) ? [cells] : cells.map((cell) => [cell])).map((run, index) => (
+      <div
+        key={`conflict ${id} ${index}`}
+        data-testid="conflict-outline"
+        aria-hidden="true"
+        className="conflict-fade pointer-events-none absolute border-2 border-(--palette-cell-error)"
+        style={{ ...gridArea([...run]), inset: 'calc(-1 * var(--grid-line-width))' }}
+      />
+    ))),
     ...[...ticked].map(([key, end]) => (
       <div key={`tick ${key}`} className="pointer-events-none absolute inset-0" style={gridArea([end])} aria-hidden="true">
         <div

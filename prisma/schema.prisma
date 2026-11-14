@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,33 +7,118 @@ datasource db {
 }
 
 model Puzzle {
-  id              String    @id @default(cuid())
+  id              String               @id @default(cuid())
   builderId       String
-  builder         User      @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  title           String    @default("Untitled Puzzle")
+  builder         User                 @relation(fields: [builderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  title           String               @default("Untitled Puzzle")
   grid            Json
   gridBeforeHints Json?
   hints           Json
-  phase           String    @default("grid")
+  phase           String               @default("grid")
   publishedAt     DateTime?
-  visibility      String    @default("private")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  visibility      String               @default("private")
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  // Epic 24 (24-S1): the commit order. Every accepted operation advances
+  // `version` by exactly one, under compare-and-swap; snapshot saves write
+  // only while it is 0. `resetEpoch` is the reset generation (S2's Start
+  // Over increments it); an operation from another epoch is refused.
+  version         Int                  @default(0)
+  resetEpoch      Int                  @default(0)
   playSessions    PlaySession[]
+  operations      PuzzleOperation[]
+  collaborators   PuzzleCollaborator[]
+  invitations     PuzzleInvitation[]
+  presence        PuzzlePresence[]
+}
+
+// Epic 24 (24-S5): a puzzle's collaborators, keyed by account. Collaborators
+// edit the grid, hints and locks as the owner does; Start Over, Publish,
+// Delete and managing collaborators stay with the owner. No email is kept:
+// an email or username change never removes access.
+model PuzzleCollaborator {
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([puzzleId, userId])
+  @@index([userId])
+}
+
+// Epic 24 (24-S5): an invitation to an address without an account (yet).
+// The email is stored trimmed and lowercased. It is claimed, becoming a
+// collaborator row and deleted, when an account with that current email
+// loads a puzzle page before `expiresAt` (30 days, renewed by inviting again).
+model PuzzleInvitation {
+  id        String   @id @default(cuid())
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  email     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@unique([puzzleId, email])
+  @@index([email])
+}
+
+// Epic 24 (24-S7): who has a puzzle open, one row per editor tab. A visible
+// tab's catch-up keeps its row alive for 15 s; a hidden one is away for 5
+// minutes; a closing one deletes it. Presence, not authorization: readers
+// list only accounts that can still edit the puzzle.
+model PuzzlePresence {
+  puzzleId  String
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  clientId  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt DateTime
+
+  @@id([puzzleId, clientId])
+  @@index([puzzleId, expiresAt])
+}
+
+// Epic 24 (24-S1): the operation log. Synchronization metadata, not
+// revision history: it serves deduplication, catch-up and conflict notes,
+// and is pruned to a bounded window. An accepted operation has the version
+// it committed as; a refused one has none and records its refusal code.
+model PuzzleOperation {
+  id          String   @id @default(cuid())
+  puzzleId    String
+  puzzle      Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  opId        String   @unique
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  clientId    String
+  epoch       Int
+  baseVersion Int
+  status      String
+  code        String?
+  version     Int?
+  operation   Json
+  previous    Json?
+  createdAt   DateTime @default(now())
+
+  @@unique([puzzleId, version])
+  @@index([puzzleId, createdAt])
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  puzzles       Puzzle[]
-  playSessions  PlaySession[]
+  id             String               @id
+  name           String
+  email          String
+  emailVerified  Boolean              @default(false)
+  image          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  puzzles        Puzzle[]
+  playSessions   PlaySession[]
+  operations     PuzzleOperation[]
+  collaborations PuzzleCollaborator[]
+  presence       PuzzlePresence[]
 
   // Nullable: magic-link sign-in has no moment to ask for a name; epic 10
   // prompts for one when it is first needed.
@@ -43,7 +127,7 @@ model User {
   // the first migration so adding it later to a populated table -- the
   // expensive change -- isn't needed. Authorization machinery is deferred
   // until a second role exists (epic 09). Not an oversight; do not build on it.
-  role String @default("user")
+  role        String  @default("user")
 
   @@unique([email])
   @@map("user")

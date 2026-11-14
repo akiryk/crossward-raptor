@@ -59,11 +59,10 @@ describe('Server Action session boundary', () => {
     ['createPuzzle', () => actions.createPuzzle(input)],
     ['listPuzzles', () => actions.listPuzzles()],
     ['loadPuzzle', () => actions.loadPuzzle('existing')],
-    ['saveGrid', () => actions.saveGrid('existing', stored.grid)],
-    ['saveHints', () => actions.saveHints('existing', {})],
-    ['saveTitle', () => actions.saveTitle('existing', 'Changed')],
-    ['enterHints', () => actions.enterHints('existing')],
-    ['publishPuzzle', () => actions.publishPuzzle('existing', 'public')],
+    // Amended by 24-S3: the snapshot saves, the snapshot enterHints and
+    // publishPuzzle are removed; the editor writes through these two.
+    ['commitOperation', () => actions.commitOperation({ opId: 'op', puzzleId: 'existing', clientId: 'tab', epoch: 0, baseVersion: 0, kind: 'title', title: 'Changed' })],
+    ['publishAtVersion', () => actions.publishAtVersion({ puzzleId: 'existing', version: 0, visibility: 'public' })],
     ['deletePuzzle', () => actions.deletePuzzle('existing')],
   ];
 

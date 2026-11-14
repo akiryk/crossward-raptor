@@ -94,6 +94,12 @@ function matches(row: Row, where: Row | undefined): boolean {
     if (key === 'OR') return (expected as Row[]).some((clause) => matches(row, clause));
     if (key === 'AND') return ([] as Row[]).concat(expected as Row | Row[]).every((clause) => matches(row, clause));
     if (key === 'NOT') return !([] as Row[]).concat(expected as Row | Row[]).some((clause) => matches(row, clause));
+    // Amended by 24-S6: the library's `editableBy` relation filter, matched
+    // against a row's collaborators (none in these fixtures).
+    if (key === 'collaborators') {
+      const { userId } = (expected as { some: { userId: string } }).some;
+      return ((row.collaborators as string[] | undefined) ?? []).includes(userId);
+    }
     if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
       return row[key] === expected;
     }

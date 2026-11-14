@@ -442,7 +442,7 @@ test.describe('23-S4-5 saving a username', () => {
     await page.reload();
     await waitForNewPuzzleReady(page);
     const row = page.getByTestId('puzzle-list-item').filter({ hasText: title });
-    await expect(row.getByTestId('puzzle-builder-name')).toHaveText('Lil Orange Fox');
+    await expect(row.getByTestId('puzzle-builder-name')).toHaveText('You');
 
     const posts = recordActionPosts(page);
     // A marker on the window: a full reload (a navigation) would drop it.
@@ -455,7 +455,7 @@ test.describe('23-S4-5 saving a username', () => {
     await expect.poll(async () => (await readAccount(email))?.displayName).toBe('Ada Lovelace');
     expect(posts, 'one save').toHaveLength(1);
     expect((await readAccount(bystander))?.displayName, 'no other account changes').toBe('Bystander');
-    await expect(row.getByTestId('puzzle-builder-name'), 'the page shows the new name').toHaveText('Ada Lovelace');
+    await expect(row.getByTestId('puzzle-builder-name'), 'the own row stays You after renaming').toHaveText('You');
     expect(await page.evaluate(() => (window as unknown as { __s4?: number }).__s4), 'no full reload').toBe(1);
     await expect(masthead(page).account, 'focus returns to Account, after the refresh').toBeFocused();
 

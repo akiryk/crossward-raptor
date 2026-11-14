@@ -232,3 +232,29 @@ in another tab) and middleware redirects during client navigation.
 needs the layout refreshed: `revalidatePath('/', 'layout')` in the
 action, `router.refresh()` or a full load. Test it after the app's own
 navigation, not after `page.goto`.
+
+## 10. Known browser-suite flakes, and what a full run needs on this machine
+
+Epic 24's final runs (2026-11-14) each produced 2–3 failures that passed
+on rerun: `ECONNRESET` from `/api/auth/get-session` or the magic-link
+sign-in (also seen in epics 15, 18, 21–23), live-sync waits that timed out
+at load averages around 6, and Epic 18's `done-icon` 18-S5-5 pixel-colour
+read (off by 4 against a tolerance of 2). None traced to the code under
+test. Every one of those runs also produced a full-run failure that was
+real: S8's 14px toolbar broke four older frozen tests that its
+directly-affected browser runs had not included.
+
+Also from epic 24: Next derives the deployment ID from git HEAD, so a
+commit or checkout during a run makes open tabs reload and invalidates
+it. Root lint also traverses the nested `.claude/worktrees`, so
+`npm run verify` needs a clean checkout. In a fresh worktree run
+`npx prisma generate` first, and set `COMPOSE_PROJECT_NAME=crossward-raptor`
+so E2E reuses the existing test database instead of clashing on port 5433.
+
+**Open:** the `ECONNRESET`s and 18-S5-5 should be fixed rather than
+rerun around: a server keep-alive/retry fix in the harness, and the
+human-approved correction to 18-S5-5. Until then, a full run with only
+these failures, each passing on rerun, is the practical bar.
+
+**Rule:** don't let a flaky suite excuse skipping the full run. Run it,
+then check every failure against this list before calling it a flake.

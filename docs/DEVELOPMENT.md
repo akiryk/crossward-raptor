@@ -128,6 +128,18 @@ when exact-head results may be reused. This section documents the commands.
 `npm run test:e2e` is a separate full browser suite with the preparation below.
 Focused runs help iteration; use the lifecycle's applicable final gate.
 
+### Database tests
+
+Unit tests named `*.db.test.ts` (epic 24, 24-S1) run against PostgreSQL, so
+`npm run verify` needs the Docker test database (`npm run db:up`); without it
+they fail with that instruction. `src/test-support/database.ts` gives each
+test file a random `vitest_*` schema in the validated E2E target (`localhost`
+or `127.0.0.1`, port `5433`, `crossward_test`; see below), applies every
+migration's SQL there and drops it afterward. They never read or write the
+public tables, so they need no reset grant and can run alongside a browser
+run. A crashed run can leave a `vitest_*` schema behind; dropping it touches
+nothing else.
+
 ## E2E environment
 
 `npm run test:e2e` prepares its own database and server environment through `pretest:e2e`; no manual test-database reset should normally be necessary.

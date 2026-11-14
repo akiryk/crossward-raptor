@@ -13,7 +13,11 @@ import { ROW_PRIMARY_LINK } from './library-row';
 export interface LibraryPuzzle {
   id: string;
   builderId: string;
+  /** 24-S6: shared with the caller, a collaborator (owned by another). */
+  shared: boolean;
   builderName: string | null;
+  collaborators?: { userId: string; name: string }[];
+  hasCollaborators?: boolean;
   title: string;
   phase: Phase;
   hintsComplete: boolean;
@@ -50,11 +54,13 @@ const PLAY_ROW = 'bg-puzzle-row-play hover:bg-puzzle-row-play-hover has-[a:focus
 const COMPLETE_ROW = 'bg-puzzle-row-complete hover:bg-puzzle-row-complete-hover has-[a:focus-visible]:bg-puzzle-row-complete-hover';
 
 /** Story 18-S4: a published row links to play and shows the player's
- *  progress; an unpublished one (always the caller's) links to the builder.
- *  The caller's own rows keep their menu. */
-export function PuzzleRow({ puzzle, own, onDeleted }: {
+ *  progress; an unpublished one (the caller's, or 24-S6 shared with them)
+ *  links to the builder. The caller's own rows keep their menu; a shared
+ *  row's menu offers Duplicate only (24-S6). */
+export function PuzzleRow({ puzzle, own, viewerId, onDeleted }: {
   puzzle: LibraryPuzzle;
   own: boolean;
+  viewerId?: string;
   onDeleted: () => void;
 }) {
   const link = useRef<HTMLAnchorElement>(null);
@@ -65,6 +71,8 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
   const status: IconStatus = play?.state === 'completed' ? 'complete' : puzzle.statusKind;
   const marker = play?.state === 'in-progress' ? '[in-play]' : null;
   const resettable = play?.state === 'completed' && play.sessionId !== null;
+  const menu = own || puzzle.shared;
+  const collaborators = puzzle.collaborators ?? [];
 
   return (
     <li
@@ -76,8 +84,9 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-visibility={puzzle.visibility}
       data-published-at={puzzle.publishedAt ?? undefined}
       data-play-state={play?.state}
+      data-shared={puzzle.shared ? 'true' : undefined}
       data-keyboard-focus-host
-      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(own, resettable)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
+      className={`relative flex ${collaborators.length > 0 ? 'min-h-[66px] py-[11px]' : 'h-[66px]'} items-center rounded-modal pl-[10px] ${rightRoom(menu, resettable)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
       <StatusIcon status={status} />
       <div className="ml-3 flex w-[212px] min-w-[90px] flex-col gap-1">
@@ -98,9 +107,15 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
             </>
           )}
         </Link>
-        <span data-testid="puzzle-builder-name" className="block h-5 truncate text-title-4 text-muted">
-          {puzzle.builderName ?? ''}
-        </span>
+        <div className="flex h-5 text-title-4 text-muted">
+          <span data-testid="puzzle-builder-name" className="block h-5 min-w-0 truncate">{own ? 'You' : puzzle.builderName ?? ''}</span>
+          <span data-testid="puzzle-owner-label" className="shrink-0 font-normal">, (owner)</span>
+        </div>
+        {collaborators.map((member) => (
+          <span key={member.userId} data-testid="puzzle-collaborator-name" className="block h-5 truncate text-title-4 text-muted">
+            {member.userId === viewerId ? 'You' : member.name}
+          </span>
+        ))}
       </div>
       <span
         data-testid="puzzle-list-updated"
@@ -108,8 +123,13 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       >
         {puzzle.updatedLabel}
       </span>
-      {own && (
-        <PuzzleRowMenu puzzle={puzzle} onDeleted={onDeleted} onReset={resettable ? () => setResetting(true) : undefined} />
+      {menu && (
+        <PuzzleRowMenu
+          puzzle={puzzle}
+          own={own}
+          onDeleted={onDeleted}
+          onReset={resettable ? () => setResetting(true) : undefined}
+        />
       )}
       {play && (
         <LibraryPlayControls
@@ -119,7 +139,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
           playLink={link}
           open={resetting}
           setOpen={setResetting}
-          button={!own}
+          button={!menu}
         />
       )}
     </li>

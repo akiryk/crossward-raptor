@@ -1,5 +1,5 @@
 import { test as setup } from '@playwright/test';
-import { signInSeededUser } from './helpers/seed-session';
+import { signInSeededCollaborator, signInSeededUser } from './helpers/seed-session';
 
 const authFile = 'e2e/.auth/user.json';
 
@@ -12,4 +12,14 @@ const authFile = 'e2e/.auth/user.json';
 setup('authenticate', async ({ page }) => {
   await signInSeededUser(page);
   await page.context().storageState({ path: authFile });
+});
+
+/**
+ * Epic 24 (24-S5): the second seeded account, "Jay", for two-user tests
+ * (`e2e/helpers/collaborators.ts`). Specs make Jay a collaborator by writing
+ * the membership directly.
+ */
+setup('authenticate the collaborator', async ({ page }) => {
+  await signInSeededCollaborator(page);
+  await page.context().storageState({ path: 'e2e/.auth/collaborator.json' });
 });

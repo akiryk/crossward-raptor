@@ -14,9 +14,7 @@ import {
   type SerializedGrid,
 } from '@/lib/puzzle-storage';
 import type { Puzzle, Phase } from '@/engine/puzzle';
-import { enterHintsPhase } from '@/engine/phase';
-import { hintsComplete } from '@/engine/hints';
-import { normalizeTitle, requireTitle } from '@/lib/puzzle-title';
+import { requireTitle } from '@/lib/puzzle-title';
 import { summarizePuzzle } from '@/lib/puzzle-summary';
 import type { PuzzleSize } from '@/lib/puzzle-size';
 import type { LockedWord } from '@/lib/locked-words';
@@ -24,6 +22,12 @@ import { clearLetters } from '@/engine/grid';
 import { isCompatiblePlayEntries } from '@/lib/play-entries';
 import { isFull, isSolved } from '@/engine/play';
 import { classifyLibraryPlay, type LibraryPlay } from '@/lib/library-play';
+import { commitPuzzleOperation, type CommitOutcome } from '@/lib/collab/commit';
+import { publishPuzzleAt, type PublishOutcome } from '@/lib/collab/publish';
+import { readOperationsSince, type CatchUp } from '@/lib/collab/catchup';
+import { parseClientId, readSession, updatePresence as updatePresenceRow, type PresenceUpdate, type SessionInfo } from '@/lib/collab/presence';
+import { editableBy, ownedBy } from '@/lib/collab/access';
+import * as membership from '@/lib/collab/membership';
 
 export type Visibility = 'private' | 'public';
 
@@ -34,6 +38,14 @@ export type PuzzleWithMeta = Puzzle & {
   title: string;
   publishedAt: Date | null;
   visibility: Visibility;
+  /** 24-S3: the version and reset epoch the editor's confirmed state
+   *  starts from. */
+  version: number;
+  resetEpoch: number;
+  /** 24-S5: whether the caller owns it (else a collaborator). */
+  isOwner: boolean;
+  /** 24-S7: the caller's account. */
+  viewerId: string;
 };
 
 export interface PlayPuzzleView {
@@ -259,6 +271,43 @@ export async function createPuzzle(input: {
   return { id: record.id };
 }
 
+/** The library's existing visibility rules. */
+function libraryAccess(userId: string): Prisma.PuzzleWhereInput {
+  return { OR: [
+    editableBy(userId),
+    { publishedAt: { not: null }, visibility: 'public' },
+    { publishedAt: { not: null }, playSessions: { some: { userId } } },
+  ] };
+}
+
+/** Username-only collaboration metadata, only for puzzles the caller owns or
+ *  collaborates on (24-S11); rechecks access even when called directly with
+ *  arbitrary IDs rather than through the library page. */
+export async function listLibraryCollaboration(ids: string[]) {
+  const session = await requireSession();
+  if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string')) {
+    throw new Error('listLibraryCollaboration: invalid identifiers');
+  }
+  const records = await prisma.puzzle.findMany({
+    where: { AND: [{ id: { in: ids } }, editableBy(session.user.id)] },
+    select: {
+      id: true,
+      collaborators: {
+        orderBy: [{ createdAt: 'asc' }, { userId: 'asc' }],
+        select: { userId: true, user: { select: { displayName: true } } },
+      },
+      _count: { select: { invitations: { where: { expiresAt: { gt: new Date() } } } } },
+    },
+  });
+  return records.map((record) => ({
+    id: record.id,
+    collaborators: record.collaborators.map((member) => ({
+      userId: member.userId, name: member.user.displayName?.trim() || '(no username)',
+    })),
+    hasCollaborators: record.collaborators.length > 0 || record._count.invitations > 0,
+  }));
+}
+
 export async function listPuzzles(): Promise<
   {
     id: string;
@@ -281,14 +330,9 @@ export async function listPuzzles(): Promise<
   const authSession = await requireSession();
   // The caller's attempt comes from the same query, so the snapshot is atomic.
   // Another builder's unlisted puzzle is listed only once the caller has started it.
+  // 24-S6: every puzzle the caller can edit is listed, shared ones included.
   const records = await prisma.puzzle.findMany({
-    where: {
-      OR: [
-        { builderId: authSession.user.id },
-        { publishedAt: { not: null }, visibility: 'public' },
-        { publishedAt: { not: null }, playSessions: { some: { userId: authSession.user.id } } },
-      ],
-    },
+    where: libraryAccess(authSession.user.id),
     orderBy: { updatedAt: 'desc' },
     select: {
       builder: { select: { displayName: true } },
@@ -336,115 +380,50 @@ export async function listPuzzles(): Promise<
   });
 }
 
-/** Ownership and the published lock are checked by the write itself, so
- *  neither can change between a preliminary read and this mutation. */
-async function updateUnlessPublished(
-  id: string,
-  builderId: string,
-  action: string,
-  data: Prisma.PuzzleUpdateManyMutationInput
-): Promise<void> {
-  const { count } = await prisma.puzzle.updateMany({ where: { id, builderId, publishedAt: null }, data });
-  if (count === 0) {
-    throw new Error(`${action}: puzzle ${id} cannot be edited`);
-  }
+/** Epic 24 (24-S1): commits one operation as the signed-in builder. The
+ *  account comes from the session, never the input. The editor sends
+ *  through this (24-S3); a page being left sends through the route handler at
+ *  `/api/puzzles/[id]/operations`. */
+export async function commitOperation(input: unknown): Promise<CommitOutcome> {
+  const session = await requireSession();
+  return commitPuzzleOperation(prisma, session.user.id, input);
 }
 
-export async function saveGrid(id: string, grid: SerializedGrid): Promise<void> {
+/** Epic 24 (24-S4): what the signed-in builder's editor needs to catch up
+ *  from the version its confirmed state is at (`{ puzzleId, since }`):
+ *  the operations committed since, in order, or the puzzle as stored. The
+ *  editor polls it through the route handler at
+ *  `/api/puzzles/[id]/operations` (GET), so a poll never waits behind a
+ *  commit in Next.js's queue of server actions. */
+export async function catchUpOperations(input: unknown): Promise<CatchUp | (CatchUp & SessionInfo)> {
   const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveGrid', {
-    grid: grid as unknown as Prisma.InputJsonValue,
-  });
+  const result = await readOperationsSince(prisma, session.user.id, input);
+  // 24-S7: asked as a tab (`clientId`), the catch-up is its heartbeat and
+  // answers who else is present and who committed what it returns. Only
+  // for a puzzle the caller can edit and that isn't published.
+  const clientId = typeof input === 'object' && input !== null ? parseClientId((input as { clientId?: unknown }).clientId) : null;
+  if (clientId === null || (result.status !== 'ops' && result.status !== 'snapshot')) return result;
+  const { puzzleId } = input as { puzzleId: string };
+  const opIds = result.status === 'ops' ? result.ops.map((op) => op.opId) : [];
+  return { ...result, ...(await readSession(prisma, session.user.id, puzzleId, clientId, opIds)) };
 }
 
-export async function saveHints(id: string, hints: Record<string, string>): Promise<void> {
+/** Epic 24 (24-S7): a tab of the signed-in builder going away (hidden) or
+ *  leaving (closed), `{ puzzleId, clientId, state }`. The editor sends it
+ *  through the route handler at `/api/puzzles/[id]/presence` (POST), with
+ *  keepalive. */
+export async function updatePresence(input: unknown): Promise<PresenceUpdate> {
   const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveHints', {
-    hints: hints as unknown as Prisma.InputJsonValue,
-  });
+  return updatePresenceRow(prisma, session.user.id, input);
 }
 
-export async function saveTitle(id: string, title: string): Promise<void> {
+/** Epic 24 (24-S2): publishes the signed-in owner's puzzle only if it is
+ *  still at the version their readiness check saw (`{ puzzleId, version,
+ *  visibility }`); otherwise a refusal the Publish dialog can show. The
+ *  account comes from the session. The Publish dialog calls this (24-S3). */
+export async function publishAtVersion(input: unknown): Promise<PublishOutcome> {
   const session = await requireSession();
-  await updateUnlessPublished(id, session.user.id, 'saveTitle', { title: normalizeTitle(title) });
-}
-
-/** Loads the puzzle, transitions it to 'hints' phase via the engine's
- *  enterHintsPhase, persists the result (grid included -- the transition
- *  now converts empty cells to black, so the grid changes too), and
- *  returns the new phase, hints, and grid. */
-export async function enterHints(
-  id: string
-): Promise<{ phase: Phase; hints: Record<string, string>; grid: SerializedGrid }> {
-  const session = await requireSession();
-  const puzzle = await loadPuzzle(id);
-  if (!puzzle) {
-    throw new Error(`enterHints: puzzle ${id} not found`);
-  }
-
-  const updated = enterHintsPhase(puzzle);
-  const stored = serializePuzzle(updated);
-
-  await updateUnlessPublished(id, session.user.id, 'enterHints', {
-    grid: stored.grid as unknown as Prisma.InputJsonValue,
-    hints: stored.hints as unknown as Prisma.InputJsonValue,
-    phase: stored.phase,
-    // Only written on the actual grid->hints crossing (Story H2) -- a
-    // second call on an already-hints puzzle (enterHintsPhase is a
-    // no-op then) must not overwrite the one snapshot of the original,
-    // pre-conversion grid with the already-converted one.
-    ...(puzzle.phase === 'grid'
-      ? { gridBeforeHints: serializeGrid(puzzle.grid) as unknown as Prisma.InputJsonValue }
-      : {}),
-  });
-
-  return { phase: updated.phase, hints: { ...updated.hints }, grid: stored.grid };
-}
-
-/** Publishes the puzzle with the given visibility, stamping publishedAt now.
- *  Requires the puzzle to be the caller's, in hints phase, not already
- *  published, and (14-S4) to have every required hint written. Each
- *  condition is repeated in the update's WHERE clause, the hints by value,
- *  so a concurrent save can't slip an ineligible puzzle through between
- *  the check and the write. Every rejection throws the same error. */
-export async function publishPuzzle(
-  id: string,
-  visibility: Visibility
-): Promise<{ publishedAt: Date; visibility: Visibility }> {
-  const session = await requireSession();
-  if (visibility !== 'private' && visibility !== 'public') {
-    throw new Error(`publishPuzzle: invalid visibility ${JSON.stringify(visibility)}`);
-  }
-
-  const notEligible = new Error(`publishPuzzle: puzzle ${id} is not eligible to publish`);
-  const eligible = { id, builderId: session.user.id, phase: 'hints', publishedAt: null };
-  const record = await prisma.puzzle.findUnique({
-    where: eligible,
-    select: { grid: true, hints: true, phase: true },
-  });
-  if (
-    !record ||
-    !hintsComplete(
-      deserializePuzzle({
-        grid: record.grid as unknown as SerializedGrid,
-        hints: record.hints as Record<string, string>,
-        phase: record.phase as Puzzle['phase'],
-      })
-    )
-  ) {
-    throw notEligible;
-  }
-
-  // Conditioned on the hints just checked: a save that blanks one in
-  // between makes the update match nothing rather than publish over it.
-  const publishedAt = new Date();
-  const { count } = await prisma.puzzle.updateMany({
-    where: { ...eligible, hints: { equals: record.hints as Prisma.InputJsonValue } },
-    data: { publishedAt, visibility },
-  });
-  if (count === 0) throw notEligible;
-
-  return { publishedAt, visibility };
+  return publishPuzzleAt(prisma, session.user.id, input);
 }
 
 /** Story 16-S2: switches the caller's published puzzle between unlisted and
@@ -463,7 +442,7 @@ export async function setPuzzleVisibility(
   }
 
   const notAllowed = new Error(`setPuzzleVisibility: puzzle ${id} cannot change visibility`);
-  const owned = { id, builderId: session.user.id, publishedAt: { not: null } };
+  const owned = { id, AND: [editableBy(session.user.id), ownedBy(session.user.id)], publishedAt: { not: null } };
   const record = await prisma.puzzle.findUnique({ where: owned, select: { updatedAt: true } });
   if (!record) throw notAllowed;
 
@@ -483,8 +462,9 @@ export async function setPuzzleVisibility(
  *  written. Another builder's puzzle and a missing one throw the same error. */
 export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
   const session = await requireSession();
+  // 24-S5: a collaborator may duplicate too (D6); the copy is theirs alone.
   const source = await prisma.puzzle.findUnique({
-    where: { id, builderId: session.user.id },
+    where: { id, AND: [editableBy(session.user.id)] },
     select: { title: true, grid: true, hints: true, phase: true, gridBeforeHints: true },
   });
   if (!source) throw new Error(`duplicatePuzzle: puzzle ${id} cannot be duplicated`);
@@ -508,13 +488,15 @@ export async function duplicatePuzzle(id: string): Promise<{ id: string }> {
 /** Permanently deletes the puzzle. No soft-delete, no tombstone. */
 export async function deletePuzzle(id: string): Promise<void> {
   const session = await requireSession();
-  await prisma.puzzle.delete({ where: { id, builderId: session.user.id } });
+  // 24-S5: owner-only; memberships and invitations go with it.
+  await prisma.puzzle.delete({ where: { id, AND: [editableBy(session.user.id), ownedBy(session.user.id)] } });
   revalidatePath('/puzzles');
 }
 
 export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
   const session = await requireSession();
-  const record = await prisma.puzzle.findUnique({ where: { id, builderId: session.user.id } });
+  // 24-S5: the owner or a collaborator.
+  const record = await prisma.puzzle.findUnique({ where: { id, AND: [editableBy(session.user.id)] } });
   if (!record) return null;
 
   const puzzle = deserializePuzzle({
@@ -530,5 +512,51 @@ export async function loadPuzzle(id: string): Promise<PuzzleWithMeta | null> {
     title: record.title,
     publishedAt: record.publishedAt,
     visibility: record.visibility as Visibility,
+    version: record.version,
+    resetEpoch: record.resetEpoch,
+    isOwner: record.builderId === session.user.id,
+    // 24-S7: the editor tells others' edits from its own account's.
+    viewerId: session.user.id,
   };
+}
+
+/** Epic 24 (24-S5): adds a collaborator to the signed-in owner's puzzle by
+ *  email (`{ puzzleId, email }`): at once for an address with an account,
+ *  otherwise an invitation. The owner is the session's account. */
+export async function addCollaborator(input: unknown): Promise<membership.AddOutcome> {
+  const session = await requireSession();
+  return membership.addCollaborator(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): removes a collaborator (`{ puzzleId, userId }`). */
+export async function removeCollaborator(input: unknown): Promise<membership.RemoveOutcome> {
+  const session = await requireSession();
+  return membership.removeCollaborator(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): revokes an invitation (`{ puzzleId, email }`). */
+export async function revokeInvitation(input: unknown): Promise<membership.RevokeOutcome> {
+  const session = await requireSession();
+  return membership.revokeInvitation(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): the owner's view of a puzzle's collaborators and
+ *  pending invitations (`{ puzzleId }`). */
+export async function listCollaborators(input: unknown): Promise<membership.CollaboratorList> {
+  const session = await requireSession();
+  return membership.listCollaborators(prisma, session.user.id, input);
+}
+
+/** Epic 24 (24-S5): claims the invitations to the signed-in account's
+ *  current email. The editor page and the library call it before reading. */
+export async function claimInvitations(): Promise<number> {
+  const session = await requireSession();
+  return membership.claimInvitations(prisma, { id: session.user.id, email: session.user.email });
+}
+
+/** Epic 24 (24-S6): the puzzles the signed-in account is a collaborator
+ *  of, which the library marks as shared. */
+export async function listSharedPuzzleIds(): Promise<string[]> {
+  const session = await requireSession();
+  return membership.sharedPuzzleIds(prisma, session.user.id);
 }

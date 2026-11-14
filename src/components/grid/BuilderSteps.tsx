@@ -12,9 +12,19 @@ export type BuilderStepId = 'build' | 'hints' | 'publish';
 export function BuilderSteps({
   phase,
   onStep,
+  status,
+  collaborators,
+  canPublish = true,
 }: {
   phase: Phase;
   onStep: (id: Exclude<BuilderStepId, 'build'>) => void;
+  /** 24-S5: false for a collaborator: publishing is the owner's (D7), so
+   *  Create Hints has no next step for them. */
+  canPublish?: boolean;
+  /** The save status (24-S3), at the row's end. */
+  status?: ReactNode;
+  /** Owner's collaboration link, aligned with the grid controls below. */
+  collaborators?: ReactNode;
 }) {
   const isHints = phase === 'hints';
   const current: { id: BuilderStepId; number: number; label: string } = isHints
@@ -26,7 +36,7 @@ export function BuilderSteps({
   return (
     <div
       data-testid="builder-steps"
-      className="flex flex-wrap items-center gap-x-3 gap-y-2.5 px-3 min-[748px]:gap-x-5 min-[748px]:px-4"
+      className={`flex flex-wrap items-center gap-x-3 gap-y-2.5 px-3 min-[748px]:gap-x-5 min-[748px]:px-4 ${collaborators ? 'w-(--grid-max) max-w-full' : ''}`}
     >
       <p data-testid="builder-step-current" data-step-id={current.id} aria-current="true" className="inline-flex items-center gap-2 text-title-4 text-primary">
         <span
@@ -37,9 +47,20 @@ export function BuilderSteps({
         </span>
         {current.label}
       </p>
-      <Button number={next.number} data-step-id={next.id} onClick={() => onStep(next.id)}>
-        {next.label}
-      </Button>
+      {(next.id !== 'publish' || canPublish) && (
+        <Button number={next.number} data-step-id={next.id} onClick={() => onStep(next.id)}>
+          {next.label}
+        </Button>
+      )}
+      {/* 24-S11: the status and the owner's link wrap together, right-aligned. */}
+      {collaborators ? (
+        <div className="ml-auto flex items-center justify-end gap-x-3 min-[748px]:gap-x-5">
+          {status}
+          {collaborators}
+        </div>
+      ) : (
+        status
+      )}
     </div>
   );
 }

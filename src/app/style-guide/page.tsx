@@ -32,6 +32,7 @@ import { PlayHintBar } from '@/components/play/PlayHintBar';
 const SAMPLE_ROW: LibraryPuzzle = {
   id: 'sg-sample',
   builderId: 'sg-builder',
+  shared: false,
   builderName: 'crossworder',
   title: 'Sample puzzle',
   phase: 'grid',
@@ -388,7 +389,10 @@ export default function StyleGuidePage() {
               findings={[
                 { kind: 'short-answers', count: 2, message: '2 answers are shorter than three letters.' },
               ]}
-              onPublish={async () => setPublishOpen(false)}
+              onPublish={async () => {
+                setPublishOpen(false);
+                return null;
+              }}
               onCancel={() => setPublishOpen(false)}
             />
           )}

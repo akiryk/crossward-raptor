@@ -16,6 +16,7 @@ export function HintBox({
   slot,
   hint,
   isMissing = false,
+  isConflict = false,
   disabled,
   inputRef,
   onHintChange,
@@ -27,6 +28,8 @@ export function HintBox({
   hint: string;
   /** 3 Publish found this word's hint blank, and it hasn't changed since (17-S1). */
   isMissing?: boolean;
+  /** 24-S7: another builder just replaced this hint; highlighted a moment. */
+  isConflict?: boolean;
   disabled?: boolean;
   inputRef?: Ref<HTMLTextAreaElement>;
   onHintChange: (text: string) => void;
@@ -39,7 +42,8 @@ export function HintBox({
     <div
       data-testid="hint-box"
       data-missing={isMissing ? 'true' : undefined}
-      className="border-hint-box-border border-t-hint-rule flex min-h-12 items-start border border-t-4 px-3 py-[6.5px]"
+      data-conflict={isConflict ? 'true' : undefined}
+      className={`border-hint-box-border border-t-hint-rule flex min-h-12 items-start border border-t-4 px-3 py-[6.5px] ${isConflict ? 'conflict-ring' : ''}`}
     >
       <div className="flex h-[30px] items-center">
         <HintArrow direction="previous" onClick={() => onStep(-1)} />

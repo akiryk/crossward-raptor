@@ -3,85 +3,93 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. The [EPIC](EPIC.md), especially Stories, "Retiring snapshot saves",
-   "Multi-user testing" and Decisions.
+2. For final verification, [STORY — Verification](../../process/STORY.md#verification)
+   and [DEVELOPMENT — E2E environment](../../DEVELOPMENT.md#e2e-environment).
+3. For closeout, [AUDIT](../../process/AUDIT.md) and
+   [Close an epic](../README.md#close-an-epic), then the [EPIC](EPIC.md),
+   all ten stories in `stories/`, and affected code/docs as the audit requires.
 
-**Only if needed:** the source material, which is outside the repo and is
-not a specification. The EPIC supersedes all three:
+**Only if needed:** [historical handoff and evidence](HISTORY-2026-11-14.md).
+The three external source drafts named there are not specifications.
 
-- the human's draft epic (`~/Downloads/draft-epic-collaboration.md`);
-- the agent's technical investigation
-  (`~/Downloads/collaboration-technical-investigation.md`);
-- the human's decisions (`~/Downloads/response-01.md`).
+## Current state (2026-11-14)
 
-## Current state (2026-11-12)
+**Closed 2026-11-14; merged to `main` via [PR #46](https://github.com/akiryk/crossward-raptor/pull/46).**
+S1–S11 merged into `epic/24-collaboration`, each after its own PR and
+independent review (#39–#45, #47–#50). [S11](stories/24-S11-closeout-fixes.md)
+(PR #50, merged as `4e68d5b`) fixed the four E2E failures and the audit's
+privacy finding. Full E2E at `4e68d5b`: 1396 passed, 2 failed, both known
+flakes ([LEARNINGS](../../LEARNINGS.md) entry 10). The human declared the
+epic done and authorized the merge.
 
-**The EPIC is approved (2026-11-12); S1 is next.** No story specification
-or acceptance exists, and nothing is frozen. No application code, schema,
-migration, service or production data has changed.
+**Production cutover (human, 2026-11-14):** before-check `prisma migrate status`
+listed exactly the three pending migrations; `prisma migrate deploy`
+applied `20261112120000_add_puzzle_operations`,
+`20261113120000_add_puzzle_collaborators` and
+`20261114120000_add_puzzle_presence`; after-check status "up to date",
+`Puzzle` count 4 before and after, all 4 at `version = 0`, `resetEpoch = 0`.
+Vercel Skew Protection is disabled (Pro-only feature, not in use).
+The original S3/S6/S7 visual checks were not separately recorded; the
+human's done declaration accepts the epic as is.
 
-- 2026-11-09: the human answered D1–D9 and the agent drafted the EPIC.
-- 2026-11-12: the human approved the architecture, product decisions and
-  general order. They asked for:
-  - smaller stories (about seven was suggested, not required);
-  - the settled decisions folded in and the stale open questions removed;
-  - a plan for old browser tabs during the switch from snapshot saves;
-  - explicit multi-user tests of overlapping edits, revocation and
-    reconnecting.
-- The revision makes seven stories, close to the human's suggestion. The
-  boundary changes are explained in the EPIC's "Why not other boundaries".
-- The four former open questions are resolved by the agent's
-  suggestions (EPIC, "Resolved with the epic's approval").
-- 2026-11-12: the human approved the revised EPIC, including the split
-  and those resolutions.
+**Pre-S11 final verification at `93943f8`** (clean detached worktree, Prisma Client
+generated, `COMPOSE_PROJECT_NAME=crossward-raptor` so the existing test
+database is reused, two workers, HEAD fixed, lock held):
 
-- 2026-11-12 (later): the human delegated the whole epic. They asked the
-  agent to orchestrate subagents and finish every story without checking
-  in on each decision, and they will review the result at the end. This
-  explicitly delegates approval and freezing of each story's
-  specification and acceptance (STORY, "Obtain approval and freeze").
+- `npm run verify` exit 0: 113 files/1287 tests; 2 lint warnings, no errors.
+- Full `npm run test:e2e`: **4 failed, 1394 passed**. All four are older
+  frozen tests that S8's 14px toolbar broke and its affected runs missed:
+  23-S1-2 build phase (Preview/Rebus 14 vs 12), 20-S1-1 (Reset Grid 12 vs
+  Preview 14), 21-S5-1 (Lock Word 12 vs Rebus 14) and 22-S2-7 (at 540px
+  the first save status wraps S8's link, moving the bar 30px).
 
-**Authorization.** All seven stories: drafting, freezing under that
-delegation, implementation, PRs and independent review. Not authorized:
-production migrations, Vercel settings, or merging into `main` (which
-deploys automatically).
+**Independent report-only closeout audit** (fresh agent, author of none of
+the audited work; 2026-11-14; commit `93943f8`; covered EPIC, S8–S10 in
+full, S1–S7 by targeted checks over the earlier `0135adb` audit, the
+`main...93943f8` diff, engine purity and PR states). No blockers. Findings
+and disposition:
 
-**Delivery plan (agent's decision, 2026-11-12).** S1's migration must be in
-production before any code using it reaches `main`, and production
-migrations are the human's. So the epic is integrated on
-`epic/24-collaboration`, branched from `main`:
+- Should-fix: PR #46 description stale → rewritten at merge.
+  Epic index "closeout audited" stale → updated. EPIC lacked S8–S10 →
+  follow-up stories and supersession notes added.
+- Should-fix (privacy): library collaboration metadata reached outsiders on
+  public/played published puzzles → the human chose own/shared rows only;
+  fixed in S11.
+- Notes accepted as-is: owner without username renders ", (owner)" (frozen
+  14-S2-4); invitations listed under Current Collaborators; no test for the
+  36px gap or the "Edit Collaborators" menu label; presence route not named
+  in CODE-REVIEW risk paths (thin wrapper over the `actions.ts` risk path);
+  stale "Collaborators…" comments in frozen files; S9/S10 freeze and
+  implementation commits share timestamps (review order recorded in their
+  stories/PRs); STORY's "before the epic's PR" wording; Epic 18 carry-overs.
+- Note to fold into DEVELOPMENT later: HEAD changes invalidate E2E runs
+  (deployment ID), and root lint scans nested `.claude/worktrees`.
 
-- each story's frozen specification and acceptance is a separate
-  specification-only commit on `epic/24-collaboration` (in place of
-  `main`, so `main` stays deployable);
-- each story is implemented on `story/24-Sn-<name>` from that baseline,
-  with a PR into `epic/24-collaboration`;
-- an independent reviewer agent reviews and merges each PR into the epic
-  branch;
-- at the end, one PR from `epic/24-collaboration` to `main`, merged only
-  after the human applies the epic's migrations to production. The
-  Vercel Skew Protection check (EPIC, "Retiring snapshot saves") is
-  settled before that merge.
+**Human decisions (2026-11-14):** all build-toolbar controls at 14px (Reset
+Grid and Lock Word too; only 23-S1-2 amended); collaborator metadata only on
+puzzles the caller owns or collaborates on. See [S11](stories/24-S11-closeout-fixes.md).
 
-**Constraint for every story.** Each one is on the risk paths: a branch,
-a PR and independent review.
+## Verification and operating notes
 
-## Verification
-
-Documentation only: `EPIC.md` and this handoff. The checks:
-
-- the EPIC's internal story references were checked (S1–S7);
-- no other paths changed.
-
-`npm run verify` and `npm run test:e2e` were not run, since no code
-changed.
+Use a clean checkout for verify: root lint traverses historical nested
+`.claude/worktrees` and generated output. Preserve those existing worktrees.
+In a fresh worktree run `npx prisma generate` first and export
+`COMPOSE_PROJECT_NAME=crossward-raptor` for E2E. Serialize browser suites
+under `/tmp/crossward-e2e.lock`; guarded test resets have the standing grant
+in DEVELOPMENT. Use two workers on this machine. Stop local dev before
+browser runs sharing build output, and keep **git HEAD fixed throughout
+build and run**: deployment identity changes trigger stale-tab reloads.
+Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-Draft S1's specification and proposed acceptance (EPIC, Stories 1) on
-`main` for the human's approval. There is no freeze and no implementation
-before approval.
+None in this epic. Open follow-ups: rotate the production `neondb_owner`
+password (it was exposed in a session transcript during cutover) and update
+`DATABASE_URL`/`DATABASE_URL_UNPOOLED` in Vercel, then redeploy; fold the
+DEVELOPMENT notes above (HEAD changes invalidate E2E runs; root lint scans
+nested `.claude/worktrees`); Epic 18's 18-S5-5 flake correction awaits the
+human's approval.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md and docs/epics/24-collaboration/EPIC.md. Draft S1's specification and proposed acceptance (EPIC, Stories 1) on main; no freeze or implementation without approval.
+Read docs/epics/README.md. Choose the next epic with me; no specification or implementation without approval.

@@ -31,6 +31,7 @@ export function HintsPanel({
   disabled,
   selectedKey = null,
   missingKeys,
+  conflictKeys,
   onHintChange,
   onHintFocus,
   gridPx = 700,
@@ -48,6 +49,8 @@ export function HintsPanel({
   missingKeys?: ReadonlySet<string>;
   /** The grid's width beside it (21-S9). */
   gridPx?: number;
+  /** 24-S7: hints another builder just replaced, highlighted a moment. */
+  conflictKeys?: ReadonlySet<string>;
 }) {
   const entries = Array.from(slots.entries());
   // One width for every number in both columns, so every line starts at
@@ -87,9 +90,10 @@ export function HintsPanel({
                       data-complete={isHintFilled(hints, key) ? 'true' : 'false'}
                       data-active={activeKey === key ? 'true' : undefined}
                       data-missing={isMissing ? 'true' : undefined}
+                      data-conflict={conflictKeys?.has(key) ? 'true' : undefined}
                       className={`group flex items-baseline gap-3 not-first:mt-[9px] ${
                         isMissing ? MISSING : selectedKey === key ? SELECTED : ''
-                      }`}
+                      }${conflictKeys?.has(key) ? ' conflict-ring' : ''}`}
                     >
                       <span
                         data-testid="hint-label"

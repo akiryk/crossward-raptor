@@ -26,12 +26,19 @@ const otherPublished = {
   updatedAt: new Date('2026-10-15T12:00:00Z'), publishedAt: new Date('2026-10-15T12:00:00Z'), visibility: 'public',
 };
 type Stored = typeof own | typeof otherPublished;
-type Where = { builderId?: string; publishedAt?: { not?: null }; OR?: Where[] };
+type Where = {
+  builderId?: string; publishedAt?: { not?: null }; OR?: Where[];
+  collaborators?: { some: { userId: string } };
+};
 
 /** The subset of Prisma's where clause the library uses (14-S2). */
 function matches(row: Stored, where: Where | undefined): boolean {
   if (!where) return true;
   if (where.OR && !where.OR.some((clause) => matches(row, clause))) return false;
+  // Amended by 24-S6: the library's `editableBy` relation filter, matched
+  // against a row's collaborators (none in these fixtures).
+  if (where.collaborators
+    && !((row as Stored & { collaborators?: string[] }).collaborators ?? []).includes(where.collaborators.some.userId)) return false;
   if (where.builderId !== undefined && row.builderId !== where.builderId) return false;
   if (where.publishedAt && 'not' in where.publishedAt && row.publishedAt === where.publishedAt.not) return false;
   return true;

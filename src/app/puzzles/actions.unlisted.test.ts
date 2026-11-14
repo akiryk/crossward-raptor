@@ -86,6 +86,12 @@ function matches(row: Row, where: Row | undefined): boolean {
       if ('every' in filter) return related.every((item) => matches(item, filter.every as Row));
       throw new Error('16-S1 fixture: unsupported playSessions filter');
     }
+    // Amended by 24-S6: the library's `editableBy` relation filter, matched
+    // against a row's collaborators (none in these fixtures).
+    if (key === 'collaborators') {
+      const { userId } = (expected as { some: { userId: string } }).some;
+      return ((row.collaborators as string[] | undefined) ?? []).includes(userId);
+    }
     if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
       return row[key] === expected;
     }
