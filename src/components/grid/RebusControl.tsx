@@ -16,7 +16,7 @@ export function RebusControl({
 }) {
   const look =
     variant === 'link'
-      ? `text-label ${isOpen ? 'text-button-active' : 'text-link-muted'} enabled:hover:text-button-hover focus-visible:text-button-hover`
+      ? `text-body-normal ${isOpen ? 'text-button-active' : 'text-link-muted'} enabled:hover:text-button-hover focus-visible:text-button-hover`
       : `h-8 rounded-pill border px-5 text-button-normal ${
           isOpen ? 'border-button-active bg-button-active text-inverse' : 'border-button-fill text-button-fill enabled:hover:border-button-hover enabled:hover:text-button-hover focus-visible:border-button-hover focus-visible:text-button-hover'
         }`;

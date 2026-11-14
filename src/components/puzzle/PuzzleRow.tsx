@@ -16,6 +16,8 @@ export interface LibraryPuzzle {
   /** 24-S6: shared with the caller, a collaborator (owned by another). */
   shared: boolean;
   builderName: string | null;
+  collaborators?: { userId: string; name: string }[];
+  hasCollaborators?: boolean;
   title: string;
   phase: Phase;
   hintsComplete: boolean;
@@ -69,6 +71,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
   const marker = play?.state === 'in-progress' ? '[in-play]' : null;
   const resettable = play?.state === 'completed' && play.sessionId !== null;
   const menu = own || puzzle.shared;
+  const collaborators = puzzle.collaborators ?? [];
 
   return (
     <li
@@ -82,7 +85,7 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
       data-play-state={play?.state}
       data-shared={puzzle.shared ? 'true' : undefined}
       data-keyboard-focus-host
-      className={`relative flex h-[66px] items-center rounded-modal pl-[10px] ${rightRoom(menu, resettable)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
+      className={`relative flex ${collaborators.length > 0 ? 'min-h-[66px] py-[11px]' : 'h-[66px]'} items-center rounded-modal pl-[10px] ${rightRoom(menu, resettable)} transition-colors duration-150 ease-out ${status === 'complete' ? COMPLETE_ROW : puzzle.statusKind === 'published' ? PLAY_ROW : ROW}`}
     >
       <StatusIcon status={status} />
       <div className="ml-3 flex w-[212px] min-w-[90px] flex-col gap-1">
@@ -103,9 +106,15 @@ export function PuzzleRow({ puzzle, own, onDeleted }: {
             </>
           )}
         </Link>
-        <span data-testid="puzzle-builder-name" className="block h-5 truncate text-title-4 text-muted">
-          {puzzle.builderName ?? ''}
-        </span>
+        <div className="flex h-5 text-title-4 text-muted">
+          <span data-testid="puzzle-builder-name" className="block h-5 min-w-0 truncate">{puzzle.builderName ?? ''}</span>
+          <span data-testid="puzzle-owner-label" className="shrink-0 font-normal">, (owner)</span>
+        </div>
+        {collaborators.map((member) => (
+          <span key={member.userId} data-testid="puzzle-collaborator-name" className="block h-5 truncate text-title-4 text-muted">
+            {member.name}
+          </span>
+        ))}
       </div>
       <span
         data-testid="puzzle-list-updated"

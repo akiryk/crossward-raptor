@@ -28,19 +28,20 @@ const ROW_ACTION = 'shrink-0 cursor-pointer text-label text-error outline-hidden
  *  invitations by address, removes and revokes. The list is always read
  *  from the server: on opening and after every change. Mounted fresh each
  *  time it opens. */
-export function CollaboratorsDialog({ puzzleId, open, onClose }: {
+export function CollaboratorsDialog({ puzzleId, open, onClose, onChange }: {
   puzzleId: string;
   open: boolean;
   onClose: () => void;
+  onChange?: (hasCollaborators: boolean) => void;
 }) {
-  return open ? <CollaboratorsPanel puzzleId={puzzleId} onClose={onClose} /> : null;
+  return open ? <CollaboratorsPanel puzzleId={puzzleId} onClose={onClose} onChange={onChange} /> : null;
 }
 
-/** Story 24-S6: the editor's "Collaborators…", at the end of the owner's
- *  step row, in Reset Grid's quiet look. A link to the dialog
+/** The owner's collaboration link, aligned with Rebus (24-S8).
+ *  A link to the dialog
  *  (`#collaborators`), not a button: the step row holds exactly one button,
  *  the next step (17-S8), and the step row's tests read it as such. */
-export function CollaboratorsButton({ onClick }: { onClick: () => void }) {
+export function CollaboratorsButton({ onClick, hasCollaborators }: { onClick: () => void; hasCollaborators: boolean }) {
   return (
     <a
       href="#collaborators"
@@ -50,14 +51,14 @@ export function CollaboratorsButton({ onClick }: { onClick: () => void }) {
         event.preventDefault();
         onClick();
       }}
-      className="shrink-0 cursor-pointer text-label text-subtle outline-hidden transition-colors duration-150 ease-out hover:text-primary focus-visible:text-primary"
+      className="shrink-0 cursor-pointer whitespace-nowrap text-body-normal text-link-muted outline-hidden transition-colors duration-150 ease-out hover:text-button-hover focus-visible:text-button-hover"
     >
-      Collaborators…
+      {hasCollaborators ? 'Edit Collaborators' : 'Add Collaborators'}
     </a>
   );
 }
 
-function CollaboratorsPanel({ puzzleId, onClose }: { puzzleId: string; onClose: () => void }) {
+function CollaboratorsPanel({ puzzleId, onClose, onChange }: { puzzleId: string; onClose: () => void; onChange?: (hasCollaborators: boolean) => void }) {
   const [email, setEmail] = useState('');
   const [listing, setListing] = useState<Listing>({ status: 'loading' });
   const [outcome, setOutcome] = useState<Outcome>(null);
@@ -71,6 +72,7 @@ function CollaboratorsPanel({ puzzleId, onClose }: { puzzleId: string; onClose: 
       const list = await listCollaborators({ puzzleId });
       if (list.status === 'ok') {
         setListing({ status: 'ok', collaborators: list.collaborators, invitations: list.invitations });
+        onChange?.(list.collaborators.length > 0 || list.invitations.length > 0);
       } else {
         setGone(true);
         setOutcome({ tone: 'error', text: GONE });
@@ -79,7 +81,7 @@ function CollaboratorsPanel({ puzzleId, onClose }: { puzzleId: string; onClose: 
       setListing({ status: 'failed' });
       setOutcome({ tone: 'error', text: LOAD_FAILED });
     }
-  }, [puzzleId]);
+  }, [puzzleId, onChange]);
 
   useEffect(() => {
     // The first read; later ones follow each change.

@@ -66,7 +66,7 @@ export function PuzzleRowMenu({ puzzle, own, onDeleted, onReset }: {
     ? [{ key: 'reset', label: 'Reset', testId: 'puzzle-menu-reset', tone: 'error', onSelect: onReset }]
     : [];
   const collaborators: MenuItem = {
-    key: 'collaborators', label: 'Collaborators…', testId: 'puzzle-menu-collaborators', onSelect: () => setManaging(true),
+    key: 'collaborators', label: puzzle.hasCollaborators ? 'Edit Collaborators' : 'Add Collaborators', testId: 'puzzle-menu-collaborators', onSelect: () => setManaging(true),
   };
   const items: MenuItem[] = !own
     ? [duplicate, ...reset]
@@ -102,7 +102,7 @@ export function PuzzleRowMenu({ puzzle, own, onDeleted, onReset }: {
         )}
       />
       {own && !published && (
-        <CollaboratorsDialog puzzleId={puzzle.id} open={managing} onClose={() => setManaging(false)} />
+        <CollaboratorsDialog puzzleId={puzzle.id} open={managing} onClose={() => { setManaging(false); router.refresh(); }} />
       )}
       {own && <LibraryDelete puzzleId={puzzle.id} title={puzzle.title} published={published} onDeleted={onDeleted} open={deleting} setOpen={setDeleting} />}
     </>
