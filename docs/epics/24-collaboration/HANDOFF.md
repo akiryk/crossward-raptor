@@ -16,23 +16,29 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-14)
 
-**Local-testing follow-up S8: implemented and verified; PR #47 awaits final review/merge.**
+**Local-testing follow-up S8: merged into `epic/24-collaboration`.**
 [UI polish](stories/24-S8-collaboration-ui-polish.md) implements the human’s
 five requests: grid-aligned Add/Edit Collaborators link, 14px controls, Rebus
 colors, and owner-first library rows with collaborator names. Specification
 baselines `59ff0a8` and `741e686` amend only requested old label/size assertions;
-independent agent `review_polish` approved them before refreeze. Work is on
-`story/24-S8-collaboration-ui-polish`, targeting this epic branch only.
-[PR #47](https://github.com/akiryk/crossward-raptor/pull/47), runtime `ede7d82`.
+independent agent `review_polish` approved them before refreeze.
+[PR #47](https://github.com/akiryk/crossward-raptor/pull/47) merged normally
+as `af25b31`, reviewed at `0939aa8` (runtime `ede7d82`). Independent reviewer
+`review_polish` found no blockers; Vercel and Vercel Preview Comments passed.
+[Review evidence](https://github.com/akiryk/crossward-raptor/pull/47#issuecomment-6881792451).
+The local checkout is back on this epic branch for continuing human testing.
 
-S8 verification: clean temporary checkout `npm run verify` exit 0, **113 files,
+S8 author verification: clean temporary checkout `npm run verify` exit 0, **113 files,
 1287 tests passed**, including database cases; two existing lint warnings.
 Stable-HEAD affected E2E rerun: **60 passed**, exit 0. Final expanded affected
 run at `ede7d82`: **117 passed**, exit 0, 49.7 seconds, two workers, ten files:
 `collaboration-polish`, `collaborator-management`, `toggle-radio`, `rebus`,
 `builder-controls`, `puzzle-library`, `row-menu`, `menu-reset`,
 `delete-published`, and `duplicate`. Verified source identity (435 tracked
-files, no mismatches) is in `/tmp/epic24-s8-verification.json`; docs-only
+files, no mismatches) is in `/tmp/epic24-s8-verification.json`; the reviewer
+independently compared 443 tracked source/config/test files with the verified
+checkout, also with no mismatches. The reviewer reused the author
+verification/browser evidence and reran no suites. Docs-only
 commits after `ede7d82` do not change that tested content. The guarded test reset uses DEVELOPMENT’s standing authorization.
 Root-checkout verification hit generated files in old nested agent worktrees;
 no worktrees or lint rules changed. An earlier browser run was invalidated by
@@ -43,11 +49,13 @@ are not claimed as passing evidence. Logs: `/tmp/epic24-s8-verify.log` and
 S8 before main; the historical clean run below predates this follow-up.
 
 
-**Epic complete on `epic/24-collaboration`; closeout audited; PR to `main`
-open as #46, not merged.** The final full E2E on `0135adb` is clean (Verification,
-"Final full run"). The PR waits for the human's items (Next action).
+**Historical S1–S7 closeout, before S8:** epic complete on its branch;
+PR to `main` open as #46, not merged. The full E2E on `0135adb` was clean
+(Verification, "Historical final full run"). This audit and full run predate
+S8; a fresh full suite is required before main. The PR still waits for the
+human's items (Next action).
 
-**Closeout audit (2026-11-14).** Independent, report-only (a Sonnet agent
+**Historical closeout audit (2026-11-14, before S8).** Independent, report-only (a Sonnet agent
 that authored none of the epic), scoped to the seven stories against the
 EPIC, the epic's diff from `main`, its docs and the repo-policy files changed
 during the epic. Static inspection only, at `0135adb`. No blockers.
@@ -215,10 +223,11 @@ a PR and independent review.
 
 ## Verification
 
-**Final full run (2026-11-14, orchestrator).** `npm run test:e2e --
+**Historical final full run (2026-11-14, orchestrator; before S8).** `npm run test:e2e --
 --workers=2` on `epic/24-collaboration` at `0135adb`, after `pretest:e2e`:
 **1396 passed, 0 failed, 0 flaky**, exit 0, 13.4 min
-(`/tmp/epic24-e2e-full-0135adb.log`). Every later commit is docs only.
+(`/tmp/epic24-e2e-full-0135adb.log`). Commits between that run and S8
+were docs only; S8 adds runtime changes and needs a fresh full run before main.
 
 **E2E evidence policy.** From S6 on (2026-11-14, under the human's usage
 constraints), stories run only their own and directly affected spec files
@@ -356,7 +365,10 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Every story is merged and the epic is closed out on its branch. PR #46 from
+All eight stories, including local-testing follow-up S8, are merged into the
+epic branch. Continue local visual testing and fix any newly reported problems
+through independently reviewed story PRs into this branch. A clean full E2E
+run on the final integrated branch is still required before main. PR #46 from
 `epic/24-collaboration` to `main` is open and must not merge until the human:
 
 1. applies the production migrations in order: S1's
