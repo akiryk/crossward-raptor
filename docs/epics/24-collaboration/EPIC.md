@@ -285,6 +285,7 @@ therefore merge and deploy without changing anyone's experience.
    - The first story that lets a second person reach a puzzle.
    - Depends on: S5.
 7. **S7 Presence, the session panel and conflicts (C4a).**
+   [Story](stories/24-S7-presence-and-conflicts.md), frozen 2026-11-14.
    - The presence heartbeat; join and leave notes.
    - The activity panel and its animation.
    - Conflict outlines and clue highlights by the D2 rule; notes for phase
