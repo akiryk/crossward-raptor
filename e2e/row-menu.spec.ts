@@ -295,8 +295,9 @@ test.describe('16-S2-3 what the menu offers', () => {
   test('Delete on an unpublished row; Make public then Delete on an unlisted one; Make unlisted then Delete on a public one', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
-      ['grid', ['Duplicate', 'Delete']],
-      ['hints', ['Duplicate', 'Delete']],
+      // Amended by 24-S6: unpublished rows add Collaborators… second.
+      ['grid', ['Duplicate', 'Collaborators…', 'Delete']],
+      ['hints', ['Duplicate', 'Collaborators…', 'Delete']],
       ['private published', ['Duplicate', 'Open in builder', 'Make public', 'Delete']], // 18-S4
       ['public published', ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
     ] as const) {
@@ -305,7 +306,7 @@ test.describe('16-S2-3 what the menu offers', () => {
       await openMenu(page, row(page, fixture.title));
       expect(await itemTexts(page), state).toEqual(expected);
       await expect(items(page).nth(1)).toHaveAccessibleName(expected[1]);
-      await expect(menu(page).getByTestId(expected[1] === 'Delete' ? 'puzzle-menu-delete' : 'puzzle-menu-visibility')).toHaveCount(1);
+      await expect(menu(page).getByTestId(expected[1] === 'Collaborators…' ? 'puzzle-menu-collaborators' : 'puzzle-menu-visibility')).toHaveCount(1);
       await page.keyboard.press('Escape');
     }
   });

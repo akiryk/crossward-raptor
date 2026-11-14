@@ -154,8 +154,9 @@ test.describe('16-S4-1 what the menu offers', () => {
   test('Duplicate first on every own row, then Open in builder and the visibility item on published rows, then Delete', async ({ page }) => {
     const me = await currentBuilderId(page);
     for (const [state, expected] of [
-      ['grid', ['Duplicate', 'Delete']],
-      ['hints', ['Duplicate', 'Delete']],
+      // Amended by 24-S6: unpublished rows add Collaborators… second.
+      ['grid', ['Duplicate', 'Collaborators…', 'Delete']],
+      ['hints', ['Duplicate', 'Collaborators…', 'Delete']],
       ['private published', ['Duplicate', 'Open in builder', 'Make public', 'Delete']],
       ['public published', ['Duplicate', 'Open in builder', 'Make unlisted', 'Delete']],
     ] as const) {

@@ -276,6 +276,7 @@ therefore merge and deploy without changing anyone's experience.
    - Depends on: S4, so that shared editing is safe and live once
      reachable, and so an open editor learns of removal by polling.
 6. **S6 Collaborator management and the library (C1a, UI).**
+   [Story](stories/24-S6-collaborator-management.md), frozen 2026-11-13.
    - The owner's "Collaborators…" dialog from the row menu and the editor:
      an email field, the list, pending invitations, remove and revoke.
    - The library: shared rows with the owner's username, Create filters
