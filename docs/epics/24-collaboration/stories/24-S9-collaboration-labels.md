@@ -40,7 +40,7 @@ member names continue to use their usernames.
 ## Repo paths
 
 `src/components/puzzle/{PuzzleRow,PuzzleLibrary,CollaboratorsDialog}.tsx`;
-`e2e/{collaboration-polish,collaborator-management,puzzle-library,muted-text,account-details,account-email}.spec.ts`;
+`e2e/{collaboration-polish,collaborator-management,puzzle-library,muted-text,account-details,account-email,narrow-margin}.spec.ts`;
 this specification and the epic handoff.
 
 ## Definition of Done
@@ -51,3 +51,16 @@ files pass under the epic integration exception, serialized and using the
 guarded test-reset standing grant. Keep HEAD stable during browser build/run.
 Independent PR review, configured CI passing, normal merge into epic, local
 dev server restored. Fresh full epic E2E remains due before main.
+
+## Approved frozen layout-test correction
+
+The initial affected browser run passed 81/84 checks; all three failures
+were narrow-margin 18-S6-4, which measured the name span as a proxy for the
+whole 90px title column. S8 split the name and owner marker into siblings;
+You makes the text span only 25.7px. The actual column still has its 90px
+minimum. Independent reviewer `review_polish` approved changing only the
+measurement to the enclosing full owner line and its explanatory comment.
+The human explicitly approved this correction (“1. Yes”) in this session.
+It is refrozen in a separate specification-only epic commit before resuming
+affected verification. Keep the original 90px threshold and all date,
+overflow, marker, menu and Reset assertions unchanged.
