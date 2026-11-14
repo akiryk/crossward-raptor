@@ -16,17 +16,36 @@ not a specification. The EPIC supersedes all three:
 
 ## Current state (2026-11-13)
 
-**S4 implemented, PR #42 pending independent review.**
-[S4](stories/24-S4-live-sync.md) was frozen at `5abfd4f` (a
-specification-only commit on `epic/24-collaboration`, under the human's
-delegation); the branch is `story/24-S4-live-sync`, runtime head
-`172c9d8` (later commits are docs only). No migration. The freeze amends
-two earlier frozen tests: 24-S3-E3 holds off catching up before its lock
-elsewhere, and the route-guard source test admits the catch-up GET. S4
-measured polling: commit-to-shown median 0.8 s (max 1.3 s), one 25-byte
-request a second per visible editor, about four database transactions
-each; no push transport is needed for latency (story, "Measurements").
-**Next: independent review of PR #42**, then S5.
+**S4 merged** into `epic/24-collaboration` (PR #42, `3d88b4b`; reviewed
+at head `6c982e8`, runtime `172c9d8`). [S4](stories/24-S4-live-sync.md)
+was frozen at `5abfd4f` (a specification-only commit on
+`epic/24-collaboration`, under the human's delegation). No migration. The
+freeze amends two earlier frozen tests: 24-S3-E3 holds off catching up
+before its lock elsewhere, and the route-guard source test admits the
+catch-up GET. The reviewer found both amendments justified. The review
+found no blockers; its non-blocking findings are in the PR's review
+comment. Two of them are for S5 to carry:
+
+- a test that a draft typed before a remote Start Over is refused
+  (`editor-saver.ts` flushes it, untested);
+- the catch-up's log read stays behind the authorized puzzle read when
+  `editableBy` widens.
+
+**Next: S5**, with the same draft, freeze, implement and PR procedure.
+
+**Human note: polling cost** (story, "Measurements"; not a blocker, since
+the EPIC sets no cost limit):
+
+- one catch-up request a second per visible editor, about four database
+  transactions per idle poll;
+- about 3,600 invocations and 14,000 small queries per editor-hour;
+- for example, 10 builders with an editor open 2 h a day make about
+  2.2 M invocations a month;
+- Neon's compute stays awake while any editor is open.
+
+Latency meets "about a second": commit to shown has a median of 0.8 s and
+a maximum of 1.3 s. Push transport would be a separately approved story,
+only if cost at scale calls for it.
 
 S3 is merged (PR #41, `61068e2`; head `aa2547a`, runtime `c08b412`),
 frozen at `a3c9d72`, with the lint-only correction `215468d`.
@@ -137,12 +156,23 @@ S3 (PR #41, merged at `61068e2`; reviewed at head `aa2547a`, runtime
   - `editor-operations.spec.ts` passed 11/11.
 - CI: Vercel and Vercel Preview Comments passed. Frozen acceptance is
   unchanged since `215468d`. Details are in the PR's review comment.
-S4 (PR #42, author's runs at runtime `172c9d8`):
+S4 (PR #42, merged at `3d88b4b`; reviewed at head `6c982e8`, runtime
+`172c9d8`; `172c9d8..6c982e8` is docs only):
 
-- `npm run verify`: exit 0, 98 files, 1175 tests
+- Author's `npm run verify`: exit 0, 98 files, 1175 tests
   (`/tmp/s4-verify-precommit.log`, the tree committed as `172c9d8`).
-- Full `npm run test:e2e -- --workers=2`: **1372 passed, 0 failed**, exit
-  0, 14.1 min (`/tmp/s4-e2e-full-172c9d8.log`).
+- Author's full `npm run test:e2e -- --workers=2`: **1372 passed, 0
+  failed**, exit 0, 14.1 min (`/tmp/s4-e2e-full-172c9d8.log`). The
+  reviewer verified its provenance and reused it rather than rerunning:
+  - the log names worktree `agent-a06ada9c0b4767d8d`;
+  - that worktree's reflog has HEAD at `172c9d8` for the whole run;
+  - the runtime is identical to the PR head.
+- Reviewer's `npm run verify` on `6c982e8`, in a separate worktree: exit
+  0, 98 files, 1175 tests (the S4 database tests ran).
+- Reviewer's run of `e2e/live-sync.spec.ts` and
+  `e2e/editor-operations.spec.ts`, after `pretest:e2e`: 20 passed.
+- CI: Vercel and Vercel Preview Comments passed. Frozen acceptance is
+  unchanged since `5abfd4f`.
 - Rules disabled one at a time, and the measurements: the story; logs
   `/tmp/s4-rules.log`, `/tmp/s4-browser-rules.log`, `/tmp/s4-measure.log`.
 - **Harness note:** a worktree needs its own `node_modules` (`npm ci`);
@@ -156,11 +186,17 @@ S4 (PR #42, author's runs at runtime `172c9d8`):
 
 ## Next action
 
-Independent review of PR #42 (S4) per [REVIEW](../../process/REVIEW.md),
-merging into `epic/24-collaboration` when no blockers remain. Then S5
-(EPIC, Stories item 5): draft, freeze, implement and PR the same way. Not
-authorized: production migration, Vercel settings, `main`.
+S5, Collaborator membership and authorization (EPIC, Stories item 5):
+
+1. Draft its specification and acceptance.
+2. Freeze them as a specification-only commit on `epic/24-collaboration`.
+3. Implement on `story/24-S5-<name>`, with a PR into the epic branch for
+   independent review.
+
+S5 includes a migration (the collaborator and invitation tables). Apply it
+to the local development and test databases only. Not authorized:
+production migration, Vercel settings, `main`.
 
 ## Resume prompt
 
-Read docs/epics/24-collaboration/HANDOFF.md. Independently review and merge PR #42 (24-S4 live sync) into epic/24-collaboration per docs/process/REVIEW.md; then draft, freeze and implement S5 on a story branch with a PR into the epic branch; no production migration, nothing into main.
+Read docs/epics/24-collaboration/HANDOFF.md and the S5 section of docs/epics/24-collaboration/EPIC.md. Draft, freeze and implement S5 on a story branch with a PR into epic/24-collaboration; its migration goes to the local dev and test databases only; no production migration, nothing into main.
