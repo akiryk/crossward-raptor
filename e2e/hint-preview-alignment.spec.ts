@@ -307,7 +307,7 @@ const skeletonLabel = (page: Page, orientation: Orientation) =>
 
 test.describe('18-S7-5 the build phase’s skeleton takes the same inset', () => {
   for (const w of [WIDTHS[0], WIDTHS[4]]) {
-    test(`${w.name} (${w.width}px): its labels and dots 6px into their column, the Across label 38px right of the grid`, async ({ page }) => {
+    test(`${w.name} (${w.width}px): its labels and dots 6px into their column, the Across label 98px right of the centered mini`, async ({ page }) => {
       await open(page, w.width, 5, { phase: 'grid' });
       const g = await box(grid(page));
       for (const o of ORIENTATIONS) {
@@ -318,7 +318,8 @@ test.describe('18-S7-5 the build phase’s skeleton takes the same inset', () =>
         expect(await dots.count(), `${o} dots`).toBeGreaterThan(0);
         for (const dot of await dots.all()) expectNear((await box(dot)).x, column.x + INSET_PX, `${o} dot 6px in`);
       }
-      expectNear((await textBox(skeletonLabel(page, 'across'))).left, g.right + GAP_PX + INSET_PX, 'Across 38px right of the grid');
+      // 17-S11: retain the column's gap/inset beyond the mini's 60px margin.
+      expectNear((await textBox(skeletonLabel(page, 'across'))).left, g.right + 60 + GAP_PX + INSET_PX, 'Across 98px right of the centered mini');
     });
 
     test(`${w.name} (${w.width}px): at Create Hints the labels keep their left (and, side by side, their top), each number in its dot’s place`, async ({ page }) => {

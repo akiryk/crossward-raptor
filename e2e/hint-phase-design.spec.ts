@@ -282,14 +282,15 @@ test.describe("14-S6-5 the skeleton's frame", () => {
     expect(second.x, 'every line starts at the same x').toBeCloseTo(first.x, 0);
   });
 
-  test('columns 32px apart, 32px right of the grid; labels level with the first row', async ({ page }) => {
+  test('columns 32px apart, 32px right of the mini grid column; labels level with the first row', async ({ page }) => {
     await open(page, cornersGrid());
     const g = await box(grid(page));
     const across = await box(column(page, 'across'));
     const down = await box(column(page, 'down'));
     const acrossLine = await lineOf(column(page, 'across').getByTestId('hint-input').first());
 
-    expect(across.x - (g.x + g.width), 'from the grid').toBeCloseTo(32, 0);
+    // 17-S11: 60px mini margin plus the existing 32px column gap.
+    expect(across.x - (g.x + g.width), 'from the centered mini grid').toBeCloseTo(92, 0);
     expect(down.x - acrossLine.right, 'between columns').toBeCloseTo(32, 0);
 
     const firstCell = await box(cell(page, '0,0'));

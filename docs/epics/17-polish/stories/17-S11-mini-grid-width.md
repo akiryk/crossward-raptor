@@ -80,6 +80,8 @@ refreeze commit. All other assertions remain frozen.
 | `e2e/narrow-builder.spec.ts`, 15-S3-1/-2 mini width and title/control alignment; 15-S3-6 legend alignment | 620px grid; grid edges equal column edges | 500px centered grid, 60px inset at these viewports; retain title/controls/legend positions |
 | `e2e/wide-layout.spec.ts`, 15-S2-5 mini Preview/legend cases | 620px grid, legend at grid left, skeleton 32px from grid | 500px grid, legend remains at column left, skeleton remains 32px from column (92px from grid) |
 | `e2e/hint-box.spec.ts`, 15-S4-1 mini Hint Box alignment | Hint Box equals grid width/left | Retain 620px Hint Box, 60px left of centered 500px grid |
+| `e2e/hint-phase-design.spec.ts`, 14-S6-5 mini Across gap | 32px from grid | 92px from grid (60px margin + unchanged 32px column gap) |
+| `e2e/hint-preview-alignment.spec.ts`, 18-S7-5 mini Across skeleton label at 1440px/1280px | 38px from grid | 98px from grid (60px margin + unchanged 32px gap + 6px inset); internal alignment assertions unchanged |
 | `e2e/lock-button-side.spec.ts`, 21-S12-3 mini beside/row cases | 692px / 691px viewport, 620px grid | 572px / 571px viewport, 500px grid; same clearance and fallback assertions |
 
 ## Repo paths
@@ -92,6 +94,8 @@ refreeze commit. All other assertions remain frozen.
 - `e2e/narrow-builder.spec.ts`
 - `e2e/wide-layout.spec.ts`
 - `e2e/hint-box.spec.ts`
+- `e2e/hint-phase-design.spec.ts`
+- `e2e/hint-preview-alignment.spec.ts`
 - `e2e/lock-button-side.spec.ts`
 - This story, `../EPIC.md`, `../HANDOFF.md`
 
@@ -123,3 +127,18 @@ amendments and the new tests, it approved refreeze with no remaining blockers.
 It verified 60px mini margins, 92px from grid to hints, the 572px/571px lock
 thresholds and unchanged player/other-size expectations; it edited nothing
 and ran no browser checks.
+
+**Acceptance amendment after baseline `60d8941`:** the first full browser
+run exposed the three additional mini offsets in `hint-phase-design` and
+`hint-preview-alignment` listed above. Independent `mini_spec_review`
+confirmed the 92px/98px measurements and swept remaining fixed geometry
+assertions for other mini conflicts. Runtime was parked before this
+separate specification-only amendment/refreeze; no product decision or
+runtime change was needed. All existing tolerances and internal alignment
+assertions remain unchanged.
+
+That exploratory full run was interrupted after the known failures, not
+counted as passing: 627 passed, four failed, two interrupted, 780 not run.
+The fourth failure was a 3×3 private-publish dialog timing assertion in
+`builder-controls.spec.ts`, outside the mini change; its assertions remain
+unchanged. A clean full run is required before delivery.
