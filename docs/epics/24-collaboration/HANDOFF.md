@@ -17,7 +17,7 @@ not a specification. The EPIC supersedes all three:
 ## Current state (2026-11-14)
 
 **Epic complete on `epic/24-collaboration`; closeout audited; PR to `main`
-open, not merged.** The final full E2E on `0135adb` is clean (Verification,
+open as #46, not merged.** The final full E2E on `0135adb` is clean (Verification,
 "Final full run"). The PR waits for the human's items (Next action).
 
 **Closeout audit (2026-11-14).** Independent, report-only (a Sonnet agent
@@ -329,7 +329,7 @@ acceptance unchanged since `6158a8b`, confirmed by diff):
 
 ## Next action
 
-Every story is merged and the epic is closed out on its branch. The PR from
+Every story is merged and the epic is closed out on its branch. PR #46 from
 `epic/24-collaboration` to `main` is open and must not merge until the human:
 
 1. applies the production migrations in order: S1's

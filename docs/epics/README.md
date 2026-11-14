@@ -10,7 +10,7 @@ reading or additional product specifications.
 ## Find the current work
 
 - [Collaborative puzzle construction](24-collaboration/HANDOFF.md)
-  (epic 24; all stories merged, closeout audited; PR to `main` awaits the
+  (epic 24; all stories merged, closeout audited; PR #46 to `main` awaits the
   human's migrations)
 - [The sister word](25-sister-word/HANDOFF.md) (epic 25, closed
   2026-11-12; no open items)
