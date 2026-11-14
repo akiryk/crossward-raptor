@@ -298,6 +298,28 @@ above: 5 files failed, 5 tests failed and 1 passed
 - Every browser case needs the runtime (no panel, no outline, no
   `PuzzlePresence` table for the helpers).
 
+### Correction (2026-11-14, after the freeze)
+
+Two consequences of decisions 1 and 4 on earlier frozen tests were missed
+at the freeze; the first verify run with the runtime found them. Neither
+assertion's meaning changes beyond what the decisions require; each file
+gets a note citing 24-S7.
+
+- `src/app/route-guard-source.test.ts` (23-S3-U7, amended by 24-S1 and
+  24-S4): the list of route handlers gains
+  `app/api/puzzles/[id]/presence/route.ts`, and a new case pins that it
+  imports only `next/server` and `@/app/puzzles/actions` and only calls the
+  checked `updatePresence` action, as the commit route is pinned.
+- `src/lib/collab/membership-migration.db.test.ts` (24-S5-8): "is the
+  newest" becomes "is among them", since S7's migration follows it (as
+  24-S5 amended 24-S1-15); the rest is unchanged and now applies S7's
+  migration too.
+- Lint only: `src/lib/collab/conflict.test.ts` loses an unused helper.
+
+A separate specification-only commit on `epic/24-collaboration` ("24-S7:
+amend …"), made under the human's delegation; the PR's independent
+reviewer reviews it.
+
 ## Visual checks for the human (at the end of the epic)
 
 The browser tests run with reduced motion and pin behavior, not looks:

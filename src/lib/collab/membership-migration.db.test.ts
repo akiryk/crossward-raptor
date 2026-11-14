@@ -21,8 +21,11 @@ const rows = async (table: string, order = 'id') =>
   (await db.query(`SELECT to_jsonb(t) AS row FROM "${table}" t ORDER BY ${order}`)).rows.map(({ row }) => row);
 
 describe('24-S5-8 the collaborator migration', () => {
-  it('is the newest, preserves every row, and adds two empty tables', async () => {
-    expect((await migrationNames()).at(-1)).toMatch(NAME);
+  // 24-S7 amendment: S7's presence migration follows it, so it is among
+  // them rather than the newest (as 24-S5 amended 24-S1-15); the rest still
+  // applies, S7's migration included.
+  it('is among them, preserves every row, and adds two empty tables', async () => {
+    expect((await migrationNames()).some((name) => NAME.test(name))).toBe(true);
 
     await db.query(`INSERT INTO "user" (id, name, email, "updatedAt", "displayName") VALUES
       ('owner', 'Owner', 'owner@24s5.example.test', '2024-01-02', 'Owner'),
