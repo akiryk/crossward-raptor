@@ -307,6 +307,18 @@ unit and database files and the three amended fixtures
   lists, and every 24-S6-E case, need the runtime (no Collaborators… item,
   no dialog, no shared rows).
 
+### Correction (2026-11-13, after the freeze)
+
+24-S6-4 as frozen typed D, O, G into a five-cell row and looked for a note
+with the input "DOG". The note's input is the whole entry as typed,
+"DOG??" (the row's last two cells are empty), so the frozen case could
+never pass, whatever the runtime. It now types DOGMA across the row and
+looks for "DOGMA"; nothing else changes. With the runtime the corrected
+case passes; with the old `lose` (dropping only when the queue isn't
+halted) it fails. The correction is a separate specification-only commit
+on `epic/24-collaboration` ("24-S6: correct 24-S6-4 …"), made under the
+human's delegation; the PR's independent reviewer reviews it.
+
 ## Visual checks for the human (at the end of the epic)
 
 The browser tests pin behavior, not looks. With no mockup, these need the

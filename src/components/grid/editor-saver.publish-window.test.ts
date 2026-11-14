@@ -131,7 +131,9 @@ describe('24-S6-4 edits in the publication window', () => {
 
     // The window: refused, the publication not yet confirmed.
     saver.add({ kind: 'title', title: 'Typed later' });
-    type([[0, 2, 'D'], [1, 2, 'O'], [2, 2, 'G']], { col: 2, row: 2 });
+    // Corrected at 24-S6's freeze: the whole row, so the entry is the word
+    // (three letters left "DOG??", the row's five cells).
+    type([[0, 2, 'D'], [1, 2, 'O'], [2, 2, 'G'], [3, 2, 'M'], [4, 2, 'A']], { col: 4, row: 2 });
     await settle();
     expect(sent()).toHaveLength(1);
 
@@ -143,8 +145,8 @@ describe('24-S6-4 edits in the publication window', () => {
 
     expect(losses).toEqual([{ kind: 'published', publishedAt: new Date('2026-11-13T10:00:00.000Z'), visibility: 'public' }]);
     expect(notes.find((note) => note.input === 'Typed later')?.message).toMatch(/wasn't saved: the puzzle was published\.$/);
-    expect(notes.find((note) => note.input === 'DOG')?.message)
-      .toMatch(/^Your DOG in \d+-Across wasn't saved: the puzzle was published\.$/);
+    expect(notes.find((note) => note.input === 'DOGMA')?.message)
+      .toMatch(/^Your DOGMA in \d+-Across wasn't saved: the puzzle was published\.$/);
     expect(notes.map((note) => note.message)).toContain(PUBLISHED);
     expect(journalKeys()).toEqual([]);
     expect(view().title).toBe('Done');
