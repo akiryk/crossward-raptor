@@ -12,12 +12,15 @@ for the known browser flakes.
 
 ## Current state (2026-11-14)
 
-S11 is complete and integrated into `main` by conflict-free fast-forward from
-`961d969` to `4dd1f1a`, followed by an epic 17 delivery-documentation commit.
+S11 is closed and deployed to production. It integrated into `main` by
+conflict-free fast-forward from `961d969` to `4dd1f1a`, followed by delivery
+documentation in `3fd2b11` and the subsequent closeout record.
 The human explicitly authorized this integration and preservation of epic 26.
 Direct delivery applies: no CODE-REVIEW risk path changed, so no PR or separate
-merge review is required. Delivery is a normal push of `main`; no next story
-or new epic-wide closeout audit is authorized by this integration task.
+merge review is required. The human reported "Looks good" after the production
+retry and authorized closeout; this records their visual approval without
+inferring particular devices. No new epic-wide audit was performed, and no
+next story is part of this task.
 
 Runtime changes only `PuzzleGridEditor.tsx`: exact 5×5 grid regions get a
 500px cap and horizontal auto margins within the existing column. Lock
@@ -66,6 +69,14 @@ checks cover diff whitespace, local documentation links, frozen-test identity,
 epic 26 preservation, explicit commit scope and remote push readback. No
 repository CI workflow is configured in `.github`.
 
+Production: the first build of `3fd2b11` failed in Next.js's Inter font loader
+(`next/font/google queries have exactly one entry`). A cache-free retry of
+the exact commit succeeded without code/configuration changes. Vercel inspection
+confirmed `dpl_F9BVx8LkhypidRgj5z5dLeNt2iiQ` is production `Ready` and owns
+`https://crossward-raptor.vercel.app`. The story's Production closeout records
+the incident and upstream issue. Closeout edits only documentation; existing
+application/browser evidence remains applicable, with no suite rerun or reset.
+
 Browser server exited and shared lock released. Future runs must acquire
 `/tmp/crossward-e2e.lock`; DEVELOPMENT's standing grant permits the guarded
 local test reset. Use `COMPOSE_PROJECT_NAME=crossward-raptor` from this
@@ -76,7 +87,7 @@ resources before a port conflict; existing resources/data were preserved.
 
 No human action is needed for S11. Work continues in epic 26 when that task
 is resumed; follow its handoff and preserve the four unfinished acceptance
-files. This integration session stops after S11 delivery. Original S1–S10
+files. This session stops after S11 closeout. Original S1–S10
 closeout remains historical in EPIC/HISTORY.
 
 ## Resume prompt

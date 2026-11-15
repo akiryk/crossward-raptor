@@ -1,6 +1,6 @@
 # Epic: Polish
 
-**Follow-up delivered on `main`, 2026-11-14:**
+**Follow-up closed on `main`, 2026-11-14:**
 [S11 — Smaller, centered mini grids
 in the editor](stories/17-S11-mini-grid-width.md). The human requested a
 500px maximum and horizontal auto margins for mini grids only, approved
@@ -8,7 +8,9 @@ the investigated editor-only proposal, and authorized implementation,
 commit and push on an isolated branch, then authorized its integration into
 `main`. The original S1–S10 closeout below is historical; S11 is a separately
 tracked follow-up, verified and integrated unchanged by fast-forward to
-`4dd1f1a`. See [HANDOFF](HANDOFF.md) for integration evidence.
+`4dd1f1a`. Production deployment succeeded after a font-build retry, and
+the human approved the visual result ("Looks good") and closeout.
+See [HANDOFF](HANDOFF.md) for integration and production evidence.
 
 **Closed 2026-11-02**, after two independent closeout audits (see
 [At closeout](#at-closeout-2026-11-02)). **Approved by the human 2026-10-27.** Drafted the same day from the

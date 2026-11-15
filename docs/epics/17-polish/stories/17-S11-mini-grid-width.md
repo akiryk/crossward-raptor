@@ -3,7 +3,7 @@
 Mini grids look too large on desktop. Cap the construction editor's 5×5
 grid at 500px and center it within its existing grid column.
 
-**Status: done; delivered on `main` (2026-11-14).** The human
+**Status: closed; delivered on `main`, production visual approved (2026-11-14).** The human
 approved the investigated proposal and requested documentation in epic 17,
 implementation, commit and push. They subsequently approved proceeding on
 an isolated branch while the epic 26 agent is paused. This authorizes the
@@ -203,3 +203,19 @@ The four epic 26 working files retain their pre-integration blob hashes and
 remain excluded from S11 commits. Only epic 17 delivery documentation changed
 after the fast-forward; see the handoff for preservation and delivery checks.
 See [HANDOFF](../HANDOFF.md) for the current delivery/resume state.
+
+## Production closeout (2026-11-14)
+
+Integration and its documentation were pushed to `main` at `3fd2b11`.
+The first production build (`dpl_3wNViWN6YvgG6aYFGrGmxZ2nyYA3`) failed in
+Next.js's Inter font loader with `next/font/google queries have exactly one
+entry`, matching the upstream [Next.js issue](https://github.com/vercel/next.js/issues/99114).
+No application, dependency or configuration change was made. A cache-free
+redeployment of the exact same commit, `dpl_F9BVx8LkhypidRgj5z5dLeNt2iiQ`,
+completed successfully; Vercel inspection confirmed production `Ready` with
+`https://crossward-raptor.vercel.app` assigned to it.
+
+The human reported "Looks good" after the production retry and requested
+closeout. This records their visual approval without inferring specific
+devices or an additional epic-wide audit. S11 has no remaining work; epic 26
+remains paused and its four unfinished acceptance files are preserved.
