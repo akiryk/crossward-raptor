@@ -10,7 +10,7 @@ reading or additional product specifications.
 ## Find the current work
 
 - [Hint refinements](26-hint-refinements/HANDOFF.md) (epic 26, implemented on
-  epic branch; automated closeout passed 2026-11-15, human visual check pending)
+  epic branch; S3 automated closeout passed 2026-11-15, human visual check pending)
 - [Collaborative puzzle construction](24-collaboration/HANDOFF.md)
   (epic 24, closed 2026-11-14; open items listed there)
 - [The sister word](25-sister-word/HANDOFF.md) (epic 25, closed

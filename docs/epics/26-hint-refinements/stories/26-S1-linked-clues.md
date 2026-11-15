@@ -19,7 +19,9 @@ a new style. Delivered on `epic/26-hint-refinements`.
 
 ## The human's request
 
-See the [EPIC](../EPIC.md#the-humans-request), items 1–5 and 7.
+The original request is retained in this historical story. See
+[S3](26-S3-linked-hints.md) and the current [EPIC](../EPIC.md#the-humans-request)
+for the amended behavior.
 
 ## What the code does today
 
