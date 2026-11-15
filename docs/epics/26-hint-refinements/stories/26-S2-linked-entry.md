@@ -6,7 +6,9 @@ builder's hints phase and in play. This is a secondary highlight. The
 current word and cursor keep their look.
 
 **Status: Approved 2026-11-14** by the human, drafting decisions
-accepted. Acceptance not yet written or frozen. Depends on 26-S1.
+accepted. Acceptance written and frozen 2026-11-15 under the human's
+explicit delegated freeze authorization; see the epic handoff for the
+baseline commit. Depends on 26-S1.
 
 **Blast radius: small, off the risk paths.** `PuzzleGrid` gains one cell
 set, and the editor and play compute it with S1's helper. Delivered on
@@ -69,7 +71,7 @@ Drafting decisions (approved by the human 2026-11-14):
 The EPIC's, and also: any change to the sister word, the build phase,
 or the current word's colors.
 
-## Acceptance (proposed)
+## Acceptance (frozen 2026-11-15)
 
 Viewport 1440px. Colors written out. Linked cells are found by reading
 every cell's background, so a case fails on any extra pale cell.
@@ -104,10 +106,27 @@ every cell's background, so a case fails on any extra pale cell.
 
 ### Discrimination
 
-To record before the freeze: 26-S2-1 failing without the function;
-26-S2-2 to 26-S2-5 failing at their first pale-cell check without the
-runtime; verify plus the affected specs passing with a throwaway
-prototype.
+Observed before freeze on the S1 epic head `957ddda` plus proposed acceptance:
+
+- Without S2 runtime, `npm test -- src/lib/clue-reference.test.ts` exited 1:
+  S2-1 failed because `linkedEntryCells` was absent; all 19 S1 tests passed.
+- Without S2 runtime, `npm run test:e2e -- e2e/linked-entry.spec.ts --grep
+  '26-S2-[2345]'` exited 1: all four S2 cases failed at their first pale-cell
+  assertion (expected `1,0` and `2,0`, observed none); both setup cases passed.
+- With a throwaway prototype, `npm run verify` exited 0: 114 files and 1,308
+  tests passed (two existing lint warnings). The initial sandboxed attempt
+  could not connect to localhost; the successful gate used approved access.
+- The prototype passed `npm run test:e2e -- e2e/linked-entry.spec.ts
+  e2e/sister-word.spec.ts e2e/hints-grid-editing.spec.ts
+  e2e/hint-phase-design.spec.ts e2e/play-design.spec.ts
+  e2e/linked-clues.spec.ts`: exit 0, 76 passed. An earlier draft selected
+  Across by clicking the current cell; the draft was corrected before freeze.
+- An independent verification agent inspected proposed acceptance and found
+  no blockers or vacuous assertions. S2's browser scope is 1440px; finished
+  play is covered by the existing selection gate, not a new direct S2 case.
+
+The prototype was removed before committing this specification/acceptance
+baseline on main. Existing frozen S1 assertions were preserved unchanged.
 
 ## Repo paths
 
