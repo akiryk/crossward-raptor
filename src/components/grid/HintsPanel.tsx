@@ -1,6 +1,5 @@
 import type { Grid } from '../../engine/grid';
 import type { NumberedSlot } from '../../engine/numbering';
-import { parseClueReference } from '../../lib/clue-reference';
 import { isHintFilled } from '../../lib/hint-lookup';
 import { slotAnswer } from '../../lib/slot-answer';
 import { twoHintColumnsClass } from '../../lib/grid-max';
@@ -112,8 +111,6 @@ export function HintsPanel({
                           onFocus={() => onHintFocus(key)}
                           disabled={disabled}
                           invalid={isMissing}
-                          linked={Boolean(parseClueReference(hints[key] ?? '', slots, key))}
-                          linkedBackdropClassName={isMissing ? 'bg-hint-missing' : selectedKey === key ? 'bg-hint-cell-cursor' : ''}
                           wrap
                         />
                         <p

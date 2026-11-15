@@ -7,7 +7,7 @@ export function parseClueReference(
   slots: ReadonlyMap<string, NumberedSlot>,
   ownKey?: string,
 ): { key: string; number: number; orientation: Orientation } | null {
-  const match = /^with ([1-9][0-9]*)-(across|down)\b/i.exec(text);
+  const match = /^(?:with|see) ([1-9][0-9]*)-(across|down)\b/i.exec(text);
   if (!match) return null;
   const number = Number(match[1]);
   const orientation = match[2].toLowerCase() as Orientation;

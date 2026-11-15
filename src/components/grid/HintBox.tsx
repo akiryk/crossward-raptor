@@ -3,9 +3,7 @@ import type { Grid } from '../../engine/grid';
 import type { NumberedSlot } from '../../engine/numbering';
 import { slotAnswer } from '../../lib/slot-answer';
 import { HintArrow } from '../ui/HintArrow';
-import { HintField } from '../ui/HintField';
-import { buildSlotLookup } from '../../lib/hint-lookup';
-import { parseClueReference } from '../../lib/clue-reference';
+import { WrappingField } from '../ui/WrappingField';
 
 /** One hint at a time under the grid, with arrows through the words
  *  (15-S4): a 4px rule on top, a 1px outline on the other sides, 48px
@@ -57,11 +55,7 @@ export function HintBox({
         >
           {slotAnswer(grid, slot)}
         </span>
-        <HintField
-          linked={Boolean(parseClueReference(hint, buildSlotLookup(grid), `${slot.number}-${slot.orientation}`))}
-          wrapperClassName="min-w-0 grow basis-[120px]"
-          backdropClassName={isMissing ? 'bg-hint-missing' : 'bg-hint-box-input'}
-          markClassName="left-[10px] top-[5px] text-body-normal"
+        <WrappingField
           ref={inputRef}
           data-testid="hint-box-input"
           aria-label={`${label} hint`}
@@ -70,7 +64,7 @@ export function HintBox({
           onFocus={onHintFocus}
           disabled={disabled}
           aria-invalid={isMissing ? true : undefined}
-          className={`text-body-normal text-primary w-full min-w-0 border-b px-[10px] pt-[5px] pb-[4px] outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`text-body-normal text-primary w-full min-w-0 grow basis-[120px] border-b px-[10px] pt-[5px] pb-[4px] outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
             isMissing
               ? 'bg-hint-missing border-error'
               : 'bg-hint-box-input focus:border-line-highlight border-transparent'
