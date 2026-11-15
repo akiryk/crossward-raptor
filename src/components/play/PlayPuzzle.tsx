@@ -13,6 +13,7 @@ import type { Coord, Grid } from '@/engine/grid';
 import { slotsWithNumbers } from '@/engine/numbering';
 import { isFull } from '@/engine/play';
 import { cellNumberKey } from '@/lib/cell-number-lookup';
+import { linkedEntryCells } from '@/lib/clue-reference';
 import { activeHintKey, buildSlotLookup } from '@/lib/hint-lookup';
 import { adjacentHintKey, hintOrder } from '@/lib/hint-order';
 import { keyToIntent } from '@/lib/keyboard-intent';
@@ -175,6 +176,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
     highlights.set(cellNumberKey(cursor.current), 'selected');
   }
   const selectedSlot = selectedKey ? lookup.get(selectedKey)! : null;
+  const linkedWord = new Set(linkedEntryCells(view.hints, selectedKey, lookup).map(cellNumberKey));
   // At most 620px, a Sunday's 700px (21-S9), as the build grid.
   const gridWidth = `${gridMaxPx(grid.cols)}px`;
   // Narrow, only the messages that need attention show above the grid
@@ -426,6 +428,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
               grid={grid}
               mode="play"
               highlights={highlights}
+              linkedWord={linkedWord}
               onCellClick={handleCellClick}
               rebus={rebusValue === null || !cursor ? undefined : {
                 coord: cursor.current, value: rebusValue, onChange: setRebusValue, onClose: closeRebusEntry,
