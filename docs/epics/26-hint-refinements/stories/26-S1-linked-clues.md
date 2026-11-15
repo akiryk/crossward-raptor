@@ -7,7 +7,7 @@ fields as the builder types, and every solver-facing hint display.
 
 **Status: Approved 2026-11-14** by the human, with case and the comma
 relaxed and the
-drafting decisions below accepted. Acceptance not yet written or frozen.
+drafting decisions below accepted. Acceptance written and approved under the delegated freeze grant; see the handoff for its baseline commit.
 
 **Blast radius: small, off the risk paths.** A new pure helper in
 `src/lib`, one small display component, the hint fields and displays, and
@@ -106,7 +106,7 @@ Drafting decisions (approved by the human 2026-11-14):
 The EPIC's, and also: the grid (S2), the build phase, and any change to
 `WrappingField`'s behavior for the title field.
 
-## Acceptance (proposed)
+## Acceptance (frozen)
 
 Viewport 1440px unless stated. Colors written out (#E8F7FF).
 
@@ -170,10 +170,15 @@ note citing 26-S1. Nothing else in them changes.
 
 ### Discrimination
 
-To record before the freeze: the new unit file failing without the
-helper; 26-S1-6 to 26-S1-10 failing at their first highlight check
-without the runtime (cases asserting no highlight may pass today);
-verify plus the affected specs passing with a throwaway prototype.
+Observed 2026-11-14 before freeze: `npx vitest run
+src/lib/clue-reference.test.ts` exited 1 because the helper module was
+missing. The browser baseline (`linked-clues`, `--max-failures=1`)
+exited 1 at S1-7's first highlight check (expected 1, received 0);
+three concurrent cases were interrupted and two did not run. This is
+limited missing-runtime discrimination, not evidence of every case failing.
+With the throwaway prototype, all 99 tests in the story's seven required
+browser specs passed. The handoff records the verification gate result.
+No acceptance assertions were changed during prototype validation.
 
 ## Repo paths
 

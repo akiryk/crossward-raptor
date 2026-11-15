@@ -59,6 +59,8 @@ const STYLES: Record<string, string> = {
   'build-cell-selected-row-off': 'blue-dull',
   // 25-S1: the sister of the cursor's word.
   'build-cell-sister': 'interactive-faint-hover',
+  // 26-S1: a linked clue's With, and (26-S2) its entry's cells.
+  'linked-clue': 'interactive-faint-hover',
   'preview-cell-on': 'white',
   'preview-cell-off': 'gray-700',
   'preview-cell-warning': 'cell-warning',
