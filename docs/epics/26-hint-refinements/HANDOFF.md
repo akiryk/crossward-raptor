@@ -3,53 +3,68 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [S2](stories/26-S2-linked-entry.md) and the relevant [EPIC](EPIC.md) scope.
-3. For orchestrated runs, [ORCHESTRATION](../../process/ORCHESTRATION.md).
+2. [EPIC](EPIC.md) and [S2](stories/26-S2-linked-entry.md) for the visual check.
+3. [Closeout evidence](CLOSEOUT.md) only for verification/audit details.
 
-## Current state (2026-11-14)
+## Current state (2026-11-15)
 
-S1 implemented on `epic/26-hint-refinements`. Its acceptance baseline is
-`090d13f` on `main`: the four draft acceptance files present at session start
-were preserved unchanged and frozen under the human's delegated approval.
-The implementation agent added the shared parser, native-field decorative
-layer, solver ClueText and linked-clue style/catalog; the orchestrator inspected
-the diff and ran verification. No risk paths changed; no PR review required.
-The only scope addition is an ESLint ignore for `.claude/worktrees/**`:
-old nested agent checkouts and generated files otherwise produced 2,152 errors.
-No existing data or worktrees were removed.
+Both stories are implemented on `epic/26-hint-refinements`. S1 runtime is
+`957ddda`; S2 runtime is `271b25c`. The S1 acceptance baseline is `090d13f`;
+S2 acceptance is frozen at `6187a20`, pushed to `main` and merged into the epic
+branch. Main contains acceptance/specification only for this epic, with no epic
+runtime merged. Starting worktree was clean at `957ddda`.
 
-S2 remains approved but acceptance unwritten/unfrozen. This session was scoped
-to the user's request to start the first story. The earlier human authorization
-remains: S1 then S2, acceptance freezes on main, runtime on the epic branch,
-one full browser suite and independent closeout audit after S2. Stop for the
-human's visual check before merging the epic to main; that merge is unauthorized.
-No epic runtime has merged to main.
+S2's implementation agent changed only its four declared runtime paths. The
+orchestrator authored acceptance under the human's explicit delegated freeze
+authorization, observed missing-runtime failures and prototype passes, and
+committed runtime unchanged after restoring it. A separate verification agent
+reviewed proposed acceptance with no blockers. Neither story touches a
+CODE-REVIEW risk path; no PR review is required. S1's sole scope addition was
+an ESLint ignore for `.claude/worktrees/**`; no worktrees or non-test data
+were removed. Historical S1 evidence is preserved in [HISTORY-S1](HISTORY-S1.md).
+
+Final independent verification passed and the report-only static audit found
+no blockers. S2 runtime and this closeout record are delivered on
+`epic/26-hint-refinements` (see live git state for the final docs commit).
+No PR or runtime merge to main has been made. The human visual check remains
+pending; the epic is not marked closed, and merging it to main is unauthorized.
 
 ## Verification
 
-Orchestrator-observed, on the final S1 runtime content (unchanged by subsequent
-docs/commits):
+Orchestrator observed on the S2 prototype (same runtime as `271b25c`):
 
-- `npm run verify`: exit 0; 114 files, 1,307 tests passed. Two existing lint
-  warnings remain. Earlier attempts hit a Playwright output-directory race,
-  nested-worktree lint errors, then sandbox-blocked database access. Final run
-  used approved localhost access and the narrow ESLint ignore.
-- `npm run test:e2e -- e2e/linked-clues.spec.ts e2e/color-tokens.spec.ts
-  e2e/hints-panel.spec.ts e2e/hint-box.spec.ts e2e/preview-hints.spec.ts
-  e2e/play-design.spec.ts e2e/narrow-play.spec.ts`: exit 0; 99 passed.
-  Guarded preparation used DEVELOPMENT's standing test-reset grant.
-- Missing-runtime discrimination: unit module missing (exit 1); browser S1-7
-  first highlight absent (exit 1). Baseline browser run stopped after one failure;
-  three cases interrupted, two unrun. The story records this coverage limit.
-- Frozen acceptance unchanged from `090d13f`; `git diff --check` passed.
-- Full epic browser suite, S2, closeout audit and human visual review not run.
+- `npm run verify`: exit 0, 114 files and 1,308 tests passed; two pre-existing
+  lint warnings. The initial sandboxed run could not reach localhost; the
+  successful run used approved database access.
+- Story and directly affected browser specs: exit 0, 76 passed. Exact command
+  and discrimination evidence are in [S2](stories/26-S2-linked-entry.md#discrimination).
+- Without S2 runtime: S2-1 failed for the absent helper; S2-2 through S2-5
+  each failed at the first pale-cell assertion. These failures were expected.
+- Frozen S2 acceptance matches `6187a20` exactly; S1 unit content remains an
+  exact prefix, with only the approved S2 addition. S1 browser acceptance is
+  unchanged. `git diff --check` passed.
+
+Independent verification agent, fixed `271b25c`: `npm run verify` exited 0
+(114 files / 1,308 tests); full `npm run test:e2e` exited 0 (1,425/1,425,
+10.0m, ordinary four workers). Earlier full runs hit authentication connection
+resets and a live-sync response-body teardown race; all failed cases passed
+unchanged focused reruns, then the complete clean run passed. Detailed failed
+attempts remain in [CLOSEOUT](CLOSEOUT.md). No tests, retries or timeouts were
+changed. Final documentation edits leave the tested runtime/tests unchanged.
+Browser runs were serialized with the repository lock and DEVELOPMENT's
+standing guarded-local-reset grant. Independent audit found no source/spec or
+frozen-acceptance blockers; no external CI success is claimed. Human visual
+review has not run.
 
 ## Next action
 
-Write and validate S2's approved acceptance, freeze on main, merge main into the
-epic branch, then implement S2. Retain the required final full suite and audit.
-Check live git state for actual delivery; the S1 commit follows this handoff edit.
+The local app is restored at `http://localhost:3000` (`npm run dev` ready).
+The human should visually check linked `With` text and referenced cells in
+the builder's hints phase (including Lock Grid Letters) and in play: cursor
+and current word keep their colors, movement changes the secondary fill,
+invalid live edits remove it, and focus loss clears it. Record the result and
+address reported issues on the epic branch. Do not merge the epic to main.
 
 ## Resume prompt
 
-Read docs/epics/26-hint-refinements/HANDOFF.md and docs/epics/26-hint-refinements/stories/26-S2-linked-entry.md. Implement S2 as authorized, freezing acceptance on main and delivering runtime on epic/26-hint-refinements; then run epic closeout checks and stop for the human's visual check, no merge to main.
+Read docs/epics/26-hint-refinements/HANDOFF.md and docs/epics/26-hint-refinements/EPIC.md. Record the human's visual-check result for epic/26-hint-refinements and address any reported issues; do not merge to main.
