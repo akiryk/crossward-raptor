@@ -62,10 +62,11 @@ test('24-S8 library names show owner first and collaborators for both accounts',
     for (const viewer of [page, jay.page]) {
       await viewer.goto('/puzzles');
       const row = viewer.getByTestId('puzzle-list-item').filter({ has: viewer.getByTestId('puzzle-list-title').getByText(title, { exact: true }) });
-      await expect(row.getByTestId('puzzle-builder-name')).toHaveText(viewer === page ? 'You' : owner.displayName!.trim());
-      await expect(row.getByTestId('puzzle-owner-label')).toHaveText(', (owner)');
+      await expect(row.getByTestId('puzzle-builder-name')).toHaveText(owner.displayName!.trim());
+      await expect(row.getByTestId('puzzle-owner-label')).toHaveText('(owner)');
+      await expect(row.getByTestId('puzzle-builder-name').locator('..')).toHaveText(`${owner.displayName!.trim()} (owner)`);
       await expect(row.getByTestId('puzzle-owner-label')).toHaveCSS('font-weight', '400');
-      await expect(row.getByTestId('puzzle-collaborator-name')).toHaveText(viewer === page ? 'Jay' : 'You');
+      await expect(row.getByTestId('puzzle-collaborator-name')).toHaveText('Jay');
       const titleBox = (await row.getByTestId('puzzle-list-title').boundingBox())!;
       const ownerBox = (await row.getByTestId('puzzle-builder-name').boundingBox())!;
       const memberBox = (await row.getByTestId('puzzle-collaborator-name').boundingBox())!;
@@ -77,5 +78,29 @@ test('24-S8 library names show owner first and collaborators for both accounts',
     }
   } finally {
     await jay.context.close();
+  }
+});
+
+// 24-S12: invitations alone do not add an owner marker or a member line.
+test('24-S12 solo and invitation-only rows show just the username', async ({ page }) => {
+  const title = `24-S12 solo ${Date.now()}`;
+  const { id } = await seedPuzzle({ grid: createGrid({ cols: 5, rows: 5 }), hints: {}, phase: 'grid' }, title);
+  const owner = await readUser(await readPuzzleBuilderId(id));
+  for (const invited of [false, true]) {
+    if (invited) {
+      await page.goto(`/puzzles/${id}`);
+      await waitForEditorReady(page);
+      await page.getByTestId('editor-collaborators').click();
+      const dialog = page.getByTestId('collaborators-dialog');
+      await dialog.getByTestId('collaborators-email').fill(`s12-${Date.now()}@example.test`);
+      await dialog.getByTestId('collaborators-add').click();
+      await expect(dialog.getByTestId('invitation-row')).toBeVisible();
+    }
+    await page.goto('/puzzles');
+    const row = page.getByTestId('puzzle-list-item').filter({ has: page.getByTestId('puzzle-list-title').getByText(title, { exact: true }) });
+    await expect(row.getByTestId('puzzle-builder-name')).toHaveText(owner.displayName!.trim());
+    await expect(row.getByTestId('puzzle-builder-name').locator('..')).toHaveText(owner.displayName!.trim());
+    await expect(row.getByTestId('puzzle-owner-label')).toHaveCount(0);
+    await expect(row.getByTestId('puzzle-collaborator-name')).toHaveCount(0);
   }
 });

@@ -418,7 +418,7 @@ test.describe('14-S2-2 row anatomy and styles', () => {
     const username = item.getByTestId('puzzle-builder-name');
 
     await expect(title).toHaveText(draft.title);
-    await expect(username).toHaveText('You');
+    await expect(username).toHaveText('Ada Builder');
     await expectTextStyle(page, title, 'title-4', 'title');
     await expectTextColor(page, title, 'primary', 'title');
     await expectTextStyle(page, username, 'title-4', 'username');
@@ -585,7 +585,7 @@ test.describe('14-S2-3 the caller’s puzzles', () => {
         const badge = item.getByTestId('puzzle-status');
         await expect(badge).toHaveText(status);
         await expect(badge).toHaveAttribute('data-status-kind', kind);
-        await expect(item.getByTestId('puzzle-builder-name')).toHaveText('You');
+        await expect(item.getByTestId('puzzle-builder-name')).toHaveText('Ada Builder');
         const published = kind === 'published';
         const link = item.getByTestId(published ? 'puzzle-play-link' : 'puzzle-edit-link');
         await expect(link).toHaveAttribute('href', published ? `/puzzles/${fixture.id}/play` : `/puzzles/${fixture.id}`);
@@ -658,7 +658,7 @@ test.describe('14-S2-4 published puzzles', () => {
 
     // 18-S5: a completed row has no marker; its hidden status reads Complete.
     for (const [fixture, marker, state, builder, status] of [
-      [untouchedOwn, null, 'untouched', 'You', 'Ready to play'],
+      [untouchedOwn, null, 'untouched', 'Ada Builder', 'Ready to play'],
       [untouchedForeign, null, 'untouched', '', 'Ready to play'],
       [inPlay, '[in-play]', 'in-progress', 'Grace Maker', 'Ready to play'],
       [complete, null, 'completed', 'Grace Maker', 'Complete'],

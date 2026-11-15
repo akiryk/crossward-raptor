@@ -212,8 +212,7 @@ test.describe('18-S6-4 a row\'s contents stay inside it in one column', () => {
         expect(await date.evaluate((el) => el.scrollWidth <= el.clientWidth), `${title}: date text inside its box`).toBe(true);
         expect(d.y + d.height, `${title}: date inside the row`).toBeLessThanOrEqual(r.y + r.height + 0.5);
 
-        // Measure the full owner line, including the S8 owner marker;
-        // the name alone can be as short as S9's "You".
+        // Measure the full username line; the name itself may be short.
         const name = await box(item.getByTestId('puzzle-builder-name').locator('..'));
         expect(name.width, `${title}: title column at least ${TITLE_COLUMN_MIN_PX}px`).toBeGreaterThanOrEqual(TITLE_COLUMN_MIN_PX - 0.5);
         const t = await box(item.getByTestId('puzzle-list-title'));

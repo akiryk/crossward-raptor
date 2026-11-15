@@ -96,7 +96,7 @@ test.describe('18-S1-1 muted text is black at 40%', () => {
     const fill = await computed(item, 'backgroundColor');
     expect(fill, 'the row is filled').not.toEqual({ r: 255, g: 255, b: 255, a: 1 });
     expect(fill.a, 'the row is opaque').toBe(1);
-    await expect(item.getByTestId('puzzle-builder-name')).toHaveText('You');
+    await expect(item.getByTestId('puzzle-builder-name')).toHaveText('Ada Builder');
     expectColor(await computed(item.getByTestId('puzzle-builder-name'), 'color'), MUTED, 'builder name');
     expectColor(await computed(item.getByTestId('puzzle-list-updated'), 'color'), MUTED, 'date');
   });

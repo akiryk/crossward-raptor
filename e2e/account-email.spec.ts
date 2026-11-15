@@ -366,7 +366,7 @@ test.describe('23-S5-4 both fields changed', () => {
     await expect(d.sent).toHaveText(sentMessage(newEmail));
     expect(posts, 'the username save, then the email request').toHaveLength(2);
     expect(await readAccountById(userId)).toEqual({ email, displayName: 'Ada Lovelace' });
-    await expect(row.getByTestId('puzzle-builder-name')).toHaveText('You');
+    await expect(row.getByTestId('puzzle-builder-name')).toHaveText('Ada Lovelace');
     await d.done.click();
     await expect(account(page)).toBeFocused();
 
