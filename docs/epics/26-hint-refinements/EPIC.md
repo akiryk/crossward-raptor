@@ -1,5 +1,9 @@
 # Epic: Hint refinements
 
+**Closed 2026-11-15.** S1–S3 passed automated verification and independent
+closeout audit. The human reported no visual issues and authorized merge and
+push; merged to main at `b227512`. See [CLOSEOUT](CLOSEOUT.md).
+
 **Approved 2026-11-14.** Written from the human's request for recognized
 linked clues. The human then relaxed case (any case counts) and the comma (not
 required), and approved the drafting decisions. Each story's specification and

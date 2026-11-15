@@ -6,7 +6,9 @@ The human's visual review of S1/S2 on 2026-11-15 requested See recognition,
 full referenced play-row fill, and removal of individual word decoration;
 then confirmed the secondary color `interactive-faint-hover` (#E8F7FF).
 [S3](stories/26-S3-linked-hints.md) governs these changes. The existing
-no-runtime-merge-to-main boundary remains.
+no-runtime-merge-to-main boundary applied until final visual approval. On
+2026-11-15 the human reported no issues and explicitly authorized merge and push,
+superseding that delivery restriction.
 
 Starting worktree: clean `epic/26-hint-refinements` at `74d130f`.
 Independent agent `s3_amendment_review` approved the proposed semantic
@@ -77,10 +79,8 @@ Normal assertions, timeouts, projects and retries remain; no settings files
 are changed. Guarded reset/lock rules above apply.
 
 Final independent audit evidence and documentation/frozen checks passed.
-Delivery is on `epic/26-hint-refinements`; the orchestrator verifies the final
-push by remote readback (see live git for the final docs commit). Main remains
-at acceptance-only `26c15f7`. Human visual check follows. No runtime merge to
-main is authorized.
+Initial delivery was on `epic/26-hint-refinements` at `4c45027`, with main at
+acceptance-only `26c15f7` pending visual approval. Final delivery is recorded below.
 
 ## Independent audit
 
@@ -119,7 +119,30 @@ no suites.
 ## Human visual check
 
 The initial human review said the S1/S2 appearance looked good, then requested
-S3's three changes. S3 visual approval remains pending. Local app restored
-with `npm run dev`, ready at `http://localhost:3000`; Mailpit healthy. Check
-reciprocal With/See in builder and play, full-row secondary fill, plain keyword
-text and current cursor/word precedence. Startup is not a human visual pass.
+S3's three changes. On 2026-11-15, after the final S3 visual-check handoff, the
+human reported: “I have no issues to report. Please merge and push.” This records
+visual approval and explicit authorization to merge/push the completed epic.
+No issues or further runtime changes were requested.
+
+## Final delivery (2026-11-15)
+
+The delivery session started with a clean worktree at `4c45027` on
+`epic/26-hint-refinements`. Fresh fetch confirmed main at `26c15f7` and no PR.
+Actual changes contain no CODE-REVIEW risk paths; direct delivery applies.
+Existing independent audit and verifier results above were reused rather than
+rerunning unchanged suites. The session observed:
+
+- `git diff --name-only 656de61 HEAD`: only documentation changed since the
+  tested runtime; no source, acceptance or configuration changes.
+- `git diff --exit-code 26c15f7 HEAD -- e2e src/lib/clue-reference.test.ts`:
+  exit 0; frozen acceptance preserved.
+- GitHub checks at `4c45027`: Vercel deployment and Preview Comments succeeded.
+  These are deployment checks, not application CI verification.
+- Normal merge to main at `b227512443c31104c00bafe6ed32fb3e8b491d4d`;
+  `git diff --exit-code HEAD epic/26-hint-refinements`: exit 0 after merge.
+  `git push origin main`: exit 0, remote advanced from `26c15f7` to `b227512`.
+- Final closeout documentation is committed/pushed separately on main. No
+  application/browser suites rerun for these documentation-only edits.
+
+All three stories and epic closeout are complete; no open findings or next
+story is authorized. No existing data was deleted or reset in this session.

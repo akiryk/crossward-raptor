@@ -4,8 +4,9 @@
 visual review of S1/S2 and confirmed `interactive-faint-hover` as the secondary
 row color. Acceptance amended and frozen on main after independent review; see HANDOFF
 for the baseline commit.
-Implementation and delivery remain on `epic/26-hint-refinements`; no runtime
-merge to main is authorized.
+Implementation and initial delivery used `epic/26-hint-refinements` pending
+visual approval. On 2026-11-15, the human reported no issues and explicitly
+authorized merge and push. Merged to main at `b227512`; see [CLOSEOUT](../CLOSEOUT.md).
 
 ## Decisions
 
@@ -75,7 +76,8 @@ approve the proposed semantic amendments. `npm run verify` and affected specs
 `hint-phase-design`) must pass on runtime. Then run one clean final full browser
 suite and a fresh independent closeout audit; stop for a new human visual check.
 Use DEVELOPMENT's standing guarded local test-reset grant and database lock.
-No merge to main.
+The original no-merge boundary was lifted by the human's explicit merge/push
+authorization after the final visual check on 2026-11-15.
 
 ## Repo paths and risk
 

@@ -3,68 +3,61 @@
 ## Read first
 
 1. This handoff; AGENTS only if not already supplied.
-2. [S3](stories/26-S3-linked-hints.md) and [EPIC](EPIC.md).
-3. [Current evidence](CLOSEOUT.md) only for verification/audit details.
+2. [EPIC](EPIC.md) and [S3](stories/26-S3-linked-hints.md).
+3. [CLOSEOUT](CLOSEOUT.md) only for detailed verification/audit evidence.
 
 ## Current state (2026-11-15)
 
-The human visually reviewed S1/S2 and requested three changes: accept See as
-well as With; fill the full referenced clue row in play with pale blue
-(#E8F7FF, explicitly confirmed); remove individual keyword decoration in
-builder fields and all displays. [S3](stories/26-S3-linked-hints.md) records
-the approved amendment and explicitly supersedes the conflicting S1 rules.
-S2 grid behavior remains, extended to See by the shared parser.
+**Closed 2026-11-15.** S1–S3 are complete. The human's final S3 visual-check
+result was: “I have no issues to report. Please merge and push.” This explicitly
+lifted the earlier no-merge boundary. No issues or further runtime changes were
+requested. No substantive decisions or open findings remain.
 
-Starting worktree was clean at `74d130f` on `epic/26-hint-refinements`.
-S3's semantic acceptance amendments were independently reviewed by
-`s3_amendment_review`, with no blockers/vacuous assertions. The orchestrator
-observed discrimination before the main specification/acceptance-only freeze
-`26c15f7`, pushed to main and integrated into epic at `25384e0`. Original With
-parser cases, S2 browser acceptance and F1 color assertions were preserved;
-only explicit S1 conflicts were amended. S3 runtime was implemented by a
-separate agent in ten declared paths and committed as `656de61` on the epic
-branch after checks. No test/doc edits by that agent.
+The delivery session began with a clean worktree at `4c45027` on
+`epic/26-hint-refinements`. Fresh fetch confirmed main at acceptance-only
+`26c15f7`. The approved epic was merged normally into main at
+`b227512443c31104c00bafe6ed32fb3e8b491d4d`; `git push origin main` exited 0.
+The resulting merge tree exactly matched the epic branch. This closeout update
+is documentation only and is delivered separately on main; check live git for
+its final commit and remote state. No PR was required or opened: actual changed
+paths contain no CODE-REVIEW risk paths. The independent closeout audit below
+was already clear before the human visual approval.
 
-S1/S2 runtime remains in epic history (`957ddda`, `271b25c`), with historical
-verification in [CLOSEOUT-S2](CLOSEOUT-S2.md) and [HISTORY-S1](HISTORY-S1.md).
-Their earlier full-suite pass does not establish a pass for S3. Neither story
-introduced engine/storage/server/schema/collaboration risk paths. Main has
-specification/acceptance only for this epic; no epic runtime merged to main.
+S3 governs With/See recognition, full referenced play-row fill and plain
+keywords everywhere. S2's linked grid behavior remains. S3's independently
+reviewed semantic acceptance amendments were frozen on main at `26c15f7`
+before runtime implementation at `656de61`. Historical S1/S2 evidence remains
+in CLOSEOUT-S2/HISTORY-S1; it is not substituted for S3 verification.
 
 ## Verification
 
-Orchestrator-observed on the old runtime plus proposed amendments:
+Separate verifier `s3_verify`, on runtime `656de61`:
 
-- Unit discrimination: exit 1, four new See cases fail; 19 retained cases pass.
-- Browser discrimination: exit 1, nine fail/three pass across amended
-  linked-clues and new linked-hints; expected absent behavior confirmed.
-- Independent proposed correction review: approved; its small story-count
-  wording note was fixed before freeze. Runtime was unchanged during drafting.
+- `npm run verify`: exit 0, 114 files / 1,311 tests; two existing lint warnings.
+- Affected browser checks: exit 0, 238 passed.
+- Full `npm run test:e2e -- --workers=2`: exit 0, 1,429 passed (13.6m), one
+  complete clean run; documented machine cap, no assertion/timeout/retry changes.
 
-Separate verifier `s3_verify`: `npm run verify` exited 0 (114 files / 1,311
-tests), and all 238 affected browser checks passed with the documented
-2-worker machine cap. Content hashes bind precommit results to `656de61`.
-The complete `npm run test:e2e -- --workers=2` exited 0 at fixed `656de61`:
-1,429 passed (13.6m), one complete clean run on the first S3 attempt. The
-2-worker machine cap is recorded in CLOSEOUT; no assertions, timeouts or
-retries changed. Independent report-only audit found no source/scope/test
-blockers; three stale documentation references were corrected and rechecked.
-Final docs leave tested runtime/acceptance unchanged. No external CI pass
-is claimed. Human visual approval of S3 remains pending. Browser runs use the
-repository lock and DEVELOPMENT's standing grant for guarded local test
-resets. Existing data outside that validated test target is untouched.
-Detailed commands/outcomes are recorded in [CLOSEOUT](CLOSEOUT.md).
+Independent report-only auditor `s3_amendment_review` authored none of the work
+and cleared source, scope, frozen acceptance, callers and dead-code checks.
+Three stale documentation references were corrected and rechecked. Final
+source/content hashes bind verification and audit to the unchanged runtime;
+see CLOSEOUT for provenance, commands and coverage limits.
+
+The delivery session confirmed that only documentation changed after `656de61`
+and frozen acceptance matches `26c15f7` (diff exit 0). It inspected the actual
+merge scope and confirmed merge-tree equality. GitHub's Vercel deployment and
+Preview Comments checks at `4c45027` succeeded; no external application CI pass
+is claimed. Application/browser suites were not rerun for documentation-only
+closeout. Documentation checks cover paths, links, consistency and diff.
+No data deletion/reset was performed in this session.
 
 ## Next action
 
-The local app is restored at `http://localhost:3000` (`npm run dev` ready).
-S3 runtime and closeout docs are delivered on `epic/26-hint-refinements`;
-check live git state for final docs commit. No runtime merge to main or next
-story is authorized. Visually check With/See reciprocal clues in builder and
-play, the full referenced play row in pale blue, plain keywords everywhere,
-and unchanged cursor/current-word colors. Record the result and address any
-reported issues on the epic branch. The epic is not marked closed.
+None in this epic. All stories, automated gates, independent audit, human
+visual approval and authorized runtime delivery are complete. No next epic or
+story is authorized; the next development task needs a new user request.
 
 ## Resume prompt
 
-Read docs/epics/26-hint-refinements/HANDOFF.md and docs/epics/26-hint-refinements/stories/26-S3-linked-hints.md. Record the human's visual-check result for epic/26-hint-refinements and address any reported issues; do not merge to main.
+Read docs/epics/26-hint-refinements/HANDOFF.md and docs/epics/26-hint-refinements/EPIC.md. Check the closed epic's delivery state on main; no new story is authorized.
