@@ -8,52 +8,38 @@ acceptance are approved and frozen on their own
 
 ## The human's request
 
-Restated (2026-11-14):
+Updated by the human's visual review (2026-11-15), implemented in S3:
 
-1. **Linked clues.** A builder can write an NYT-style cross-referencing
-   hint, `With 28-Across, a Chinese dish with pancakes`. When Crossward
-   recognizes the hint as a valid reference to another entry, the word
-   `With` is highlighted in `interactive-faint-hover`.
-   - **Why:** the highlight shows the builder that Crossward recognized
-     the linked clue and that the house syntax is right. Recognition is
-     strict in form so the highlight teaches that syntax.
-2. **Strict form, any case.** Only the opening form `With
-   <number>-Across` or `With <number>-Down` counts, in any letter case:
-   `with 18-across` counts as much as `With 18-Across,`. The word `with`,
-   the number, the hyphen and the direction must be there; a following
-   comma is customary but not required. `28
-   across`, `horizontal`, `See 28-Across`, `28-Across has a partner…`,
-   multiple references and bare `28A` are ordinary text.
-3. **Validated.** The referenced entry must exist in the current puzzle,
-   in that direction. Highlighted `With` means a syntactically valid
-   reference to an actual entry.
-4. **The text is the source of truth.** No linked-clue field, table or
-   stored metadata, and no rewriting of the hint. One pure recognition
-   helper serves the builder and the solver alike.
-5. **Builder and solver.** The highlight updates as the builder types,
-   and solver-facing hints show it too.
-6. **The referenced entry in the grid.** While a linked clue is the
-   current clue, in the builder or in play, the referenced entry's cells
-   take the same pale blue (`interactive-faint-hover`) as the sister word,
-   a secondary highlight. The current word and cursor keep their look.
-   Moving to another clue moves or removes it. No click, navigation,
-   tooltip or cursor movement.
-7. **No rich-text editor.** Hints stay native text fields. If inline
-   highlighting while typing proved disproportionately invasive, the work
-   would stop for the human. Inspection shows it isn't: see 26-S1.
+1. Recognize `With <number>-Across/Down` and `See <number>-Across/Down`,
+   case-insensitively, using S1's otherwise unchanged strict validated form.
+   Explicit reciprocal clues work by selecting either entry.
+2. The hint text is the source of truth; one pure parser, no stored metadata
+   or rewriting. Hints remain native fields.
+3. In hints and play, the current clue's referenced entry has pale blue cells,
+   with current word/cursor precedence, focus gating and live updates from S2.
+4. During play, highlight the full referenced clue row in that same pale blue
+   (`interactive-faint-hover`), alongside the current clue's stronger blue.
+5. Do not decorate the word With or See. This explicitly replaces the original
+   S1 word-highlight request everywhere, including builder fields and displays.
+6. No navigation, tooltip or automatic cursor movement.
+
+The original S1 decision record remains historical; S3 governs its superseded
+syntax and text-decoration behavior. S2's existing scope is preserved.
 
 ## Stories
 
 1. [26-S1 Recognized linked clues](stories/26-S1-linked-clues.md): the
-   helper and `With`'s highlight in every hint field and hint display.
+   original helper and word decoration (decoration superseded by S3).
 2. [26-S2 The linked entry in the grid](stories/26-S2-linked-entry.md):
    the referenced entry's cells while its linked clue is current.
+3. [26-S3 Linked hints after visual review](stories/26-S3-linked-hints.md):
+   See recognition, full referenced play-row fill, no individual word highlight.
 
-S2 depends on S1's helper.
+S2 and S3 use S1's shared helper.
 
 ## Delivery
 
-Neither story touches a CODE-REVIEW risk path (the helper lives in
+No story touches a CODE-REVIEW risk path (the helper lives in
 `src/lib`, not `src/engine`). The stories are delivered on an epic branch,
 `epic/26-hint-refinements`, so the human can test the whole epic before
 it reaches `main`:

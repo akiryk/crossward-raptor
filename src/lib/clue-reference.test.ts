@@ -3,13 +3,13 @@ import { createGrid, type Orientation } from '../engine/grid';
 import type { NumberedSlot } from '../engine/numbering';
 import { buildSlotLookup } from './hint-lookup';
 
-// Story 26-S1 — recognized linked clues.
+// Story 26-S1, amended by 26-S3 — With/See references; no word decoration.
 //
 // `parseClueReference(text, slots, ownKey?)` in clue-reference.ts
-// recognizes a hint that opens `With <number>-Across` or
-// `With <number>-Down`, in any letter case, naming an entry the puzzle has
-// in that direction: `^with ([1-9][0-9]*)-(across|down)\b`,
-// case-insensitive. One space after `with`, no leading zero, a hyphen,
+// recognizes a hint that opens `With <number>-Across/Down` or
+// `See <number>-Across/Down`, in any letter case, naming an existing entry:
+// `^(?:with|see) ([1-9][0-9]*)-(across|down)\b`, case-insensitive.
+// One space after the keyword, no leading zero, a hyphen,
 // the direction as a whole word; anything may follow, the customary comma
 // included. A hint naming its own entry (`ownKey`) is not recognized. It
 // returns the entry's key, number and orientation, or null, and never
@@ -88,7 +88,6 @@ describe('26-S1-3 syntax', () => {
     'With -Across,',
     'With 4 horizontal,',
     'With 4-Acrosses,',
-    'See 4-Across,',
     '4-Across has a partner',
     ' With 4-Across,',
     'With 04-Across,',
@@ -151,5 +150,31 @@ describe('26-S2-1 linked entry cells', () => {
       expect(fn(hints, key, slots), String(key)).toEqual([]);
     }
     expect(JSON.stringify({ hints, slots: [...slots] })).toBe(before);
+  });
+});
+
+// Explicit human amendment 26-S3 replaces S1's See-is-ordinary expectation.
+describe('26-S3-1 See uses the same validated syntax as With', () => {
+  it.each(['See 4-Across, x', 'see 4-across', 'SEE 4-ACROSS: x'])('%s', (text) => {
+    expect(parseClueReference(text, slots, '1-down')).toEqual(FOUR_ACROSS);
+  });
+  it('supports Down, rejects self/nonexistent/malformed references and preserves inputs', () => {
+    const before = JSON.stringify([...slots]);
+    expect(parseClueReference('sEe 2-dOwN, x', slots, '1-across')).toEqual(TWO_DOWN);
+    expect(parseClueReference('See 2-Down', slots, '2-down')).toBeNull();
+    for (const text of ['See 82-Across', 'See 4-Down', 'See 4 Across', ' See 4-Across',
+      'See4-Across', 'See 04-Across', 'See 4-Acrosses', 'See 4A', 'See 1- and 4-Across']) {
+      expect(parseClueReference(text, slots), text).toBeNull();
+    }
+    const fn = implementation.linkedEntryCells as (
+      hints: Readonly<Record<string, string>>, currentKey: string | null,
+      slots: ReadonlyMap<string, NumberedSlot>,
+    ) => readonly { col: number; row: number }[];
+    const hints = Object.freeze({ '1-down': 'See 4-Across, x' });
+    expect(fn(hints, '1-down', slots)).toEqual([
+      { col: 0, row: 1 }, { col: 1, row: 1 }, { col: 2, row: 1 },
+    ]);
+    expect(hints['1-down']).toBe('See 4-Across, x');
+    expect(JSON.stringify([...slots])).toBe(before);
   });
 });

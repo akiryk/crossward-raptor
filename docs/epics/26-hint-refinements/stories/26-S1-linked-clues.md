@@ -1,5 +1,9 @@
 # Story S1 — Recognized linked clues
 
+**Historical decisions:** [S3](26-S3-linked-hints.md) supersedes With-only
+recognition and individual word decoration after human visual review. S3 owns
+the explicitly reviewed/refrozen acceptance amendments; other S1 behavior stays.
+
 A hint that opens `With 28-Across,` or `With 7-Down,`, naming an entry the
 puzzle has, is a linked clue. Its `With` is highlighted in
 `interactive-faint-hover` wherever the hint appears: the builder's hint
