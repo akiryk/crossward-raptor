@@ -127,3 +127,29 @@ describe('26-S1-5 editing', () => {
     expect(JSON.stringify([...slots.entries()])).toBe(snapshot);
   });
 });
+
+describe('26-S2-1 linked entry cells', () => {
+  it('returns the referenced cells in order, or none, without changing inputs', () => {
+    const fn = implementation.linkedEntryCells as ((
+      hints: Readonly<Record<string, string>>,
+      currentKey: string | null,
+      slots: ReadonlyMap<string, NumberedSlot>,
+    ) => readonly { col: number; row: number }[]) | undefined;
+    if (typeof fn !== 'function') throw new Error('clue-reference.ts exports no linkedEntryCells');
+    const hints = Object.freeze({
+      '1-down': 'With 4-Across, x',
+      '1-across': 'Ordinary hint',
+      '2-down': 'With 82-Across, x',
+      '3-down': 'With 4 Across, x',
+      '4-across': 'With 4-Across, x',
+    });
+    const before = JSON.stringify({ hints, slots: [...slots] });
+    expect(fn(hints, '1-down', slots)).toEqual([
+      { col: 0, row: 1 }, { col: 1, row: 1 }, { col: 2, row: 1 },
+    ]);
+    for (const key of [null, '1-across', '2-down', '3-down', '4-across', '5-across']) {
+      expect(fn(hints, key, slots), String(key)).toEqual([]);
+    }
+    expect(JSON.stringify({ hints, slots: [...slots] })).toBe(before);
+  });
+});
