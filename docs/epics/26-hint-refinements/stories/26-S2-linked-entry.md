@@ -16,7 +16,9 @@ set, and the editor and play compute it with S1's helper. Delivered on
 
 ## The human's request
 
-See the [EPIC](../EPIC.md#the-humans-request), item 6.
+See the [EPIC](../EPIC.md#the-humans-request), item 3.
+[S3](26-S3-linked-hints.md) extends recognition to See and removes S1's
+individual word decoration; S2's grid behavior is preserved.
 
 ## What the code does today
 
@@ -64,7 +66,8 @@ Drafting decisions (approved by the human 2026-11-14):
 - **Only the background.** `data-highlight`, `data-cell-state`, letters
   and their colors are unchanged. A linked cell is marked
   `data-linked="true"` for tests.
-- **Style.** `bg-linked-clue`, S1's style, so `With` and the cells match.
+- **Style.** `bg-linked-clue`, S1's style. After S3, referenced grid cells
+  and the referenced play clue row share it; individual words are plain text.
 
 ## Non-goals
 

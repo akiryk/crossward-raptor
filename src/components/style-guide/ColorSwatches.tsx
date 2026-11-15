@@ -57,6 +57,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'interactive-faint-hover',
     swatch: 'bg-build-cell-sister',
   },
+  { name: 'linked-clue', variable: 'interactive-faint-hover', swatch: 'bg-linked-clue' },
   { name: 'preview-cell-on', variable: 'white', swatch: 'bg-preview-cell-on' },
   { name: 'preview-cell-off', variable: 'gray-700', swatch: 'bg-preview-cell-off' },
   { name: 'preview-cell-warning', variable: 'cell-warning', swatch: 'bg-preview-cell-warning' },

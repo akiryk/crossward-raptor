@@ -1,4 +1,5 @@
 import type { NumberedSlot } from '@/engine/numbering';
+import { parseClueReference } from '@/lib/clue-reference';
 import { twoHintColumnsClass } from '@/lib/grid-max';
 
 const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] = [
@@ -34,6 +35,10 @@ export function PlayerHints({
   /** With `stacksWhenNarrow`, the grid's width beside it (21-S9). */
   gridPx?: number;
 }) {
+  const lookup = new Map(slots.map(slot => [`${slot.number}-${slot.orientation}`, slot]));
+  const referencedKey = selectedKey === null
+    ? null
+    : parseClueReference(hints[selectedKey] ?? '', lookup, selectedKey)?.key;
   const maxNumberDigits = Math.max(1, ...slots.map((slot) => String(slot.number).length));
 
   const columns = (
@@ -58,7 +63,7 @@ export function PlayerHints({
                   data-clue-key={key}
                   data-active={selectedKey === key ? 'true' : undefined}
                   className={`flex cursor-pointer gap-[6px] px-[6px] py-[6px] ${
-                    selectedKey === key ? 'bg-play-cell-selected-row' : ''
+                    selectedKey === key ? 'bg-play-cell-selected-row' : referencedKey === key ? 'bg-linked-clue' : ''
                   }`}
                   onClick={onSelect ? () => onSelect(key) : undefined}
                 >

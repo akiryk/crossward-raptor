@@ -64,7 +64,7 @@ export function HintBox({
           onFocus={onHintFocus}
           disabled={disabled}
           aria-invalid={isMissing ? true : undefined}
-          className={`text-body-normal text-primary min-w-0 grow basis-[120px] border-b px-[10px] pt-[5px] pb-[4px] outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`text-body-normal text-primary w-full min-w-0 grow basis-[120px] border-b px-[10px] pt-[5px] pb-[4px] outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
             isMissing
               ? 'bg-hint-missing border-error'
               : 'bg-hint-box-input focus:border-line-highlight border-transparent'

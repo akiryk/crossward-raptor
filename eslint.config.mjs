@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Nested agent checkouts have their own source and generated build output.
+    ".claude/worktrees/**",
   ]),
   // The grid engine is headless: no React, Next, or database client.
   {

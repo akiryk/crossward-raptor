@@ -32,6 +32,7 @@ import {
 import { deleteProtected, isCellProtected, placeProtected } from "../../lib/locked-keys";
 import { cellNumberKey } from "../../lib/cell-number-lookup";
 import { sisterWord } from "../../lib/cell-appearance";
+import { linkedEntryCells } from "../../lib/clue-reference";
 import { buildSlotLookup, activeHintKey, isHintFilled } from "../../lib/hint-lookup";
 import { adjacentHintKey, hintOrder } from "../../lib/hint-order";
 import { keyToIntent } from "../../lib/keyboard-intent";
@@ -758,6 +759,11 @@ export function PuzzleGridEditor({
     }
     highlights.set(cellNumberKey(cursor.current), "selected");
   }
+  const linkedWord = new Set(linkedEntryCells(
+    hints,
+    phase === "hints" && isFocused ? activeKey : null,
+    slotLookup,
+  ).map(cellNumberKey));
   // In the build phase only the cursor's word is blue-medium, not the
   // other words in its row or column (21-S1): the word its cell would
   // belong to with a letter (22-S5), except where no letter can be typed,
@@ -1048,6 +1054,7 @@ export function PuzzleGridEditor({
                 highlights={highlights}
                 cursorWord={cursorWord}
                 sisterWord={cursorSister}
+                linkedWord={linkedWord}
                 lockedWords={isLockShown ? lockedWords : undefined}
                 lockTarget={lockTarget}
                 hasLockButton={hasLockRoom}

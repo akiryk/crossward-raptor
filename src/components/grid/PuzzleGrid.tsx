@@ -179,6 +179,7 @@ export function PuzzleGrid({
   rebus,
   cursorWord,
   sisterWord,
+  linkedWord,
   lockedWords = [],
   lockTarget = null,
   hasLockButton = true,
@@ -196,6 +197,8 @@ export function PuzzleGrid({
   /** Build phase: the cursor's word's 180° image, pale blue whatever its
    *  cells are (25-S1). Keyed via cellNumberKey. */
   sisterWord?: ReadonlySet<string>;
+  /** Hints and play: the referenced entry, beneath current-word highlights. */
+  linkedWord?: ReadonlySet<string>;
   /** Keyed via cellNumberKey (Story P2) — "row,col". */
   highlights?: ReadonlyMap<string, 'selected' | 'slot'>;
   mode?: GridMode;
@@ -293,6 +296,8 @@ export function PuzzleGrid({
       const key = cellNumberKey({ col, row });
       const number = numbers.get(key);
       const highlight = highlights?.get(key);
+      const isLinked = cell.kind === 'active' && !highlight && linkedWord?.has(key)
+        && (gridMode === 'hints' || gridMode === 'hints-locked' || gridMode === 'play');
       const appearance = cellAppearance({
         cell,
         isSelected: highlight === 'selected',
@@ -317,6 +322,7 @@ export function PuzzleGrid({
           data-kind={cell.kind}
           data-selected={highlight === 'selected' ? 'true' : undefined}
           data-highlight={highlight}
+          data-linked={isLinked ? 'true' : undefined}
           data-cell-state={appearance}
           className={(rebus && rebus.coord.col === col && rebus.coord.row === row ? 'relative ' : '') + (isFading ? `${FADE_CELL} ` : '') + (
             gridMode === 'hints' && highlight && cell.kind === 'active'
@@ -329,7 +335,9 @@ export function PuzzleGrid({
                     ? PREVIEW_HIGHLIGHT_BG[highlight]
                     : gridMode === 'build' && sisterWord?.has(key)
                       ? 'bg-build-cell-sister'
-                      : modeBg[appearance] ?? '')
+                      : isLinked
+                        ? 'bg-linked-clue'
+                        : modeBg[appearance] ?? '')
           }
         >
           <GridCell
