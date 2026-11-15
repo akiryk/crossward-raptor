@@ -39,7 +39,8 @@ from the baseline. Runtime patch SHA-256:
 The resulting implementation commit contains the identical tested runtime
 and acceptance files; handoff-only changes do not affect those checks.
 Local development server restored at `http://localhost:3000`.
-Commit/push status: implementation being committed, then pushed to `origin/main`.
+Delivered: specification baseline `5a59466` and implementation `73a8127`
+committed and pushed to `origin/main`. No PR is required for these paths.
 
 ## Epic closeout (historical, 2026-11-14)
 
@@ -112,8 +113,7 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-S12 is verified; finish its direct main commit/push and read back remote
-status. No next story is authorized.
+S12 is complete and pushed to main. No next story is authorized.
 
 After the original epic merge the human rotated the production
 `neondb_owner` password (it was exposed in a session transcript), updated
