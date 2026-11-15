@@ -1,3 +1,5 @@
+import type { NumberedSlot } from '@/engine/numbering';
+import { ClueText } from './ClueText';
 import { HintArrow } from '@/components/ui/HintArrow';
 
 /** Narrow play's one hint under the grid (15-S5): a 4px rule on top,
@@ -5,10 +7,14 @@ import { HintArrow } from '@/components/ui/HintArrow';
  *  words. */
 export function PlayHintBar({
   hint,
+  slots = new Map(),
+  ownKey,
   disabled,
   onStep,
 }: {
   hint: string;
+  slots?: ReadonlyMap<string, NumberedSlot>;
+  ownKey?: string;
   disabled?: boolean;
   onStep: (step: 1 | -1) => void;
 }) {
@@ -19,7 +25,7 @@ export function PlayHintBar({
     >
       <HintArrow direction="previous" disabled={disabled} onClick={() => onStep(-1)} />
       <p data-testid="play-hint-bar-text" className="mx-3 min-w-0 flex-1 text-center text-body-large text-primary">
-        {hint}
+        <ClueText text={hint} slots={slots} ownKey={ownKey} />
       </p>
       <HintArrow direction="next" disabled={disabled} onClick={() => onStep(1)} />
     </div>

@@ -403,6 +403,8 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           {!locked && (
             <div className="hidden w-full max-w-(--play-grid-width) @min-[1382px]/play:block">
               <ProminentHint
+                slots={lookup}
+                ownKey={selectedKey ?? undefined}
                 label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
                 hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               />
@@ -447,6 +449,8 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           )}
           <div className="@min-[1382px]/play:hidden">
             <PlayHintBar
+              slots={lookup}
+              ownKey={selectedKey ?? undefined}
               hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               disabled={!editable}
               onStep={handleStep}

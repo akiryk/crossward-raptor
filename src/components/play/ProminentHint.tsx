@@ -1,3 +1,5 @@
+import type { NumberedSlot } from '@/engine/numbering';
+import { ClueText } from './ClueText';
 /**
  * Prominent Hint (14-S7): the selected word's number and hint in a bar
  * above the play grid, NYT-style. With no word selected the bar stays,
@@ -6,10 +8,14 @@
 export function ProminentHint({
   label,
   hint,
+  slots = new Map(),
+  ownKey,
 }: {
   /** The selected word's number and direction, as "14A", or null. */
   label: string | null;
   hint: string;
+  slots?: ReadonlyMap<string, NumberedSlot>;
+  ownKey?: string;
 }) {
   return (
     <div
@@ -22,7 +28,7 @@ export function ProminentHint({
             {label}
           </span>
           <span data-testid="prominent-hint-text" className="text-title-3 text-primary">
-            {hint}
+            <ClueText text={hint} slots={slots} ownKey={ownKey} />
           </span>
         </>
       )}

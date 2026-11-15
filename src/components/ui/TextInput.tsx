@@ -1,7 +1,7 @@
 'use client';
 
 import { useId } from 'react';
-import { WrappingField } from './WrappingField';
+import { HintField } from './HintField';
 
 export type TextInputSize = 'regular' | 'large';
 
@@ -23,6 +23,8 @@ type TextInputProps = {
   size?: TextInputSize;
   /** A long value wraps and the field grows, in the same look (15-S6). */
   wrap?: boolean;
+  linked?: boolean;
+  linkedBackdropClassName?: string;
   error?: string;
   /** The error line and `aria-invalid`, without a message (17-S1). */
   invalid?: boolean;
@@ -50,6 +52,8 @@ export function TextInput({
   disabled,
   size = 'regular',
   wrap = false,
+  linked = false,
+  linkedBackdropClassName,
   label,
   caption,
   error,
@@ -90,7 +94,9 @@ export function TextInput({
         </label>
       )}
       {wrap ? (
-        <WrappingField id={id} {...fieldProps} onChange={onChange} />
+        <HintField id={id} {...fieldProps} onChange={onChange} linked={linked}
+          backdropClassName={linkedBackdropClassName}
+          markClassName={`left-1 text-body-${size === 'large' ? 'large' : 'normal'} ${size === 'large' ? 'top-1.5' : 'top-1'}`} />
       ) : (
         <input
           id={id}

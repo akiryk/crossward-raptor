@@ -1,4 +1,5 @@
 import type { NumberedSlot } from '@/engine/numbering';
+import { ClueText } from './ClueText';
 import { twoHintColumnsClass } from '@/lib/grid-max';
 
 const COLUMNS: { orientation: NumberedSlot['orientation']; heading: string }[] = [
@@ -34,6 +35,7 @@ export function PlayerHints({
   /** With `stacksWhenNarrow`, the grid's width beside it (21-S9). */
   gridPx?: number;
 }) {
+  const lookup = new Map(slots.map(slot => [`${slot.number}-${slot.orientation}`, slot]));
   const maxNumberDigits = Math.max(1, ...slots.map((slot) => String(slot.number).length));
 
   const columns = (
@@ -70,7 +72,7 @@ export function PlayerHints({
                     {slot.number}
                   </span>{' '}
                   <span data-testid="play-clue-text" className="text-body-normal text-primary">
-                    {hints[key] ?? ''}
+                    <ClueText text={hints[key] ?? ''} slots={lookup} ownKey={key} />
                   </span>
                 </li>
               );

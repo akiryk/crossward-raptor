@@ -45,6 +45,7 @@
   --color-build-cell-selected-row-on: var(--palette-blue-medium);
   --color-build-cell-selected-row-off: var(--palette-blue-dull);
   /* the sister of the cursor's word (Story 25-S1) */
+  --color-linked-clue: var(--palette-interactive-faint-hover);
   --color-build-cell-sister: var(--palette-interactive-faint-hover);
   --color-preview-cell-on: var(--palette-white);
   --color-preview-cell-off: var(--palette-gray-700);
