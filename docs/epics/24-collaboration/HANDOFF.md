@@ -12,7 +12,36 @@
 **Only if needed:** [historical handoff and evidence](HISTORY-2026-11-14.md).
 The three external source drafts named there are not specifications.
 
-## Current state (2026-11-14)
+## Library username correction — S12 (2026-11-14)
+
+The human requested and approved the four presentation corrections in
+[S12](stories/24-S12-library-usernames.md). Independent agent
+`review_amendments` approved the frozen acceptance amendments and separately
+reviewed the runtime diff, both with no findings (static review).
+Specification/acceptance baseline: `5a59466` on `main`.
+
+Implementation verified for direct delivery on `main`: usernames for every displayed account, conditional
+` (owner)` only with current collaborators, and removal of the unused
+`viewerId` row prop. Pending invitations alone show no marker. No server,
+database or privacy changes. Starting unrelated work remains excluded:
+`e2e/color-tokens.spec.ts`, `src/app/globals-css.test.ts`,
+`e2e/linked-clues.spec.ts`, `src/lib/clue-reference.test.ts`.
+
+Verification in `/private/tmp/crossward-24-s12-verify`, fixed HEAD `5a59466`
+plus the two runtime files, whose SHA-256 hashes match the main worktree:
+`npm run verify` exit 0, 113 files / 1288 tests; two existing lint warnings.
+`COMPOSE_PROJECT_NAME=crossward-raptor npm run test:e2e -- --workers=2`
+exited 0: **1414 passed (14.5m)**. It ran under `/tmp/crossward-e2e.lock`,
+using DEVELOPMENT's guarded-local reset standing grant. Content identity is retained in
+`/private/tmp/crossward-24-s12-evidence.json`. Frozen acceptance unchanged
+from the baseline. Runtime patch SHA-256:
+`b7432ca5353a9628e2b965b85613c849a3846f3f6b308bebd57fb48ae48e6cf4`.
+The resulting implementation commit contains the identical tested runtime
+and acceptance files; handoff-only changes do not affect those checks.
+Local development server restored at `http://localhost:3000`.
+Commit/push status: implementation being committed, then pushed to `origin/main`.
+
+## Epic closeout (historical, 2026-11-14)
 
 **Closed 2026-11-14; merged to `main` via [PR #46](https://github.com/akiryk/crossward-raptor/pull/46).**
 S1–S11 merged into `epic/24-collaboration`, each after its own PR and
@@ -83,7 +112,10 @@ Restore `npm run dev` afterward; local inbox is `http://127.0.0.1:8025`.
 
 ## Next action
 
-None in this epic. After the merge the human rotated the production
+S12 is verified; finish its direct main commit/push and read back remote
+status. No next story is authorized.
+
+After the original epic merge the human rotated the production
 `neondb_owner` password (it was exposed in a session transcript), updated
 Vercel and redeployed; production loads (2026-11-14). Open follow-ups: fold the
 DEVELOPMENT notes above (HEAD changes invalidate E2E runs; root lint scans

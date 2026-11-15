@@ -57,10 +57,9 @@ const COMPLETE_ROW = 'bg-puzzle-row-complete hover:bg-puzzle-row-complete-hover 
  *  progress; an unpublished one (the caller's, or 24-S6 shared with them)
  *  links to the builder. The caller's own rows keep their menu; a shared
  *  row's menu offers Duplicate only (24-S6). */
-export function PuzzleRow({ puzzle, own, viewerId, onDeleted }: {
+export function PuzzleRow({ puzzle, own, onDeleted }: {
   puzzle: LibraryPuzzle;
   own: boolean;
-  viewerId?: string;
   onDeleted: () => void;
 }) {
   const link = useRef<HTMLAnchorElement>(null);
@@ -108,12 +107,14 @@ export function PuzzleRow({ puzzle, own, viewerId, onDeleted }: {
           )}
         </Link>
         <div className="flex h-5 text-title-4 text-muted">
-          <span data-testid="puzzle-builder-name" className="block h-5 min-w-0 truncate">{own ? 'You' : puzzle.builderName ?? ''}</span>
-          <span data-testid="puzzle-owner-label" className="shrink-0 font-normal">, (owner)</span>
+          <span data-testid="puzzle-builder-name" className="block h-5 min-w-0 truncate">{puzzle.builderName ?? ''}</span>
+          {collaborators.length > 0 && (
+            <span data-testid="puzzle-owner-label" className="shrink-0 whitespace-pre font-normal">{' (owner)'}</span>
+          )}
         </div>
         {collaborators.map((member) => (
           <span key={member.userId} data-testid="puzzle-collaborator-name" className="block h-5 truncate text-title-4 text-muted">
-            {member.userId === viewerId ? 'You' : member.name}
+            {member.name}
           </span>
         ))}
       </div>

@@ -80,7 +80,6 @@ export function PuzzleLibrary({ puzzles, userId }: { puzzles: LibraryPuzzle[]; u
                     key={puzzle.id}
                     puzzle={puzzle}
                     own={puzzle.builderId === userId}
-                    viewerId={userId}
                     onDeleted={() => setDeletedId(puzzle.id)}
                   />
                 ))}
