@@ -52,7 +52,7 @@ The narrow-play case is the 27th existing-case S12 supersession; the original
 The human approved the independently reviewed
 [exact correction](17-S12-done-icon-correction.patch) for
 `e2e/done-icon.spec.ts`, **18-S5-5**, “after Reset the row draws Play and reads
-\"Ready to play\"”. It polls for the final `PLAY_ROW` background before the icon
+"Ready to play"”. It polls for the final `PLAY_ROW` background before the icon
 screenshot, preserving every pixel assertion and tolerance. This is a separate
 pre-existing test race correction, not a product-behavior supersession. Frozen
 S13 acceptance is unchanged.

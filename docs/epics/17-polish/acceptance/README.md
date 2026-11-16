@@ -9,8 +9,12 @@ implementation on 2026-11-15; S13 runtime remains unauthorized. S12 runtime is
 local and uncommitted; [runtime evidence](S12-RUNTIME-EVIDENCE.md) records checks
 and independent review. On 2026-11-15 the human approved the expanded
 [correction patch](17-S12-correction.patch), applied in a separate specification-only
-main commit before refreeze. Only the two S12 hints-selection branches and the
-wide narrow-play idle hook expectation change; S13 acceptance remains unchanged.
+main commit before refreeze. It changes the two S12 hints-selection branches and
+the wide narrow-play idle hook expectation. The human subsequently approved the
+independently reviewed [DONE-icon settling correction](17-S12-done-icon-correction.patch),
+refrozen separately in specification-only commit `b2d8ea1`. It waits for the
+existing final row color before the reset icon screenshot; pixel assertions and
+tolerances are unchanged. S13 acceptance remains unchanged.
 
 | Story | Specification | Frozen executable acceptance | Applied exact amendment |
 | --- | --- | --- | --- |

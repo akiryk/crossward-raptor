@@ -3,7 +3,7 @@
 Remove the persistent “Saved” message from puzzle construction and play.
 In play, reclaim the empty status row so the title is closer to the puzzle.
 
-**Status: approved and refrozen (2026-11-15); runtime implemented locally; final verification pending.**
+**Status: approved and refrozen (2026-11-15); runtime local; verification stopped at the human’s request (2026-11-16).**
 The human explicitly authorized S12 runtime implementation on 2026-11-15.
 The human approved the independently reviewed expanded acceptance correction on
 2026-11-15 by requesting its separate specification-only commit and refreeze.

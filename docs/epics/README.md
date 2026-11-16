@@ -28,7 +28,9 @@ reading or additional product specifications.
 - [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, closed
   2026-11-03; accepted items listed there)
 - [Polish](17-polish/HANDOFF.md) (epic 17, S12/S13 follow-ups
-  approved/frozen 2026-11-15; runtime authorization pending; S1–S11 historically closed)
+  approved/frozen 2026-11-15; S12 acceptance corrected/refrozen, local runtime verification stopped at human request;
+  S13 runtime pending;
+  S1–S11 historically closed)
 - [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, closed
   2026-10-31; one accepted edge case listed there)
 - [Responsive layout](15-responsive-layout/HANDOFF.md) (epic 15, closed

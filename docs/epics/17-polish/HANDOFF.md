@@ -2,65 +2,80 @@
 
 ## Read first
 
-1. This handoff and [S12 — Quiet saved state](stories/17-S12-quiet-saved-state.md).
-2. The [approved acceptance packet](acceptance/README.md).
+1. This handoff: the next task is test-reliability triage, not another full run.
+2. [S12 runtime evidence](acceptance/S12-RUNTIME-EVIDENCE.md), the opening final-verification and timeline sections.
 
-**Only if needed:** [S13](stories/17-S13-prominent-hint-polish.md) for the later
-story; [evidence](acceptance/EVIDENCE.md) for identities, independent reviews
-and expected failures; [S11 closeout](CLOSEOUT-S11.md) for historical delivery.
+**Only if needed:** [S12 scope](stories/17-S12-quiet-saved-state.md),
+[approval packet](acceptance/README.md), [S13](stories/17-S13-prominent-hint-polish.md).
 
-## Current state (2026-11-15)
+## Current state (2026-11-16)
 
-**S12 and S13 are approved and frozen; neither is implemented.** The human's
-actual response was **“I approve S12 and S13”**, covering both specifications,
-new executable acceptance and exact supersessions. The packet explicitly
-requires separate runtime authorization; none was given in this session.
+**S12 delivery stopped; next session should diagnose test reliability and cost.**
+The human finds multi-hour test runs followed by mandatory whole-suite reruns
+unacceptable. They prefer fixing unreliable tests, quarantining appropriate
+cases, or removing tests that cannot be made reliable. They suspect unreliable
+network/service dependencies; this is a hypothesis to investigate, not an
+established cause. Long full-suite runs should be handed to the human with exact
+commands rather than repeatedly supervised by an agent. Do not restart a full
+suite automatically.
 
-Local `main` contains separate specification-only baselines:
+At handoff preparation main was `b2d8ea1`, five commits ahead of observed
+origin/main `61bb72a`. The human subsequently authorized this handoff and
+supporting documentation to be committed/pushed on main; runtime is excluded.
+Check live git for the documentation publication head.
+The independently reviewed, human-approved DONE-icon correction is committed in
+that separate specification-only refreeze. It waits for the existing final row
+color before the screenshot; pixel assertions/tolerances are unchanged.
+Earlier correction: `0f110a8`; original S12 baseline: `4fda6c9`; S13: `d3a05cb`.
 
-- **S12:** `4fda6c96b08982672574f8cbd97ca896dda7e252` — 23 new browser cases,
-  exact supersessions for 26 existing cases across seven files.
-- **S13:** `d3a05cb3f712c9852fea25db255058f3edf8c080` — eight new browser cases,
-  exact supersessions for 16 cases plus five map-driven cases across six files.
+S12 runtime remains uncommitted in `SaveStatus.tsx`, `BuilderSteps.tsx` and
+`PlayPuzzle.tsx`, unchanged from earlier independent read-only reviews. This
+handoff and runtime evidence document the stopped verification; documentation
+publication does not deliver S12 runtime. Preserve the
+unrelated untracked `CLOSEOUT-S11.md`. All seven S13 acceptance files match
+`d3a05cb`; S13 runtime is out of scope. No gate waiver or additional semantic
+acceptance amendment has been approved. This handoff authorizes triage and
+recommendations, not deleting/quarantining frozen tests or delivering S12.
 
-Both exact patches are applied and retained as approval records. The only new
-suite edits beyond approved content are administrative frozen-header comments.
-Runtime, configuration and other frozen acceptance are unchanged. Prior
-independent specification reviews remain recorded; they are not runtime reviews.
+## Verification and timeline
 
-Starting branch was `main` at `61bb72a`. Pre-existing modified epic/handoff/index
-and untracked S12/S13 packet were preserved and included only as applicable.
-The unrelated, pre-existing `CLOSEOUT-S11.md` remains untracked and untouched.
-Freeze commits and this documentation update are local only: no push, PR, merge
-or deployment. S1–S11 remain historically complete; epic 26 is closed on main.
-The existing auth warning in DEVELOPMENT remains outside this work; agents must
-not inspect/edit environment files.
+The orchestrator observed serial `npm run verify` exit 0: 114 files, 1,311 tests,
+two existing lint warnings. A concurrent attempt failed when Playwright removed
+`test-results` during ESLint's scan: a shared-artifact race.
 
-## Verification
+The full post-refreeze browser run exited 1: 1,408 passed, 44 failed, 2.4h.
+Retained Mountain-time timestamps place preparation around **20:00 Nov 15** and
+completion at **22:24 Nov 15**. The agent resumed around **07:45 Nov 16**; this
+was not continuous testing until morning. A fresh unchanged two-worker rerun
+was stopped at the human's request at **07:55**: exit 130, 795 passed, two
+interrupted, 655 not run (8.9m). DONE-icon and the live-sync measurement passed
+in that rerun. No passing full gate exists. Earlier complete runs took about
+14 minutes; the 2.4h outlier needs explanation.
 
-This session directly observed matching approved SHA-256 identities, exact
-S12 → S13 patch application and byte comparisons across all 11 amended files,
-unchanged runtime sources, passing local Markdown path and scoped whitespace
-checks. Retained patch-format context spaces are excluded from whitespace checks.
-`npx tsc --noEmit` passed. `npm run verify` exited **1** after TypeScript/lint
-passed (two existing warnings): 1177 tests passed, one expected S13 assertion
-failed because runtime lacks `prominent-hint-empty`, and 18 database suites
-could not connect to localhost:5433 (133 tests skipped). This is a red acceptance
-baseline, not passing runtime verification. Tested acceptance/runtime content is
-unchanged in the S13 commit; only documentation was updated after that check.
-
-Browser and visual checks were not rerun; no database reset occurred. Earlier
-draft-session expected failures and reviews are historical evidence linked above.
-Passing full verification, full E2E and required visual checks remain outstanding.
+Checks used `/tmp/crossward-s12-verification`: original S12 acceptance plus both
+approved corrections and the three runtime files. Content hashes are in the
+evidence; runtime matches main. Main intentionally retains later S13 acceptance,
+so running main's full suite now would also encounter unimplemented S13
+expectations. Earlier focused coverage passed 92 cases; visual coverage and
+independent review provenance are in the evidence. Browser/server and temporary
+sleep inhibitor stopped; `/tmp/crossward-e2e.lock` was released.
 
 ## Next action
 
-Obtain runtime authorization for S12 (pasting the resume prompt grants it).
-Then implement S12 using its frozen baseline for a clean verification tree,
-without S13's later expectations. Preserve S13 acceptance on main when integrating
-S12 runtime. Do not skip, weaken or delete frozen tests. S13 runtime still needs
-its own authorization after S12. Follow STORY for risk classification and delivery.
+Triage retained artifacts and test/harness code first. Classify failures as
+product regressions, test races, shared-state/resource issues, service failures,
+or interrupted execution; quantify the runtime outlier and map actual external
+versus local dependencies. Start with `/tmp/crossward-s12-final-run1-failures`
+(44 contexts and metadata), live-sync's response-body callback at line 282, the
+approved DONE-icon transition fix, and widespread later timeouts. Use short
+focused reproductions only to resolve specific uncertainties. Propose concrete
+fix/quarantine/removal candidates with evidence and lost-coverage consequences,
+and a verification policy that avoids unnecessary whole-suite reruns while
+retaining meaningful correctness checks. Supply human-run commands for lengthy
+checks. Present the findings and recommended changes before implementation;
+follow STORY's approval/refreeze procedure for frozen acceptance amendments.
+Do not resume S12 delivery or change S13 acceptance/runtime during this triage.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S12-quiet-saved-state.md, then docs/epics/17-polish/acceptance/README.md. Implement S12 on main using its frozen baseline for verification; preserve S13 frozen acceptance and leave S13 runtime implementation out of scope.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/acceptance/S12-RUNTIME-EVIDENCE.md. Triage test reliability and excessive suite runtime on main, and recommend fixes, quarantine/removal candidates and a more efficient verification policy; do not run the full suite, change frozen acceptance, resume S12 delivery or push.

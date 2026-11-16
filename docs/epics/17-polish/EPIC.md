@@ -406,7 +406,8 @@ preserves numbers in grid/list labels and references within the authored hint.
 The current wide Prominent Hint is player-only; the narrow bar and builder hint
 inputs are separate components. Exact executable acceptance and case-by-case supersessions were approved
 and frozen in S12 then S13 order. They supersede only the named historical
-behavior; runtime implementation still requires separate authorization.
+behavior; S12 runtime was separately authorized on 2026-11-15. S13 runtime
+still requires separate authorization.
 
 ## Non-goals
 
@@ -517,12 +518,18 @@ retain correct lock-button clearance. See
 [17-S11-mini-grid-width.md](stories/17-S11-mini-grid-width.md) for the
 approved scope, narrow acceptance amendments and delivery state.
 
-### S12 — Quiet saved state (approved/frozen)
+### S12 — Quiet saved state (local runtime; verification stopped)
 
 Remove the “Saved” success message in construction and play and reclaim unused
 status space, especially the wide player's empty controls row. Preserve real
 builder controls and failure/retry feedback. See
 [17-S12-quiet-saved-state.md](stories/17-S12-quiet-saved-state.md).
+Runtime is implemented locally. The human approved the independently reviewed
+expanded acceptance correction, refrozen in specification-only commit `0f110a8`.
+The DONE-icon correction was approved/refrozen separately in `b2d8ea1`.
+Verification stopped at the human’s request on 2026-11-16; a passing full gate remains pending;
+[S12 runtime evidence](acceptance/S12-RUNTIME-EVIDENCE.md) records results.
+No runtime delivery yet.
 
 ### S13 — Prominent Hint polish (approved/frozen)
 
@@ -534,8 +541,8 @@ Keep numbering elsewhere and references within hint text. See
 ## Pending questions
 
 S12/S13 have no unresolved product question. Their specifications, executable
-acceptance and exact supersessions are approved and frozen. Runtime
-implementation awaits separate authorization. Historical S1–S10 answers follow.
+acceptance and exact supersessions are approved and frozen. S12 runtime is
+authorized; S13 runtime awaits separate authorization. Historical S1–S10 answers follow.
 
 None. The draft's three questions were answered 2026-10-27 *(human)* and
 are recorded in Decisions: Reset is removed from play (only the library
