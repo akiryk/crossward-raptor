@@ -33,6 +33,30 @@ Human approved 2026-11-15 (“I approve S12 and S13”); applied unchanged in se
 | `e2e/completed-play.spec.ts:184` | 19-S1-3 Reset plays the puzzle again / confirming starts a blank attempt at 1 Across, which plays and completes again |
 | `e2e/completed-play.spec.ts:261` | 19-S1-4 an unfinished puzzle is unchanged (guards) / `at ${viewport.width}px: no Reset; the Rebus control stays` |
 
+### Approved S12 correction (2026-11-15)
+
+The separately approved [expanded correction](17-S12-correction.patch) preserves
+all case counts and assertions except the explicitly superseded idle visibility
+expectation. It corrects these cases:
+
+| File | Case / correction |
+| --- | --- |
+| `e2e/quiet-saved-state.spec.ts` | 17-S12-1 hints, owner and collaborator at 1440px and 390px: explicitly select Across in the edit and reload branches before checking the persisted Across hint |
+| `e2e/narrow-play.spec.ts:149` | 15-S5-1 at 1430px: idle save hook acknowledged, empty and hidden; all other wide visibility checks retained |
+
+The narrow-play case is the 27th existing-case S12 supersession; the original
+26-case patch above remains unchanged. S13 acceptance below is unchanged.
+
+### Approved DONE-icon settling correction (2026-11-15)
+
+The human approved the independently reviewed
+[exact correction](17-S12-done-icon-correction.patch) for
+`e2e/done-icon.spec.ts`, **18-S5-5**, “after Reset the row draws Play and reads
+\"Ready to play\"”. It polls for the final `PLAY_ROW` background before the icon
+screenshot, preserving every pixel assertion and tolerance. This is a separate
+pre-existing test race correction, not a product-behavior supersession. Frozen
+S13 acceptance is unchanged.
+
 ## S13
 
 | File | Existing case changed |

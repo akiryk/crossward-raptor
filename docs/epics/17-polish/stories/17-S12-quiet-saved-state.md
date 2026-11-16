@@ -102,6 +102,20 @@ and hidden while retaining all other visibility assertions. This adds one
 existing-case supersession to the original 26-case inventory below. No S13
 acceptance changes.
 
+### Approved DONE-icon settling correction (2026-11-15)
+
+The human explicitly approved applying the independently reviewed
+[exact patch](../acceptance/17-S12-done-icon-correction.patch), SHA-256
+`b0f4aec9ae762ace339e18f0fa4f15a2aaf67bd6cbfcd0233f05fdab5e40581e`,
+as a separate specification-only commit and refreeze before completing S12
+verification and delivery on main. Independent read-only agent
+`/root/s12_done_icon_review` found no blocking defect in that exact proposal;
+its review limits are recorded in [runtime evidence](../acceptance/S12-RUNTIME-EVIDENCE.md).
+The reset case in `e2e/done-icon.spec.ts` now polls for the existing `PLAY_ROW`
+background after mouse-out before capturing the icon. All pixel assertions,
+tolerances, timeouts and case counts remain unchanged. S13 frozen acceptance
+and runtime are outside this correction.
+
 ### Approved frozen-acceptance supersessions
 
 The approved exact

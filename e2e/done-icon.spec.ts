@@ -412,6 +412,7 @@ test.describe('18-S5-5 resetting a completed puzzle from the library turns DONE 
     await expect(item).toHaveAttribute('data-play-state', 'untouched');
 
     await page.mouse.move(0, 0);
+    await expect.poll(async () => rgbOf(await bgOf(item))).toEqual(hex(PLAY_ROW));
     await expectIcon(page, item, 'play', PLAY_ROW);
     await expectHiddenStatus(item, fixture.title, 'play', null);
   });
