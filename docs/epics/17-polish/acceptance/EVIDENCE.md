@@ -37,7 +37,11 @@ The freeze session directly observed:
   attributed to their original session. Runtime implementation, passing full
   gates, visual checks and delivery remain outstanding.
 
-See [HANDOFF](../HANDOFF.md) for the separate frozen baseline commit IDs.
+Frozen baseline IDs are S12 `4fda6c96b08982672574f8cbd97ca896dda7e252` and
+S13 `d3a05cb3f712c9852fea25db255058f3edf8c080`. `git diff d3a05cb -- e2e src` was
+empty after commit, binding the observed TypeScript/lint/unit result to the
+committed acceptance/runtime content. The final follow-up updates documentation
+only. See [HANDOFF](../HANDOFF.md) for the operational resume point.
 Nothing was pushed and no runtime/PR/deployment was created by the freeze.
 
 ## Historical draft evidence (before human approval)
