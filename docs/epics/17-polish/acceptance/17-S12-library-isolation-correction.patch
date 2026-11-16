@@ -1,0 +1,68 @@
+--- a/e2e/row-menu.spec.ts
++++ b/e2e/row-menu.spec.ts
+@@ -167,6 +167,11 @@
+   ],
+ };
+ 
++// Isolate this test's owned library rows from earlier suite fixtures.
++test.beforeEach(async ({ page }) => {
++  await signInSeededUser(page);
++});
++
+ test.describe('16-S2-1 the three-dot button', () => {
+   test('every own row has one in place of Delete; others’ rows have none', async ({ page }) => {
+     const me = await currentBuilderId(page);
+--- a/e2e/puzzle-groups.spec.ts
++++ b/e2e/puzzle-groups.spec.ts
+@@ -1,4 +1,5 @@
+ import { test, expect } from '@playwright/test';
++import { signInSeededUser } from './helpers/seed-session';
+ import type { Page } from '@playwright/test';
+ import { createGrid, withLetter } from '../src/engine/grid';
+ import type { Coord, Grid } from '../src/engine/grid';
+@@ -61,6 +62,11 @@
+   await expect(page.getByTestId('publish-state')).toHaveText('Published');
+ }
+ 
++// Isolate this test's owned library rows from earlier suite fixtures.
++test.beforeEach(async ({ page }) => {
++  await signInSeededUser(page);
++});
++
+ test.describe('L3-2 grouped library', () => {
+   test('a mini puzzle sits in the mini group, headed by its size', async ({ page }) => {
+     const title = uniqueTitle('mini');
+--- a/e2e/small-screens.spec.ts
++++ b/e2e/small-screens.spec.ts
+@@ -1,4 +1,5 @@
+ import { test, expect } from '@playwright/test';
++import { signInSeededUser } from './helpers/seed-session';
+ import type { Locator, Page } from '@playwright/test';
+ import { createGrid, withLetter } from '../src/engine/grid';
+ import type { Grid } from '../src/engine/grid';
+@@ -141,6 +142,11 @@
+ const dialog = (page: Page) => page.getByRole('dialog');
+ 
+ // --- 15-S6-1: the grid shrinks last ---
++// Isolate this test's owned library rows from earlier suite fixtures.
++test.beforeEach(async ({ page }) => {
++  await signInSeededUser(page);
++});
++
+ test.describe('15-S6-1 the grid shrinks last', () => {
+   test('at 748px the builder’s and play’s grids are still 700px', async ({ page }) => {
+     await openBuilder(page, { width: 748, height: 900 }, { size: 21 });
+--- a/e2e/unlisted.spec.ts
++++ b/e2e/unlisted.spec.ts
+@@ -42,6 +42,11 @@
+   return filled;
+ }
+ 
++// Isolate this test's owned library rows from earlier suite fixtures.
++test.beforeEach(async ({ page }) => {
++  await signInSeededUser(page);
++});
++
+ test.describe('16-S1 Unlisted', () => {
+   // 18-S4: one list replaces Play and Build; others' puzzles have no menu.
+   test('16-S1-1 the library lists own puzzles, others’ public ones and others’ unlisted ones the player has started, across a reload', async ({ page }) => {

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { signInSeededUser } from './helpers/seed-session';
 import type { Locator, Page } from '@playwright/test';
 import { createGrid, withLetter } from '../src/engine/grid';
 import type { Grid } from '../src/engine/grid';
@@ -141,6 +142,11 @@ const hintBox = (page: Page) => page.getByTestId('hint-box');
 const dialog = (page: Page) => page.getByRole('dialog');
 
 // --- 15-S6-1: the grid shrinks last ---
+// Isolate this test's owned library rows from earlier suite fixtures.
+test.beforeEach(async ({ page }) => {
+  await signInSeededUser(page);
+});
+
 test.describe('15-S6-1 the grid shrinks last', () => {
   test('at 748px the builder’s and play’s grids are still 700px', async ({ page }) => {
     await openBuilder(page, { width: 748, height: 900 }, { size: 21 });

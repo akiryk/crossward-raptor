@@ -42,6 +42,11 @@ function fillAll(grid: Grid): Grid {
   return filled;
 }
 
+// Isolate this test's owned library rows from earlier suite fixtures.
+test.beforeEach(async ({ page }) => {
+  await signInSeededUser(page);
+});
+
 test.describe('16-S1 Unlisted', () => {
   // 18-S4: one list replaces Play and Build; others' puzzles have no menu.
   test('16-S1-1 the library lists own puzzles, others’ public ones and others’ unlisted ones the player has started, across a reload', async ({ page }) => {

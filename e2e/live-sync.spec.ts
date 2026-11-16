@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import type { Page, Route } from '@playwright/test';
+import type { Page, Request, Route } from '@playwright/test';
 import { createGrid, withLetter, type Grid } from '../src/engine/grid';
 import { seedPuzzle } from './helpers/seed-puzzle';
 import { commitFromElsewhere, isAction, journalEntries, readSaved, savedRow } from './helpers/operations';
@@ -275,13 +275,6 @@ test.describe('24-S4-E4 latency and request cost (measured for the push decision
   test('a commit elsewhere shows within about a second; about one small request a second while visible, none while hidden', async ({ page }) => {
     const { id } = await seedCat(9);
     await open(page, id);
-    const polls: number[] = [];
-    const sizes: number[] = [];
-    page.on('request', (request) => { if (isCatchUp(request, id)) polls.push(Date.now()); });
-    page.on('response', async (response) => {
-      if (isCatchUp(response.request(), id)) sizes.push((await response.body()).length);
-    });
-
     const latencies: number[] = [];
     for (let i = 0; i < 8; i++) {
       const row = i;
@@ -298,24 +291,52 @@ test.describe('24-S4-E4 latency and request cost (measured for the push decision
     expect(median).toBeLessThanOrEqual(2000);
     expect(latencies.at(-1)).toBeLessThanOrEqual(4000);
 
-    // Idle and visible: about one request a second, each answer tiny.
-    polls.length = 0;
-    sizes.length = 0;
-    await page.waitForTimeout(10_000);
-    test.info().annotations.push({ type: 'idle-polls-10s', description: String(polls.length) });
-    expect(polls.length).toBeGreaterThanOrEqual(5);
-    expect(polls.length).toBeLessThanOrEqual(12);
-    expect(Math.max(...sizes)).toBeLessThan(100);
+    // Only requests starting in the idle window contribute body sizes.
+    const polls: number[] = [];
+    const bodyReads: Promise<{ size: number } | { error: unknown }>[] = [];
+    let measuringIdle = true;
+    const recordRequest = (request: Request) => {
+      if (!isCatchUp(request, id)) return;
+      polls.push(Date.now());
+      if (measuringIdle) {
+        // Handle rejection immediately; inspect it below before page teardown.
+        bodyReads.push(request.response().then(async (response) => {
+          if (!response) throw new Error('Catch-up request completed without a response.');
+          return (await response.body()).length;
+        }).then((size) => ({ size }), (error: unknown) => ({ error })));
+      }
+    };
+    page.on('request', recordRequest);
+    try {
+      // Idle and visible: about one request a second, each answer tiny.
+      await page.waitForTimeout(10_000);
+      measuringIdle = false;
+      const idlePollCount = polls.length;
+      const results = await Promise.all(bodyReads);
+      const sizes = results.map((result) => {
+        if ('error' in result) throw result.error;
+        return result.size;
+      });
+      test.info().annotations.push({ type: 'idle-polls-10s', description: String(idlePollCount) });
+      expect(idlePollCount).toBeGreaterThanOrEqual(5);
+      expect(idlePollCount).toBeLessThanOrEqual(12);
+      expect(sizes.length).toBeGreaterThan(0);
+      expect(Math.max(...sizes)).toBeLessThan(100);
 
-    // Hidden: none. Visible again: at once.
-    await setVisibility(page, 'hidden');
-    await page.waitForTimeout(1500);
-    polls.length = 0;
-    await page.waitForTimeout(5000);
-    expect(polls).toHaveLength(0);
-    const shown = Date.now();
-    await setVisibility(page, 'visible');
-    await expect.poll(() => polls.length, { timeout: 2000 }).toBeGreaterThan(0);
-    expect(polls[0] - shown).toBeLessThan(500);
+      // Hidden: none. Visible again: at once.
+      await setVisibility(page, 'hidden');
+      await page.waitForTimeout(1500);
+      polls.length = 0;
+      await page.waitForTimeout(5000);
+      expect(polls).toHaveLength(0);
+      const shown = Date.now();
+      await setVisibility(page, 'visible');
+      await expect.poll(() => polls.length, { timeout: 2000 }).toBeGreaterThan(0);
+      expect(polls[0] - shown).toBeLessThan(500);
+    } finally {
+      measuringIdle = false;
+      page.off('request', recordRequest);
+      await Promise.all(bodyReads);
+    }
   });
 });

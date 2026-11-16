@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { signInSeededUser } from './helpers/seed-session';
 import type { Page } from '@playwright/test';
 import { createGrid, withLetter } from '../src/engine/grid';
 import type { Coord, Grid } from '../src/engine/grid';
@@ -60,6 +61,11 @@ async function publish(page: Page, id: string) {
   await page.getByTestId('publish-dialog').getByTestId('modal-confirm').click();
   await expect(page.getByTestId('publish-state')).toHaveText('Published');
 }
+
+// Isolate this test's owned library rows from earlier suite fixtures.
+test.beforeEach(async ({ page }) => {
+  await signInSeededUser(page);
+});
 
 test.describe('L3-2 grouped library', () => {
   test('a mini puzzle sits in the mini group, headed by its size', async ({ page }) => {

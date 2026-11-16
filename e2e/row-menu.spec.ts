@@ -167,6 +167,11 @@ const partial: SerializedGrid = {
   ],
 };
 
+// Isolate this test's owned library rows from earlier suite fixtures.
+test.beforeEach(async ({ page }) => {
+  await signInSeededUser(page);
+});
+
 test.describe('16-S2-1 the three-dot button', () => {
   test('every own row has one in place of Delete; others’ rows have none', async ({ page }) => {
     const me = await currentBuilderId(page);
