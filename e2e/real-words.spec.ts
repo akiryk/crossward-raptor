@@ -178,14 +178,14 @@ test.describe('17-S6 play selects only real words', () => {
     await openPlay(page);
     await expectWord(page, '0,0', ABED);
     await expectIgnored(page, '0,0', ABED, ['Space', 'ArrowLeft', 'ArrowRight']);
-    await expect(bar(page)).toHaveText(/^1D\s*Retiring$/);
+    await expect(bar(page)).toHaveText('Retiring');
   });
 
   test('17-S6-8 a click on an Across-only cell while Down takes Across, and stays there', async ({ page }) => {
     await openPlay(page);
     await cell(page, '2,1').click();
     await expectWord(page, '2,1', BLUE);
-    await expect(bar(page)).toHaveText(/^2A\s*Sky color$/);
+    await expect(bar(page)).toHaveText('Sky color');
     await expectIgnored(page, '2,1', BLUE, ['Space', 'ArrowUp', 'ArrowDown']);
     await cell(page, '0,3').click();
     await expectWord(page, '0,3', ABED);

@@ -203,7 +203,7 @@ test.describe('19-S1-3 Reset plays the puzzle again', () => {
 
     await expect(page.getByTestId('play-grid-region')).toBeFocused();
     await expect(cell(page, '0,0')).toHaveAttribute('data-selected', 'true');
-    await expect(page.getByTestId('prominent-hint')).toHaveText(/^1A\s*Feline$/);
+    await expect(page.getByTestId('prominent-hint')).toHaveText('Feline');
     await expect(visible(page.getByTestId('rebus-control'))).toHaveCount(1);
     await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'saved');
     await expect(page.getByTestId('play-save-status')).toHaveText('');

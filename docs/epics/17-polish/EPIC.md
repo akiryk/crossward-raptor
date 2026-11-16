@@ -1,5 +1,16 @@
 # Epic: Polish
 
+**Follow-ups approved and frozen 2026-11-15; runtime not authorized:**
+[S12 — Quiet saved state](stories/17-S12-quiet-saved-state.md) removes
+“Saved” and its unused space in builder/play;
+[S13 — Prominent Hint polish](stories/17-S13-prominent-hint-polish.md)
+softens the empty hint area and removes its number/direction prefix.
+The human approved both specifications, executable acceptance and exact
+supersessions: “I approve S12 and S13”. They are frozen separately on main;
+see the [approval packet](acceptance/README.md). Runtime authorization remains
+separate. S1–S11 closeouts below remain historical.
+See [HANDOFF](HANDOFF.md) for the current freeze state.
+
 **Follow-up closed on `main`, 2026-11-14:**
 [S11 — Smaller, centered mini grids
 in the editor](stories/17-S11-mini-grid-width.md). The human requested a
@@ -205,6 +216,11 @@ Added 2026-10-31:
 10. **The builder's step controls** show the current step and the next.
 11. **Preview Hints** shows the hints as the player sees them in the
     hints phase.
+12. **Quiet saved state:** remove “Saved” and idle status space in builder/play.
+13. **Prominent Hint polish:** faint empty fill and hint text without its prefix.
+
+Items 12–13 are approved follow-ups; all details in their frozen stories
+are approved, including those originally labelled proposed.
 
 ## Decisions
 
@@ -379,6 +395,19 @@ functions over `intendedGeometry`. Rebus input is a new keyboard intent in
 The word-direction rule wraps the engine's cursor functions with existing
 slot data.
 
+### S12/S13 follow-up decisions (approved, 2026-11-15)
+
+The human requests no “Saved” message in builder/play, a much fainter empty
+Prominent Hint using interactive-faint (`#F1F8FC`), and removal of its standalone
+number/direction label. S12 retains transient saving and failure/retry
+feedback, removing the idle status footprint, and a 32px title-to-hint gap in
+wide play. S13 uses a semantic faint-fill style for empty hint text and
+preserves numbers in grid/list labels and references within the authored hint.
+The current wide Prominent Hint is player-only; the narrow bar and builder hint
+inputs are separate components. Exact executable acceptance and case-by-case supersessions were approved
+and frozen in S12 then S13 order. They supersede only the named historical
+behavior; runtime implementation still requires separate authorization.
+
 ## Non-goals
 
 - Checking, revealing or autochecking answers, a timer, or pencil mode.
@@ -387,8 +416,8 @@ slot data.
 - Grid-engine changes.
 - Changes to the library or sign-in. Layout changes beyond S7's grid
   size and the breakpoints that follow from it, plus S11's editor-only
-  mini grid cap and centering. (Epic 15, which owns the
-  layout, is closed.)
+  mini grid cap and centering, and S12's approved removal of idle save-status
+  space/title gap. (Epic 15, which owns the layout, is closed.)
 - Going back from the hints phase to the build phase.
 
 ---
@@ -488,7 +517,25 @@ retain correct lock-button clearance. See
 [17-S11-mini-grid-width.md](stories/17-S11-mini-grid-width.md) for the
 approved scope, narrow acceptance amendments and delivery state.
 
+### S12 — Quiet saved state (approved/frozen)
+
+Remove the “Saved” success message in construction and play and reclaim unused
+status space, especially the wide player's empty controls row. Preserve real
+builder controls and failure/retry feedback. See
+[17-S12-quiet-saved-state.md](stories/17-S12-quiet-saved-state.md).
+
+### S13 — Prominent Hint polish (approved/frozen)
+
+Use interactive-faint when the wide player's Prominent Hint is empty; when it
+shows a hint, display its full text without the separate number/direction prefix.
+Keep numbering elsewhere and references within hint text. See
+[17-S13-prominent-hint-polish.md](stories/17-S13-prominent-hint-polish.md).
+
 ## Pending questions
+
+S12/S13 have no unresolved product question. Their specifications, executable
+acceptance and exact supersessions are approved and frozen. Runtime
+implementation awaits separate authorization. Historical S1–S10 answers follow.
 
 None. The draft's three questions were answered 2026-10-27 *(human)* and
 are recorded in Decisions: Reset is removed from play (only the library

@@ -71,6 +71,8 @@ const STYLES: Record<string, string> = {
   'play-cell-border': 'gray-500',
   'play-cell-selected-cell': 'yellow-bright',
   'play-cell-selected-row': 'blue-medium',
+  // 17-S13: the empty Prominent Hint uses the existing faint palette.
+  'prominent-hint-empty': 'interactive-faint',
   // 14-S6: the hints phase's own cell styles.
   'hint-cell-on': 'white',
   'hint-cell-off': 'gray-700',

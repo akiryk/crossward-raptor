@@ -14,8 +14,8 @@ Runtime still needs separate authorization under the approved packet.
 
 S12 is frozen in this specification-only commit on `main`: 23 new browser
 cases and the exact S12 patch (26 existing cases across seven files).
-No runtime changed. S13 is approved and will be frozen separately next,
-applying its exact amendment after S12. Independent specification reviews
+No runtime changed. S13 is frozen separately after S12, with eight new cases and its exact
+amendment (16 directly amended cases plus five map-driven cases). Independent specification reviews
 and prior expected failures are recorded in [evidence](acceptance/EVIDENCE.md).
 
 Starting HEAD was `61bb72a`; the pre-existing modified EPIC/HANDOFF/index,
@@ -33,9 +33,8 @@ implementation gates remain outstanding.
 
 ## Next action
 
-Finish the separately approved S13 specification-only freeze on main and
-record both baseline commit IDs. Do not implement runtime without authorization.
+Record both baseline commit IDs and final freeze checks. Do not implement runtime without authorization.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S12-quiet-saved-state.md, then docs/epics/17-polish/acceptance/README.md. Finish the approved S12 then S13 specification-only freezes on main; runtime implementation requires separate authorization.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/stories/17-S12-quiet-saved-state.md, then docs/epics/17-polish/acceptance/README.md. Record the approved S12/S13 frozen baselines on main; runtime implementation requires separate authorization.
