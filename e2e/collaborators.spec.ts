@@ -95,7 +95,7 @@ test.describe('24-S5-E1 a collaborator edits the shared puzzle', () => {
       await open(j, id);
 
       await typeAt(j, '0,2', 'DOG');
-      await expect(status(j)).toHaveText('Saved');
+      await expect(status(j)).toHaveAttribute('data-state', 'saved');
       await expect.poll(() => shownRow(page, 2), { timeout: 5000 }).toBe('DOG..');
       await typeAt(page, '0,4', 'EEL');
       await expect.poll(() => shownRow(j, 4), { timeout: 5000 }).toBe('EEL..');
@@ -121,7 +121,7 @@ test.describe('24-S5-E1 a collaborator edits the shared puzzle', () => {
 
       await hintInput(j, '1-across').fill('From Jay');
       await hintInput(j, '1-across').press('Tab');
-      await expect(status(j)).toHaveText('Saved');
+      await expect(status(j)).toHaveAttribute('data-state', 'saved');
       expect((await readSaved(id)).hints['1-across']).toBe('From Jay');
       await expect(hintInput(page, '1-across')).toHaveValue('From Jay', { timeout: 5000 });
     } finally {

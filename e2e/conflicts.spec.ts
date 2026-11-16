@@ -66,7 +66,7 @@ test.describe('24-S7 conflicts', () => {
 
       // Screen 3: Adam types MASKS; Jay sees it; Adam has no outline or note.
       await typeDown(page, '6,0', 'MASKS');
-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
+      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
       await expect.poll(() => column(j, 6, 5), { timeout: 10_000 }).toBe('MASKS');
       await expect(outline(page)).toHaveCount(0);
       await expect(noteTexts(page)).toHaveCount(1);
@@ -108,7 +108,7 @@ test.describe('24-S7 conflicts', () => {
     try {
       await together(page, j, id);
       await typeDown(page, '6,0', 'MASKS');
-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
+      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
       await expect.poll(() => column(j, 6, 5), { timeout: 10_000 }).toBe('MASKS');
       await typeDown(j, '6,0', 'MAG');
       await expect.poll(() => column(page, 6, 5), { timeout: 10_000 }).toBe('MAGKS');
@@ -126,8 +126,8 @@ test.describe('24-S7 conflicts', () => {
       await typeDown(page, '10,3', 'DOG');
       await cell(j, '6,0').click();
       await j.keyboard.type('N');
-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
-      await expect(status(j)).toHaveText('Saved', { timeout: 10_000 });
+      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+      await expect(status(j)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
       await expect.poll(() => column(j, 10, 6), { timeout: 10_000 }).toBe('...DOG');
       await expect(cell(page, '6,0')).toContainText('N', { timeout: 10_000 });
       await page.waitForTimeout(2000);
@@ -152,9 +152,9 @@ test.describe('24-S7 conflicts', () => {
       await typeDown(j, '12,2', 'CAT');
       await j.waitForTimeout(1500);
       await typeDown(page, '3,6', 'EMU');
-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
+      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
       await context.setOffline(false);
-      await expect(status(j)).toHaveText('Saved', { timeout: 20_000 });
+      await expect(status(j)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
       await expect.poll(() => column(j, 3, 9), { timeout: 10_000 }).toBe('A.....EMU');
       await expect.poll(() => column(page, 12, 5), { timeout: 10_000 }).toBe('..CAT');
       await j.waitForTimeout(2000);
@@ -179,7 +179,7 @@ test.describe('24-S7 conflicts', () => {
       await together(page, j, id);
       await hint(page).click();
       await page.keyboard.type('Adam’s hint');
-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
+      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
       await expect(hint(j)).toHaveValue('Adam’s hint', { timeout: 10_000 });
       await hint(j).fill('Jay’s hint');
       await expect(hint(page)).toHaveValue('Jay’s hint', { timeout: 10_000 });

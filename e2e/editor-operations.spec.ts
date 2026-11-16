@@ -14,7 +14,7 @@ import { blockCatchUp } from './helpers/live-sync';
 // leaving the word, blur, a step button, Start Over, Publish, the page
 // hidden or closed), one operation in flight at a time, retried with the
 // same opId. The status line at the end of the step row reads "Saving…",
-// "Saved" or "Not saved — retrying". Unacknowledged operations are journaled
+// silent acknowledged state or "Not saved — retrying" (17-S12). Unacknowledged operations are journaled
 // in localStorage and re-sent on the next open; leaving with any warns. A
 // refused edit is explained above the grid with its input kept. Enter
 // Hints, Start Over, locks and Publish are operations (Publish pinned to a
@@ -46,13 +46,13 @@ async function typeAt(page: Page, coord: string, text: string) {
 const cellsOps = async (id: string) => (await readSaved(id)).log.filter((record) => record.kind === 'cells');
 
 test.describe('24-S3-E1 saving status and bursts', () => {
-  test('a word typed is one operation; the status goes Saving… then Saved; the same letter again is no change', async ({ page }) => {
+  test('a word typed is one operation; Saving… then acknowledged silently; the same letter again is no change', async ({ page }) => {
     const { id } = await seedCat();
     await open(page, id);
     await expect(status(page)).toHaveText('');
     await typeAt(page, '0,2', 'DOG');
     await expect(status(page)).toHaveText('Saving…');
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
     const saved = await readSaved(id);
     expect(saved.version).toBe(1);
     expect(savedRow(saved.grid, 2)).toBe('DOG..');
@@ -62,7 +62,7 @@ test.describe('24-S3-E1 saving status and bursts', () => {
     await typeAt(page, '0,2', 'D');
     await page.waitForTimeout(1200);
     expect((await readSaved(id)).log).toHaveLength(1);
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
   });
 
   test('moving to another word finalizes the burst; a long run of typing is cut at the maximum wait', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('24-S3-E1 saving status and bursts', () => {
     await open(page, id);
     await typeAt(page, '0,2', 'AB');
     await typeAt(page, '0,6', 'X');
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
     expect((await cellsOps(id)).map((record) => (record.operation as { writes: unknown[] }).writes.length)).toEqual([2, 1]);
 
     await cell(page, '0,4').click();
@@ -78,7 +78,7 @@ test.describe('24-S3-E1 saving status and bursts', () => {
       await page.keyboard.press(letter);
       await page.waitForTimeout(320);
     }
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
     const run = (await cellsOps(id)).slice(2);
     expect(run.length).toBeGreaterThanOrEqual(2);
     expect(savedRow((await readSaved(id)).grid, 4)).toBe('LONGWORDS');
@@ -97,7 +97,7 @@ test.describe('24-S3-E1 saving status and bursts', () => {
     await expect.poll(async () => (await readSaved(id)).title).toBe('Renamed here');
     const kinds = (await readSaved(id)).log.map((record) => record.kind);
     expect(kinds).toEqual(['hint', 'title']);
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
   });
 });
 
@@ -112,7 +112,7 @@ test.describe('24-S3-E2 failures, the journal and leaving', () => {
     await expect(status(page)).toHaveText('Not saved — retrying');
     expect((await readSaved(id)).version).toBe(0);
     blocked = false;
-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
+    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
     expect(savedRow((await readSaved(id)).grid, 3)).toBe('EEL..');
   });
 
@@ -138,7 +138,7 @@ test.describe('24-S3-E2 failures, the journal and leaving', () => {
     expect((await readSaved(id)).version).toBe(0);
     await waitForEditorReady(page);
     await expect(cell(page, '2,3')).toContainText('L');
-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
+    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
     const saved = await readSaved(id);
     expect(saved.version).toBe(1);
     expect(savedRow(saved.grid, 3)).toBe('EEL..');
@@ -162,7 +162,7 @@ test.describe('24-S3-E2 failures, the journal and leaving', () => {
     await page.reload({ waitUntil: 'commit' });
     lose = false;
     await waitForEditorReady(page);
-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
+    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
     const saved = await readSaved(id);
     expect(saved.version).toBe(1);
     expect(saved.log).toHaveLength(1);
@@ -263,7 +263,7 @@ test.describe('24-S3-E5 old tabs and removed snapshot actions', () => {
       if (isAction(request) && header) ids.push(header);
     });
     await typeAt(page, '0,2', 'DOG');
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
     expect(ids.length).toBeGreaterThan(0);
     const before = await readSaved(id);
     expect(before.version).toBe(1);

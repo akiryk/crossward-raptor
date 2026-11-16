@@ -1,0 +1,380 @@
+diff --git a/e2e/editor-operations.spec.ts b/e2e/editor-operations.spec.ts
+--- a/e2e/editor-operations.spec.ts
++++ b/e2e/editor-operations.spec.ts
+@@ -14,7 +14,7 @@
+ // leaving the word, blur, a step button, Start Over, Publish, the page
+ // hidden or closed), one operation in flight at a time, retried with the
+ // same opId. The status line at the end of the step row reads "Saving…",
+-// "Saved" or "Not saved — retrying". Unacknowledged operations are journaled
++// silent acknowledged state or "Not saved — retrying" (17-S12). Unacknowledged operations are journaled
+ // in localStorage and re-sent on the next open; leaving with any warns. A
+ // refused edit is explained above the grid with its input kept. Enter
+ // Hints, Start Over, locks and Publish are operations (Publish pinned to a
+@@ -46,13 +46,13 @@
+ const cellsOps = async (id: string) => (await readSaved(id)).log.filter((record) => record.kind === 'cells');
+ 
+ test.describe('24-S3-E1 saving status and bursts', () => {
+-  test('a word typed is one operation; the status goes Saving… then Saved; the same letter again is no change', async ({ page }) => {
++  test('a word typed is one operation; Saving… then acknowledged silently; the same letter again is no change', async ({ page }) => {
+     const { id } = await seedCat();
+     await open(page, id);
+     await expect(status(page)).toHaveText('');
+     await typeAt(page, '0,2', 'DOG');
+     await expect(status(page)).toHaveText('Saving…');
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+     const saved = await readSaved(id);
+     expect(saved.version).toBe(1);
+     expect(savedRow(saved.grid, 2)).toBe('DOG..');
+@@ -62,7 +62,7 @@
+     await typeAt(page, '0,2', 'D');
+     await page.waitForTimeout(1200);
+     expect((await readSaved(id)).log).toHaveLength(1);
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+   });
+ 
+   test('moving to another word finalizes the burst; a long run of typing is cut at the maximum wait', async ({ page }) => {
+@@ -70,7 +70,7 @@
+     await open(page, id);
+     await typeAt(page, '0,2', 'AB');
+     await typeAt(page, '0,6', 'X');
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+     expect((await cellsOps(id)).map((record) => (record.operation as { writes: unknown[] }).writes.length)).toEqual([2, 1]);
+ 
+     await cell(page, '0,4').click();
+@@ -78,7 +78,7 @@
+       await page.keyboard.press(letter);
+       await page.waitForTimeout(320);
+     }
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+     const run = (await cellsOps(id)).slice(2);
+     expect(run.length).toBeGreaterThanOrEqual(2);
+     expect(savedRow((await readSaved(id)).grid, 4)).toBe('LONGWORDS');
+@@ -97,7 +97,7 @@
+     await expect.poll(async () => (await readSaved(id)).title).toBe('Renamed here');
+     const kinds = (await readSaved(id)).log.map((record) => record.kind);
+     expect(kinds).toEqual(['hint', 'title']);
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+   });
+ });
+ 
+@@ -112,7 +112,7 @@
+     await expect(status(page)).toHaveText('Not saved — retrying');
+     expect((await readSaved(id)).version).toBe(0);
+     blocked = false;
+-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
++    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+     expect(savedRow((await readSaved(id)).grid, 3)).toBe('EEL..');
+   });
+ 
+@@ -138,7 +138,7 @@
+     expect((await readSaved(id)).version).toBe(0);
+     await waitForEditorReady(page);
+     await expect(cell(page, '2,3')).toContainText('L');
+-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
++    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+     const saved = await readSaved(id);
+     expect(saved.version).toBe(1);
+     expect(savedRow(saved.grid, 3)).toBe('EEL..');
+@@ -162,7 +162,7 @@
+     await page.reload({ waitUntil: 'commit' });
+     lose = false;
+     await waitForEditorReady(page);
+-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
++    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+     const saved = await readSaved(id);
+     expect(saved.version).toBe(1);
+     expect(saved.log).toHaveLength(1);
+@@ -263,7 +263,7 @@
+       if (isAction(request) && header) ids.push(header);
+     });
+     await typeAt(page, '0,2', 'DOG');
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+     expect(ids.length).toBeGreaterThan(0);
+     const before = await readSaved(id);
+     expect(before.version).toBe(1);
+diff --git a/e2e/live-sync.spec.ts b/e2e/live-sync.spec.ts
+--- a/e2e/live-sync.spec.ts
++++ b/e2e/live-sync.spec.ts
+@@ -71,11 +71,11 @@
+ 
+       // Overlapping: page writes MASK across row 3; then b writes MAG over its first cells.
+       await typeAt(page, '0,3', 'MASK');
+-      await expect(status(page)).toHaveText('Saved');
++      await expect(status(page)).toHaveAttribute('data-state', 'saved');
+       const cursorBefore = await selected(page);
+       await expect.poll(() => shownRow(b, 3), { timeout: 5000 }).toBe('MASK.');
+       await typeAt(b, '0,3', 'MAG');
+-      await expect(status(b)).toHaveText('Saved');
++      await expect(status(b)).toHaveAttribute('data-state', 'saved');
+       await expect.poll(() => shownRow(page, 3), { timeout: 5000 }).toBe('MAGK.');
+       expect(await selected(page)).toBe(cursorBefore);
+       expect(await gridFocused(page)).toBe(true);
+@@ -87,8 +87,8 @@
+       for (const p of [page, b]) {
+         await expect.poll(async () => [await shownRow(p, 1), await shownRow(p, 4)], { timeout: 8000 }).toEqual(['...XY', 'EELZW']);
+       }
+-      await expect(status(page)).toHaveText('Saved');
+-      await expect(status(b)).toHaveText('Saved');
++      await expect(status(page)).toHaveAttribute('data-state', 'saved');
++      await expect(status(b)).toHaveAttribute('data-state', 'saved');
+       const saved = await readSaved(id);
+       expect(saved.grid.cells.map((_, row) => savedRow(saved.grid, row))).toEqual(['CAT..', '...XY', 'DOG..', 'MAGK.', 'EELZW']);
+       expect(saved.version).toBe(saved.log.filter((record) => record.status === 'accepted').length);
+@@ -114,7 +114,7 @@
+     expect(await gridFocused(page)).toBe(true);
+     blocked = false;
+     await page.keyboard.type('N');
+-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
++    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+     expect(savedRow((await readSaved(id)).grid, 2)).toBe('BIN..');
+     expect(await shownRow(page, 2)).toBe('BIN..');
+   });
+@@ -151,7 +151,7 @@
+ 
+       // b carries on in the new epoch.
+       await typeAt(b, '0,2', 'NEW');
+-      await expect(status(b)).toHaveText('Saved');
++      await expect(status(b)).toHaveAttribute('data-state', 'saved');
+       await expect.poll(() => shownRow(page, 2), { timeout: 5000 }).toBe('NEW..');
+       expect((await readSaved(id)).log.at(-1)).toMatchObject({ kind: 'cells', status: 'accepted' });
+     } finally {
+@@ -170,7 +170,7 @@
+       await expect(b.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'preview');
+ 
+       await typeAt(page, '0,1', 'ABCDE');
+-      await expect(status(page)).toHaveText('Saved');
++      await expect(status(page)).toHaveAttribute('data-state', 'saved');
+       await step(page, 'hints').click();
+       await page.getByTestId('modal-confirm').click();
+       await expect(page.getByTestId('hints-region')).toBeVisible();
+@@ -208,14 +208,14 @@
+ 
+       await typeAt(page, '0,4', 'ABC');
+       await typeAt(page, '0,3', 'Q');
+-      await expect(status(page)).toHaveText('Saved');
++      await expect(status(page)).toHaveAttribute('data-state', 'saved');
+       expect(await shownRow(b, 4)).toBe('.....');
+ 
+       await other.context.setOffline(false);
+       for (const p of [page, b]) {
+         await expect.poll(async () => [await shownRow(p, 3), await shownRow(p, 4)], { timeout: 20_000 }).toEqual(['XYZ..', 'ABC..']);
+       }
+-      await expect(status(b)).toHaveText('Saved');
++      await expect(status(b)).toHaveAttribute('data-state', 'saved');
+       const saved = await readSaved(id);
+       expect([savedRow(saved.grid, 3), savedRow(saved.grid, 4)]).toEqual(['XYZ..', 'ABC..']);
+     } finally {
+@@ -236,7 +236,7 @@
+     expect(await shownRow(page, 1)).toBe('P....');
+     await expect(page.getByTestId('puzzle-title')).toHaveValue('Stored title');
+     await typeAt(page, '0,4', 'Z');
+-    await expect(status(page)).toHaveText('Saved');
++    await expect(status(page)).toHaveAttribute('data-state', 'saved');
+     const saved = await readSaved(id);
+     expect(saved.version).toBe(4);
+     expect(saved.log.at(-1)).toMatchObject({ kind: 'cells', status: 'accepted', version: 4 });
+@@ -254,10 +254,10 @@
+ 
+     const second = await context.newPage();
+     await open(second, id);
+-    await expect(status(second)).toHaveText('Saved', { timeout: 10_000 });
++    await expect(status(second)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+     expect(await shownRow(second, 3)).toBe('EEL..');
+     blocked = false;
+-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
++    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+     expect(await shownRow(page, 3)).toBe('EEL..');
+     const saved = await readSaved(id);
+     expect(saved.version).toBe(1);
+diff --git a/e2e/collaborators.spec.ts b/e2e/collaborators.spec.ts
+--- a/e2e/collaborators.spec.ts
++++ b/e2e/collaborators.spec.ts
+@@ -95,7 +95,7 @@
+       await open(j, id);
+ 
+       await typeAt(j, '0,2', 'DOG');
+-      await expect(status(j)).toHaveText('Saved');
++      await expect(status(j)).toHaveAttribute('data-state', 'saved');
+       await expect.poll(() => shownRow(page, 2), { timeout: 5000 }).toBe('DOG..');
+       await typeAt(page, '0,4', 'EEL');
+       await expect.poll(() => shownRow(j, 4), { timeout: 5000 }).toBe('EEL..');
+@@ -121,7 +121,7 @@
+ 
+       await hintInput(j, '1-across').fill('From Jay');
+       await hintInput(j, '1-across').press('Tab');
+-      await expect(status(j)).toHaveText('Saved');
++      await expect(status(j)).toHaveAttribute('data-state', 'saved');
+       expect((await readSaved(id)).hints['1-across']).toBe('From Jay');
+       await expect(hintInput(page, '1-across')).toHaveValue('From Jay', { timeout: 5000 });
+     } finally {
+diff --git a/e2e/conflicts.spec.ts b/e2e/conflicts.spec.ts
+--- a/e2e/conflicts.spec.ts
++++ b/e2e/conflicts.spec.ts
+@@ -66,7 +66,7 @@
+ 
+       // Screen 3: Adam types MASKS; Jay sees it; Adam has no outline or note.
+       await typeDown(page, '6,0', 'MASKS');
+-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
++      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+       await expect.poll(() => column(j, 6, 5), { timeout: 10_000 }).toBe('MASKS');
+       await expect(outline(page)).toHaveCount(0);
+       await expect(noteTexts(page)).toHaveCount(1);
+@@ -108,7 +108,7 @@
+     try {
+       await together(page, j, id);
+       await typeDown(page, '6,0', 'MASKS');
+-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
++      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+       await expect.poll(() => column(j, 6, 5), { timeout: 10_000 }).toBe('MASKS');
+       await typeDown(j, '6,0', 'MAG');
+       await expect.poll(() => column(page, 6, 5), { timeout: 10_000 }).toBe('MAGKS');
+@@ -126,8 +126,8 @@
+       await typeDown(page, '10,3', 'DOG');
+       await cell(j, '6,0').click();
+       await j.keyboard.type('N');
+-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
+-      await expect(status(j)).toHaveText('Saved', { timeout: 10_000 });
++      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
++      await expect(status(j)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+       await expect.poll(() => column(j, 10, 6), { timeout: 10_000 }).toBe('...DOG');
+       await expect(cell(page, '6,0')).toContainText('N', { timeout: 10_000 });
+       await page.waitForTimeout(2000);
+@@ -152,9 +152,9 @@
+       await typeDown(j, '12,2', 'CAT');
+       await j.waitForTimeout(1500);
+       await typeDown(page, '3,6', 'EMU');
+-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
++      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+       await context.setOffline(false);
+-      await expect(status(j)).toHaveText('Saved', { timeout: 20_000 });
++      await expect(status(j)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
+       await expect.poll(() => column(j, 3, 9), { timeout: 10_000 }).toBe('A.....EMU');
+       await expect.poll(() => column(page, 12, 5), { timeout: 10_000 }).toBe('..CAT');
+       await j.waitForTimeout(2000);
+@@ -179,7 +179,7 @@
+       await together(page, j, id);
+       await hint(page).click();
+       await page.keyboard.type('Adam’s hint');
+-      await expect(status(page)).toHaveText('Saved', { timeout: 10_000 });
++      await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
+       await expect(hint(j)).toHaveValue('Adam’s hint', { timeout: 10_000 });
+       await hint(j).fill('Jay’s hint');
+       await expect(hint(page)).toHaveValue('Jay’s hint', { timeout: 10_000 });
+diff --git a/e2e/collaborator-management.spec.ts b/e2e/collaborator-management.spec.ts
+--- a/e2e/collaborator-management.spec.ts
++++ b/e2e/collaborator-management.spec.ts
+@@ -214,7 +214,7 @@
+       await open(j, id);
+       await cell(j, '0,2').click();
+       await j.keyboard.type('DOG');
+-      await expect(j.getByTestId('save-status')).toHaveText('Saved');
++      await expect(j.getByTestId('save-status')).toHaveAttribute('data-state', 'saved');
+ 
+       await open(page, id);
+       await page.getByTestId('editor-collaborators').click();
+diff --git a/e2e/play-design.spec.ts b/e2e/play-design.spec.ts
+--- a/e2e/play-design.spec.ts
++++ b/e2e/play-design.spec.ts
+@@ -33,10 +33,9 @@
+ // to the word's first empty cell (its first cell when full), in the
+ // hint's direction, and the grid takes focus.
+ //
+-// The title is title-1 primary, 32px above the 32px controls row, which
+-// holds only the save status (17-S3, was Reset, the builder's, and Puzzle
+-// options as alternate Buttons): body-small, muted (error when a save
+-// fails), centred on the row at its right.
++// 17-S12: the title is title-1 primary, 32px above the idle Prominent Hint.
++// Successful save state is silent with no status/controls footprint.
++// Failure feedback and Retry remain visible in the error color.
+ //
+ // Colors are the tokens' resolved hex values (pinned by color-tokens).
+ // Do not edit this file to match an implementation.
+@@ -48,7 +47,6 @@
+ const SELECTED_ROW = 'rgb(207, 238, 255)'; // blue-medium
+ const TRANSPARENT = 'rgba(0, 0, 0, 0)';
+ const PRIMARY = 'rgb(0, 0, 0)'; // black
+-const MUTED = 'color(srgb 0 0 0 / 0.4)'; // 18-S1: black at 40%
+ const ERROR = 'rgb(226, 101, 95)'; // text-error
+ 
+ // The fixture (helpers/play-route): a 3×3, CAT / A#A / TEN, off cell (1,1).
+@@ -319,27 +317,28 @@
+ test.describe('14-S7-4 title, controls and status', () => {
+   test.use({ viewport: { width: 1440, height: 1000 } });
+ 
+-  test('the title is title-1 primary, 32px above the controls row', async ({ page }) => {
++  test('the title is title-1 primary, 32px above the idle Prominent Hint', async ({ page }) => {
+     const fixture = await openPlay(page);
+     const title = page.getByTestId('play-title');
+     await expect(title).toHaveText(fixture.title);
+     await expectText(title, '44px', '600', '54px', PRIMARY);
+     const t = await box(title);
+-    const s = await box(page.getByTestId('play-save-status'));
+-    // 17-S3: the row holds only the save status; it's 32px below the title
+-    // and 32px tall, so the status's centre is 48px below the title.
+-    expect(s.y + s.height / 2 - (t.y + t.height), 'to the controls row').toBeCloseTo(48, 0);
+-  });
+-
+-  test('the save status is body-small, muted, on the controls row at its right', async ({ page }) => {
++    const h = await box(bar(page));
++    expect(Math.abs(h.y - (t.y + t.height) - 32), 'title to hint').toBeLessThanOrEqual(1);
++  });
++
++  test('the acknowledged idle state is silent and reserves no controls row', async ({ page }) => {
+     await openPlay(page);
+     const status = page.getByTestId('play-save-status');
+-    await expect(status).toHaveText('Saved');
+-    await expectText(status, '12px', '400', '16px', MUTED);
+-    const s = await box(status);
++    await expect(status).toHaveAttribute('data-save-state', 'saved');
++    await expect(status).toHaveText('');
++    const footprint = await status.boundingBox();
++    expect(footprint === null || (footprint.width === 0 && footprint.height === 0)).toBe(true);
+     const t = await box(page.getByTestId('play-title'));
+-    expect(s.y + s.height / 2 - (t.y + t.height), 'centred on the row').toBeCloseTo(48, 0);
+-    expect(Math.abs(s.x + s.width - (t.x + t.width)), 'at the row\'s right').toBeLessThanOrEqual(1);
++    const h = await box(bar(page));
++    const g = await box(grid(page));
++    expect(Math.abs(h.y - (t.y + t.height) - 32), 'title to hint').toBeLessThanOrEqual(1);
++    expect(Math.abs(g.y - (h.y + h.height) - 16), 'hint to grid').toBeLessThanOrEqual(1);
+   });
+ 
+   test('a failed save shows the status in the error color', async ({ page }) => {
+diff --git a/e2e/completed-play.spec.ts b/e2e/completed-play.spec.ts
+--- a/e2e/completed-play.spec.ts
++++ b/e2e/completed-play.spec.ts
+@@ -205,7 +205,13 @@
+     await expect(cell(page, '0,0')).toHaveAttribute('data-selected', 'true');
+     await expect(page.getByTestId('prominent-hint')).toHaveText(/^1A\s*Feline$/);
+     await expect(visible(page.getByTestId('rebus-control'))).toHaveCount(1);
+-    await expect(page.getByTestId('play-save-status')).toBeVisible();
++    await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'saved');
++    await expect(page.getByTestId('play-save-status')).toHaveText('');
++    const titleBox = (await page.getByTestId('play-title').boundingBox())!;
++    const hintBox = (await page.getByTestId('prominent-hint').boundingBox())!;
++    const gridBox = (await page.getByTestId('puzzle-grid').boundingBox())!;
++    expect(Math.abs(hintBox.y - titleBox.y - titleBox.height - 32)).toBeLessThanOrEqual(1);
++    expect(Math.abs(gridBox.y - hintBox.y - hintBox.height - 16)).toBeLessThanOrEqual(1);
+ 
+     await page.keyboard.type('cat');
+     await expect.poll(async () => (await readPlaySessions(fixture.id))[0]?.entries.cells[0][2])
+@@ -268,7 +274,13 @@
+       await expect(visible(page.getByTestId('rebus-control'))).toHaveCount(1);
+       if (viewport === WIDE) {
+         await expect(page.getByTestId('prominent-hint')).toBeVisible();
+-        await expect(page.getByTestId('play-save-status')).toHaveText('Saved');
++        await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'saved');
++        await expect(page.getByTestId('play-save-status')).toHaveText('');
++        const titleBox = (await page.getByTestId('play-title').boundingBox())!;
++        const hintBox = (await page.getByTestId('prominent-hint').boundingBox())!;
++        const gridBox = (await page.getByTestId('puzzle-grid').boundingBox())!;
++        expect(Math.abs(hintBox.y - titleBox.y - titleBox.height - 32)).toBeLessThanOrEqual(1);
++        expect(Math.abs(gridBox.y - hintBox.y - hintBox.height - 16)).toBeLessThanOrEqual(1);
+       }
+     });
+   }

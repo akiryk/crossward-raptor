@@ -71,11 +71,11 @@ test.describe('24-S4-E1 two contexts of one account converge', () => {
 
       // Overlapping: page writes MASK across row 3; then b writes MAG over its first cells.
       await typeAt(page, '0,3', 'MASK');
-      await expect(status(page)).toHaveText('Saved');
+      await expect(status(page)).toHaveAttribute('data-state', 'saved');
       const cursorBefore = await selected(page);
       await expect.poll(() => shownRow(b, 3), { timeout: 5000 }).toBe('MASK.');
       await typeAt(b, '0,3', 'MAG');
-      await expect(status(b)).toHaveText('Saved');
+      await expect(status(b)).toHaveAttribute('data-state', 'saved');
       await expect.poll(() => shownRow(page, 3), { timeout: 5000 }).toBe('MAGK.');
       expect(await selected(page)).toBe(cursorBefore);
       expect(await gridFocused(page)).toBe(true);
@@ -87,8 +87,8 @@ test.describe('24-S4-E1 two contexts of one account converge', () => {
       for (const p of [page, b]) {
         await expect.poll(async () => [await shownRow(p, 1), await shownRow(p, 4)], { timeout: 8000 }).toEqual(['...XY', 'EELZW']);
       }
-      await expect(status(page)).toHaveText('Saved');
-      await expect(status(b)).toHaveText('Saved');
+      await expect(status(page)).toHaveAttribute('data-state', 'saved');
+      await expect(status(b)).toHaveAttribute('data-state', 'saved');
       const saved = await readSaved(id);
       expect(saved.grid.cells.map((_, row) => savedRow(saved.grid, row))).toEqual(['CAT..', '...XY', 'DOG..', 'MAGK.', 'EELZW']);
       expect(saved.version).toBe(saved.log.filter((record) => record.status === 'accepted').length);
@@ -114,7 +114,7 @@ test.describe('24-S4-E1 two contexts of one account converge', () => {
     expect(await gridFocused(page)).toBe(true);
     blocked = false;
     await page.keyboard.type('N');
-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
+    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
     expect(savedRow((await readSaved(id)).grid, 2)).toBe('BIN..');
     expect(await shownRow(page, 2)).toBe('BIN..');
   });
@@ -151,7 +151,7 @@ test.describe('24-S4-E2 a Start Over or Enter Hints from another context', () =>
 
       // b carries on in the new epoch.
       await typeAt(b, '0,2', 'NEW');
-      await expect(status(b)).toHaveText('Saved');
+      await expect(status(b)).toHaveAttribute('data-state', 'saved');
       await expect.poll(() => shownRow(page, 2), { timeout: 5000 }).toBe('NEW..');
       expect((await readSaved(id)).log.at(-1)).toMatchObject({ kind: 'cells', status: 'accepted' });
     } finally {
@@ -170,7 +170,7 @@ test.describe('24-S4-E2 a Start Over or Enter Hints from another context', () =>
       await expect(b.getByTestId('puzzle-grid')).toHaveAttribute('data-grid-mode', 'preview');
 
       await typeAt(page, '0,1', 'ABCDE');
-      await expect(status(page)).toHaveText('Saved');
+      await expect(status(page)).toHaveAttribute('data-state', 'saved');
       await step(page, 'hints').click();
       await page.getByTestId('modal-confirm').click();
       await expect(page.getByTestId('hints-region')).toBeVisible();
@@ -208,14 +208,14 @@ test.describe('24-S4-E3 reconnecting', () => {
 
       await typeAt(page, '0,4', 'ABC');
       await typeAt(page, '0,3', 'Q');
-      await expect(status(page)).toHaveText('Saved');
+      await expect(status(page)).toHaveAttribute('data-state', 'saved');
       expect(await shownRow(b, 4)).toBe('.....');
 
       await other.context.setOffline(false);
       for (const p of [page, b]) {
         await expect.poll(async () => [await shownRow(p, 3), await shownRow(p, 4)], { timeout: 20_000 }).toEqual(['XYZ..', 'ABC..']);
       }
-      await expect(status(b)).toHaveText('Saved');
+      await expect(status(b)).toHaveAttribute('data-state', 'saved');
       const saved = await readSaved(id);
       expect([savedRow(saved.grid, 3), savedRow(saved.grid, 4)]).toEqual(['XYZ..', 'ABC..']);
     } finally {
@@ -236,7 +236,7 @@ test.describe('24-S4-E3 reconnecting', () => {
     expect(await shownRow(page, 1)).toBe('P....');
     await expect(page.getByTestId('puzzle-title')).toHaveValue('Stored title');
     await typeAt(page, '0,4', 'Z');
-    await expect(status(page)).toHaveText('Saved');
+    await expect(status(page)).toHaveAttribute('data-state', 'saved');
     const saved = await readSaved(id);
     expect(saved.version).toBe(4);
     expect(saved.log.at(-1)).toMatchObject({ kind: 'cells', status: 'accepted', version: 4 });
@@ -254,10 +254,10 @@ test.describe('24-S4-E3 reconnecting', () => {
 
     const second = await context.newPage();
     await open(second, id);
-    await expect(status(second)).toHaveText('Saved', { timeout: 10_000 });
+    await expect(status(second)).toHaveAttribute('data-state', 'saved', { timeout: 10_000 });
     expect(await shownRow(second, 3)).toBe('EEL..');
     blocked = false;
-    await expect(status(page)).toHaveText('Saved', { timeout: 20_000 });
+    await expect(status(page)).toHaveAttribute('data-state', 'saved', { timeout: 20_000 });
     expect(await shownRow(page, 3)).toBe('EEL..');
     const saved = await readSaved(id);
     expect(saved.version).toBe(1);

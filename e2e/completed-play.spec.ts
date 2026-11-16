@@ -205,7 +205,13 @@ test.describe('19-S1-3 Reset plays the puzzle again', () => {
     await expect(cell(page, '0,0')).toHaveAttribute('data-selected', 'true');
     await expect(page.getByTestId('prominent-hint')).toHaveText(/^1A\s*Feline$/);
     await expect(visible(page.getByTestId('rebus-control'))).toHaveCount(1);
-    await expect(page.getByTestId('play-save-status')).toBeVisible();
+    await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'saved');
+    await expect(page.getByTestId('play-save-status')).toHaveText('');
+    const titleBox = (await page.getByTestId('play-title').boundingBox())!;
+    const hintBox = (await page.getByTestId('prominent-hint').boundingBox())!;
+    const gridBox = (await page.getByTestId('puzzle-grid').boundingBox())!;
+    expect(Math.abs(hintBox.y - titleBox.y - titleBox.height - 32)).toBeLessThanOrEqual(1);
+    expect(Math.abs(gridBox.y - hintBox.y - hintBox.height - 16)).toBeLessThanOrEqual(1);
 
     await page.keyboard.type('cat');
     await expect.poll(async () => (await readPlaySessions(fixture.id))[0]?.entries.cells[0][2])
@@ -268,7 +274,13 @@ test.describe('19-S1-4 an unfinished puzzle is unchanged (guards)', () => {
       await expect(visible(page.getByTestId('rebus-control'))).toHaveCount(1);
       if (viewport === WIDE) {
         await expect(page.getByTestId('prominent-hint')).toBeVisible();
-        await expect(page.getByTestId('play-save-status')).toHaveText('Saved');
+        await expect(page.getByTestId('play-save-status')).toHaveAttribute('data-save-state', 'saved');
+        await expect(page.getByTestId('play-save-status')).toHaveText('');
+        const titleBox = (await page.getByTestId('play-title').boundingBox())!;
+        const hintBox = (await page.getByTestId('prominent-hint').boundingBox())!;
+        const gridBox = (await page.getByTestId('puzzle-grid').boundingBox())!;
+        expect(Math.abs(hintBox.y - titleBox.y - titleBox.height - 32)).toBeLessThanOrEqual(1);
+        expect(Math.abs(gridBox.y - hintBox.y - hintBox.height - 16)).toBeLessThanOrEqual(1);
       }
     });
   }

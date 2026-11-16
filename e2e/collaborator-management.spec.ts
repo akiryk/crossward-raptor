@@ -214,7 +214,7 @@ test.describe('24-S6-E4 removal in the dialog while Jay edits', () => {
       await open(j, id);
       await cell(j, '0,2').click();
       await j.keyboard.type('DOG');
-      await expect(j.getByTestId('save-status')).toHaveText('Saved');
+      await expect(j.getByTestId('save-status')).toHaveAttribute('data-state', 'saved');
 
       await open(page, id);
       await page.getByTestId('editor-collaborators').click();
