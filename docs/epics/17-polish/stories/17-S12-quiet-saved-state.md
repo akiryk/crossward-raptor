@@ -3,7 +3,13 @@
 Remove the persistent “Saved” message from puzzle construction and play.
 In play, reclaim the empty status row so the title is closer to the puzzle.
 
-**Status: approved and frozen (2026-11-15); runtime not authorized.**
+**Status: approved and refrozen (2026-11-15); runtime implemented locally; final verification pending.**
+The human explicitly authorized S12 runtime implementation on 2026-11-15.
+The human approved the independently reviewed expanded acceptance correction on
+2026-11-15 by requesting its separate specification-only commit and refreeze.
+Current checks and independent reviews are recorded in
+[runtime evidence](../acceptance/S12-RUNTIME-EVIDENCE.md).
+No implementation commit or delivery has occurred.
 The human's response, “I approve S12 and S13”, approves this specification,
 the 23-case executable acceptance and the exact 26-case supersession patch
 in the [approval packet](../acceptance/README.md). The patch is applied in
@@ -84,6 +90,18 @@ covering the approved acceptance:
    grid and hints phases and a saving-to-idle transition. Completed play keeps
    its completion message and Reset behavior.
 
+### Approved acceptance correction (2026-11-15)
+
+The independently reviewed exact [correction patch](../acceptance/17-S12-correction.patch)
+(SHA-256 `47cd8ab8cd782d4f86935b1fd64f876a33888594752af9f4e2b10889ab5618de`)
+is approved and applied in a separate specification-only main commit before
+resuming verification. Two hints-test branches explicitly select Across with
+ArrowRight after clicking the first cell; persistence assertions are unchanged.
+The wide narrow-play case requires the idle save hook to be acknowledged, empty
+and hidden while retaining all other visibility assertions. This adds one
+existing-case supersession to the original 26-case inventory below. No S13
+acceptance changes.
+
 ### Approved frozen-acceptance supersessions
 
 The approved exact
@@ -111,9 +129,10 @@ names every affected test. Applied in S12's specification-only freeze commit.
   beyond those waits.
 - Consumer sweep complete: attribute-only waits in play entries, completion,
   opening, deletion, library and rebus stay unchanged because their hooks are
-  retained. Builder steps, collaboration alignment, narrow play, Preview
+  retained. Builder steps, collaboration alignment, Preview
   Hints, grid-size and wide-layout geometry tests need no S12 amendment.
-  There are **26 affected existing cases**; no other supersession is proposed.
+  The original patch affected **26 existing cases**; the separately approved
+  correction above adds the wide narrow-play case.
 
 ## Repo paths
 

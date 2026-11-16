@@ -4,7 +4,13 @@
 covers both specifications, new executable acceptance and exact supersessions.
 The approved proposal hashes matched [draft evidence](EVIDENCE.md) before
 application. Both patches were applied unchanged, S12 then S13, in separate
-specification-only commits on `main`. No runtime implementation is authorized.
+specification-only commits on `main`. The human separately authorized S12 runtime
+implementation on 2026-11-15; S13 runtime remains unauthorized. S12 runtime is
+local and uncommitted; [runtime evidence](S12-RUNTIME-EVIDENCE.md) records checks
+and independent review. On 2026-11-15 the human approved the expanded
+[correction patch](17-S12-correction.patch), applied in a separate specification-only
+main commit before refreeze. Only the two S12 hints-selection branches and the
+wide narrow-play idle hook expectation change; S13 acceptance remains unchanged.
 
 | Story | Specification | Frozen executable acceptance | Applied exact amendment |
 | --- | --- | --- | --- |

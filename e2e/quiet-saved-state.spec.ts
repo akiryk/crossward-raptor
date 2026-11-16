@@ -94,6 +94,7 @@ for (const width of [1440, 390]) {
               .toEqual({ kind: 'active', letter: 'Z' });
           } else {
             await cell(editor, '0,0').click();
+            await editor.keyboard.press('ArrowRight');
             const input = width >= 1140
               ? editor.locator('[data-hint-key="1-across"] [data-testid="hint-input"]')
               : editor.getByTestId('hint-box-input');
@@ -116,6 +117,7 @@ for (const width of [1440, 390]) {
             await expect.poll(() => shownLetter(editor, '0,0')).toBe('Z');
           } else {
             await cell(editor, '0,0').click();
+            await editor.keyboard.press('ArrowRight');
             const input = width >= 1140
               ? editor.locator('[data-hint-key="1-across"] [data-testid="hint-input"]')
               : editor.getByTestId('hint-box-input');

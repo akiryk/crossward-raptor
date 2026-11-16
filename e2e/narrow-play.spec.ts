@@ -148,7 +148,13 @@ test.describe('15-S5-1 the threshold', () => {
 
   test('at 1430px: the title, controls, Prominent Hint and Player Hints, and no bar', async ({ page }) => {
     await open(page, 1430);
-    for (const id of WIDE_PARTS) await expect(page.getByTestId(id), id).toBeVisible();
+    for (const id of WIDE_PARTS.filter((id) => id !== 'play-save-status')) {
+      await expect(page.getByTestId(id), id).toBeVisible();
+    }
+    const status = page.getByTestId('play-save-status');
+    await expect(status).toHaveAttribute('data-save-state', 'saved');
+    await expect(status).toHaveText('');
+    await expect(status).toBeHidden();
     await expect(hintBar(page)).toBeHidden();
   });
 });

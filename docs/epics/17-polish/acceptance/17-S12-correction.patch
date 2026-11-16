@@ -1,0 +1,35 @@
+--- a/e2e/quiet-saved-state.spec.ts
++++ b/e2e/quiet-saved-state.spec.ts
+@@ -94,6 +94,7 @@
+               .toEqual({ kind: 'active', letter: 'Z' });
+           } else {
+             await cell(editor, '0,0').click();
++            await editor.keyboard.press('ArrowRight');
+             const input = width >= 1140
+               ? editor.locator('[data-hint-key="1-across"] [data-testid="hint-input"]')
+               : editor.getByTestId('hint-box-input');
+@@ -116,6 +117,7 @@
+             await expect.poll(() => shownLetter(editor, '0,0')).toBe('Z');
+           } else {
+             await cell(editor, '0,0').click();
++            await editor.keyboard.press('ArrowRight');
+             const input = width >= 1140
+               ? editor.locator('[data-hint-key="1-across"] [data-testid="hint-input"]')
+               : editor.getByTestId('hint-box-input');
+--- a/e2e/narrow-play.spec.ts
++++ b/e2e/narrow-play.spec.ts
+@@ -148,7 +148,13 @@
+ 
+   test('at 1430px: the title, controls, Prominent Hint and Player Hints, and no bar', async ({ page }) => {
+     await open(page, 1430);
+-    for (const id of WIDE_PARTS) await expect(page.getByTestId(id), id).toBeVisible();
++    for (const id of WIDE_PARTS.filter((id) => id !== 'play-save-status')) {
++      await expect(page.getByTestId(id), id).toBeVisible();
++    }
++    const status = page.getByTestId('play-save-status');
++    await expect(status).toHaveAttribute('data-save-state', 'saved');
++    await expect(status).toHaveText('');
++    await expect(status).toBeHidden();
+     await expect(hintBar(page)).toBeHidden();
+   });
+ });
