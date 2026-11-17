@@ -3,7 +3,12 @@
 Use a faint fill for the empty blue hint area above the play grid, and show
 only the selected hint text when populated, without a prefix such as “9A”.
 
-**Status: approved and frozen (2026-11-15); runtime not authorized.**
+**Status: implementation verified; main delivery in progress (2026-11-16).**
+The human explicitly authorized implementation on 2026-11-16. Combined
+verification and outstanding gates are in [resumption evidence](../acceptance/S12-S13-RESUMPTION.md).
+Harness corrections are approved/refrozen in `65c92af`. The human-run full
+browser gate passed all 1,460 tests; final verify passed all 1,311 tests.
+See the [handoff](../HANDOFF.md) for main delivery and independent epic closeout.
 The human's response, “I approve S12 and S13”, approves this specification,
 the eight-case executable acceptance and the exact supersession patch in the
 [approval packet](../acceptance/README.md). The patch is applied after S12 in

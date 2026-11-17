@@ -76,6 +76,7 @@ const STYLES: { name: string; variable: string; swatch: string }[] = [
     variable: 'blue-medium',
     swatch: 'bg-play-cell-selected-row',
   },
+  { name: 'prominent-hint-empty', variable: 'interactive-faint', swatch: 'bg-prominent-hint-empty' },
   { name: 'hint-cell-on', variable: 'white', swatch: 'bg-hint-cell-on' },
   { name: 'hint-cell-off', variable: 'gray-700', swatch: 'bg-hint-cell-off' },
   { name: 'hint-cell-border', variable: 'gray-500', swatch: 'bg-hint-cell-border' },

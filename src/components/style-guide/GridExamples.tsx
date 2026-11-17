@@ -124,7 +124,6 @@ export function GridExamples() {
   const playHighlights = highlightsFor(hintsGrid, GRID_FOCUS_CURSOR);
   const playSlots = slotsWithNumbers(hintsGrid);
   const playKey = activeHintKey(buildSlotLookup(hintsGrid), GRID_FOCUS_CURSOR);
-  const playSlot = playSlots.find((slot) => `${slot.number}-${slot.orientation}` === playKey)!;
   const playHints = Object.fromEntries(
     playSlots.map((slot) => [`${slot.number}-${slot.orientation}`, `Sample hint for ${slot.number} ${slot.orientation}`])
   );
@@ -221,12 +220,18 @@ export function GridExamples() {
         </h2>
         <div className="flex flex-wrap items-start gap-x-[26px] gap-y-4">
           <div className="w-full max-w-sm space-y-4">
-            <ProminentHint label={`${playSlot.number}D`} hint={playHints[playKey!]} />
+            <ProminentHint hint={playHints[playKey!]} />
             <PuzzleGrid grid={hintsGrid} mode="play" highlights={playHighlights} />
           </div>
           <div className="min-w-0 flex-1">
             <PlayerHints slots={playSlots} hints={playHints} selectedKey={playKey} />
           </div>
+        </div>
+      </section>
+      <section data-testid="sg-prominent-hint-empty">
+        <h2 className="mb-2 text-title-2 text-primary">Prominent Hint: empty</h2>
+        <div className="w-full max-w-sm">
+          <ProminentHint hint="" />
         </div>
       </section>
     </>

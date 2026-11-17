@@ -1,14 +1,16 @@
 # Epic: Polish
 
-**Follow-ups approved and frozen 2026-11-15; runtime not authorized:**
+**Follow-ups approved/frozen 2026-11-15; both runtime implementations authorized 2026-11-16:**
 [S12 — Quiet saved state](stories/17-S12-quiet-saved-state.md) removes
 “Saved” and its unused space in builder/play;
 [S13 — Prominent Hint polish](stories/17-S13-prominent-hint-polish.md)
 softens the empty hint area and removes its number/direction prefix.
 The human approved both specifications, executable acceptance and exact
 supersessions: “I approve S12 and S13”. They are frozen separately on main;
-see the [approval packet](acceptance/README.md). Runtime authorization remains
-separate. S1–S11 closeouts below remain historical.
+see the [approval packet](acceptance/README.md). Both implementations pass
+final verify and the human-run full browser gate;
+[resumption evidence](acceptance/S12-S13-RESUMPTION.md) records current checks
+and outstanding delivery gates. S1–S11 closeouts below remain historical.
 See [HANDOFF](HANDOFF.md) for the current freeze state.
 
 **Follow-up closed on `main`, 2026-11-14:**
@@ -406,8 +408,8 @@ preserves numbers in grid/list labels and references within the authored hint.
 The current wide Prominent Hint is player-only; the narrow bar and builder hint
 inputs are separate components. Exact executable acceptance and case-by-case supersessions were approved
 and frozen in S12 then S13 order. They supersede only the named historical
-behavior; S12 runtime was separately authorized on 2026-11-15. S13 runtime
-still requires separate authorization.
+behavior; S12 runtime was separately authorized on 2026-11-15. The human
+authorized resuming S12 and implementing S13 on 2026-11-16.
 
 ## Non-goals
 
@@ -518,31 +520,36 @@ retain correct lock-button clearance. See
 [17-S11-mini-grid-width.md](stories/17-S11-mini-grid-width.md) for the
 approved scope, narrow acceptance amendments and delivery state.
 
-### S12 — Quiet saved state (local runtime; verification stopped)
+### S12 — Quiet saved state (verified; delivery in progress)
 
 Remove the “Saved” success message in construction and play and reclaim unused
 status space, especially the wide player's empty controls row. Preserve real
 builder controls and failure/retry feedback. See
 [17-S12-quiet-saved-state.md](stories/17-S12-quiet-saved-state.md).
-Runtime is implemented locally. The human approved the independently reviewed
+Runtime is implemented and verified. The human approved the independently reviewed
 expanded acceptance correction, refrozen in specification-only commit `0f110a8`.
 The DONE-icon correction was approved/refrozen separately in `b2d8ea1`.
-Verification stopped at the human’s request on 2026-11-16; a passing full gate remains pending;
-[S12 runtime evidence](acceptance/S12-RUNTIME-EVIDENCE.md) records results.
-No runtime delivery yet.
+The human-run full browser gate passed all 1,460 tests on 2026-11-16. [Resumption evidence](acceptance/S12-S13-RESUMPTION.md) records
+combined S12/S13 checks and approved harness corrections refrozen in `65c92af`;
+[S12 runtime evidence](acceptance/S12-RUNTIME-EVIDENCE.md) retains earlier results.
+Main delivery and the separate independent epic closeout are in progress.
 
-### S13 — Prominent Hint polish (approved/frozen)
+### S13 — Prominent Hint polish (verified; delivery in progress)
 
 Use interactive-faint when the wide player's Prominent Hint is empty; when it
 shows a hint, display its full text without the separate number/direction prefix.
 Keep numbering elsewhere and references within hint text. See
 [17-S13-prominent-hint-polish.md](stories/17-S13-prominent-hint-polish.md).
+Runtime is implemented and verified; combined checks are in the resumption
+evidence. Main delivery and independent epic closeout are in progress.
 
 ## Pending questions
 
 S12/S13 have no unresolved product question. Their specifications, executable
-acceptance and exact supersessions are approved and frozen. S12 runtime is
-authorized; S13 runtime awaits separate authorization. Historical S1–S10 answers follow.
+acceptance and exact supersessions are approved and frozen. Both runtime
+implementations are authorized. The human approved the exact new harness
+corrections, refrozen in `65c92af`; the verification policy is unchanged. Historical
+S1–S10 answers follow.
 
 None. The draft's three questions were answered 2026-10-27 *(human)* and
 are recorded in Decisions: Reset is removed from play (only the library

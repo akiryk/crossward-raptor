@@ -52,9 +52,10 @@ export function BuilderSteps({
           {next.label}
         </Button>
       )}
-      {/* 24-S11: the status and the owner's link wrap together, right-aligned. */}
+      {/* Keep the owner's real control on its own narrow row so transient
+          feedback cannot move the toggle row; idle status reserves no space. */}
       {collaborators ? (
-        <div className="ml-auto flex items-center justify-end gap-x-3 min-[748px]:gap-x-5">
+        <div className="ml-auto flex basis-full items-center justify-end gap-x-3 min-[748px]:basis-auto min-[748px]:gap-x-5">
           {status}
           {collaborators}
         </div>

@@ -6,13 +6,12 @@ export type SaveStatusState = 'saving' | 'saved' | 'retrying';
 
 const LABELS: Record<SaveStatusState, string> = {
   saving: 'Saving…',
-  saved: 'Saved',
+  saved: '',
   retrying: 'Not saved — retrying',
 };
 
-/** Story 24-S3. A quiet line at the end of the step row: the label size,
- *  `subtle`, and `error` while retrying. Empty until the first edit, but
- *  always in place, so nothing moves when it appears. */
+/** Transient save feedback at the end of the step row. The idle hook
+ *  retains acknowledgement state without text or reserved layout space (17-S12). */
 export function SaveStatus({ state }: { state: SaveStatusState | null }) {
   return (
     <p
@@ -20,9 +19,7 @@ export function SaveStatus({ state }: { state: SaveStatusState | null }) {
       data-state={state ?? 'none'}
       role="status"
       aria-live="polite"
-      // 24-S11: an invisible, zero-height "Saving…" reserves the usual
-      // labels' width, so the first status can't wrap the owner's link.
-      className={`ml-auto min-h-4 shrink-0 text-label before:invisible before:block before:h-0 before:content-['Saving…'] ${state === 'retrying' ? 'text-error' : 'text-subtle'}`}
+      className={`ml-auto shrink-0 text-label ${state === null || state === 'saved' ? 'hidden' : ''} ${state === 'retrying' ? 'text-error' : 'text-subtle'}`}
     >
       {state ? LABELS[state] : ''}
     </p>

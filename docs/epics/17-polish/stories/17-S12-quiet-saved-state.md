@@ -3,13 +3,17 @@
 Remove the persistent “Saved” message from puzzle construction and play.
 In play, reclaim the empty status row so the title is closer to the puzzle.
 
-**Status: approved and refrozen (2026-11-15); runtime local; verification stopped at the human’s request (2026-11-16).**
+**Status: implementation verified; main delivery in progress (2026-11-16).**
+The human authorized resuming S12 and implementing S13 on 2026-11-16.
+Combined checks and approved/refrozen harness corrections (`65c92af`) are recorded in
+[resumption evidence](../acceptance/S12-S13-RESUMPTION.md). The human-run full browser gate passed all 1,460 tests; final verify passed
+all 1,311 tests. Main delivery and independent epic closeout are in progress.
 The human explicitly authorized S12 runtime implementation on 2026-11-15.
 The human approved the independently reviewed expanded acceptance correction on
 2026-11-15 by requesting its separate specification-only commit and refreeze.
 Current checks and independent reviews are recorded in
 [runtime evidence](../acceptance/S12-RUNTIME-EVIDENCE.md).
-No implementation commit or delivery has occurred.
+See the [handoff](../HANDOFF.md) for actual implementation delivery and closeout state.
 The human's response, “I approve S12 and S13”, approves this specification,
 the 23-case executable acceptance and the exact 26-case supersession patch
 in the [approval packet](../acceptance/README.md). The patch is applied in

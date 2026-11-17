@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright owns and may replace these directories during a run.
+    "test-results/**",
+    "playwright-report/**",
     // Nested agent checkouts have their own source and generated build output.
     ".claude/worktrees/**",
   ]),

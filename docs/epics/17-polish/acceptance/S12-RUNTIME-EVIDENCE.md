@@ -1,5 +1,12 @@
 # S12 runtime evidence — updated 2026-11-16
 
+**Resumed 2026-11-16:** the human subsequently authorized resuming S12 and
+implementing S13. Current combined checks, harness triage and approved/refrozen
+corrections are in [resumption evidence](S12-S13-RESUMPTION.md).
+Earlier stopped/out-of-scope statements below are historical. The combined
+human-run full browser gate has since passed all 1,460 tests; current delivery
+and closeout state are recorded in the resumption evidence and handoff.
+
 The human subsequently authorized committing/pushing the handoff and supporting
 documentation on 2026-11-16. Runtime remains excluded from that publication;
 earlier uncommitted/unpushed statements describe the verification stop before

@@ -175,7 +175,6 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
     }
     highlights.set(cellNumberKey(cursor.current), 'selected');
   }
-  const selectedSlot = selectedKey ? lookup.get(selectedKey)! : null;
   const linkedWord = new Set(linkedEntryCells(view.hints, selectedKey, lookup).map(cellNumberKey));
   // At most 620px, a Sunday's 700px (21-S9), as the build grid.
   const gridWidth = `${gridMaxPx(grid.cols)}px`;
@@ -183,9 +182,9 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
   // (15-S5), 16px from it.
   const narrowMessage = displayedSessionState !== 'ready'
     || saveState === 'error' || completionError || localWarning || locked;
-  // A completed puzzle has no controls row ("Saved") unless it has
-  // something to report (19-S1).
-  const controlsRow = !locked || unavailable || saveState === 'error';
+  // Only actual feedback occupies the controls row; idle success is silent (17-S12).
+  const controlsRow = ready && (unavailable || saveState === 'error'
+    || (!locked && (saveState === 'pending' || saveState === 'saving')));
 
   function cancelReset() {
     if (resetBusy.current) return;
@@ -328,7 +327,6 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
                   saveState === 'error' ? 'text-error' : `hidden text-muted ${controlsRow ? '@min-[1382px]/play:block' : ''}`
                 }`}
               >
-                {saveState === 'saved' && 'Saved'}
                 {saveState === 'pending' && 'Waiting to save…'}
                 {saveState === 'saving' && 'Saving…'}
                 {saveState === 'error' && (
@@ -397,7 +395,7 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           )}
         </div>
         <div
-          className={`mx-auto max-w-(--play-grid-width) ${locked ? '@min-[1382px]/play:mt-8' : '@min-[1382px]/play:mt-[27px]'} @min-[1382px]/play:grid @min-[1382px]/play:max-w-none @min-[1382px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1382px]/play:gap-x-[26px] @min-[1382px]/play:gap-y-4`}
+          className={`mx-auto max-w-(--play-grid-width) ${locked ? '@min-[1382px]/play:mt-8' : controlsRow || narrowMessage ? '@min-[1382px]/play:mt-[27px]' : ''} @min-[1382px]/play:grid @min-[1382px]/play:max-w-none @min-[1382px]/play:grid-cols-[var(--play-grid-width)_minmax(0,1fr)] @min-[1382px]/play:gap-x-[26px] @min-[1382px]/play:gap-y-4`}
           style={{ ['--play-grid-width' as string]: gridWidth }}
         >
           {/* A completed puzzle has no Prominent Hint or Rebus control, so the
@@ -405,7 +403,6 @@ export function PlayPuzzle({ initialPuzzle }: { initialPuzzle: PlayPuzzleView })
           {!locked && (
             <div className="hidden w-full max-w-(--play-grid-width) @min-[1382px]/play:block">
               <ProminentHint
-                label={selectedSlot ? `${selectedSlot.number}${selectedSlot.orientation === 'across' ? 'A' : 'D'}` : null}
                 hint={selectedKey ? view.hints[selectedKey] ?? '' : ''}
               />
             </div>
