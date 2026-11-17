@@ -27,9 +27,8 @@ reading or additional product specifications.
   2026-11-03; accepted items listed there)
 - [Puzzles page](18-puzzles-page/HANDOFF.md) (epic 18, closed
   2026-11-03; accepted items listed there)
-- [Polish](17-polish/HANDOFF.md) (epic 17, S12/S13 follow-ups
-  S12/S13 implementation verified 2026-11-16; approved harness refreeze complete;
-  human full browser gate passed; main delivery and independent closeout in progress;
+- [Polish](17-polish/HANDOFF.md) (epic 17, closed 2026-11-16; S12/S13
+  delivered with passing human full browser gate and independent closeout;
   S1–S11 historically closed)
 - [Puzzle lifecycle](16-puzzle-lifecycle/HANDOFF.md) (epic 16, closed
   2026-10-31; one accepted edge case listed there)

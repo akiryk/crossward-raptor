@@ -3,8 +3,8 @@
 **Current (2026-11-16):** both exact harness corrections are approved/refrozen
 in `65c92af`. The human has now run the full browser gate: **1,460 passed**,
 no failures/skips/flaky cases or report-level errors, Playwright final status
-`passed`. All 443 applicable files still match the pre-run manifest. Delivery
-and independent epic closeout are in progress; see the final section. Earlier
+`passed`. All 443 applicable files still match the pre-run manifest. Implementation is delivered on main in `750289f`; independent epic closeout
+and correction recheck are complete; see the final section. Earlier
 pending-gate and local-runtime statements below describe their historical phase.
 
 ## Authorization and current delivery
@@ -253,3 +253,43 @@ applicable content, then obtain a separate independent report-only epic audit.
 The auditor must author none of the audited work; the orchestrator records
 findings/disposition and closes the epic only after blockers are resolved.
 Unrelated `CLOSEOUT-S11.md` remains untouched and excluded from delivery.
+
+## Main delivery (before closeout audit)
+
+Implementation commit `750289fa9fe37087d6371c4f9df96ef2579ebed8` was committed
+and pushed to origin/main on 2026-11-16, including the separately refrozen
+`65c92af` ancestor. The orchestrator read back GitHub's main ref at that exact
+SHA and compared each of the 443 committed applicable files against the human
+gate manifest: all match. Frozen acceptance remains unchanged after refreeze;
+no actual changed path falls under CODE-REVIEW's risk paths. Direct main
+delivery therefore applies; no PR or merge gate is required. Unrelated
+untracked `CLOSEOUT-S11.md` was preserved and excluded.
+
+GitHub reported zero check runs, with no `.github` Actions configuration in
+the repository. Its separate Vercel deployment status was pending at the
+initial read; deployment does not substitute for the completed local/human
+verification. The separate independent report-only epic audit remains before
+closure. Current closure-status documentation is being prepared separately
+from the delivered runtime.
+
+## Independent epic closeout completed (2026-11-16)
+
+The independent report-only agent `/root/polish_closeout_audit`, author of none
+of the work, audited the delivered implementation and epic-wide specifications,
+affected source/tests and relevant workflow records. It found no runtime or
+acceptance blocker and independently validated the 1,460-case human pass,
+443-file committed-content identity, frozen acceptance preservation, focused
+reports and visual artifacts. The root corrected its three nonblocking
+documentation findings; the auditor independently rechecked those exact
+corrections and the root-authored [closeout record](../CLOSEOUT-S12-S13.md),
+confirmed all findings resolved and no remaining blocker/drift in that scope.
+The record preserves full coverage, evidence attribution, pruning and limits.
+
+The orchestrator observed GitHub's Vercel status for `750289f` change to
+`success` / “Deployment has completed”, with zero check runs; no hosted
+interaction test is claimed. The root then marked S12/S13 and the reopened
+epic closed and prepared the documentation-only closeout commit/push. All
+application, configuration and frozen acceptance content remains unchanged
+from the passing run. No full browser rerun, new reset or environment-file
+access occurred during delivery/closeout. Unrelated `CLOSEOUT-S11.md` remains
+untouched and untracked.

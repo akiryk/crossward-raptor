@@ -1,6 +1,6 @@
 # Epic: Polish
 
-**Follow-ups approved/frozen 2026-11-15; both runtime implementations authorized 2026-11-16:**
+**S12/S13 follow-ups closed on main, 2026-11-16, after independent closeout:**
 [S12 — Quiet saved state](stories/17-S12-quiet-saved-state.md) removes
 “Saved” and its unused space in builder/play;
 [S13 — Prominent Hint polish](stories/17-S13-prominent-hint-polish.md)
@@ -8,10 +8,12 @@ softens the empty hint area and removes its number/direction prefix.
 The human approved both specifications, executable acceptance and exact
 supersessions: “I approve S12 and S13”. They are frozen separately on main;
 see the [approval packet](acceptance/README.md). Both implementations pass
-final verify and the human-run full browser gate;
-[resumption evidence](acceptance/S12-S13-RESUMPTION.md) records current checks
-and outstanding delivery gates. S1–S11 closeouts below remain historical.
-See [HANDOFF](HANDOFF.md) for the current freeze state.
+final verify and the human-run full browser gate and are delivered on main
+in `750289f`. [Independent closeout](CLOSEOUT-S12-S13.md) records coverage,
+three resolved documentation findings and the independent correction recheck.
+[Resumption evidence](acceptance/S12-S13-RESUMPTION.md) records the passing
+gates and delivery. S1–S11 closeouts below remain historical.
+See [HANDOFF](HANDOFF.md) for the current closed state.
 
 **Follow-up closed on `main`, 2026-11-14:**
 [S11 — Smaller, centered mini grids
@@ -332,15 +334,18 @@ inactive while letters can't be typed (Lock Grid Letters, published;
 not Preview Hints since S9's correction, 2026-11-01).
 
 **Only real words can be selected** *(human, 2026-10-31)*. In the hints
-phase and play, the cursor's direction is always one with a word through
-the cursor cell. Clicking a cell that has a word in one direction only
+phase and play, wherever a word exists through the cursor cell, the cursor's
+direction follows a word. Clicking a cell that has a word in one direction only
 takes that direction. Clicking the cursor cell again, or pressing the
-cross-axis arrow, does nothing there (no lone highlighted cell). A
+cross-axis arrow, does nothing there (no lone highlighted cell where a word
+exists). A
 cross-axis arrow only changes direction where a word runs that way; it
 never moves the cursor. The build phase is unchanged, since its words are
 still being made. *Proposed:* the hints phase's words are the published
-puzzle's (as its hint list); every white cell in a valid grid has at
-least one. Built from `extractSlots` outside the engine.
+puzzle's (as its hint list). Built from `extractSlots` outside the engine.
+*S6 settled exception (approved 2026-11-01):* a cell with no word either way
+remains selectable alone and accepts typing so the puzzle can be completed;
+see [S6](stories/17-S6-only-real-words.md#settled-here-approved-2026-11-01).
 
 **The grid is at most 700px** *(human, 2026-10-31)*, up from 560px (15-S1),
 in the build phase, the hints phase and play. It stays 700px as long as
@@ -474,7 +479,9 @@ values frozen in `globals-css.test.ts`, `e2e/color-tokens.spec.ts`,
 
 The hints phase and play take a word's direction on a click, ignore a
 second click or cross-axis arrow where no word runs that way, and never
-show a lone highlighted cell. The build phase is unchanged. Supersedes any
+show a lone highlighted cell where a word exists. S6's approved exception
+keeps cells with no word either way selectable alone and fillable. The build
+phase is unchanged. Supersedes any
 frozen hints-phase or play test that toggles onto a wordless direction.
 
 ### S7 — Larger grid
@@ -520,7 +527,7 @@ retain correct lock-button clearance. See
 [17-S11-mini-grid-width.md](stories/17-S11-mini-grid-width.md) for the
 approved scope, narrow acceptance amendments and delivery state.
 
-### S12 — Quiet saved state (verified; delivery in progress)
+### S12 — Quiet saved state (closed 2026-11-16)
 
 Remove the “Saved” success message in construction and play and reclaim unused
 status space, especially the wide player's empty controls row. Preserve real
@@ -532,16 +539,18 @@ The DONE-icon correction was approved/refrozen separately in `b2d8ea1`.
 The human-run full browser gate passed all 1,460 tests on 2026-11-16. [Resumption evidence](acceptance/S12-S13-RESUMPTION.md) records
 combined S12/S13 checks and approved harness corrections refrozen in `65c92af`;
 [S12 runtime evidence](acceptance/S12-RUNTIME-EVIDENCE.md) retains earlier results.
-Main delivery and the separate independent epic closeout are in progress.
+Main delivery is complete in `750289f`; [independent epic closeout](CLOSEOUT-S12-S13.md)
+and its correction recheck are complete.
 
-### S13 — Prominent Hint polish (verified; delivery in progress)
+### S13 — Prominent Hint polish (closed 2026-11-16)
 
 Use interactive-faint when the wide player's Prominent Hint is empty; when it
 shows a hint, display its full text without the separate number/direction prefix.
 Keep numbering elsewhere and references within hint text. See
 [17-S13-prominent-hint-polish.md](stories/17-S13-prominent-hint-polish.md).
 Runtime is implemented and verified; combined checks are in the resumption
-evidence. Main delivery and independent epic closeout are in progress.
+evidence. Main delivery is complete in `750289f`; [independent epic closeout](CLOSEOUT-S12-S13.md)
+and its correction recheck are complete.
 
 ## Pending questions
 

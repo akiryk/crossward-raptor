@@ -246,15 +246,16 @@ directly-affected browser runs had not included.
 
 Also from epic 24: Next derives the deployment ID from git HEAD, so a
 commit or checkout during a run makes open tabs reload and invalidates
-it. Root lint also traverses the nested `.claude/worktrees`, so
-`npm run verify` needs a clean checkout. In a fresh worktree run
+it. In a fresh worktree run
 `npx prisma generate` first, and set `COMPOSE_PROJECT_NAME=crossward-raptor`
 so E2E reuses the existing test database instead of clashing on port 5433.
 
-**Open:** the `ECONNRESET`s and 18-S5-5 should be fixed rather than
-rerun around: a server keep-alive/retry fix in the harness, and the
-human-approved correction to 18-S5-5. Until then, a full run with only
-these failures, each passing on rerun, is the practical bar.
+**Status (2026-11-16):** the human-approved 18-S5-5 settling correction is
+refrozen in `b2d8ea1`; see [S12 evidence](epics/17-polish/acceptance/S12-RUNTIME-EVIDENCE.md#done-icon-approval-and-final-verification).
+The authentication `ECONNRESET` observations remain unresolved; neither a
+general harness repair nor their cause is established. Current verification
+requirements are owned by [STORY](process/STORY.md#verification): a failed
+full run supplemented by passing individual reruns does not satisfy the gate.
 
 **Rule:** don't let a flaky suite excuse skipping the full run. Run it,
 then check every failure against this list before calling it a flake.

@@ -2,75 +2,67 @@
 
 ## Read first
 
-1. This handoff: final verification passed; main delivery and independent
-   report-only epic closeout are the remaining work.
-2. [Resumption evidence](acceptance/S12-S13-RESUMPTION.md), sections
-   “Human browser evidence validated; delivery resumed”.
+1. This handoff: S12/S13 are delivered and the reopened epic is closed.
+2. [Independent closeout](CLOSEOUT-S12-S13.md) for coverage, resolved findings
+   and the independent correction recheck.
 
-**Only if needed:** [S12](stories/17-S12-quiet-saved-state.md),
-[S13](stories/17-S13-prominent-hint-polish.md),
-[approval/refreeze](acceptance/S12-HARNESS-REFREEZE.md).
+**Only if needed:** [resumption evidence](acceptance/S12-S13-RESUMPTION.md),
+[S12](stories/17-S12-quiet-saved-state.md),
+[S13](stories/17-S13-prominent-hint-polish.md).
 
 ## Current state (2026-11-16)
 
-The human authorized S12/S13 implementation, necessary bounded harness repairs,
-delivery and independent epic closeout after passing gates. Their latest
-“I approve the patch” approved both recorded exact corrections. They also
-instructed future patch approval requests to explain the change and reason
-directly, without asking them to read patch code. No approval remains pending.
-The full browser gate is reserved for human execution; agents must not start
-it or rerun an unchanged full suite diagnostically. Verification policy remains.
+S12/S13 are delivered on main in implementation commit `750289f`, following
+the separately approved/refrozen harness corrections in `65c92af`. The push
+succeeded and GitHub's main ref was read back at the exact implementation SHA.
+Vercel reported deployment success; hosted interaction was not tested. No
+actual changed implementation path requires a CODE-REVIEW PR, so direct main
+delivery applied. The subsequent closeout commit contains documentation only.
 
-Main is `65c92af`, one local specification-only commit ahead of the last
-observed `origin/main` (`3f80d4e`). That commit separately refreezes the exact
-live-sync and four-spec fresh-user corrections, with approval/proposal records.
-The human full browser gate now passes; S12/S13 runtime and supporting docs
-are verified and ready for the implementation commit/push. Nothing has been
-pushed yet; no delivery is claimed before the push succeeds. No actual changed path is a
-CODE-REVIEW risk path. Preserve unrelated untracked `CLOSEOUT-S11.md`, whose
-SHA-256 remains `6396e4d812fb071b3fed470f72d557c076c559157008ae5bedb424d6b014c1b2`.
-The reopened epic stays open; no new closeout audit has occurred.
+Independent read-only agent `/root/polish_closeout_audit`, author of none of
+the work, completed the required epic audit. It found no runtime/acceptance
+blocker and three nonblocking documentation issues. The orchestrator corrected
+the S6 summary and stale LEARNINGS guidance; the auditor rechecked those exact
+corrections and the root-authored record and confirmed all findings resolved.
+The non-auditing orchestrator recorded coverage/disposition and closed the epic.
+No authorized work remains. S1–S11 closeouts retain their historical attribution.
+
+The unrelated untracked `CLOSEOUT-S11.md` remains preserved and excluded from
+delivery, SHA-256
+`6396e4d812fb071b3fed470f72d557c076c559157008ae5bedb424d6b014c1b2`.
+Future patch approval requests must explain the change and reason directly,
+without asking the human to read patch code. Full browser execution remains
+reserved for the human unless they change that boundary.
 
 ## Verification
 
-The orchestrator directly observed on final applicable content:
+- Orchestrator-observed final `npm run verify`: exit 0; 114 files / 1,311
+  tests, two existing lint warnings. Initial sandboxed failures are historical.
+- Human-run full browser gate: **1,460 passed**, no skipped/flaky/unexpected
+  cases or report errors, two workers, 13m 26.9s. Playwright final status is
+  `passed`; the human shell exit code was not retained. The orchestrator and
+  independent auditor validated the report against the complete inventory.
+- Focused harness: 68 passed / 57.9s and 68 passed / 54.1s with 1,200 retained
+  private shared-owner fixtures. Public accumulation remains a recorded limit.
+- All 443 applicable files match the passing content and committed `750289f`;
+  frozen acceptance matches `65c92af`. Documentation diff/link checks pass.
+- Earlier independent S12/S13 visual execution retains its original attribution;
+  the closeout auditor reopened six S13 views and one S12 error image. No
+  physical-device or non-Chromium result is claimed.
 
-- `npm run verify`: exit 0; 114 files / 1,311 tests, two existing lint warnings.
-  Initial sandboxed database/Docker failures are not passing evidence.
-- Five corrected specs with two workers: 68 passed / 57.9s; then 68 passed /
-  54.1s with 1,200 retained private shared-owner fixtures and public/owned
-  controls. No skipped/flaky/unexpected cases. Shared browser saw 1,201 rows;
-  fresh browser saw two and excluded all 1,200 old owned fixtures. Both
-  live-sync idle measurements recorded 10 requests/10s. Public fixtures still
-  accumulate; this does not prove general full-suite reliability.
-- Acceptance unchanged from `65c92af`; both exact reverse apply checks and
-  `git diff --check` pass. Full-suite collection only: 1,460 tests / 136 files.
-
-Prior 91-case S12/S13 coverage and six-view independent S13 visual inspection
-remain attributable to the previous session; only the five approved harness
-specs differ from its executable-content manifest. Earlier S12 builder/error
-visual evidence retains its original attribution. The human-run full gate
-passed all 1,460 cases in 13m 26.9s, with no skipped/flaky/unexpected cases or
-report-level errors. The final Playwright status is `passed`; all case/project
-IDs match the full inventory and all 443 applicable files remain unchanged.
-The shell exit code was not retained. The human confirmed releasing the lock.
-
-Reports/provenance are in `/tmp/crossward-s12-s13-post-refreeze-evidence.json`.
-The human gate manifest is `/tmp/crossward-s12-s13-human-gate-content.json`;
-its sorted compact `files` map hashes to
-`dafaa319af63581ba9553bcf6f7dbb97ffaf1def00e6914e762ae0ecf108cb10`.
-It binds all final applicable source/config/acceptance to the observed checks.
-Commands, diagnostic startup failure, artifact paths and limits are in evidence.
+GitHub has no check runs or tracked Actions configuration. Vercel success
+does not substitute for the passing test evidence. Report hashes, commands,
+artifact paths and original visual attribution are in the resumption evidence.
+The human confirmed releasing the browser lock; no suite was restarted for
+delivery or audit.
 
 ## Next action
 
-Commit/push the verified implementation and authorized docs on main, confirm
-unchanged applicable content, then obtain the separate independent report-only
-epic closeout audit from an agent/session that authored none of the work.
-Record/dispose findings and close only after all remaining gates pass. Do not
-rerun the unchanged suite or disturb unrelated work. Any future full browser
-execution remains reserved for the human.
+No story remains in this epic. Use the closed baseline for any separately
+authorized maintenance; preserve existing work and do not begin a new story
+or repeat browser execution automatically. The closeout record states the
+audit's scope and limits.
 
 ## Resume prompt
 
-Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/acceptance/S12-S13-RESUMPTION.md. Complete verified S12/S13 delivery on main and obtain independent report-only epic closeout; reserve any full browser execution for the human.
+Read docs/epics/17-polish/HANDOFF.md and docs/epics/17-polish/EPIC.md. Check the closed epic’s delivery and closeout state on main; report only and do not begin new implementation.

@@ -3,11 +3,11 @@
 Remove the persistent “Saved” message from puzzle construction and play.
 In play, reclaim the empty status row so the title is closer to the puzzle.
 
-**Status: implementation verified; main delivery in progress (2026-11-16).**
+**Status: closed; delivered on main in `750289f` (2026-11-16).**
 The human authorized resuming S12 and implementing S13 on 2026-11-16.
 Combined checks and approved/refrozen harness corrections (`65c92af`) are recorded in
 [resumption evidence](../acceptance/S12-S13-RESUMPTION.md). The human-run full browser gate passed all 1,460 tests; final verify passed
-all 1,311 tests. Main delivery and independent epic closeout are in progress.
+all 1,311 tests. Main delivery and [independent epic closeout](../CLOSEOUT-S12-S13.md) are complete.
 The human explicitly authorized S12 runtime implementation on 2026-11-15.
 The human approved the independently reviewed expanded acceptance correction on
 2026-11-15 by requesting its separate specification-only commit and refreeze.
